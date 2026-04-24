@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Funding Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg: #0a0f1c;
@@ -18,74 +19,17 @@
       --accent: #7aa2ff;
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: linear-gradient(180deg, #0a0f1c 0%, #0f1727 100%);
-      color: var(--text);
-      font-family: Inter, Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    .wrap {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 28px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: end;
-      margin-bottom: 22px;
-    }
-    h1 {
-      margin: 0;
-      font-size: 30px;
-    }
-    .sub {
-      margin-top: 8px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-    .stamp {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--line);
-      color: var(--muted);
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-size: 14px;
-      white-space: nowrap;
-    }
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-    }
-    .chip {
-      border: 1px solid var(--line);
-      background: var(--panel);
-      color: var(--text);
-      border-radius: 999px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .chip.active {
-      background: var(--accent);
-      color: #07101f;
-      border-color: transparent;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 16px;
-    }
-    .card {
-      background: rgba(18,25,43,0.94);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-    }
+    body { margin: 0; background: linear-gradient(180deg, #0a0f1c 0%, #0f1727 100%); color: var(--text); font-family: Inter, Pretendard, -apple-system, BlinkMacSystemFont, sans-serif; }
+    .wrap { max-width: 1450px; margin: 0 auto; padding: 28px; }
+    .header { display: flex; justify-content: space-between; gap: 16px; align-items: end; margin-bottom: 22px; }
+    h1 { margin: 0; font-size: 30px; }
+    .sub { margin-top: 8px; color: var(--muted); line-height: 1.5; }
+    .stamp { background: rgba(255,255,255,0.06); border: 1px solid var(--line); color: var(--muted); padding: 10px 14px; border-radius: 999px; font-size: 14px; white-space: nowrap; }
+    .toolbar, .toolbar2 { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .chip { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 999px; padding: 10px 14px; cursor: pointer; font-weight: 600; }
+    .chip.active { background: var(--accent); color: #07101f; border-color: transparent; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .card { background: rgba(18,25,43,0.94); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.18); }
     .metric { grid-column: span 3; }
     .wide { grid-column: span 12; }
     .half { grid-column: span 6; }
@@ -95,47 +39,18 @@
     .value.bad { color: var(--bad); }
     .mini { color: var(--muted); font-size: 13px; margin-top: 8px; }
     .section-title { margin: 0 0 14px; font-size: 18px; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    th, td {
-      text-align: left;
-      padding: 11px 10px;
-      border-bottom: 1px solid var(--line);
-    }
-    th {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 600;
-      position: sticky;
-      top: 0;
-      background: rgba(18,25,43,0.98);
-    }
-    .table-wrap {
-      max-height: 620px;
-      overflow: auto;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-    }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 700;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 11px 10px; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-size: 13px; font-weight: 600; position: sticky; top: 0; background: rgba(18,25,43,0.98); }
+    .table-wrap { max-height: 620px; overflow: auto; border-radius: 12px; border: 1px solid var(--line); }
+    .pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 700; }
     .pill.good { background: rgba(46,204,113,0.14); color: var(--good); }
     .pill.bad { background: rgba(255,107,107,0.14); color: var(--bad); }
+    .pill.warn { background: rgba(255,209,102,0.14); color: var(--warn); }
     .muted { color: var(--muted); }
-    .note {
-      margin-top: 16px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.6;
-    }
+    .note { margin-top: 16px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    canvas { width: 100% !important; height: 320px !important; }
+    code { background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 6px; }
     @media (max-width: 1100px) {
       .metric, .half, .wide { grid-column: span 12; }
       .header { flex-direction: column; align-items: flex-start; }
@@ -146,32 +61,33 @@
   <div class="wrap">
     <div class="header">
       <div>
-        <h1>Binance Funding Dashboard</h1>
+        <h1>Multi-Exchange Funding Dashboard</h1>
         <div class="sub">
-          GOOGLUSDT, AMZNUSDT의 회차별 funding rate를 기록하고, 평균 funding을 기준으로 annualized를 계산하는 대시보드.
-          향후 다른 페어도 <code>funding_data.json</code>에 추가하면 확장 가능하게 구성.
+          Binance 기반 GOOGLUSDT / AMZNUSDT funding을 자동 집계하고, 7일/30일/90일 기준 annualized를 비교하는 대시보드.
+          Hyperliquid / THENA는 현재 접근 가능성까지 같이 비교 표시.
         </div>
       </div>
       <div class="stamp" id="updatedAt">Updated: -</div>
     </div>
 
     <div class="toolbar" id="pairTabs"></div>
+    <div class="toolbar2" id="windowTabs"></div>
 
     <div class="grid">
       <div class="card metric">
         <div class="label">선택 페어</div>
         <div class="value" id="pairName">-</div>
-        <div class="mini">Binance Futures funding history</div>
+        <div class="mini" id="exchangeName">-</div>
       </div>
       <div class="card metric">
         <div class="label">표본 수</div>
         <div class="value" id="sampleCount">-</div>
-        <div class="mini">funding 회차 기준</div>
+        <div class="mini">선택 기간의 funding 회차 수</div>
       </div>
       <div class="card metric">
         <div class="label">평균 funding / 회</div>
         <div class="value" id="avgFunding">-</div>
-        <div class="mini">최근 약 3개월 표본 평균</div>
+        <div class="mini">최근 선택 구간 평균</div>
       </div>
       <div class="card metric">
         <div class="label">Annualized</div>
@@ -192,15 +108,19 @@
       </div>
 
       <div class="card half">
-        <h3 class="section-title">향후 확장</h3>
+        <h3 class="section-title">거래소 비교 상태</h3>
         <table>
-          <tbody>
-            <tr><td class="muted">현재 지원</td><td>GOOGLUSDT / AMZNUSDT</td></tr>
-            <tr><td class="muted">추가 방식</td><td><code>funding_data.json</code>에 pair 추가</td></tr>
-            <tr><td class="muted">가능한 확장</td><td>BTCUSDT, ETHUSDT, NVDAUSDT 등</td></tr>
-            <tr><td class="muted">다음 단계</td><td>자동 수집 스크립트 + 일일 갱신</td></tr>
-          </tbody>
+          <thead>
+            <tr><th>거래소/마켓</th><th>상태</th><th>메모</th></tr>
+          </thead>
+          <tbody id="comparisonBody"></tbody>
         </table>
+      </div>
+
+      <div class="card wide">
+        <h3 class="section-title">Funding Rate Chart</h3>
+        <canvas id="fundingChart"></canvas>
+        <div class="note">선택 구간의 회차별 funding rate 흐름.</div>
       </div>
 
       <div class="card wide">
@@ -220,15 +140,16 @@
           </table>
         </div>
         <div class="note">
-          Annualized는 최근 표본의 평균 funding rate를 연장한 러닝레이트이며, 미래 확정 수익률이 아니야.
-          Funding이 음수면 일반적으로 롱이 받고, 양수면 숏이 받는 구조로 해석할 수 있어.
+          Annualized는 최근 표본의 평균 funding rate를 연장한 러닝레이트이며 미래 확정 수익률이 아니다.
+          Hyperliquid의 <code>xyz:GOOGL</code>는 spot market이라 funding 비교 대상이 아니고,
+          THENA의 GOOGLUSDT는 현재 이 환경에선 공개 페이지/API 접근이 막혀 있다.
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    let state = { data: null, selected: null };
+    let state = { data: null, selectedPair: null, selectedWindow: '90D', chart: null };
 
     const fmtPct = (v) => `${(v * 100).toFixed(4)}%`;
     const fmtAnnual = (v) => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
@@ -236,45 +157,114 @@
     const toKST = (ms) => new Date(ms).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
     const toUTC = (ms) => new Date(ms).toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
 
-    function renderTabs() {
+    function renderPairTabs() {
       const tabs = document.getElementById('pairTabs');
       tabs.innerHTML = '';
       Object.keys(state.data.pairs).forEach(pair => {
         const btn = document.createElement('button');
-        btn.className = 'chip' + (pair === state.selected ? ' active' : '');
+        btn.className = 'chip' + (pair === state.selectedPair ? ' active' : '');
         btn.textContent = pair;
         btn.onclick = () => {
-          state.selected = pair;
-          renderTabs();
-          renderPair();
+          state.selectedPair = pair;
+          renderPairTabs();
+          render();
         };
         tabs.appendChild(btn);
       });
     }
 
-    function renderPair() {
-      const pair = state.data.pairs[state.selected];
-      const sumFunding = pair.rows.reduce((acc, row) => acc + row.fundingRate, 0);
+    function renderWindowTabs() {
+      const tabs = document.getElementById('windowTabs');
+      tabs.innerHTML = '';
+      Object.keys(state.data.meta.windows).forEach(key => {
+        const btn = document.createElement('button');
+        btn.className = 'chip' + (key === state.selectedWindow ? ' active' : '');
+        btn.textContent = key;
+        btn.onclick = () => {
+          state.selectedWindow = key;
+          renderWindowTabs();
+          render();
+        };
+        tabs.appendChild(btn);
+      });
+    }
+
+    function renderComparisons() {
+      const body = document.getElementById('comparisonBody');
+      body.innerHTML = '';
+      Object.entries(state.data.comparisons).forEach(([name, item]) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${name}</td>
+          <td>${item.supported ? '<span class="pill good">지원</span>' : '<span class="pill warn">미지원</span>'}</td>
+          <td class="muted">${item.notes}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function getFilteredRows(pair) {
+      const days = state.data.meta.windows[state.selectedWindow];
+      const minTs = Date.now() - days * 24 * 3600 * 1000;
+      return pair.rows.filter(r => r.fundingTime >= minTs);
+    }
+
+    function renderChart(rows) {
+      const ctx = document.getElementById('fundingChart');
+      if (state.chart) state.chart.destroy();
+      state.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: rows.map(r => toUTC(r.fundingTime)),
+          datasets: [{
+            label: 'Funding Rate',
+            data: rows.map(r => r.fundingRate * 100),
+            borderColor: '#7aa2ff',
+            backgroundColor: 'rgba(122,162,255,0.2)',
+            borderWidth: 2,
+            fill: true,
+            pointRadius: 1.5,
+            tension: 0.25,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { ticks: { color: '#9ca9c8', callback: v => `${v.toFixed(3)}%` }, grid: { color: 'rgba(255,255,255,0.06)' } },
+            x: { ticks: { color: '#9ca9c8', maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,0.04)' } }
+          },
+          plugins: { legend: { labels: { color: '#eef3ff' } } }
+        }
+      });
+    }
+
+    function render() {
+      const pair = state.data.pairs[state.selectedPair];
+      const windowSummary = pair.windows[state.selectedWindow];
+      const rows = getFilteredRows(pair);
+
       document.getElementById('pairName').textContent = pair.symbol;
-      document.getElementById('sampleCount').textContent = pair.count;
-      document.getElementById('avgFunding').textContent = fmtPct(pair.avgFundingRate);
+      document.getElementById('exchangeName').textContent = pair.exchange + ' · ' + state.selectedWindow;
+      document.getElementById('sampleCount').textContent = windowSummary.count;
+      document.getElementById('avgFunding').textContent = fmtPct(windowSummary.avgFundingRate);
       const annual = document.getElementById('annualized');
-      annual.textContent = fmtAnnual(pair.annualizedPct);
-      annual.className = 'value ' + (pair.annualizedPct >= 0 ? 'good' : 'bad');
-      document.getElementById('firstTime').textContent = toKST(pair.firstFundingTime);
-      document.getElementById('lastTime').textContent = toKST(pair.lastFundingTime);
-      document.getElementById('sumFunding').textContent = fmtPct(sumFunding);
-      document.getElementById('interpretation').innerHTML = sumFunding < 0
+      annual.textContent = fmtAnnual(windowSummary.annualizedPct);
+      annual.className = 'value ' + (windowSummary.annualizedPct >= 0 ? 'good' : 'bad');
+      document.getElementById('firstTime').textContent = windowSummary.firstFundingTime ? toKST(windowSummary.firstFundingTime) : '-';
+      document.getElementById('lastTime').textContent = windowSummary.lastFundingTime ? toKST(windowSummary.lastFundingTime) : '-';
+      document.getElementById('sumFunding').textContent = fmtPct(windowSummary.sumFundingRate);
+      document.getElementById('interpretation').innerHTML = windowSummary.sumFundingRate < 0
         ? '<span class="pill good">최근 표본 기준 롱 수취 구간</span>'
         : '<span class="pill bad">최근 표본 기준 숏 수취 구간</span>';
 
       const body = document.getElementById('historyBody');
       body.innerHTML = '';
-      pair.rows.slice().reverse().forEach((row, idx) => {
-        const tr = document.createElement('tr');
+      rows.slice().reverse().forEach((row, idx) => {
         const positive = row.fundingRate >= 0;
+        const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${pair.rows.length - idx}</td>
+          <td>${rows.length - idx}</td>
           <td>${toUTC(row.fundingTime)}</td>
           <td style="color:${positive ? 'var(--bad)' : 'var(--good)'}; font-weight:700;">${fmtPct(row.fundingRate)}</td>
           <td>${fmtNumber(row.markPrice)}</td>
@@ -282,18 +272,21 @@
         `;
         body.appendChild(tr);
       });
+
+      renderChart(rows);
     }
 
     async function init() {
       const res = await fetch('./funding_data.json');
       const data = await res.json();
       state.data = data;
-      state.selected = Object.keys(data.pairs)[0];
+      state.selectedPair = Object.keys(data.pairs)[0];
       document.getElementById('updatedAt').textContent = 'Updated: ' + toKST(data.updatedAt);
-      renderTabs();
-      renderPair();
+      renderPairTabs();
+      renderWindowTabs();
+      renderComparisons();
+      render();
     }
-
     init();
   </script>
 </body>
