@@ -59,13 +59,13 @@
     <div class="grid">
       <div class="card metric"><div class="label">선택 페어</div><div class="value" id="pairName">-</div><div class="mini" id="exchangeName">-</div></div>
       <div class="card metric"><div class="label">현재 Latest Funding</div><div class="value" id="latestFunding">-</div><div class="mini">premiumIndex 기준 최신값</div></div>
-      <div class="card metric"><div class="label">다음 Funding Time</div><div class="value" id="nextFunding">-</div><div class="mini">다음 정산 시각</div></div>
-      <div class="card metric"><div class="label">현재 Mark Price</div><div class="value" id="markPrice">-</div><div class="mini">실시간 스냅샷 기준</div></div>
+      <div class="card metric"><div class="label">다음 Funding</div><div class="value" id="nextFunding">-</div><div class="mini" id="nextFundingAt">다음 정산 시각</div></div>
+      <div class="card metric"><div class="label">현재 Price</div><div class="value" id="priceCard">-</div><div class="mini"><span id="markPrice">Mark -</span> · <span id="indexPrice">Index -</span></div></div>
 
       <div class="card metric"><div class="label">표본 수</div><div class="value" id="sampleCount">-</div><div class="mini">선택 기간의 funding 회차 수</div></div>
       <div class="card metric"><div class="label">평균 funding / 회</div><div class="value" id="avgFunding">-</div><div class="mini">최근 선택 구간 평균</div></div>
       <div class="card metric"><div class="label">Annualized</div><div class="value" id="annualized">-</div><div class="mini">평균 × 3회/일 × 365일</div></div>
-      <div class="card metric"><div class="label">현재 Index Price</div><div class="value" id="indexPrice">-</div><div class="mini">premiumIndex 기준</div></div>
+      <div class="card metric"><div class="label">현재 Snapshot Time</div><div class="value" id="snapshotTime">-</div><div class="mini">premiumIndex 기준 시각</div></div>
 
       <div class="card half">
         <h3 class="section-title">요약</h3>
@@ -73,6 +73,7 @@
           <tr><td class="muted">첫 회차</td><td id="firstTime">-</td></tr>
           <tr><td class="muted">마지막 회차</td><td id="lastTime">-</td></tr>
           <tr><td class="muted">누적 funding 합계</td><td id="sumFunding">-</td></tr>
+          <tr><td class="muted">해당 구간 Annualized</td><td id="summaryAnnualized">-</td></tr>
           <tr><td class="muted">해석</td><td id="interpretation">-</td></tr>
         </tbody></table>
       </div>
@@ -84,6 +85,8 @@
           <tbody id="comparisonBody"></tbody>
         </table>
       </div>
+
+      <div class="card wide"><h3 class="section-title">Price Chart</h3><canvas id="priceChart"></canvas><div class="note">선택 구간의 mark price 흐름. TradingView 스타일에 가깝게 어두운 배경/라인 중심으로 표시.</div></div>
 
       <div class="card wide"><h3 class="section-title">Funding Rate Chart</h3><canvas id="fundingChart"></canvas><div class="note">선택 구간의 회차별 funding rate 흐름.</div></div>
 
@@ -101,10 +104,10 @@
   </div>
 
   <script>
-    let state = { data:null, selectedPair:null, selectedWindow:'90D', chart:null };
+    let state = { data:null, selectedPair:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
-    const fmtNumber = v => Number(v).toLocaleString('en-US', { maximumFractionDigits:4 });
+    const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const toKST = ms => new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
     const toUTC = ms => new Date(ms).toISOString().replace('T',' ').slice(0,19) + ' UTC';
 
@@ -112,6 +115,11 @@
     function renderWindowTabs(){ const tabs=document.getElementById('windowTabs'); tabs.innerHTML=''; Object.keys(state.data.meta.windows).forEach(key=>{ const btn=document.createElement('button'); btn.className='chip'+(key===state.selectedWindow?' active':''); btn.textContent=key; btn.onclick=()=>{ state.selectedWindow=key; renderWindowTabs(); render(); }; tabs.appendChild(btn); }); }
     function renderComparisons(){ const body=document.getElementById('comparisonBody'); body.innerHTML=''; Object.entries(state.data.comparisons).forEach(([name,item])=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${name}</td><td>${item.supported ? '<span class="pill good">지원</span>' : '<span class="pill warn">미지원</span>'}</td><td class="muted">${item.notes}</td>`; body.appendChild(tr); }); }
     function getFilteredRows(pair){ const days=state.data.meta.windows[state.selectedWindow]; const minTs=Date.now()-days*24*3600*1000; return pair.rows.filter(r=>r.fundingTime>=minTs); }
+    
+    function renderPriceChart(rows){ const ctx=document.getElementById('priceChart'); if(state.priceChart) state.priceChart.destroy(); state.priceChart=new Chart(ctx,{ type:'line', data:{ labels:rows.map(r=>toUTC(r.fundingTime)), datasets:[{ label:'Mark Price', data:rows.map(r=>r.markPrice), borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.15)', borderWidth:2, fill:true, pointRadius:0, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#9ca9c8' }, grid:{ color:'rgba(255,255,255,0.05)' } }, x:{ ticks:{ color:'#9ca9c8', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.03)' } } }, plugins:{ legend:{ labels:{ color:'#eef3ff' } } } } }); }
+
+    function startCountdown(nextFundingTime){ if(state.countdownTimer) clearInterval(state.countdownTimer); const renderCountdown=()=>{ const diff=Math.max(0, nextFundingTime-Date.now()); const h=Math.floor(diff/3600000); const m=Math.floor((diff%3600000)/60000); const s=Math.floor((diff%60000)/1000); document.getElementById('nextFunding').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; document.getElementById('nextFundingAt').textContent='정산 시각: '+toKST(nextFundingTime); }; renderCountdown(); state.countdownTimer=setInterval(renderCountdown,1000); }
+
     function renderChart(rows){ const ctx=document.getElementById('fundingChart'); if(state.chart) state.chart.destroy(); state.chart=new Chart(ctx,{ type:'line', data:{ labels:rows.map(r=>toUTC(r.fundingTime)), datasets:[{ label:'Funding Rate', data:rows.map(r=>r.fundingRate*100), borderColor:'#7aa2ff', backgroundColor:'rgba(122,162,255,0.2)', borderWidth:2, fill:true, pointRadius:1.5, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#9ca9c8', callback:v=>`${v.toFixed(3)}%` }, grid:{ color:'rgba(255,255,255,0.06)' } }, x:{ ticks:{ color:'#9ca9c8', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.04)' } } }, plugins:{ legend:{ labels:{ color:'#eef3ff' } } } } }); }
 
     function render(){
@@ -137,6 +145,7 @@
 
       const body=document.getElementById('historyBody'); body.innerHTML='';
       rows.slice().reverse().forEach((row,idx)=>{ const positive=row.fundingRate>=0; const tr=document.createElement('tr'); tr.innerHTML=`<td>${rows.length-idx}</td><td>${toUTC(row.fundingTime)}</td><td style="color:${positive?'var(--bad)':'var(--good)'}; font-weight:700;">${fmtPct(row.fundingRate)}</td><td>${fmtNumber(row.markPrice)}</td><td>${positive?'<span class="pill bad">Long → Short</span>':'<span class="pill good">Short → Long</span>'}</td>`; body.appendChild(tr); });
+      renderPriceChart(rows);
       renderChart(rows);
     }
 
