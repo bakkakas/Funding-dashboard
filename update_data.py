@@ -5,6 +5,18 @@ BINANCE_PREMIUM = "https://fapi.binance.com/fapi/v1/premiumIndex"
 PAIRS = [
     {"symbol": "GOOGLUSDT", "exchange": "Binance", "enabled": True},
     {"symbol": "AMZNUSDT", "exchange": "Binance", "enabled": True},
+    {"symbol": "AAPLUSDT", "exchange": "Binance", "enabled": True},
+    {"symbol": "TSLAUSDT", "exchange": "Binance", "enabled": True},
+    {"symbol": "NVDAUSDT", "exchange": "Binance", "enabled": True},
+    {"symbol": "METAUSDT", "exchange": "Binance", "enabled": True},
+    {"symbol": "MSFTUSDT", "exchange": "Binance", "enabled": True},
+    {"symbol": "MSTRUSDT", "exchange": "Binance", "enabled": True},
+    {"symbol": "COINUSDT", "exchange": "Binance", "enabled": True},
+    {"symbol": "TSMUSDT", "exchange": "Binance", "enabled": True},
+    {"symbol": "PLTRUSDT", "exchange": "Binance", "enabled": True},
+    {"symbol": "BABAUSDT", "exchange": "Binance", "enabled": True},
+    {"symbol": "QQQUSDT", "exchange": "Binance", "enabled": True},
+    {"symbol": "SPYUSDT", "exchange": "Binance", "enabled": True}
 ]
 WINDOWS = {"7D": 7, "30D": 30, "90D": 90}
 
