@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Funding Dashboard</title>
+  <style>
+    :root {
+      --bg: #0a0f1c;
+      --panel: #12192b;
+      --panel2: #18233b;
+      --text: #eef3ff;
+      --muted: #9ca9c8;
+      --line: #27324d;
+      --good: #2ecc71;
+      --bad: #ff6b6b;
+      --warn: #ffd166;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #0a0f1c 0%, #0f1727 100%);
+      color: var(--text);
+      font-family: Inter, Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+    .sub {
+      margin-top: 8px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .stamp {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .chip.active {
+      background: var(--accent);
+      color: #07101f;
+      border-color: transparent;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+    .card {
+      background: rgba(18,25,43,0.94);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+    .metric { grid-column: span 3; }
+    .wide { grid-column: span 12; }
+    .half { grid-column: span 6; }
+    .label { color: var(--muted); font-size: 14px; }
+    .value { margin-top: 10px; font-size: 28px; font-weight: 700; }
+    .value.good { color: var(--good); }
+    .value.bad { color: var(--bad); }
+    .mini { color: var(--muted); font-size: 13px; margin-top: 8px; }
+    .section-title { margin: 0 0 14px; font-size: 18px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    th {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      background: rgba(18,25,43,0.98);
+    }
+    .table-wrap {
+      max-height: 620px;
+      overflow: auto;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .pill.good { background: rgba(46,204,113,0.14); color: var(--good); }
+    .pill.bad { background: rgba(255,107,107,0.14); color: var(--bad); }
+    .muted { color: var(--muted); }
+    .note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    @media (max-width: 1100px) {
+      .metric, .half, .wide { grid-column: span 12; }
+      .header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div>
+        <h1>Binance Funding Dashboard</h1>
+        <div class="sub">
+          GOOGLUSDT, AMZNUSDT의 회차별 funding rate를 기록하고, 평균 funding을 기준으로 annualized를 계산하는 대시보드.
+          향후 다른 페어도 <code>funding_data.json</code>에 추가하면 확장 가능하게 구성.
+        </div>
+      </div>
+      <div class="stamp" id="updatedAt">Updated: -</div>
+    </div>
+
+    <div class="toolbar" id="pairTabs"></div>
+
+    <div class="grid">
+      <div class="card metric">
+        <div class="label">선택 페어</div>
+        <div class="value" id="pairName">-</div>
+        <div class="mini">Binance Futures funding history</div>
+      </div>
+      <div class="card metric">
+        <div class="label">표본 수</div>
+        <div class="value" id="sampleCount">-</div>
+        <div class="mini">funding 회차 기준</div>
+      </div>
+      <div class="card metric">
+        <div class="label">평균 funding / 회</div>
+        <div class="value" id="avgFunding">-</div>
+        <div class="mini">최근 약 3개월 표본 평균</div>
+      </div>
+      <div class="card metric">
+        <div class="label">Annualized</div>
+        <div class="value" id="annualized">-</div>
+        <div class="mini">평균 × 3회/일 × 365일</div>
+      </div>
+
+      <div class="card half">
+        <h3 class="section-title">요약</h3>
+        <table>
+          <tbody>
+            <tr><td class="muted">첫 회차</td><td id="firstTime">-</td></tr>
+            <tr><td class="muted">마지막 회차</td><td id="lastTime">-</td></tr>
+            <tr><td class="muted">누적 funding 합계</td><td id="sumFunding">-</td></tr>
+            <tr><td class="muted">해석</td><td id="interpretation">-</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card half">
+        <h3 class="section-title">향후 확장</h3>
+        <table>
+          <tbody>
+            <tr><td class="muted">현재 지원</td><td>GOOGLUSDT / AMZNUSDT</td></tr>
+            <tr><td class="muted">추가 방식</td><td><code>funding_data.json</code>에 pair 추가</td></tr>
+            <tr><td class="muted">가능한 확장</td><td>BTCUSDT, ETHUSDT, NVDAUSDT 등</td></tr>
+            <tr><td class="muted">다음 단계</td><td>자동 수집 스크립트 + 일일 갱신</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card wide">
+        <h3 class="section-title">회차별 Funding History</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Funding Time (UTC)</th>
+                <th>Funding Rate</th>
+                <th>Mark Price</th>
+                <th>Direction</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+        <div class="note">
+          Annualized는 최근 표본의 평균 funding rate를 연장한 러닝레이트이며, 미래 확정 수익률이 아니야.
+          Funding이 음수면 일반적으로 롱이 받고, 양수면 숏이 받는 구조로 해석할 수 있어.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let state = { data: null, selected: null };
+
+    const fmtPct = (v) => `${(v * 100).toFixed(4)}%`;
+    const fmtAnnual = (v) => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
+    const fmtNumber = (v) => Number(v).toLocaleString('en-US', { maximumFractionDigits: 4 });
+    const toKST = (ms) => new Date(ms).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
+    const toUTC = (ms) => new Date(ms).toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+
+    function renderTabs() {
+      const tabs = document.getElementById('pairTabs');
+      tabs.innerHTML = '';
+      Object.keys(state.data.pairs).forEach(pair => {
+        const btn = document.createElement('button');
+        btn.className = 'chip' + (pair === state.selected ? ' active' : '');
+        btn.textContent = pair;
+        btn.onclick = () => {
+          state.selected = pair;
+          renderTabs();
+          renderPair();
+        };
+        tabs.appendChild(btn);
+      });
+    }
+
+    function renderPair() {
+      const pair = state.data.pairs[state.selected];
+      const sumFunding = pair.rows.reduce((acc, row) => acc + row.fundingRate, 0);
+      document.getElementById('pairName').textContent = pair.symbol;
+      document.getElementById('sampleCount').textContent = pair.count;
+      document.getElementById('avgFunding').textContent = fmtPct(pair.avgFundingRate);
+      const annual = document.getElementById('annualized');
+      annual.textContent = fmtAnnual(pair.annualizedPct);
+      annual.className = 'value ' + (pair.annualizedPct >= 0 ? 'good' : 'bad');
+      document.getElementById('firstTime').textContent = toKST(pair.firstFundingTime);
+      document.getElementById('lastTime').textContent = toKST(pair.lastFundingTime);
+      document.getElementById('sumFunding').textContent = fmtPct(sumFunding);
+      document.getElementById('interpretation').innerHTML = sumFunding < 0
+        ? '<span class="pill good">최근 표본 기준 롱 수취 구간</span>'
+        : '<span class="pill bad">최근 표본 기준 숏 수취 구간</span>';
+
+      const body = document.getElementById('historyBody');
+      body.innerHTML = '';
+      pair.rows.slice().reverse().forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        const positive = row.fundingRate >= 0;
+        tr.innerHTML = `
+          <td>${pair.rows.length - idx}</td>
+          <td>${toUTC(row.fundingTime)}</td>
+          <td style="color:${positive ? 'var(--bad)' : 'var(--good)'}; font-weight:700;">${fmtPct(row.fundingRate)}</td>
+          <td>${fmtNumber(row.markPrice)}</td>
+          <td>${positive ? '<span class="pill bad">양수</span>' : '<span class="pill good">음수</span>'}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    async function init() {
+      const res = await fetch('./funding_data.json');
+      const data = await res.json();
+      state.data = data;
+      state.selected = Object.keys(data.pairs)[0];
+      document.getElementById('updatedAt').textContent = 'Updated: ' + toKST(data.updatedAt);
+      renderTabs();
+      renderPair();
+    }
+
+    init();
+  </script>
+</body>
+</html>
