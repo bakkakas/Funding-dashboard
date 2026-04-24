@@ -1,6 +1,7 @@
 import json, time, urllib.request, datetime
 
 BINANCE_BASE = "https://fapi.binance.com/fapi/v1/fundingRate"
+BINANCE_PREMIUM = "https://fapi.binance.com/fapi/v1/premiumIndex"
 PAIRS = [
     {"symbol": "GOOGLUSDT", "exchange": "Binance", "enabled": True},
     {"symbol": "AMZNUSDT", "exchange": "Binance", "enabled": True},
@@ -34,6 +35,19 @@ def fetch_binance_history(symbol, days):
                 "markPrice": float(row["markPrice"]),
             })
     return ded
+
+
+def fetch_binance_latest(symbol):
+    url = f"{BINANCE_PREMIUM}?symbol={symbol}"
+    with urllib.request.urlopen(url, timeout=30) as r:
+        row = json.loads(r.read().decode())
+    return {
+        "markPrice": float(row["markPrice"]),
+        "indexPrice": float(row["indexPrice"]),
+        "lastFundingRate": float(row["lastFundingRate"]),
+        "nextFundingTime": int(row["nextFundingTime"]),
+        "time": int(row["time"])
+    }
 
 def summarize(rows):
     if not rows:
@@ -76,6 +90,7 @@ def main():
             "symbol": symbol,
             "exchange": pair["exchange"],
             "windows": {},
+            "latest": fetch_binance_latest(symbol),
             "rows": []
         }
         full_rows = fetch_binance_history(symbol, WINDOWS["90D"])
