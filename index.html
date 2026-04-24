@@ -127,7 +127,7 @@
       document.getElementById('firstTime').textContent=windowSummary.firstFundingTime ? toKST(windowSummary.firstFundingTime) : '-';
       document.getElementById('lastTime').textContent=windowSummary.lastFundingTime ? toKST(windowSummary.lastFundingTime) : '-';
       document.getElementById('sumFunding').textContent=fmtPct(windowSummary.sumFundingRate);
-      document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate<0 ? '<span class="pill good">최근 표본 기준 롱 수취 구간</span>' : '<span class="pill bad">최근 표본 기준 숏 수취 구간</span>';
+      document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate < 0 ? '<span class="pill good">Short → Long</span>' : '<span class="pill bad">Long → Short</span>';
 
       document.getElementById('latestFunding').textContent=fmtPct(latest.lastFundingRate);
       document.getElementById('latestFunding').className='value '+(latest.lastFundingRate>=0?'bad':'good');
@@ -136,7 +136,7 @@
       document.getElementById('indexPrice').textContent=fmtNumber(latest.indexPrice);
 
       const body=document.getElementById('historyBody'); body.innerHTML='';
-      rows.slice().reverse().forEach((row,idx)=>{ const positive=row.fundingRate>=0; const tr=document.createElement('tr'); tr.innerHTML=`<td>${rows.length-idx}</td><td>${toUTC(row.fundingTime)}</td><td style="color:${positive?'var(--bad)':'var(--good)'}; font-weight:700;">${fmtPct(row.fundingRate)}</td><td>${fmtNumber(row.markPrice)}</td><td>${positive?'<span class="pill bad">양수</span>':'<span class="pill good">음수</span>'}</td>`; body.appendChild(tr); });
+      rows.slice().reverse().forEach((row,idx)=>{ const positive=row.fundingRate>=0; const tr=document.createElement('tr'); tr.innerHTML=`<td>${rows.length-idx}</td><td>${toUTC(row.fundingTime)}</td><td style="color:${positive?'var(--bad)':'var(--good)'}; font-weight:700;">${fmtPct(row.fundingRate)}</td><td>${fmtNumber(row.markPrice)}</td><td>${positive?'<span class="pill bad">Long → Short</span>':'<span class="pill good">Short → Long</span>'}</td>`; body.appendChild(tr); });
       renderChart(rows);
     }
 
