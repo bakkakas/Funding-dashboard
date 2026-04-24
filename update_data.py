@@ -3,20 +3,20 @@ import json, time, urllib.request, datetime
 BINANCE_BASE = "https://fapi.binance.com/fapi/v1/fundingRate"
 BINANCE_PREMIUM = "https://fapi.binance.com/fapi/v1/premiumIndex"
 PAIRS = [
-    {"symbol": "GOOGLUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "AMZNUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "AAPLUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "TSLAUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "NVDAUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "METAUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "MSFTUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "MSTRUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "COINUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "TSMUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "PLTRUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "BABAUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "QQQUSDT", "exchange": "Binance", "enabled": True},
-    {"symbol": "SPYUSDT", "exchange": "Binance", "enabled": True}
+    {"symbol": "GOOGLUSDT", "exchange": "Binance", "group": "US Big Tech", "enabled": True},
+    {"symbol": "AMZNUSDT", "exchange": "Binance", "group": "US Big Tech", "enabled": True},
+    {"symbol": "AAPLUSDT", "exchange": "Binance", "group": "US Big Tech", "enabled": True},
+    {"symbol": "TSLAUSDT", "exchange": "Binance", "group": "US Big Tech", "enabled": True},
+    {"symbol": "NVDAUSDT", "exchange": "Binance", "group": "US Big Tech", "enabled": True},
+    {"symbol": "METAUSDT", "exchange": "Binance", "group": "US Big Tech", "enabled": True},
+    {"symbol": "MSFTUSDT", "exchange": "Binance", "group": "US Big Tech", "enabled": True},
+    {"symbol": "MSTRUSDT", "exchange": "Binance", "group": "US Growth", "enabled": True},
+    {"symbol": "COINUSDT", "exchange": "Binance", "group": "US Growth", "enabled": True},
+    {"symbol": "TSMUSDT", "exchange": "Binance", "group": "Semiconductor", "enabled": True},
+    {"symbol": "PLTRUSDT", "exchange": "Binance", "group": "US Growth", "enabled": True},
+    {"symbol": "BABAUSDT", "exchange": "Binance", "group": "China", "enabled": True},
+    {"symbol": "QQQUSDT", "exchange": "Binance", "group": "Index ETF", "enabled": True},
+    {"symbol": "SPYUSDT", "exchange": "Binance", "group": "Index ETF", "enabled": True}
 ]
 WINDOWS = {"7D": 7, "30D": 30, "90D": 90}
 
@@ -101,6 +101,7 @@ def main():
         pair_out = {
             "symbol": symbol,
             "exchange": pair["exchange"],
+            "group": pair.get("group", "Other"),
             "windows": {},
             "latest": fetch_binance_latest(symbol),
             "rows": []

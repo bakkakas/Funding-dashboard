@@ -53,6 +53,7 @@
       <div class="stamp" id="updatedAt">Updated: -</div>
     </div>
 
+    <div class="toolbar"><input id="pairSearch" placeholder="pair 검색 (예: NVDA, QQQ, TSLA)" style="flex:1; min-width:260px; background:#12192b; color:#eef3ff; border:1px solid #27324d; border-radius:12px; padding:12px 14px;" /><select id="sortMode" style="background:#12192b; color:#eef3ff; border:1px solid #27324d; border-radius:12px; padding:12px 14px;"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select></div>
     <div class="toolbar" id="pairTabs"></div>
     <div class="toolbar2" id="windowTabs"></div>
     <div class="card" style="margin-bottom:16px;">
@@ -108,14 +109,14 @@
   </div>
 
   <script>
-    let state = { data:null, selectedPair:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null };
+    let state = { data:null, selectedPair:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, search:'', sortMode:'symbol' };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
     const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const toKST = ms => new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
     const toUTC = ms => new Date(ms).toISOString().replace('T',' ').slice(0,19) + ' UTC';
 
-    function renderPairTabs(){ const tabs=document.getElementById('pairTabs'); tabs.innerHTML=''; Object.keys(state.data.pairs).forEach(pair=>{ const btn=document.createElement('button'); btn.className='chip'+(pair===state.selectedPair?' active':''); btn.textContent=pair; btn.onclick=()=>{ state.selectedPair=pair; renderPairTabs(); render(); }; tabs.appendChild(btn); }); }
+    function renderPairTabs(){ const tabs=document.getElementById('pairTabs'); tabs.innerHTML=''; let entries=Object.entries(state.data.pairs); if(state.search){ const q=state.search.toLowerCase(); entries=entries.filter(([k,v])=>k.toLowerCase().includes(q) || (v.group||'').toLowerCase().includes(q)); } if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>a[0].localeCompare(b[0])); } let currentGroup=''; entries.forEach(([pair,val])=>{ if(val.group!==currentGroup){ currentGroup=val.group; const label=document.createElement('div'); label.style.width='100%'; label.style.color='var(--muted)'; label.style.fontSize='12px'; label.style.margin='8px 0 2px'; label.textContent=currentGroup; tabs.appendChild(label); } const btn=document.createElement('button'); btn.className='chip'+(pair===state.selectedPair?' active':''); btn.textContent=pair; btn.onclick=()=>{ state.selectedPair=pair; renderPairTabs(); render(); }; tabs.appendChild(btn); }); }
     function renderWindowTabs(){ const tabs=document.getElementById('windowTabs'); tabs.innerHTML=''; Object.keys(state.data.meta.windows).forEach(key=>{ const btn=document.createElement('button'); btn.className='chip'+(key===state.selectedWindow?' active':''); btn.textContent=key; btn.onclick=()=>{ state.selectedWindow=key; renderWindowTabs(); render(); }; tabs.appendChild(btn); }); }
     function renderComparisons(){ const body=document.getElementById('comparisonBody'); body.innerHTML=''; Object.entries(state.data.comparisons).forEach(([name,item])=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${name}</td><td>${item.supported ? '<span class="pill good">지원</span>' : '<span class="pill warn">미지원</span>'}</td><td class="muted">${item.notes}</td>`; body.appendChild(tr); }); }
     function getFilteredRows(pair){ const days=state.data.meta.windows[state.selectedWindow]; const minTs=Date.now()-days*24*3600*1000; return pair.rows.filter(r=>r.fundingTime>=minTs); }
@@ -153,7 +154,7 @@
       renderChart(rows);
     }
 
-    async function init(){ const res=await fetch('./funding_data.json'); const data=await res.json(); state.data=data; state.selectedPair=Object.keys(data.pairs)[0]; document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt); renderPairTabs(); renderWindowTabs(); renderComparisons(); render(); }
+    async function init(){ const res=await fetch('./funding_data.json'); const data=await res.json(); state.data=data; state.selectedPair=Object.keys(data.pairs)[0]; document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt); document.getElementById('pairSearch').addEventListener('input', e=>{ state.search=e.target.value; renderPairTabs(); }); document.getElementById('sortMode').addEventListener('change', e=>{ state.sortMode=e.target.value; renderPairTabs(); }); renderPairTabs(); renderWindowTabs(); renderComparisons(); render(); }
     init();
   </script>
 </body>
