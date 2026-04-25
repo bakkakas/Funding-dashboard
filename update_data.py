@@ -51,15 +51,27 @@ def fetch_binance_history(symbol, days):
 
 def fetch_binance_latest(symbol):
     url = f"{BINANCE_PREMIUM}?symbol={symbol}"
-    with urllib.request.urlopen(url, timeout=30) as r:
-        row = json.loads(r.read().decode())
-    return {
-        "markPrice": float(row["markPrice"]),
-        "indexPrice": float(row["indexPrice"]),
-        "lastFundingRate": float(row["lastFundingRate"]),
-        "nextFundingTime": int(row["nextFundingTime"]),
-        "time": int(row["time"])
-    }
+    try:
+        with urllib.request.urlopen(url, timeout=30) as r:
+            row = json.loads(r.read().decode())
+        return {
+            "markPrice": float(row["markPrice"]),
+            "indexPrice": float(row["indexPrice"]),
+            "lastFundingRate": float(row["lastFundingRate"]),
+            "nextFundingTime": int(row["nextFundingTime"]),
+            "time": int(row["time"]),
+            "available": True
+        }
+    except Exception as e:
+        return {
+            "markPrice": None,
+            "indexPrice": None,
+            "lastFundingRate": None,
+            "nextFundingTime": None,
+            "time": None,
+            "available": False,
+            "error": str(e)
+        }
 
 def summarize(rows):
     if not rows:
