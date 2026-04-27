@@ -71,7 +71,7 @@
 
       <div class="card metric"><div class="label">표본 수</div><div class="value" id="sampleCount">-</div><div class="mini">선택 기간의 funding 회차 수</div></div>
       <div class="card metric"><div class="label">평균 funding / 회</div><div class="value" id="avgFunding">-</div><div class="mini">최근 선택 구간 평균</div></div>
-      <div class="card metric"><div class="label">Annualized</div><div class="value" id="annualized">-</div><div class="mini">평균 × 3회/일 × 365일</div></div>
+      <div class="card metric"><div class="label">Annualized</div><div class="value" id="annualized">-</div><div class="mini">Long → Short = 음수 / Short → Long = 양수</div></div>
       <div class="card metric"><div class="label">현재 Snapshot Time</div><div class="value" id="snapshotTime">-</div><div class="mini">실시간 조회 시각</div></div>
 
       <div class="card half">
@@ -105,7 +105,7 @@
             <tbody id="historyBody"></tbody>
           </table>
         </div>
-        <div class="note">Annualized는 최근 표본의 평균 funding rate를 연장한 러닝레이트이며 미래 확정 수익률이 아니다. 상단 현재값은 브라우저에서 Binance premiumIndex를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있다.</div>
+        <div class="note">Annualized는 최근 표본의 평균 funding rate를 연장한 러닝레이트이며 미래 확정 수익률이 아니다. 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 상단 현재값은 브라우저에서 Binance premiumIndex를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있다.</div>
       </div>
     </div>
   </div>

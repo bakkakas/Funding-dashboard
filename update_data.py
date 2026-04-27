@@ -84,7 +84,7 @@ def summarize(rows):
     return {
         "count": len(rows),
         "avgFundingRate": avg,
-        "annualizedPct": avg * 3 * 365 * 100,
+        "annualizedPct": -avg * 3 * 365 * 100,
         "sumFundingRate": sum(rates),
         "firstFundingTime": rows[0]["fundingTime"],
         "lastFundingTime": rows[-1]["fundingTime"],
