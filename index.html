@@ -220,7 +220,7 @@
     }
 
     async function init(){
-      const res=await fetch('./funding_data.json');
+      const res=await fetch(`./funding_data.json?ts=${Date.now()}`, { cache: 'no-store' });
       const data=await res.json();
       state.data=data;
       state.selectedPair=Object.keys(data.pairs)[0];
