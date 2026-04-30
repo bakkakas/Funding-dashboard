@@ -5,7 +5,7 @@
 ## 포함 파일
 - `index.html` — 메인 대시보드
 - `funding_data.json` — 집계 결과 데이터
-- `update_data.py` — Binance funding 데이터를 다시 받아와 JSON 생성
+- `update_data.py` — 거래소별 funding 데이터를 다시 받아와 JSON 생성
 - `.nojekyll` — GitHub Pages 정적 배포용
 
 ## 현재 지원
@@ -15,6 +15,11 @@
 - 7일 / 30일 / 90일 기준 annualized 계산
 - 회차별 funding history 테이블
 - 차트 표시
+
+### Bybit
+- GOOGLUSDT
+- 7일 / 30일 / 90일 기준 annualized 계산
+- current funding / mark / index / next funding 반영
 
 ### 비교 상태 표시
 - Hyperliquid `xyz:GOOGL` → spot market이라 funding 비교 대상 아님
@@ -29,4 +34,4 @@ python3 update_data.py
 이 저장소는 GitHub Pages root 배포를 기준으로 동작합니다.
 
 ## 향후 확장
-`update_data.py`의 `PAIRS`에 종목을 추가하면 Binance pair는 쉽게 확장 가능합니다.
+`update_data.py`의 `PAIRS`에 거래소와 종목을 추가하면 확장 가능합니다.

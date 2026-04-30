@@ -50,7 +50,7 @@
     <div class="header">
       <div>
         <h1>Multi-Exchange Funding Dashboard</h1>
-        <div class="sub">history는 자동 적재하고, 현재 funding / mark / index / 다음 funding 카운트다운은 Binance premiumIndex API 기준으로 실시간에 가깝게 반영하는 대시보드.</div>
+        <div class="sub">history는 자동 적재하고, 현재 funding / mark / index / 다음 funding 카운트다운은 거래소별 public API 기준으로 실시간에 가깝게 반영하는 대시보드.</div>
       </div>
       <div class="stamp" id="updatedAt">Updated: -</div>
     </div>
@@ -60,7 +60,7 @@
     <div class="toolbar2" id="windowTabs"></div>
     <div class="card" style="margin-bottom:16px;">
       <h3 class="section-title">Pair 확장 안내</h3>
-      <div class="sub" style="margin:0;">현재는 Binance 기준으로 자동 지원된다. 새 pair를 추가하려면 repo의 <code>update_data.py</code> 안 <code>PAIRS</code> 리스트에 종목을 추가하면 된다. 예: <code>BTCUSDT</code>, <code>ETHUSDT</code>, <code>NVDAUSDT</code>.</div>
+      <div class="sub" style="margin:0;">현재는 Binance / Bybit 일부 선물을 자동 지원한다. 새 pair를 추가하려면 repo의 <code>update_data.py</code> 안 <code>PAIRS</code> 리스트에 거래소와 종목을 추가하면 된다.</div>
     </div>
 
     <div class="grid">
@@ -111,7 +111,8 @@
   </div>
 
   <script>
-    const PREMIUM_INDEX_URL = 'https://fapi.binance.com/fapi/v1/premiumIndex';
+    const BINANCE_PREMIUM_INDEX_URL = 'https://fapi.binance.com/fapi/v1/premiumIndex';
+    const BYBIT_TICKERS_URL = 'https://api.bybit.com/v5/market/tickers';
     const LIVE_REFRESH_MS = 30000;
 
     let state = { data:null, selectedPair:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{} };
@@ -123,9 +124,9 @@
 
     function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>a[0].localeCompare(b[0])); } return entries; }
 
-    function renderPairSelect(){ const select=document.getElementById('pairSelect'); const entries=getSortedEntries(); select.innerHTML=''; let currentGroup=''; entries.forEach(([pair,val])=>{ if(val.group!==currentGroup){ currentGroup=val.group; const og=document.createElement('optgroup'); og.label=currentGroup; select.appendChild(og); } const target=select.lastElementChild; const option=document.createElement('option'); option.value=pair; option.textContent=pair; if(target && target.tagName==='OPTGROUP') target.appendChild(option); else select.appendChild(option); }); select.value=state.selectedPair; }
+    function renderPairSelect(){ const select=document.getElementById('pairSelect'); const entries=getSortedEntries(); select.innerHTML=''; let currentGroup=''; entries.forEach(([pairKey,val])=>{ if(val.group!==currentGroup){ currentGroup=val.group; const og=document.createElement('optgroup'); og.label=currentGroup; select.appendChild(og); } const target=select.lastElementChild; const option=document.createElement('option'); option.value=pairKey; option.textContent=`${val.symbol} · ${val.exchange}`; if(target && target.tagName==='OPTGROUP') target.appendChild(option); else select.appendChild(option); }); select.value=state.selectedPair; }
 
-    function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; state.favorites.forEach(pair=>{ const btn=document.createElement('button'); btn.className='chip'+(pair===state.selectedPair?' active':''); btn.textContent='★ '+pair; btn.onclick=()=>{ state.selectedPair=pair; renderFavoriteTabs(); renderPairSelect(); render(); }; tabs.appendChild(btn); }); }
+    function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; state.favorites.forEach(pairKey=>{ const pair=state.data.pairs[pairKey]; if(!pair) return; const btn=document.createElement('button'); btn.className='chip'+(pairKey===state.selectedPair?' active':''); btn.textContent=`★ ${pair.symbol} · ${pair.exchange}`; btn.onclick=()=>{ state.selectedPair=pairKey; renderFavoriteTabs(); renderPairSelect(); render(); }; tabs.appendChild(btn); }); }
     function renderWindowTabs(){ const tabs=document.getElementById('windowTabs'); tabs.innerHTML=''; Object.keys(state.data.meta.windows).forEach(key=>{ const btn=document.createElement('button'); btn.className='chip'+(key===state.selectedWindow?' active':''); btn.textContent=key; btn.onclick=()=>{ state.selectedWindow=key; renderWindowTabs(); render(); }; tabs.appendChild(btn); }); }
     function renderComparisons(){ const body=document.getElementById('comparisonBody'); body.innerHTML=''; Object.entries(state.data.comparisons).forEach(([name,item])=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${name}</td><td>${item.supported ? '<span class="pill good">지원</span>' : '<span class="pill warn">미지원</span>'}</td><td class="muted">${item.notes}</td>`; body.appendChild(tr); }); }
     function getFilteredRows(pair){ const days=state.data.meta.windows[state.selectedWindow]; const minTs=Date.now()-days*24*3600*1000; return pair.rows.filter(r=>r.fundingTime>=minTs); }
@@ -163,7 +164,7 @@
       const windowSummary=pair.windows[state.selectedWindow];
       const rows=getFilteredRows(pair);
       const latest=getLatestForPair(pair);
-      document.getElementById('pairName').textContent=pair.symbol; const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(pair.symbol)?'★':'☆')+' 즐겨찾기';
+      document.getElementById('pairName').textContent=pair.symbol; const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedPair)?'★':'☆')+' 즐겨찾기';
       document.getElementById('exchangeName').textContent=pair.exchange+' · '+state.selectedWindow;
       document.getElementById('sampleCount').textContent=windowSummary.count;
       document.getElementById('avgFunding').textContent=fmtPct(windowSummary.avgFundingRate);
@@ -188,30 +189,49 @@
       startCountdown(latest.nextFundingTime);
 
       const body=document.getElementById('historyBody'); body.innerHTML='';
-      rows.slice().reverse().forEach((row,idx)=>{ const positive=row.fundingRate>=0; const tr=document.createElement('tr'); tr.innerHTML=`<td>${rows.length-idx}</td><td>${toUTC(row.fundingTime)}</td><td style="color:${positive?'var(--bad)':'var(--good)'}; font-weight:700;">${fmtPct(row.fundingRate)}</td><td>${fmtNumber(row.markPrice)}</td><td>${positive?'<span class="pill bad">Long → Short</span>':'<span class="pill good">Short → Long</span>'}</td>`; body.appendChild(tr); });
+      rows.slice().reverse().forEach((row,idx)=>{ const positive=row.fundingRate>=0; const tr=document.createElement('tr'); tr.innerHTML=`<td>${rows.length-idx}</td><td>${toUTC(row.fundingTime)}</td><td style="color:${positive?'var(--bad)':'var(--good)'}; font-weight:700;">${fmtPct(row.fundingRate)}</td><td>${row.markPrice == null ? '-' : fmtNumber(row.markPrice)}</td><td>${positive?'<span class="pill bad">Long → Short</span>':'<span class="pill good">Short → Long</span>'}</td>`; body.appendChild(tr); });
       renderPriceChart(rows);
       renderChart(rows);
     }
 
-    async function fetchLiveLatest(symbol){
-      const res = await fetch(`${PREMIUM_INDEX_URL}?symbol=${symbol}`);
-      if(!res.ok) throw new Error(`premiumIndex fetch failed: ${symbol}`);
-      const row = await res.json();
-      state.liveLatestByPair[symbol] = {
-        markPrice: Number(row.markPrice),
-        indexPrice: Number(row.indexPrice),
-        lastFundingRate: Number(row.lastFundingRate),
-        nextFundingTime: Number(row.nextFundingTime),
-        time: Number(row.time),
-        available: true,
-      };
+    async function fetchLiveLatest(pairKey, pair){
+      if(pair.exchange === 'Binance'){
+        const res = await fetch(`${BINANCE_PREMIUM_INDEX_URL}?symbol=${pair.symbol}`);
+        if(!res.ok) throw new Error(`premiumIndex fetch failed: ${pairKey}`);
+        const row = await res.json();
+        state.liveLatestByPair[pairKey] = {
+          markPrice: Number(row.markPrice),
+          indexPrice: Number(row.indexPrice),
+          lastFundingRate: Number(row.lastFundingRate),
+          nextFundingTime: Number(row.nextFundingTime),
+          time: Number(row.time),
+          available: true,
+        };
+        return;
+      }
+      if(pair.exchange === 'Bybit'){
+        const res = await fetch(`${BYBIT_TICKERS_URL}?category=linear&symbol=${pair.symbol}`);
+        if(!res.ok) throw new Error(`bybit ticker fetch failed: ${pairKey}`);
+        const json = await res.json();
+        const row = json.result.list[0];
+        state.liveLatestByPair[pairKey] = {
+          markPrice: Number(row.markPrice),
+          indexPrice: Number(row.indexPrice),
+          lastFundingRate: Number(row.fundingRate),
+          nextFundingTime: Number(row.nextFundingTime),
+          time: Number(json.time),
+          available: true,
+        };
+        return;
+      }
+      throw new Error(`Unsupported exchange: ${pair.exchange}`);
     }
 
     async function refreshLiveAll(){
-      const symbols = Object.keys(state.data.pairs);
-      await Promise.all(symbols.map(async (symbol) => {
+      const pairKeys = Object.keys(state.data.pairs);
+      await Promise.all(pairKeys.map(async (pairKey) => {
         try {
-          await fetchLiveLatest(symbol);
+          await fetchLiveLatest(pairKey, state.data.pairs[pairKey]);
         } catch (err) {
           console.error(err);
         }
@@ -228,7 +248,7 @@
       document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt);
       document.getElementById('pairSelect').addEventListener('change', e=>{ state.selectedPair=e.target.value; renderFavoriteTabs(); render(); });
       document.getElementById('sortMode').addEventListener('change', e=>{ state.sortMode=e.target.value; renderPairSelect(); });
-      document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const pair=state.selectedPair; if(state.favorites.includes(pair)){ state.favorites=state.favorites.filter(x=>x!==pair); } else { state.favorites.unshift(pair); } localStorage.setItem('favoritePairs', JSON.stringify(state.favorites.slice(0,12))); renderFavoriteTabs(); render(); });
+      document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const pairKey=state.selectedPair; if(state.favorites.includes(pairKey)){ state.favorites=state.favorites.filter(x=>x!==pairKey); } else { state.favorites.unshift(pairKey); } localStorage.setItem('favoritePairs', JSON.stringify(state.favorites.slice(0,12))); renderFavoriteTabs(); render(); });
       renderPairSelect();
       renderFavoriteTabs();
       renderWindowTabs();
