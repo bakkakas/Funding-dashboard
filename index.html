@@ -57,7 +57,7 @@
       <div class="stamp" id="updatedAt">Updated: -</div>
     </div>
 
-    <div class="toolbar"><select id="categorySelect" aria-label="카테고리 선택" style="background:#12192b; color:#eef3ff; border:1px solid #27324d; border-radius:12px; padding:12px 14px;"></select><select id="pairSelect" style="flex:1; min-width:280px; background:#12192b; color:#eef3ff; border:1px solid #27324d; border-radius:12px; padding:12px 14px;"></select><select id="sortMode" style="background:#12192b; color:#eef3ff; border:1px solid #27324d; border-radius:12px; padding:12px 14px;"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
+    <div class="toolbar"><select id="pairSelect" style="flex:1; min-width:280px; background:#12192b; color:#eef3ff; border:1px solid #27324d; border-radius:12px; padding:12px 14px;"></select><select id="sortMode" style="background:#12192b; color:#eef3ff; border:1px solid #27324d; border-radius:12px; padding:12px 14px;"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
     <div class="toolbar" id="favoriteTabs"></div>
     <div class="toolbar2" id="windowTabs"></div>
     <div class="card" style="margin-bottom:16px;">
@@ -117,20 +117,18 @@
     const BYBIT_TICKERS_URL = 'https://api.bybit.com/v5/market/tickers';
     const LIVE_REFRESH_MS = 30000;
 
-    let state = { data:null, selectedPair:null, selectedCategory:'all', selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{} };
+    let state = { data:null, selectedPair:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{} };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
     const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const toKST = ms => new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
     const toUTC = ms => new Date(ms).toISOString().replace('T',' ').slice(0,19) + ' UTC';
 
-    function getCategories(){ return [...new Set(Object.values(state.data.pairs).map(pair=>pair.group || '기타'))].sort((a,b)=>a.localeCompare(b)); }
-    function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.selectedCategory !== 'all') entries = entries.filter(([_, pair]) => (pair.group || '기타') === state.selectedCategory); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>a[0].localeCompare(b[0])); } return entries; }
+    function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>a[0].localeCompare(b[0])); } return entries; }
 
-    function renderCategorySelect(){ const select=document.getElementById('categorySelect'); select.innerHTML=''; const all=document.createElement('option'); all.value='all'; all.textContent='전체 카테고리'; select.appendChild(all); getCategories().forEach(category=>{ const option=document.createElement('option'); option.value=category; option.textContent=category; select.appendChild(option); }); select.value=state.selectedCategory; }
     function renderPairSelect(){ const select=document.getElementById('pairSelect'); const entries=getSortedEntries(); select.innerHTML=''; let currentGroup=''; entries.forEach(([pairKey,val])=>{ if(val.group!==currentGroup){ currentGroup=val.group; const og=document.createElement('optgroup'); og.label=currentGroup; select.appendChild(og); } const target=select.lastElementChild; const option=document.createElement('option'); option.value=pairKey; option.textContent=`${val.symbol} · ${val.exchange}`; if(target && target.tagName==='OPTGROUP') target.appendChild(option); else select.appendChild(option); }); select.value=state.selectedPair; }
 
-    function selectPair(pairKey){ state.selectedPair=pairKey; const pair=state.data.pairs[pairKey]; if(pair && state.selectedCategory !== 'all' && (pair.group || '기타') !== state.selectedCategory){ state.selectedCategory = pair.group || '기타'; renderCategorySelect(); } renderFavoriteTabs(); renderPairSelect(); renderComparisons(); render(); }
+    function selectPair(pairKey){ state.selectedPair=pairKey; renderFavoriteTabs(); renderPairSelect(); renderComparisons(); render(); }
     function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; state.favorites.forEach(pairKey=>{ const pair=state.data.pairs[pairKey]; if(!pair) return; const btn=document.createElement('button'); btn.className='chip'+(pairKey===state.selectedPair?' active':''); btn.textContent=`★ ${pair.symbol} · ${pair.exchange}`; btn.onclick=()=>selectPair(pairKey); tabs.appendChild(btn); }); }
     function renderWindowTabs(){ const tabs=document.getElementById('windowTabs'); tabs.innerHTML=''; Object.keys(state.data.meta.windows).forEach(key=>{ const btn=document.createElement('button'); btn.className='chip'+(key===state.selectedWindow?' active':''); btn.textContent=key; btn.onclick=()=>{ state.selectedWindow=key; renderWindowTabs(); render(); }; tabs.appendChild(btn); }); }
     function renderComparisons(){
@@ -269,11 +267,9 @@
       state.selectedPair=Object.keys(data.pairs)[0];
       try { state.favorites = JSON.parse(localStorage.getItem('favoritePairs') || '[]'); } catch(e) { state.favorites = []; }
       document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt);
-      document.getElementById('categorySelect').addEventListener('change', e=>{ state.selectedCategory=e.target.value; const entries=getSortedEntries(); if(entries.length && !entries.some(([pairKey])=>pairKey===state.selectedPair)) state.selectedPair=entries[0][0]; renderCategorySelect(); renderPairSelect(); renderFavoriteTabs(); renderComparisons(); render(); });
       document.getElementById('pairSelect').addEventListener('change', e=>selectPair(e.target.value));
       document.getElementById('sortMode').addEventListener('change', e=>{ state.sortMode=e.target.value; renderPairSelect(); });
       document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const pairKey=state.selectedPair; if(state.favorites.includes(pairKey)){ state.favorites=state.favorites.filter(x=>x!==pairKey); } else { state.favorites.unshift(pairKey); } localStorage.setItem('favoritePairs', JSON.stringify(state.favorites.slice(0,12))); renderFavoriteTabs(); render(); });
-      renderCategorySelect();
       renderPairSelect();
       renderFavoriteTabs();
       renderWindowTabs();
