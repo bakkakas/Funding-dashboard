@@ -1,6 +1,8 @@
 #!/bin/zsh
 set -euo pipefail
 cd /Users/melody/.openclaw/workspace/repos/Funding-dashboard
+/usr/bin/git config user.name "Senna"
+/usr/bin/git config user.email "senna@local"
 /usr/bin/git fetch origin main
 /usr/bin/git reset --hard origin/main
 /usr/bin/python3 update_data.py

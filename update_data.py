@@ -1,4 +1,4 @@
-import json, time, urllib.request, datetime
+import json, time, urllib.error, urllib.request, datetime
 from pathlib import Path
 
 BINANCE_BASE = "https://fapi.binance.com/fapi/v1/fundingRate"
@@ -24,11 +24,23 @@ PAIRS = [
     {"symbol": "SPYUSDT", "exchange": "Binance", "group": "Index ETF", "enabled": True}
 ]
 WINDOWS = {"7D": 7, "30D": 30, "90D": 90}
+DATA_PATH = Path("funding_data.json")
+MAX_RETRIES = 4
+RETRY_BASE_DELAY = 1.5
 
 def fetch_json(url):
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return json.loads(r.read().decode())
+    last_error = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return json.loads(r.read().decode())
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+            last_error = e
+            if attempt == MAX_RETRIES:
+                break
+            time.sleep(RETRY_BASE_DELAY * attempt)
+    raise RuntimeError(f"failed to fetch after {MAX_RETRIES} attempts: {url}: {last_error}")
 
 
 def pair_key(pair):
@@ -200,10 +212,19 @@ def summarize(rows):
     }
 
 def main():
+    previous = {}
+    if DATA_PATH.exists():
+        try:
+            previous = json.loads(DATA_PATH.read_text())
+        except json.JSONDecodeError:
+            previous = {}
+
     data = {
         "updatedAt": int(time.time() * 1000),
         "meta": {
             "windows": WINDOWS,
+            "partialFailure": False,
+            "errors": [],
             "notes": {
                 "Bybit GOOGLUSDT": "Funding history and current snapshot available via public linear market API",
                 "Hyperliquid xyz:GOOGL": "spot market; funding history not applicable",
@@ -221,24 +242,47 @@ def main():
 
     for pair in PAIRS:
         symbol = pair["symbol"]
+        key = pair_key(pair)
         pair_out = {
-            "key": pair_key(pair),
+            "key": key,
             "symbol": symbol,
             "exchange": pair["exchange"],
             "group": pair.get("group", "Other"),
             "windows": {},
-            "latest": fetch_latest(pair),
+            "latest": {},
             "rows": []
         }
-        full_rows = fetch_history(pair, WINDOWS["90D"])
-        pair_out["rows"] = full_rows
-        for label, days in WINDOWS.items():
-            min_ts = int(time.time() * 1000) - days * 24 * 3600 * 1000
-            filtered = [r for r in full_rows if r["fundingTime"] >= min_ts]
-            pair_out["windows"][label] = summarize(filtered)
-        data["pairs"][pair_key(pair)] = pair_out
 
-    Path('funding_data.json').write_text(json.dumps(data, ensure_ascii=False, indent=2))
+        try:
+            pair_out["latest"] = fetch_latest(pair)
+            full_rows = fetch_history(pair, WINDOWS["90D"])
+            pair_out["rows"] = full_rows
+            for label, days in WINDOWS.items():
+                min_ts = int(time.time() * 1000) - days * 24 * 3600 * 1000
+                filtered = [r for r in full_rows if r["fundingTime"] >= min_ts]
+                pair_out["windows"][label] = summarize(filtered)
+            pair_out["available"] = True
+            data["pairs"][key] = pair_out
+        except Exception as e:
+            old_pair = previous.get("pairs", {}).get(key)
+            data["meta"]["partialFailure"] = True
+            data["meta"]["errors"].append({
+                "key": key,
+                "error": str(e),
+                "time": int(time.time() * 1000)
+            })
+            if old_pair:
+                old_pair["available"] = False
+                old_pair["lastError"] = str(e)
+                old_pair["lastErrorAt"] = int(time.time() * 1000)
+                data["pairs"][key] = old_pair
+            else:
+                pair_out["available"] = False
+                pair_out["lastError"] = str(e)
+                pair_out["lastErrorAt"] = int(time.time() * 1000)
+                data["pairs"][key] = pair_out
+
+    DATA_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
 
 if __name__ == '__main__':
     main()
