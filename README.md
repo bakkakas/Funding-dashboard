@@ -18,6 +18,7 @@
 
 ### Bybit
 - GOOGLUSDT
+- XAUTUSDT
 - 7일 / 30일 / 90일 기준 annualized 계산
 - current funding / mark / index / next funding 반영
 

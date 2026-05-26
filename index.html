@@ -15,6 +15,9 @@
     .sub { margin-top:8px; color:var(--muted); line-height:1.5; }
     .stamp { background:rgba(255,255,255,0.06); border:1px solid var(--line); color:var(--muted); padding:10px 14px; border-radius:999px; font-size:14px; white-space:nowrap; }
     .toolbar,.toolbar2 { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+    .field { background:#12192b; color:#eef3ff; border:1px solid #27324d; border-radius:12px; padding:12px 14px; }
+    .search-input { flex:1 1 220px; min-width:220px; }
+    .pair-select { flex:2 1 340px; min-width:280px; }
     .chip { border:1px solid var(--line); background:var(--panel); color:var(--text); border-radius:999px; padding:10px 14px; cursor:pointer; font-weight:600; }
     .chip.active { background:var(--accent); color:#07101f; border-color:transparent; }
     .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
@@ -57,7 +60,7 @@
       <div class="stamp" id="updatedAt">Updated: -</div>
     </div>
 
-    <div class="toolbar"><select id="pairSelect" style="flex:1; min-width:280px; background:#12192b; color:#eef3ff; border:1px solid #27324d; border-radius:12px; padding:12px 14px;"></select><select id="sortMode" style="background:#12192b; color:#eef3ff; border:1px solid #27324d; border-radius:12px; padding:12px 14px;"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
+    <div class="toolbar"><input id="pairSearch" class="field search-input" type="search" placeholder="티커/거래소 검색" autocomplete="off"><select id="pairSelect" class="field pair-select"></select><select id="sortMode" class="field"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
     <div class="toolbar" id="favoriteTabs"></div>
     <div class="toolbar2" id="windowTabs"></div>
     <div class="card" style="margin-bottom:16px;">
@@ -124,9 +127,34 @@
     const toKST = ms => new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
     const toUTC = ms => new Date(ms).toISOString().replace('T',' ').slice(0,19) + ' UTC';
 
-    function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>a[0].localeCompare(b[0])); } return entries; }
+    function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>a[1].symbol.localeCompare(b[1].symbol) || a[1].exchange.localeCompare(b[1].exchange)); } return entries; }
 
-    function renderPairSelect(){ const select=document.getElementById('pairSelect'); const entries=getSortedEntries(); select.innerHTML=''; let currentGroup=''; entries.forEach(([pairKey,val])=>{ if(val.group!==currentGroup){ currentGroup=val.group; const og=document.createElement('optgroup'); og.label=currentGroup; select.appendChild(og); } const target=select.lastElementChild; const option=document.createElement('option'); option.value=pairKey; option.textContent=`${val.symbol} · ${val.exchange}`; if(target && target.tagName==='OPTGROUP') target.appendChild(option); else select.appendChild(option); }); select.value=state.selectedPair; }
+    function getFilteredEntries(){
+      const query = document.getElementById('pairSearch')?.value.trim().toLowerCase() || '';
+      const entries = getSortedEntries();
+      if (!query) return entries;
+      return entries.filter(([pairKey, val]) => `${pairKey} ${val.symbol} ${val.exchange}`.toLowerCase().includes(query));
+    }
+
+    function renderPairSelect(){
+      const select=document.getElementById('pairSelect');
+      let entries=getFilteredEntries();
+      if(entries.length === 0 && state.selectedPair && state.data.pairs[state.selectedPair]){
+        entries=[[state.selectedPair, state.data.pairs[state.selectedPair]]];
+      }
+      select.innerHTML='';
+      entries.forEach(([pairKey,val])=>{
+        const option=document.createElement('option');
+        option.value=pairKey;
+        option.textContent=`${val.symbol} · ${val.exchange}`;
+        select.appendChild(option);
+      });
+      if(entries.some(([pairKey])=>pairKey===state.selectedPair)){
+        select.value=state.selectedPair;
+      } else if(entries.length){
+        select.value=entries[0][0];
+      }
+    }
 
     function selectPair(pairKey){ state.selectedPair=pairKey; renderFavoriteTabs(); renderPairSelect(); renderComparisons(); render(); }
     function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; state.favorites.forEach(pairKey=>{ const pair=state.data.pairs[pairKey]; if(!pair) return; const btn=document.createElement('button'); btn.className='chip'+(pairKey===state.selectedPair?' active':''); btn.textContent=`★ ${pair.symbol} · ${pair.exchange}`; btn.onclick=()=>selectPair(pairKey); tabs.appendChild(btn); }); }
@@ -267,6 +295,7 @@
       state.selectedPair=Object.keys(data.pairs)[0];
       try { state.favorites = JSON.parse(localStorage.getItem('favoritePairs') || '[]'); } catch(e) { state.favorites = []; }
       document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt);
+      document.getElementById('pairSearch').addEventListener('input', renderPairSelect);
       document.getElementById('pairSelect').addEventListener('change', e=>selectPair(e.target.value));
       document.getElementById('sortMode').addEventListener('change', e=>{ state.sortMode=e.target.value; renderPairSelect(); });
       document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const pairKey=state.selectedPair; if(state.favorites.includes(pairKey)){ state.favorites=state.favorites.filter(x=>x!==pairKey); } else { state.favorites.unshift(pairKey); } localStorage.setItem('favoritePairs', JSON.stringify(state.favorites.slice(0,12))); renderFavoriteTabs(); render(); });
