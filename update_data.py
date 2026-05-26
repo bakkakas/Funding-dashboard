@@ -9,6 +9,7 @@ BYBIT_MARK_KLINE = "https://api.bybit.com/v5/market/mark-price-kline"
 PAIRS = [
     {"symbol": "GOOGLUSDT", "exchange": "Binance", "enabled": True},
     {"symbol": "GOOGLUSDT", "exchange": "Bybit", "enabled": True},
+    {"symbol": "XAUUSDT", "exchange": "Binance", "enabled": True},
     {"symbol": "XAUTUSDT", "exchange": "Bybit", "enabled": True},
     {"symbol": "AMZNUSDT", "exchange": "Binance", "enabled": True},
     {"symbol": "AAPLUSDT", "exchange": "Binance", "enabled": True},
@@ -228,6 +229,7 @@ def main():
             "errors": [],
             "notes": {
                 "Bybit GOOGLUSDT": "Funding history and current snapshot available via public linear market API",
+                "Binance XAUUSDT": "Funding history and current snapshot available via public futures API",
                 "Bybit XAUTUSDT": "Funding history and current snapshot available via public linear market API",
                 "Hyperliquid xyz:GOOGL": "spot market; funding history not applicable",
                 "THENA GOOGLUSDT": "public page/API access currently blocked (403) in this environment"

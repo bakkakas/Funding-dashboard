@@ -11,6 +11,7 @@
 ## 현재 지원
 ### Binance
 - GOOGLUSDT
+- XAUUSDT
 - AMZNUSDT
 - 7일 / 30일 / 90일 기준 annualized 계산
 - 회차별 funding history 테이블
