@@ -1,99 +1,13 @@
 {
-  "updatedAt": 1781301152186,
+  "updatedAt": 1781305263928,
   "meta": {
     "windows": {
       "7D": 7,
       "30D": 30,
       "90D": 90
     },
-    "partialFailure": true,
-    "errors": [
-      {
-        "key": "Binance:GOOGLUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=GOOGLUSDT&startTime=1773525161839&endTime=1781301161839&limit=1000: HTTP Error 451: ",
-        "time": 1781301171449
-      },
-      {
-        "key": "Bybit:GOOGLUSDT",
-        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=GOOGLUSDT&startTime=1773525180858&endTime=1781301180858&limit=200: HTTP Error 403: Forbidden",
-        "time": 1781301190179
-      },
-      {
-        "key": "Binance:XAUUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=XAUUSDT&startTime=1773525199642&endTime=1781301199642&limit=1000: HTTP Error 451: ",
-        "time": 1781301208928
-      },
-      {
-        "key": "Bybit:XAUTUSDT",
-        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=XAUTUSDT&startTime=1773525218318&endTime=1781301218318&limit=200: HTTP Error 403: Forbidden",
-        "time": 1781301227618
-      },
-      {
-        "key": "Binance:AMZNUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=AMZNUSDT&startTime=1773525237031&endTime=1781301237031&limit=1000: HTTP Error 451: ",
-        "time": 1781301246529
-      },
-      {
-        "key": "Binance:AAPLUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=AAPLUSDT&startTime=1773525255790&endTime=1781301255790&limit=1000: HTTP Error 451: ",
-        "time": 1781301265265
-      },
-      {
-        "key": "Binance:TSLAUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=TSLAUSDT&startTime=1773525274552&endTime=1781301274552&limit=1000: HTTP Error 451: ",
-        "time": 1781301283837
-      },
-      {
-        "key": "Binance:NVDAUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=NVDAUSDT&startTime=1773525293215&endTime=1781301293215&limit=1000: HTTP Error 451: ",
-        "time": 1781301302430
-      },
-      {
-        "key": "Binance:METAUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=METAUSDT&startTime=1773525311693&endTime=1781301311693&limit=1000: HTTP Error 451: ",
-        "time": 1781301321010
-      },
-      {
-        "key": "Binance:MSFTUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=MSFTUSDT&startTime=1773525330405&endTime=1781301330405&limit=1000: HTTP Error 451: ",
-        "time": 1781301339960
-      },
-      {
-        "key": "Binance:MSTRUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=MSTRUSDT&startTime=1773525349296&endTime=1781301349296&limit=1000: HTTP Error 451: ",
-        "time": 1781301358701
-      },
-      {
-        "key": "Binance:COINUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=COINUSDT&startTime=1773525368033&endTime=1781301368033&limit=1000: HTTP Error 451: ",
-        "time": 1781301377447
-      },
-      {
-        "key": "Binance:TSMUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=TSMUSDT&startTime=1773525386885&endTime=1781301386885&limit=1000: HTTP Error 451: ",
-        "time": 1781301396203
-      },
-      {
-        "key": "Binance:PLTRUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=PLTRUSDT&startTime=1773525405767&endTime=1781301405767&limit=1000: HTTP Error 451: ",
-        "time": 1781301415294
-      },
-      {
-        "key": "Binance:BABAUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=BABAUSDT&startTime=1773525424775&endTime=1781301424775&limit=1000: HTTP Error 451: ",
-        "time": 1781301434086
-      },
-      {
-        "key": "Binance:QQQUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=QQQUSDT&startTime=1773525443397&endTime=1781301443397&limit=1000: HTTP Error 451: ",
-        "time": 1781301452652
-      },
-      {
-        "key": "Binance:SPYUSDT",
-        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=SPYUSDT&startTime=1773525461975&endTime=1781301461975&limit=1000: HTTP Error 451: ",
-        "time": 1781301471276
-      }
-    ],
+    "partialFailure": false,
+    "errors": [],
     "notes": {
       "Bybit GOOGLUSDT": "Funding history and current snapshot available via public linear market API",
       "Binance XAUUSDT": "Funding history and current snapshot available via public futures API",
@@ -110,35 +24,35 @@
       "windows": {
         "7D": {
           "count": 30,
-          "avgFundingRate": 8.698333333333336e-06,
-          "annualizedPct": -0.9524675000000004,
-          "sumFundingRate": 0.0002609500000000001,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 9.292333333333336e-06,
+          "annualizedPct": -1.0175105000000002,
+          "sumFundingRate": 0.00027877000000000007,
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 99,
-          "avgFundingRate": 0.0001292232323232323,
-          "annualizedPct": -14.149943939393935,
-          "sumFundingRate": 0.012793099999999996,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 0.0001294032323232323,
+          "annualizedPct": -14.169653939393934,
+          "sumFundingRate": 0.012810919999999996,
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
-          "count": 247,
-          "avgFundingRate": 0.00013883153846153853,
-          "annualizedPct": -15.202053461538467,
-          "sumFundingRate": 0.03429139000000002,
+          "count": 248,
+          "avgFundingRate": 0.0001383435887096775,
+          "annualizedPct": -15.148622963709684,
+          "sumFundingRate": 0.03430921000000002,
           "firstFundingTime": 1774425600001,
-          "lastFundingTime": 1781251200001
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 363.5,
-        "indexPrice": 363.33129792,
-        "lastFundingRate": 0.00010886,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276464296,
+        "markPrice": 360.71,
+        "indexPrice": 360.8676575,
+        "lastFundingRate": 0.0,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305263296,
         "available": true
       },
       "rows": [
@@ -1376,11 +1290,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 0.00020846,
           "markPrice": 359.4666549
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 1.782e-05,
+          "markPrice": 361.14628189
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=GOOGLUSDT&startTime=1773525161839&endTime=1781301161839&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301171449
+      "available": true
     },
     "Bybit:GOOGLUSDT": {
       "key": "Bybit:GOOGLUSDT",
@@ -1392,32 +1309,32 @@
           "avgFundingRate": 6.658523809523809e-05,
           "annualizedPct": -7.291083571428571,
           "sumFundingRate": 0.00139829,
-          "firstFundingTime": 1780675200000,
-          "lastFundingTime": 1781251200000
+          "firstFundingTime": 1780704000000,
+          "lastFundingTime": 1781280000000
         },
         "30D": {
           "count": 90,
           "avgFundingRate": 0.0001482001111111111,
           "annualizedPct": -16.227912166666666,
           "sumFundingRate": 0.01333801,
-          "firstFundingTime": 1778688000000,
-          "lastFundingTime": 1781251200000
+          "firstFundingTime": 1778716800000,
+          "lastFundingTime": 1781280000000
         },
         "90D": {
-          "count": 139,
-          "avgFundingRate": 0.0002596821582733812,
-          "annualizedPct": -28.435196330935238,
+          "count": 140,
+          "avgFundingRate": 0.00025782728571428564,
+          "annualizedPct": -28.232087785714278,
           "sumFundingRate": 0.03609581999999999,
           "firstFundingTime": 1777276800000,
-          "lastFundingTime": 1781251200000
+          "lastFundingTime": 1781280000000
         }
       },
       "latest": {
-        "markPrice": 363.66,
-        "indexPrice": 363.42,
-        "lastFundingRate": 9.667e-05,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276465464,
+        "markPrice": 360.86,
+        "indexPrice": 360.86,
+        "lastFundingRate": 0.0,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305264425,
         "available": true
       },
       "rows": [
@@ -2115,11 +2032,14 @@
           "fundingTime": 1781251200000,
           "fundingRate": 0.00021926,
           "markPrice": 365.52
+        },
+        {
+          "fundingTime": 1781280000000,
+          "fundingRate": 0.0,
+          "markPrice": 360.12
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=GOOGLUSDT&startTime=1773525180858&endTime=1781301180858&limit=200: HTTP Error 403: Forbidden",
-      "lastErrorAt": 1781301190180
+      "available": true
     },
     "Binance:XAUUSDT": {
       "key": "Binance:XAUUSDT",
@@ -2128,48 +2048,38 @@
       "windows": {
         "7D": {
           "count": 42,
-          "avgFundingRate": 5.460761904761904e-05,
-          "annualizedPct": -5.979534285714284,
-          "sumFundingRate": 0.00229352,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781265600001
+          "avgFundingRate": 5.2976666666666664e-05,
+          "annualizedPct": -5.800945,
+          "sumFundingRate": 0.00222502,
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781294400001
         },
         "30D": {
           "count": 180,
-          "avgFundingRate": 4.191811111111113e-05,
-          "annualizedPct": -4.590033166666668,
-          "sumFundingRate": 0.007545260000000003,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781265600001
+          "avgFundingRate": 4.204794444444446e-05,
+          "annualizedPct": -4.604249916666669,
+          "sumFundingRate": 0.007568630000000002,
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781294400001
         },
         "90D": {
           "count": 540,
-          "avgFundingRate": 2.911592592592588e-06,
-          "annualizedPct": -0.3188193888888884,
-          "sumFundingRate": 0.0015722599999999976,
-          "firstFundingTime": 1773504000001,
-          "lastFundingTime": 1781265600001
+          "avgFundingRate": 3.0365555555555483e-06,
+          "annualizedPct": -0.3325028333333325,
+          "sumFundingRate": 0.001639739999999996,
+          "firstFundingTime": 1773532800001,
+          "lastFundingTime": 1781294400001
         }
       },
       "latest": {
-        "markPrice": 4208.9,
-        "indexPrice": 4206.18318182,
-        "lastFundingRate": 3.296e-05,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276465296,
+        "markPrice": 4216.81161184,
+        "indexPrice": 4217.17411369,
+        "lastFundingRate": 0.0,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305264296,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1773504000001,
-          "fundingRate": 2.78e-05,
-          "markPrice": 5022.52061689
-        },
-        {
-          "fundingTime": 1773518400001,
-          "fundingRate": 0.0,
-          "markPrice": 5022.15179856
-        },
         {
           "fundingTime": 1773532800001,
           "fundingRate": 0.0,
@@ -4859,11 +4769,19 @@
           "fundingTime": 1781265600001,
           "fundingRate": 1.735e-05,
           "markPrice": 4209.29
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 1.522e-05,
+          "markPrice": 4213.89478672
+        },
+        {
+          "fundingTime": 1781294400001,
+          "fundingRate": 8.006e-05,
+          "markPrice": 4214.7
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=XAUUSDT&startTime=1773525199642&endTime=1781301199642&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301208928
+      "available": true
     },
     "Bybit:XAUTUSDT": {
       "key": "Bybit:XAUTUSDT",
@@ -4872,48 +4790,38 @@
       "windows": {
         "7D": {
           "count": 42,
-          "avgFundingRate": 1.2368333333333335e-05,
-          "annualizedPct": -1.3543325000000002,
-          "sumFundingRate": 0.0005194700000000001,
-          "firstFundingTime": 1780675200000,
-          "lastFundingTime": 1781265600000
+          "avgFundingRate": 1.4223095238095241e-05,
+          "annualizedPct": -1.557428928571429,
+          "sumFundingRate": 0.0005973700000000002,
+          "firstFundingTime": 1780704000000,
+          "lastFundingTime": 1781294400000
         },
         "30D": {
           "count": 180,
-          "avgFundingRate": 2.67146111111111e-05,
-          "annualizedPct": -2.9252499166666652,
-          "sumFundingRate": 0.004808629999999998,
-          "firstFundingTime": 1778688000000,
-          "lastFundingTime": 1781265600000
+          "avgFundingRate": 2.709694444444443e-05,
+          "annualizedPct": -2.967115416666665,
+          "sumFundingRate": 0.004877449999999998,
+          "firstFundingTime": 1778716800000,
+          "lastFundingTime": 1781294400000
         },
         "90D": {
           "count": 200,
           "avgFundingRate": 2.5644699999999978e-05,
           "annualizedPct": -2.8080946499999975,
           "sumFundingRate": 0.005128939999999996,
-          "firstFundingTime": 1778400000000,
-          "lastFundingTime": 1781265600000
+          "firstFundingTime": 1778428800000,
+          "lastFundingTime": 1781294400000
         }
       },
       "latest": {
-        "markPrice": 4192.91,
-        "indexPrice": 4194.42,
+        "markPrice": 4198.98,
+        "indexPrice": 4200.7,
         "lastFundingRate": 5e-05,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276466134,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305265082,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1778400000000,
-          "fundingRate": 5e-05,
-          "markPrice": 4711.9
-        },
-        {
-          "fundingTime": 1778414400000,
-          "fundingRate": 5e-05,
-          "markPrice": 4717.3
-        },
         {
           "fundingTime": 1778428800000,
           "fundingRate": 5e-05,
@@ -5902,12 +5810,20 @@
         {
           "fundingTime": 1781265600000,
           "fundingRate": 5e-05,
-          "markPrice": 4192.91
+          "markPrice": 4197.94
+        },
+        {
+          "fundingTime": 1781280000000,
+          "fundingRate": 5e-05,
+          "markPrice": 4195.66
+        },
+        {
+          "fundingTime": 1781294400000,
+          "fundingRate": 5e-05,
+          "markPrice": 4198.99
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=XAUTUSDT&startTime=1773525218318&endTime=1781301218318&limit=200: HTTP Error 403: Forbidden",
-      "lastErrorAt": 1781301227618
+      "available": true
     },
     "Binance:AMZNUSDT": {
       "key": "Binance:AMZNUSDT",
@@ -5916,43 +5832,38 @@
       "windows": {
         "7D": {
           "count": 21,
-          "avgFundingRate": 3.2061904761904766e-06,
-          "annualizedPct": -0.35107785714285716,
-          "sumFundingRate": 6.733000000000001e-05,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 3.7419047619047624e-06,
+          "annualizedPct": -0.4097385714285715,
+          "sumFundingRate": 7.858000000000001e-05,
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 90,
-          "avgFundingRate": 3.604355555555555e-05,
-          "annualizedPct": -3.9467693333333322,
-          "sumFundingRate": 0.0032439199999999995,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 3.616855555555555e-05,
+          "annualizedPct": -3.9604568333333328,
+          "sumFundingRate": 0.0032551699999999995,
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
           "count": 270,
-          "avgFundingRate": -3.4033370370370363e-05,
-          "annualizedPct": 3.7266540555555547,
-          "sumFundingRate": -0.009189009999999997,
-          "firstFundingTime": 1773504000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": -3.3991703703703694e-05,
+          "annualizedPct": 3.7220915555555547,
+          "sumFundingRate": -0.009177759999999997,
+          "firstFundingTime": 1773532800001,
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 237.7463536,
-        "indexPrice": 237.50824468,
-        "lastFundingRate": 0.00013868,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276465296,
+        "markPrice": 238.59563437,
+        "indexPrice": 238.41359259,
+        "lastFundingRate": 0.0,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305264296,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1773504000001,
-          "fundingRate": 0.0,
-          "markPrice": 207.25939899
-        },
         {
           "fundingTime": 1773532800001,
           "fundingRate": 0.0,
@@ -7297,11 +7208,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 9.21e-06,
           "markPrice": 242.12553341
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 1.125e-05,
+          "markPrice": 236.0462108
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=AMZNUSDT&startTime=1773525237031&endTime=1781301237031&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301246529
+      "available": true
     },
     "Binance:AAPLUSDT": {
       "key": "Binance:AAPLUSDT",
@@ -7310,35 +7224,35 @@
       "windows": {
         "7D": {
           "count": 21,
-          "avgFundingRate": 3.859571428571429e-05,
-          "annualizedPct": -4.226230714285715,
-          "sumFundingRate": 0.0008105100000000001,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 4.1120000000000006e-05,
+          "annualizedPct": -4.50264,
+          "sumFundingRate": 0.0008635200000000001,
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 90,
-          "avgFundingRate": 1.2712222222222223e-05,
-          "annualizedPct": -1.3919883333333334,
-          "sumFundingRate": 0.0011441,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 1.0047333333333335e-05,
+          "annualizedPct": -1.1001830000000001,
+          "sumFundingRate": 0.0009042600000000002,
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
-          "count": 233,
-          "avgFundingRate": 4.175815450643775e-05,
-          "annualizedPct": -4.572517918454933,
-          "sumFundingRate": 0.009729649999999996,
+          "count": 234,
+          "avgFundingRate": 4.1806239316239296e-05,
+          "annualizedPct": -4.5777832051282035,
+          "sumFundingRate": 0.009782659999999995,
           "firstFundingTime": 1775203200001,
-          "lastFundingTime": 1781251200001
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 292.08,
-        "indexPrice": 291.79201646,
-        "lastFundingRate": 0.00013412,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276466296,
+        "markPrice": 291.44857331,
+        "indexPrice": 291.34300199,
+        "lastFundingRate": 0.0,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305264296,
         "available": true
       },
       "rows": [
@@ -8506,11 +8420,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 0.00013636,
           "markPrice": 296.18
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 5.301e-05,
+          "markPrice": 291.48016577
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=AAPLUSDT&startTime=1773525255790&endTime=1781301255790&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301265265
+      "available": true
     },
     "Binance:TSLAUSDT": {
       "key": "Binance:TSLAUSDT",
@@ -8522,40 +8439,35 @@
           "avgFundingRate": 1.0714285714285749e-07,
           "annualizedPct": -0.011732142857142896,
           "sumFundingRate": 2.2500000000000073e-06,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 90,
-          "avgFundingRate": 7.662522222222221e-05,
-          "annualizedPct": -8.390461833333331,
-          "sumFundingRate": 0.006896269999999999,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 7.617733333333332e-05,
+          "annualizedPct": -8.341417999999999,
+          "sumFundingRate": 0.006855959999999999,
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
           "count": 270,
           "avgFundingRate": 1.363581481481483e-05,
           "annualizedPct": -1.493121722222224,
           "sumFundingRate": 0.003681670000000004,
-          "firstFundingTime": 1773504000001,
-          "lastFundingTime": 1781251200001
+          "firstFundingTime": 1773532800001,
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 398.08031254,
-        "indexPrice": 398.08031254,
-        "lastFundingRate": 0.0,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276466296,
+        "markPrice": 405.42275365,
+        "indexPrice": 405.86759259,
+        "lastFundingRate": -1.117e-05,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305265296,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1773504000001,
-          "fundingRate": 0.0,
-          "markPrice": 390.10178625
-        },
         {
           "fundingTime": 1773532800001,
           "fundingRate": 0.00021306,
@@ -9900,11 +9812,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 0.0,
           "markPrice": 398.08258972
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 0.0,
+          "markPrice": 388.82
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=TSLAUSDT&startTime=1773525274552&endTime=1781301274552&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301283837
+      "available": true
     },
     "Binance:NVDAUSDT": {
       "key": "Binance:NVDAUSDT",
@@ -9913,35 +9828,35 @@
       "windows": {
         "7D": {
           "count": 21,
-          "avgFundingRate": 8.443761904761904e-05,
-          "annualizedPct": -9.245919285714285,
-          "sumFundingRate": 0.0017731899999999998,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 9.186809523809524e-05,
+          "annualizedPct": -10.059556428571428,
+          "sumFundingRate": 0.0019292299999999999,
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 99,
-          "avgFundingRate": 0.000134029797979798,
-          "annualizedPct": -14.67626287878788,
-          "sumFundingRate": 0.013268950000000002,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 0.0001311288888888889,
+          "annualizedPct": -14.358613333333334,
+          "sumFundingRate": 0.012981760000000002,
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
-          "count": 247,
-          "avgFundingRate": 6.080975708502024e-05,
-          "annualizedPct": -6.658668400809716,
-          "sumFundingRate": 0.015020009999999999,
+          "count": 248,
+          "avgFundingRate": 6.119375e-05,
+          "annualizedPct": -6.700715624999999,
+          "sumFundingRate": 0.015176049999999998,
           "firstFundingTime": 1774425600001,
-          "lastFundingTime": 1781251200001
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 205.9975627,
-        "indexPrice": 205.82996296,
-        "lastFundingRate": 0.00011628,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276466296,
+        "markPrice": 205.28350541,
+        "indexPrice": 205.25131583,
+        "lastFundingRate": 0.0,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305265296,
         "available": true
       },
       "rows": [
@@ -11179,11 +11094,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 2.078e-05,
           "markPrice": 204.87099516
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 0.00015604,
+          "markPrice": 204.30954217
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=NVDAUSDT&startTime=1773525293215&endTime=1781301293215&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301302430
+      "available": true
     },
     "Binance:METAUSDT": {
       "key": "Binance:METAUSDT",
@@ -11192,35 +11110,35 @@
       "windows": {
         "7D": {
           "count": 21,
-          "avgFundingRate": 1.9595238095238097e-06,
-          "annualizedPct": -0.21456785714285717,
-          "sumFundingRate": 4.1150000000000004e-05,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 3.880000000000001e-06,
+          "annualizedPct": -0.4248600000000002,
+          "sumFundingRate": 8.148000000000001e-05,
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 90,
-          "avgFundingRate": 6.244433333333333e-05,
-          "annualizedPct": -6.837654499999999,
-          "sumFundingRate": 0.00561999,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 5.8857333333333316e-05,
+          "annualizedPct": -6.444877999999998,
+          "sumFundingRate": 0.005297159999999999,
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
-          "count": 238,
-          "avgFundingRate": 6.308462184873947e-05,
-          "annualizedPct": -6.9077660924369715,
-          "sumFundingRate": 0.015014139999999995,
+          "count": 239,
+          "avgFundingRate": 6.29894142259414e-05,
+          "annualizedPct": -6.897340857740583,
+          "sumFundingRate": 0.015054469999999995,
           "firstFundingTime": 1774425600001,
-          "lastFundingTime": 1781251200001
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 572.33,
-        "indexPrice": 571.37686749,
-        "lastFundingRate": 0.0,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276466296,
+        "markPrice": 568.73669223,
+        "indexPrice": 568.92378291,
+        "lastFundingRate": 0.0001615,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305265296,
         "available": true
       },
       "rows": [
@@ -12413,11 +12331,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 1.248e-05,
           "markPrice": 571.09
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 4.033e-05,
+          "markPrice": 569.85
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=METAUSDT&startTime=1773525311693&endTime=1781301311693&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301321010
+      "available": true
     },
     "Binance:MSFTUSDT": {
       "key": "Binance:MSFTUSDT",
@@ -12426,35 +12347,35 @@
       "windows": {
         "7D": {
           "count": 21,
-          "avgFundingRate": 4.469952380952381e-05,
-          "annualizedPct": -4.894597857142857,
-          "sumFundingRate": 0.00093869,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 5.0892380952380955e-05,
+          "annualizedPct": -5.572715714285715,
+          "sumFundingRate": 0.00106874,
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 112,
-          "avgFundingRate": 8.084241071428574e-05,
-          "annualizedPct": -8.852243973214287,
-          "sumFundingRate": 0.009054350000000003,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 8.071964285714287e-05,
+          "annualizedPct": -8.838800892857144,
+          "sumFundingRate": 0.009040600000000001,
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
-          "count": 191,
-          "avgFundingRate": 0.00013621554973821992,
-          "annualizedPct": -14.915602696335082,
-          "sumFundingRate": 0.026017170000000003,
+          "count": 192,
+          "avgFundingRate": 0.00013618343750000002,
+          "annualizedPct": -14.912086406250003,
+          "sumFundingRate": 0.026147220000000002,
           "firstFundingTime": 1776412800001,
-          "lastFundingTime": 1781251200001
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 389.65,
-        "indexPrice": 388.91583413,
-        "lastFundingRate": 0.00019021,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276466296,
+        "markPrice": 390.58834096,
+        "indexPrice": 390.21860264,
+        "lastFundingRate": 7.53e-05,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305265296,
         "available": true
       },
       "rows": [
@@ -13412,11 +13333,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 0.00032656,
           "markPrice": 392.30869186
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 0.00013005,
+          "markPrice": 387.33
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=MSFTUSDT&startTime=1773525330405&endTime=1781301330405&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301339960
+      "available": true
     },
     "Binance:MSTRUSDT": {
       "key": "Binance:MSTRUSDT",
@@ -13425,43 +13349,38 @@
       "windows": {
         "7D": {
           "count": 21,
-          "avgFundingRate": 0.0001736552380952381,
-          "annualizedPct": -19.01524857142857,
-          "sumFundingRate": 0.0036467599999999998,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 0.00017000476190476193,
+          "annualizedPct": -18.615521428571434,
+          "sumFundingRate": 0.0035701000000000005,
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 90,
           "avgFundingRate": 3.021555555555556e-05,
           "annualizedPct": -3.308603333333334,
           "sumFundingRate": 0.0027194000000000003,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
           "count": 270,
-          "avgFundingRate": -7.1238148148148195e-06,
-          "annualizedPct": 0.7800577222222228,
-          "sumFundingRate": -0.0019234300000000014,
-          "firstFundingTime": 1773504000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": -6.473777777777769e-06,
+          "annualizedPct": 0.7088786666666658,
+          "sumFundingRate": -0.0017479199999999976,
+          "firstFundingTime": 1773532800001,
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 127.39,
-        "indexPrice": 127.42396153,
+        "markPrice": 124.11415619,
+        "indexPrice": 124.19319792,
         "lastFundingRate": 0.0,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276466296,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305265296,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1773504000001,
-          "fundingRate": -0.00017551,
-          "markPrice": 138.30810518
-        },
         {
           "fundingTime": 1773532800001,
           "fundingRate": 0.00031941,
@@ -14806,11 +14725,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 0.0,
           "markPrice": 118.79
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 0.0,
+          "markPrice": 123.32
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=MSTRUSDT&startTime=1773525349296&endTime=1781301349296&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301358701
+      "available": true
     },
     "Binance:COINUSDT": {
       "key": "Binance:COINUSDT",
@@ -14822,40 +14744,35 @@
           "avgFundingRate": 8.190619047619048e-05,
           "annualizedPct": -8.96872785714286,
           "sumFundingRate": 0.00172003,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 90,
           "avgFundingRate": 4.7754111111111086e-05,
           "annualizedPct": -5.2290751666666635,
           "sumFundingRate": 0.004297869999999998,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
           "count": 270,
           "avgFundingRate": -2.5197296296296332e-05,
           "annualizedPct": 2.759103944444448,
           "sumFundingRate": -0.00680327000000001,
-          "firstFundingTime": 1773504000001,
-          "lastFundingTime": 1781251200001
+          "firstFundingTime": 1773532800001,
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 164.69909119,
-        "indexPrice": 164.46945885,
-        "lastFundingRate": 8.92e-06,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276467297,
+        "markPrice": 159.85,
+        "indexPrice": 159.87272,
+        "lastFundingRate": 0.0,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305266296,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1773504000001,
-          "fundingRate": 0.0,
-          "markPrice": 194.50748241
-        },
         {
           "fundingTime": 1773532800001,
           "fundingRate": 0.0,
@@ -16200,11 +16117,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 0.0,
           "markPrice": 159.09
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 0.0,
+          "markPrice": 159.54
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=COINUSDT&startTime=1773525368033&endTime=1781301368033&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301377447
+      "available": true
     },
     "Binance:TSMUSDT": {
       "key": "Binance:TSMUSDT",
@@ -16213,35 +16133,35 @@
       "windows": {
         "7D": {
           "count": 30,
-          "avgFundingRate": -3.7196333333333335e-05,
-          "annualizedPct": 4.072998500000001,
-          "sumFundingRate": -0.00111589,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": -3.7929e-05,
+          "annualizedPct": 4.1532255000000005,
+          "sumFundingRate": -0.00113787,
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 99,
-          "avgFundingRate": 4.3839393939393955e-05,
-          "annualizedPct": -4.800413636363638,
-          "sumFundingRate": 0.004340100000000001,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 4.297535353535355e-05,
+          "annualizedPct": -4.705801212121213,
+          "sumFundingRate": 0.004254560000000001,
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
-          "count": 220,
-          "avgFundingRate": 0.00011540713636363638,
-          "annualizedPct": -12.637081431818183,
+          "count": 221,
+          "avgFundingRate": 0.00011488493212669685,
+          "annualizedPct": -12.579900067873307,
           "sumFundingRate": 0.025389570000000004,
           "firstFundingTime": 1775203200001,
-          "lastFundingTime": 1781251200001
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 424.47,
-        "indexPrice": 424.31608137,
-        "lastFundingRate": 0.0,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276467297,
+        "markPrice": 425.11,
+        "indexPrice": 424.77310167,
+        "lastFundingRate": 2.638e-05,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305266296,
         "available": true
       },
       "rows": [
@@ -17344,11 +17264,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 0.0,
           "markPrice": 419.76
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 0.0,
+          "markPrice": 423.03581949
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=TSMUSDT&startTime=1773525386885&endTime=1781301386885&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301396203
+      "available": true
     },
     "Binance:PLTRUSDT": {
       "key": "Binance:PLTRUSDT",
@@ -17360,40 +17283,35 @@
           "avgFundingRate": 3.825238095238095e-06,
           "annualizedPct": -0.41886357142857145,
           "sumFundingRate": 8.033e-05,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 90,
           "avgFundingRate": 3.527644444444445e-05,
           "annualizedPct": -3.862770666666667,
           "sumFundingRate": 0.00317488,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
           "count": 270,
-          "avgFundingRate": -7.90788148148148e-05,
-          "annualizedPct": 8.65913022222222,
-          "sumFundingRate": -0.021351279999999997,
-          "firstFundingTime": 1773504000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": -7.894840740740739e-05,
+          "annualizedPct": 8.644850611111108,
+          "sumFundingRate": -0.021316069999999996,
+          "firstFundingTime": 1773532800001,
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 129.68100924,
-        "indexPrice": 129.53446173,
+        "markPrice": 128.24,
+        "indexPrice": 128.15731944,
         "lastFundingRate": 0.0,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276467297,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305266296,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1773504000001,
-          "fundingRate": -3.521e-05,
-          "markPrice": 150.67456928
-        },
         {
           "fundingTime": 1773532800001,
           "fundingRate": -0.0004556,
@@ -18738,11 +18656,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 6.705e-05,
           "markPrice": 131.05319079
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 0.0,
+          "markPrice": 126.99684296
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=PLTRUSDT&startTime=1773525405767&endTime=1781301405767&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301415294
+      "available": true
     },
     "Binance:BABAUSDT": {
       "key": "Binance:BABAUSDT",
@@ -18754,32 +18675,32 @@
           "avgFundingRate": -0.0003227803333333333,
           "annualizedPct": 35.3444465,
           "sumFundingRate": -0.00968341,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 99,
-          "avgFundingRate": -4.821505050505049e-05,
-          "annualizedPct": 5.279548030303029,
-          "sumFundingRate": -0.004773289999999999,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": -5.083959595959595e-05,
+          "annualizedPct": 5.566935757575757,
+          "sumFundingRate": -0.005033119999999999,
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
-          "count": 178,
-          "avgFundingRate": 4.968449438202248e-05,
-          "annualizedPct": -5.440452134831461,
+          "count": 179,
+          "avgFundingRate": 4.940692737430169e-05,
+          "annualizedPct": -5.4100585474860345,
           "sumFundingRate": 0.008843840000000002,
           "firstFundingTime": 1776412800001,
-          "lastFundingTime": 1781251200001
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 111.91319209,
-        "indexPrice": 111.83861202,
-        "lastFundingRate": 0.0,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276467297,
+        "markPrice": 113.21,
+        "indexPrice": 113.24228583,
+        "lastFundingRate": 0.00022911,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305266296,
         "available": true
       },
       "rows": [
@@ -19672,11 +19593,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 0.0,
           "markPrice": 112.20096505
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 0.0,
+          "markPrice": 111.43
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=BABAUSDT&startTime=1773525424775&endTime=1781301424775&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301434086
+      "available": true
     },
     "Binance:QQQUSDT": {
       "key": "Binance:QQQUSDT",
@@ -19685,35 +19609,35 @@
       "windows": {
         "7D": {
           "count": 21,
-          "avgFundingRate": 0.00016479523809523805,
-          "annualizedPct": -18.04507857142856,
-          "sumFundingRate": 0.0034606999999999993,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 0.00016239666666666665,
+          "annualizedPct": -17.782435,
+          "sumFundingRate": 0.0034103299999999996,
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 90,
-          "avgFundingRate": 9.655266666666666e-05,
-          "annualizedPct": -10.572517,
-          "sumFundingRate": 0.00868974,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": 9.56868888888889e-05,
+          "annualizedPct": -10.477714333333335,
+          "sumFundingRate": 0.008611820000000001,
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
-          "count": 211,
-          "avgFundingRate": -4.529379146919427e-05,
-          "annualizedPct": 4.959670165876773,
-          "sumFundingRate": -0.009556989999999991,
+          "count": 212,
+          "avgFundingRate": -4.416985849056599e-05,
+          "annualizedPct": 4.836599504716975,
+          "sumFundingRate": -0.00936400999999999,
           "firstFundingTime": 1775203200001,
-          "lastFundingTime": 1781251200001
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 721.78415263,
-        "indexPrice": 721.52755127,
-        "lastFundingRate": 0.00028678,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276467297,
+        "markPrice": 722.51,
+        "indexPrice": 722.52375125,
+        "lastFundingRate": 0.0,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305266296,
         "available": true
       },
       "rows": [
@@ -20771,11 +20695,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": 0.0,
           "markPrice": 716.34387277
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 0.00019298,
+          "markPrice": 716.22
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=QQQUSDT&startTime=1773525443397&endTime=1781301443397&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301452652
+      "available": true
     },
     "Binance:SPYUSDT": {
       "key": "Binance:SPYUSDT",
@@ -20784,35 +20711,35 @@
       "windows": {
         "7D": {
           "count": 21,
-          "avgFundingRate": -2.7130952380952384e-05,
-          "annualizedPct": 2.9708392857142862,
-          "sumFundingRate": -0.00056975,
-          "firstFundingTime": 1780675200001,
-          "lastFundingTime": 1781251200001
+          "avgFundingRate": -1.8045238095238096e-05,
+          "annualizedPct": 1.9759535714285716,
+          "sumFundingRate": -0.00037895,
+          "firstFundingTime": 1780704000001,
+          "lastFundingTime": 1781280000001
         },
         "30D": {
           "count": 90,
           "avgFundingRate": -1.0553333333333333e-05,
           "annualizedPct": 1.15559,
           "sumFundingRate": -0.0009498,
-          "firstFundingTime": 1778688000001,
-          "lastFundingTime": 1781251200001
+          "firstFundingTime": 1778716800001,
+          "lastFundingTime": 1781280000001
         },
         "90D": {
-          "count": 211,
-          "avgFundingRate": -0.0001250298104265403,
-          "annualizedPct": 13.690764241706162,
+          "count": 212,
+          "avgFundingRate": -0.00012444004716981132,
+          "annualizedPct": 13.62618516509434,
           "sumFundingRate": -0.02638129,
           "firstFundingTime": 1775203200001,
-          "lastFundingTime": 1781251200001
+          "lastFundingTime": 1781280000001
         }
       },
       "latest": {
-        "markPrice": 742.30294028,
-        "indexPrice": 742.74518759,
+        "markPrice": 742.77,
+        "indexPrice": 742.32367064,
         "lastFundingRate": 0.0,
-        "nextFundingTime": 1781280000000,
-        "time": 1781276467297,
+        "nextFundingTime": 1781308800000,
+        "time": 1781305266296,
         "available": true
       },
       "rows": [
@@ -21870,11 +21797,14 @@
           "fundingTime": 1781251200001,
           "fundingRate": -2.8e-05,
           "markPrice": 738.16792244
+        },
+        {
+          "fundingTime": 1781280000001,
+          "fundingRate": 0.0,
+          "markPrice": 738.54
         }
       ],
-      "available": false,
-      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=SPYUSDT&startTime=1773525461975&endTime=1781301461975&limit=1000: HTTP Error 451: ",
-      "lastErrorAt": 1781301471276
+      "available": true
     }
   },
   "comparisons": {
