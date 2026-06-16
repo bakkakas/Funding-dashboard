@@ -1,13 +1,99 @@
 {
-  "updatedAt": 1781564461719,
+  "updatedAt": 1781585811608,
   "meta": {
     "windows": {
       "7D": 7,
       "30D": 30,
       "90D": 90
     },
-    "partialFailure": false,
-    "errors": [],
+    "partialFailure": true,
+    "errors": [
+      {
+        "key": "Binance:GOOGLUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=GOOGLUSDT&startTime=1773809821171&endTime=1781585821171&limit=1000: HTTP Error 451: ",
+        "time": 1781585830658
+      },
+      {
+        "key": "Bybit:GOOGLUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=GOOGLUSDT&startTime=1773809840112&endTime=1781585840112&limit=200: HTTP Error 403: Forbidden",
+        "time": 1781585849460
+      },
+      {
+        "key": "Binance:XAUUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=XAUUSDT&startTime=1773809858859&endTime=1781585858859&limit=1000: HTTP Error 451: ",
+        "time": 1781585868226
+      },
+      {
+        "key": "Bybit:XAUTUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=XAUTUSDT&startTime=1773809877451&endTime=1781585877451&limit=200: HTTP Error 403: Forbidden",
+        "time": 1781585886742
+      },
+      {
+        "key": "Binance:AMZNUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=AMZNUSDT&startTime=1773809896181&endTime=1781585896181&limit=1000: HTTP Error 451: ",
+        "time": 1781585905659
+      },
+      {
+        "key": "Binance:AAPLUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=AAPLUSDT&startTime=1773809915130&endTime=1781585915130&limit=1000: HTTP Error 451: ",
+        "time": 1781585924386
+      },
+      {
+        "key": "Binance:TSLAUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=TSLAUSDT&startTime=1773809933663&endTime=1781585933663&limit=1000: HTTP Error 451: ",
+        "time": 1781585942948
+      },
+      {
+        "key": "Binance:NVDAUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=NVDAUSDT&startTime=1773809952312&endTime=1781585952312&limit=1000: HTTP Error 451: ",
+        "time": 1781585961593
+      },
+      {
+        "key": "Binance:METAUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=METAUSDT&startTime=1773809970806&endTime=1781585970806&limit=1000: HTTP Error 451: ",
+        "time": 1781585980068
+      },
+      {
+        "key": "Binance:MSFTUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=MSFTUSDT&startTime=1773809989384&endTime=1781585989384&limit=1000: HTTP Error 451: ",
+        "time": 1781585998618
+      },
+      {
+        "key": "Binance:MSTRUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=MSTRUSDT&startTime=1773810008055&endTime=1781586008055&limit=1000: HTTP Error 451: ",
+        "time": 1781586017367
+      },
+      {
+        "key": "Binance:COINUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=COINUSDT&startTime=1773810026701&endTime=1781586026701&limit=1000: HTTP Error 451: ",
+        "time": 1781586035959
+      },
+      {
+        "key": "Binance:TSMUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=TSMUSDT&startTime=1773810045252&endTime=1781586045252&limit=1000: HTTP Error 451: ",
+        "time": 1781586054563
+      },
+      {
+        "key": "Binance:PLTRUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=PLTRUSDT&startTime=1773810063828&endTime=1781586063828&limit=1000: HTTP Error 451: ",
+        "time": 1781586073283
+      },
+      {
+        "key": "Binance:BABAUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=BABAUSDT&startTime=1773810082647&endTime=1781586082647&limit=1000: HTTP Error 451: ",
+        "time": 1781586091938
+      },
+      {
+        "key": "Binance:QQQUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=QQQUSDT&startTime=1773810101191&endTime=1781586101191&limit=1000: HTTP Error 451: ",
+        "time": 1781586110455
+      },
+      {
+        "key": "Binance:SPYUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=SPYUSDT&startTime=1773810119733&endTime=1781586119733&limit=1000: HTTP Error 451: ",
+        "time": 1781586129144
+      }
+    ],
     "notes": {
       "Bybit GOOGLUSDT": "Funding history and current snapshot available via public linear market API",
       "Binance XAUUSDT": "Funding history and current snapshot available via public futures API",
@@ -1342,7 +1428,9 @@
           "markPrice": 372.5655544
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=GOOGLUSDT&startTime=1773809821171&endTime=1781585821171&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781585830658
     },
     "Bybit:GOOGLUSDT": {
       "key": "Bybit:GOOGLUSDT",
@@ -2129,7 +2217,9 @@
           "markPrice": 369.25
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=GOOGLUSDT&startTime=1773809840112&endTime=1781585840112&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1781585849460
     },
     "Binance:XAUUSDT": {
       "key": "Binance:XAUUSDT",
@@ -4871,7 +4961,9 @@
           "markPrice": 4322.56411574
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=XAUUSDT&startTime=1773809858859&endTime=1781585858859&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781585868226
     },
     "Bybit:XAUTUSDT": {
       "key": "Bybit:XAUTUSDT",
@@ -5913,7 +6005,9 @@
           "markPrice": 4294.1
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=XAUTUSDT&startTime=1773809877451&endTime=1781585877451&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1781585886742
     },
     "Binance:AMZNUSDT": {
       "key": "Binance:AMZNUSDT",
@@ -7305,7 +7399,9 @@
           "markPrice": 246.6443082
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=AMZNUSDT&startTime=1773809896181&endTime=1781585896181&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781585905659
     },
     "Binance:AAPLUSDT": {
       "key": "Binance:AAPLUSDT",
@@ -8562,7 +8658,9 @@
           "markPrice": 297.62
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=AAPLUSDT&startTime=1773809915130&endTime=1781585915130&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781585924386
     },
     "Binance:TSLAUSDT": {
       "key": "Binance:TSLAUSDT",
@@ -9954,7 +10052,9 @@
           "markPrice": 409.04
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=TSLAUSDT&startTime=1773809933663&endTime=1781585933663&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781585942948
     },
     "Binance:NVDAUSDT": {
       "key": "Binance:NVDAUSDT",
@@ -11281,7 +11381,9 @@
           "markPrice": 212.26
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=NVDAUSDT&startTime=1773809952312&endTime=1781585952312&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781585961593
     },
     "Binance:METAUSDT": {
       "key": "Binance:METAUSDT",
@@ -12608,7 +12710,9 @@
           "markPrice": 600.05
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=METAUSDT&startTime=1773809970806&endTime=1781585970806&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781585980068
     },
     "Binance:MSFTUSDT": {
       "key": "Binance:MSFTUSDT",
@@ -13655,7 +13759,9 @@
           "markPrice": 401.13
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=MSFTUSDT&startTime=1773809989384&endTime=1781585989384&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781585998618
     },
     "Binance:MSTRUSDT": {
       "key": "Binance:MSTRUSDT",
@@ -15047,7 +15153,9 @@
           "markPrice": 135.37634878
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=MSTRUSDT&startTime=1773810008055&endTime=1781586008055&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781586017367
     },
     "Binance:COINUSDT": {
       "key": "Binance:COINUSDT",
@@ -16439,7 +16547,9 @@
           "markPrice": 173.62025843
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=COINUSDT&startTime=1773810026701&endTime=1781586026701&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781586035959
     },
     "Binance:TSMUSDT": {
       "key": "Binance:TSMUSDT",
@@ -17631,7 +17741,9 @@
           "markPrice": 439.84534637
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=TSMUSDT&startTime=1773810045252&endTime=1781586045252&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781586054563
     },
     "Binance:PLTRUSDT": {
       "key": "Binance:PLTRUSDT",
@@ -19023,7 +19135,9 @@
           "markPrice": 134.82
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=PLTRUSDT&startTime=1773810063828&endTime=1781586063828&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781586073283
     },
     "Binance:BABAUSDT": {
       "key": "Binance:BABAUSDT",
@@ -20005,7 +20119,9 @@
           "markPrice": 113.04
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=BABAUSDT&startTime=1773810082647&endTime=1781586082647&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781586091938
     },
     "Binance:QQQUSDT": {
       "key": "Binance:QQQUSDT",
@@ -21152,7 +21268,9 @@
           "markPrice": 744.40750944
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=QQQUSDT&startTime=1773810101191&endTime=1781586101191&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781586110455
     },
     "Binance:SPYUSDT": {
       "key": "Binance:SPYUSDT",
@@ -22299,7 +22417,9 @@
           "markPrice": 756.14621869
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=SPYUSDT&startTime=1773810119733&endTime=1781586119733&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1781586129144
     }
   },
   "comparisons": {
