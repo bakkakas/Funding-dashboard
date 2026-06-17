@@ -59,7 +59,7 @@
       <div class="stamp" id="updatedAt">Updated: -</div>
     </div>
 
-    <div class="toolbar"><input id="pairSelect" class="field pair-select" list="pairOptions" type="search" placeholder="티커/거래소 검색" autocomplete="off"><datalist id="pairOptions"></datalist><select id="sortMode" class="field"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
+    <div class="toolbar"><select id="pairSelect" class="field pair-select"></select><select id="sortMode" class="field"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
     <div class="toolbar" id="favoriteTabs"></div>
     <div class="toolbar2" id="windowTabs"></div>
     <div class="card" style="margin-bottom:16px;">
@@ -120,7 +120,7 @@
     const HYPERLIQUID_INFO_URL = 'https://api.hyperliquid.xyz/info';
     const LIVE_REFRESH_MS = 30000;
 
-    let state = { data:null, selectedPair:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{}, displayToPair:{} };
+    let state = { data:null, selectedPair:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{} };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
     const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
@@ -131,50 +131,20 @@
     function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>displaySymbol(a[1]).localeCompare(displaySymbol(b[1])) || a[1].exchange.localeCompare(b[1].exchange)); } return entries; }
 
     function pairDisplay(pair){ return `${displaySymbol(pair)} · ${pair.exchange}`; }
-    function selectedPairDisplay(){ const pair=state.data?.pairs?.[state.selectedPair]; return pair ? pairDisplay(pair) : ''; }
-    function getPickerQuery(){
-      const input = document.getElementById('pairSelect');
-      const value = input?.value.trim() || '';
-      return value === selectedPairDisplay() ? '' : value.toLowerCase();
-    }
-
-    function getFilteredEntries(){
-      const query = getPickerQuery();
-      const entries = getSortedEntries();
-      if (!query) return entries;
-      return entries.filter(([pairKey, val]) => `${pairKey} ${val.symbol} ${displaySymbol(val)} ${val.exchange}`.toLowerCase().includes(query));
-    }
-
-    function renderPairPicker(preserveInput=false){
-      const input=document.getElementById('pairSelect');
-      const list=document.getElementById('pairOptions');
-      let entries=getFilteredEntries();
-      if(entries.length === 0 && state.selectedPair && state.data.pairs[state.selectedPair]){
-        entries=[[state.selectedPair, state.data.pairs[state.selectedPair]]];
-      }
-      list.innerHTML='';
-      state.displayToPair={};
+    function renderPairPicker(){
+      const select=document.getElementById('pairSelect');
+      const entries=getSortedEntries();
+      select.innerHTML='';
       entries.forEach(([pairKey,val])=>{
         const option=document.createElement('option');
-        option.value=pairDisplay(val);
-        option.label=pairKey;
-        state.displayToPair[option.value]=pairKey;
-        list.appendChild(option);
+        option.value=pairKey;
+        option.textContent=pairDisplay(val);
+        select.appendChild(option);
       });
-      if(!preserveInput){
-        input.value=selectedPairDisplay();
-      }
+      select.value=state.selectedPair;
     }
 
     function selectPair(pairKey){ state.selectedPair=pairKey; renderFavoriteTabs(); renderPairPicker(); renderComparisons(); render(); }
-    function selectTypedPair(){
-      const input=document.getElementById('pairSelect');
-      const exact=state.displayToPair[input.value];
-      if(exact){ selectPair(exact); return; }
-      const first=getFilteredEntries()[0];
-      if(first) selectPair(first[0]);
-      else renderPairPicker();
-    }
     function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; state.favorites.forEach(pairKey=>{ const pair=state.data.pairs[pairKey]; if(!pair) return; const btn=document.createElement('button'); btn.className='chip'+(pairKey===state.selectedPair?' active':''); btn.textContent=`★ ${displaySymbol(pair)} · ${pair.exchange}`; btn.onclick=()=>selectPair(pairKey); tabs.appendChild(btn); }); }
     function renderWindowTabs(){ const tabs=document.getElementById('windowTabs'); tabs.innerHTML=''; Object.keys(state.data.meta.windows).forEach(key=>{ const btn=document.createElement('button'); btn.className='chip'+(key===state.selectedWindow?' active':''); btn.textContent=key; btn.onclick=()=>{ state.selectedWindow=key; renderWindowTabs(); render(); }; tabs.appendChild(btn); }); }
     function renderComparisons(){
@@ -339,15 +309,7 @@
       try { state.favorites = JSON.parse(localStorage.getItem('favoritePairs') || '[]'); } catch(e) { state.favorites = []; }
       document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt);
       const pairInput=document.getElementById('pairSelect');
-      pairInput.addEventListener('focus', () => pairInput.select());
-      pairInput.addEventListener('input', () => {
-        renderPairPicker(true);
-        const exact=state.displayToPair[pairInput.value];
-        if(exact) selectPair(exact);
-      });
-      pairInput.addEventListener('change', selectTypedPair);
-      pairInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); selectTypedPair(); } });
-      pairInput.addEventListener('blur', () => setTimeout(() => renderPairPicker(), 120));
+      pairInput.addEventListener('change', e=>selectPair(e.target.value));
       document.getElementById('sortMode').addEventListener('change', e=>{ state.sortMode=e.target.value; renderPairPicker(); });
       document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const pairKey=state.selectedPair; if(state.favorites.includes(pairKey)){ state.favorites=state.favorites.filter(x=>x!==pairKey); } else { state.favorites.unshift(pairKey); } localStorage.setItem('favoritePairs', JSON.stringify(state.favorites.slice(0,12))); renderFavoriteTabs(); render(); });
       renderPairPicker();
