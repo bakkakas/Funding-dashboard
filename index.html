@@ -1,302 +1,372 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hyperliquid XYZ Funding Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Funding Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root {
-      color-scheme: dark;
-      --bg: #101112;
-      --panel: #181b1f;
-      --panel-2: #20242a;
-      --line: #303741;
-      --text: #eef1f4;
-      --muted: #9ea8b3;
-      --soft: #cfd6de;
-      --red: #ff6b6b;
-      --green: #3ed598;
-      --amber: #f5b85b;
-      --blue: #64a8ff;
-      --shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 220px), var(--bg);
-      color: var(--text);
-    }
-    button { font: inherit; cursor: pointer; }
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      border-bottom: 1px solid var(--line);
-      background: rgba(16,17,18,.9);
-      backdrop-filter: blur(14px);
-    }
-    .topbar-inner, .content {
-      width: min(1440px, calc(100vw - 32px));
-      margin: 0 auto;
-    }
-    .topbar-inner {
-      min-height: 76px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 18px;
-      align-items: center;
-    }
-    h1 { margin: 0; font-size: clamp(22px, 2.4vw, 34px); line-height: 1.08; letter-spacing: 0; }
-    .brand p { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
-    .toolbar { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
-    .segmented, .pair-switcher {
-      display: inline-flex;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      border-radius: 8px;
-      padding: 3px;
-      gap: 3px;
-    }
-    .segment, .pair-pill, .icon-btn {
-      min-height: 34px;
-      border: 0;
-      color: var(--muted);
-      background: transparent;
-      border-radius: 6px;
-      padding: 0 12px;
-      transition: background .16s ease, color .16s ease, transform .16s ease;
-    }
-    .segment.active, .pair-pill.active { background: var(--panel-2); color: var(--text); box-shadow: inset 0 0 0 1px rgba(255,255,255,.04); }
-    .icon-btn { width: 38px; padding: 0; display: grid; place-items: center; border: 1px solid var(--line); background: var(--panel); color: var(--soft); font-size: 18px; }
-    .icon-btn:hover, .segment:hover, .pair-pill:hover { color: var(--text); background: #252a31; }
-    .content { padding: 22px 0 32px; }
-    .status-row { min-height: 24px; display: flex; align-items: center; justify-content: space-between; gap: 14px; color: var(--muted); font-size: 13px; margin-bottom: 14px; }
-    .status-row strong { color: var(--soft); font-weight: 600; }
-    .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
-    .metric-card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      min-height: 176px;
-      padding: 16px;
-      display: grid;
-      gap: 16px;
-      align-content: space-between;
-    }
-    .metric-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-    .coin-title { display: flex; gap: 10px; align-items: center; min-width: 0; }
-    .swatch { width: 10px; height: 34px; border-radius: 3px; flex: 0 0 auto; }
-    .coin-title h2 { margin: 0; font-size: 18px; line-height: 1.1; letter-spacing: 0; }
-    .coin-title span { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
-    .mark { color: var(--soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .annualized { font-size: clamp(26px, 3.2vw, 44px); line-height: 1; font-weight: 760; letter-spacing: 0; font-variant-numeric: tabular-nums; }
-    .positive { color: var(--green); }
-    .negative { color: var(--red); }
-    .flat { color: var(--soft); }
-    .metric-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-    .mini-metric { border-top: 1px solid var(--line); padding-top: 10px; min-width: 0; }
-    .mini-metric label { display: block; color: var(--muted); font-size: 11px; margin-bottom: 4px; }
-    .mini-metric div { color: var(--soft); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .main-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(330px, .75fr); gap: 14px; align-items: start; }
-    .section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); box-shadow: var(--shadow); overflow: hidden; }
-    .section-head { min-height: 60px; padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .section-head h3 { margin: 0; font-size: 15px; letter-spacing: 0; }
-    .section-head span { color: var(--muted); font-size: 12px; white-space: nowrap; }
-    .chart-wrap { min-height: 430px; padding: 10px 14px 14px; }
-    svg.chart { width: 100%; height: 390px; display: block; }
-    .axis-text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
-    .grid-line { stroke: rgba(255,255,255,.08); stroke-width: 1; }
-    .zero-line { stroke: rgba(255,255,255,.26); stroke-width: 1.2; stroke-dasharray: 5 6; }
-    .chart-line { fill: none; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
-    .chart-dot { stroke: var(--panel); stroke-width: 2; }
-    .empty-state { min-height: 390px; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 24px; }
-    .table-wrap { overflow: auto; max-height: 430px; }
-    table { width: 100%; border-collapse: collapse; min-width: 620px; font-size: 13px; }
-    th, td { text-align: right; padding: 11px 12px; border-bottom: 1px solid rgba(255,255,255,.06); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
-    th { position: sticky; top: 0; z-index: 1; background: var(--panel); color: var(--muted); font-size: 11px; font-weight: 600; }
-    td { color: var(--soft); }
-    tr:hover td { background: rgba(255,255,255,.025); }
-    .right-stack { display: grid; gap: 14px; }
-    .insight-list { padding: 14px 16px 16px; display: grid; gap: 12px; }
-    .insight { display: grid; grid-template-columns: 1fr auto; gap: 12px; border-bottom: 1px solid rgba(255,255,255,.07); padding-bottom: 12px; min-height: 58px; align-items: center; }
-    .insight:last-child { border-bottom: 0; padding-bottom: 0; }
-    .insight b { display: block; font-size: 13px; margin-bottom: 4px; }
-    .insight span { color: var(--muted); font-size: 12px; }
-    .insight strong { font-size: 17px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .error { border-color: rgba(255,107,107,.4); color: #ffd0d0; }
-    @media (max-width: 1120px) { .summary-grid, .main-grid { grid-template-columns: 1fr; } .metric-card { min-height: 150px; } }
-    @media (max-width: 820px) {
-      .topbar-inner { grid-template-columns: 1fr; padding: 14px 0; }
-      .toolbar { justify-content: flex-start; }
-      .content, .topbar-inner { width: min(100vw - 20px, 1440px); }
-      .status-row { align-items: flex-start; flex-direction: column; }
-      .metric-strip { grid-template-columns: 1fr; }
-      .pair-switcher { width: 100%; overflow-x: auto; }
-    }
-    @media (max-width: 560px) { .segmented { width: 100%; } .segment { flex: 1; padding: 0 8px; } .toolbar { display: grid; grid-template-columns: 1fr 38px; width: 100%; } .toolbar .segmented:nth-child(2) { grid-column: 1 / -1; } }
+    :root { --bg:#0a0f1c; --panel:#12192b; --panel2:#18233b; --text:#eef3ff; --muted:#9ca9c8; --line:#27324d; --good:#2ecc71; --bad:#ff6b6b; --warn:#ffd166; --accent:#7aa2ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:linear-gradient(180deg,#0a0f1c 0%,#0f1727 100%); color:var(--text); font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,sans-serif; }
+    .wrap { max-width:1450px; margin:0 auto; padding:28px; }
+    .header { display:flex; justify-content:space-between; gap:16px; align-items:end; margin-bottom:22px; }
+    h1 { margin:0; font-size:30px; }
+    .sub { margin-top:8px; color:var(--muted); line-height:1.5; }
+    .stamp { background:rgba(255,255,255,0.06); border:1px solid var(--line); color:var(--muted); padding:10px 14px; border-radius:999px; font-size:14px; white-space:nowrap; }
+    .header-side { display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+    .alt-link { color:var(--accent); text-decoration:none; font-size:13px; font-weight:700; }
+    .alt-link:hover { text-decoration:underline; }
+    .toolbar,.toolbar2 { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+    .field { background:#12192b; color:#eef3ff; border:1px solid #27324d; border-radius:12px; padding:12px 14px; }
+    .pair-select { flex:2 1 420px; min-width:280px; }
+    .chip { border:1px solid var(--line); background:var(--panel); color:var(--text); border-radius:999px; padding:10px 14px; cursor:pointer; font-weight:600; }
+    .chip.active { background:var(--accent); color:#07101f; border-color:transparent; }
+    .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
+    .card { background:rgba(18,25,43,0.94); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,0.18); }
+    .metric { grid-column:span 3; }
+    .wide { grid-column:span 12; }
+    .half { grid-column:span 6; }
+    .label { color:var(--muted); font-size:14px; }
+    .value { margin-top:10px; font-size:28px; font-weight:700; }
+    .value.good { color:var(--good); }
+    .value.bad { color:var(--bad); }
+    .value.warn { color:var(--warn); }
+    .mini { color:var(--muted); font-size:13px; margin-top:8px; }
+    .section-title { margin:0 0 14px; font-size:18px; }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    th,td { text-align:left; padding:11px 10px; border-bottom:1px solid var(--line); }
+    th { color:var(--muted); font-size:13px; font-weight:600; position:sticky; top:0; background:rgba(18,25,43,0.98); }
+    .table-wrap { max-height:620px; overflow:auto; border-radius:12px; border:1px solid var(--line); }
+    .pill { display:inline-flex; align-items:center; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:700; }
+    .pill.good { background:rgba(46,204,113,0.14); color:var(--good); }
+    .pill.bad { background:rgba(255,107,107,0.14); color:var(--bad); }
+    .pill.warn { background:rgba(255,209,102,0.14); color:var(--warn); }
+    .linkish { color:var(--accent); cursor:pointer; font-weight:700; }
+    .linkish:hover { text-decoration:underline; }
+    .muted { color:var(--muted); }
+    .note { margin-top:16px; color:var(--muted); font-size:13px; line-height:1.6; }
+    .countdown { font-variant-numeric:tabular-nums; letter-spacing:0.02em; }
+    canvas { width:100% !important; height:320px !important; }
+    code { background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; }
+    @media (max-width:1100px){ .metric,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header class="topbar">
-      <div class="topbar-inner">
-        <div class="brand">
-          <h1>Hyperliquid XYZ Funding</h1>
-          <p>Funding rates, history, and annualized views for GOOGL, Samsung, and SK Hynix.</p>
-        </div>
-        <div class="toolbar" aria-label="Dashboard settings">
-          <div class="segmented" id="rangeControl" aria-label="Range">
-            <button class="segment active" data-range="1">24H</button>
-            <button class="segment" data-range="7">7D</button>
-            <button class="segment" data-range="30">30D</button>
-            <button class="segment" data-range="90">90D</button>
-          </div>
-          <div class="segmented" id="annualControl" aria-label="Annualization mode">
-            <button class="segment active" data-mode="simple">Simple</button>
-            <button class="segment" data-mode="compound">Compound</button>
-          </div>
-          <button class="icon-btn" id="refreshBtn" title="Refresh" aria-label="Refresh">R</button>
-        </div>
+  <div class="wrap">
+    <div class="header">
+      <div>
+        <h1>Multi-Exchange Funding Dashboard</h1>
+        <div class="sub">history는 자동 적재하고, 현재 funding / mark / index / 다음 funding 카운트다운은 거래소별 public API 기준으로 실시간에 가깝게 반영하는 대시보드.</div>
       </div>
-    </header>
+      <div class="header-side">
+        <div class="stamp" id="updatedAt">Updated: -</div>
+        <a class="alt-link" href="./other-ai-dashboard.html">다른 AI 버전 보기</a>
+      </div>
+    </div>
 
-    <main class="content">
-      <div class="status-row">
-        <div id="statusText">Preparing data</div>
-        <div id="lastUpdated"></div>
+    <div class="toolbar"><select id="assetSelect" class="field pair-select"></select><select id="exchangeSelect" class="field"></select><select id="sortMode" class="field"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
+    <div class="toolbar" id="favoriteTabs"></div>
+    <div class="toolbar2" id="windowTabs"></div>
+    <div class="card" style="margin-bottom:16px;">
+      <h3 class="section-title">Pair 확장 안내</h3>
+      <div class="sub" style="margin:0;">현재는 Hyperliquid xyz HIP-3 perp, Binance, Bybit 일부 선물을 자동 지원한다. 새 pair를 추가하려면 repo의 <code>update_data.py</code> 안 <code>PAIRS</code> 리스트에 거래소와 종목을 추가하면 된다.</div>
+    </div>
+
+    <div class="grid">
+      <div class="card metric"><div class="label">선택 종목</div><div class="value" id="pairName">-</div><div class="mini" id="exchangeName">-</div></div>
+      <div class="card metric"><div class="label">현재 Latest Funding</div><div class="value" id="latestFunding">-</div><div class="mini">거래소 public API 기준 최신값</div></div>
+      <div class="card metric"><div class="label">다음 Funding</div><div class="value countdown" id="nextFunding">-</div><div class="mini" id="nextFundingAt">다음 정산까지 남은 시간</div></div>
+      <div class="card metric"><div class="label">현재 Price</div><div class="value" id="priceCard">-</div><div class="mini"><strong style="color:#eef3ff">Mark:</strong> <span id="markPrice">-</span> &nbsp;|&nbsp; <strong style="color:#eef3ff">Index:</strong> <span id="indexPrice">-</span></div></div>
+
+      <div class="card metric"><div class="label">표본 수</div><div class="value" id="sampleCount">-</div><div class="mini">선택 기간의 funding 회차 수</div></div>
+      <div class="card metric"><div class="label">평균 funding / 회</div><div class="value" id="avgFunding">-</div><div class="mini">최근 선택 구간 평균</div></div>
+      <div class="card metric"><div class="label">Annualized</div><div class="value" id="annualized">-</div><div class="mini">Long → Short = 음수 / Short → Long = 양수</div></div>
+      <div class="card metric"><div class="label">현재 Snapshot Time</div><div class="value" id="snapshotTime">-</div><div class="mini">실시간 조회 시각</div></div>
+
+      <div class="card half">
+        <h3 class="section-title">요약</h3>
+        <table><tbody>
+          <tr><td class="muted">첫 회차</td><td id="firstTime">-</td></tr>
+          <tr><td class="muted">마지막 회차</td><td id="lastTime">-</td></tr>
+          <tr><td class="muted">누적 funding 합계</td><td id="sumFunding">-</td></tr>
+          <tr><td class="muted">해당 구간 Annualized</td><td id="summaryAnnualized">-</td></tr>
+          <tr><td class="muted">해석</td><td id="interpretation">-</td></tr>
+        </tbody></table>
       </div>
-      <section class="summary-grid" id="summaryGrid" aria-label="Current funding summary"></section>
-      <section class="main-grid">
-        <div class="section">
-          <div class="section-head">
-            <h3>Annualized Funding</h3>
-            <div class="pair-switcher" id="pairControl" aria-label="Chart pair">
-              <button class="pair-pill active" data-coin="all">ALL</button>
-              <button class="pair-pill" data-coin="xyz:GOOGL">GOOGL</button>
-              <button class="pair-pill" data-coin="xyz:SMSN">Samsung</button>
-              <button class="pair-pill" data-coin="xyz:SKHX">SK Hynix</button>
-            </div>
-          </div>
-          <div class="chart-wrap" id="chartWrap"></div>
-        </div>
-        <div class="right-stack">
-          <div class="section">
-            <div class="section-head"><h3>Funding Rank</h3><span id="rankPeriod">24H</span></div>
-            <div class="insight-list" id="rankList"></div>
-          </div>
-          <div class="section">
-            <div class="section-head"><h3>Current Market</h3><span>XYZ DEX</span></div>
-            <div class="insight-list" id="marketList"></div>
-          </div>
-        </div>
-      </section>
-      <section class="section" style="margin-top:14px">
-        <div class="section-head"><h3>Funding History</h3><span id="rowCount"></span></div>
+
+      <div class="card half">
+        <h3 class="section-title">거래소 비교 상태</h3>
+        <table>
+          <thead><tr><th>거래소/마켓</th><th>상태</th><th>메모</th></tr></thead>
+          <tbody id="comparisonBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card wide"><h3 class="section-title">Price Chart</h3><canvas id="priceChart"></canvas><div class="note">선택 구간의 mark price 흐름. TradingView 스타일에 가깝게 어두운 배경/라인 중심으로 표시.</div></div>
+
+      <div class="card wide"><h3 class="section-title">Funding Rate Chart</h3><canvas id="fundingChart"></canvas><div class="note">선택 구간의 회차별 funding rate 흐름.</div></div>
+
+      <div class="card wide">
+        <h3 class="section-title">회차별 Funding History</h3>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Time</th><th>Pair</th><th>Funding</th><th>Annualized</th><th>Premium</th></tr></thead>
-            <tbody id="historyRows"></tbody>
+            <thead><tr><th>#</th><th>Funding Time (UTC)</th><th>Funding Rate</th><th>Mark Price</th><th>Direction</th></tr></thead>
+            <tbody id="historyBody"></tbody>
           </table>
         </div>
-      </section>
-    </main>
+        <div class="note">Annualized는 최근 표본의 평균 funding rate를 연장한 러닝레이트이며 미래 확정 수익률이 아니다. Binance/Bybit는 8시간 기준, Hyperliquid는 1시간 기준으로 연율화한다. 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 상단 현재값은 브라우저에서 거래소 public API를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있다.</div>
+      </div>
+    </div>
   </div>
 
   <script>
-    const API_URL = "https://api.hyperliquid.xyz/info";
-    const HOURS_PER_YEAR = 24 * 365;
-    const MAX_PAGES = 12;
-    const COINS = [
-      { coin: "xyz:GOOGL", label: "GOOGL", urlLabel: "xyz:GOOGL", color: "#64a8ff" },
-      { coin: "xyz:SMSN", label: "Samsung", urlLabel: "xyz:SAMSUNG", color: "#3ed598" },
-      { coin: "xyz:SKHX", label: "SK Hynix", urlLabel: "xyz:SKHYNIX", color: "#f5b85b" }
-    ];
-    const state = { rangeDays: 1, annualMode: "simple", selectedCoin: "all", loading: false, usingLatestWindow: false, dataWindowEnd: null, current: new Map(), history: new Map(), errors: [] };
-    const els = {
-      statusText: document.getElementById("statusText"), lastUpdated: document.getElementById("lastUpdated"), summaryGrid: document.getElementById("summaryGrid"), chartWrap: document.getElementById("chartWrap"), rankList: document.getElementById("rankList"), marketList: document.getElementById("marketList"), historyRows: document.getElementById("historyRows"), rowCount: document.getElementById("rowCount"), rankPeriod: document.getElementById("rankPeriod"), refreshBtn: document.getElementById("refreshBtn")
-    };
-    function formatPercent(value, digits = 2) { if (!Number.isFinite(value)) return "-"; const sign = value > 0 ? "+" : ""; return `${sign}${value.toLocaleString("en-US", { maximumFractionDigits: digits, minimumFractionDigits: digits })}%`; }
-    function formatRate(value) { if (!Number.isFinite(value)) return "-"; return `${(value * 100).toLocaleString("en-US", { maximumFractionDigits: 5, minimumFractionDigits: 5 })}%`; }
-    function formatNumber(value, digits = 2) { if (!Number.isFinite(value)) return "-"; return value.toLocaleString("en-US", { maximumFractionDigits: digits }); }
-    function formatTime(ms, includeDate = true) { if (!Number.isFinite(ms)) return "-"; return new Intl.DateTimeFormat("en-US", { month: includeDate ? "2-digit" : undefined, day: includeDate ? "2-digit" : undefined, hour: "2-digit", minute: "2-digit" }).format(new Date(ms)); }
-    function annualize(rate) { if (!Number.isFinite(rate)) return NaN; if (state.annualMode === "compound" && rate > -1) return (Math.pow(1 + rate, HOURS_PER_YEAR) - 1) * 100; return rate * HOURS_PER_YEAR * 100; }
-    function toneClass(value) { if (!Number.isFinite(value) || Math.abs(value) < .000001) return "flat"; return value > 0 ? "positive" : "negative"; }
-    async function postInfo(body) { const response = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); }
-    async function fetchCurrent() {
-      const response = await postInfo({ type: "metaAndAssetCtxs", dex: "xyz" });
-      const universe = response[0]?.universe || []; const ctxs = response[1] || []; const wanted = new Set(COINS.map(item => item.coin)); const current = new Map();
-      universe.forEach((asset, index) => { if (!wanted.has(asset.name)) return; const ctx = ctxs[index] || {}; current.set(asset.name, { markPx: Number(ctx.markPx), funding: Number(ctx.funding), openInterest: Number(ctx.openInterest), premium: Number(ctx.premium), maxLeverage: asset.maxLeverage }); });
-      return current;
+    const BINANCE_PREMIUM_INDEX_URL = 'https://fapi.binance.com/fapi/v1/premiumIndex';
+    const BYBIT_TICKERS_URL = 'https://api.bybit.com/v5/market/tickers';
+    const HYPERLIQUID_INFO_URL = 'https://api.hyperliquid.xyz/info';
+    const LIVE_REFRESH_MS = 30000;
+
+    let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{} };
+    const fmtPct = v => `${(v * 100).toFixed(4)}%`;
+    const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
+    const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+    const toKST = ms => new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
+    const toUTC = ms => new Date(ms).toISOString().replace('T',' ').slice(0,19) + ' UTC';
+
+    function displaySymbol(pair){ return pair.displaySymbol || pair.symbol; }
+    function assetId(pair){ return pair.assetId || displaySymbol(pair); }
+    function assetName(pair){ return pair.assetName || displaySymbol(pair); }
+    function getAssetGroups(){
+      const groups = new Map();
+      Object.entries(state.data.pairs).forEach(([pairKey, pair]) => {
+        const id = assetId(pair);
+        if(!groups.has(id)) groups.set(id, { id, name: assetName(pair), pairs: [] });
+        groups.get(id).pairs.push([pairKey, pair]);
+      });
+      return Array.from(groups.values()).sort((a,b)=>a.name.localeCompare(b.name, 'ko'));
     }
-    async function fetchFundingHistory(coin, startTime, endTime) {
-      const rows = []; let cursor = startTime;
-      for (let page = 0; page < MAX_PAGES; page += 1) {
-        const batch = await postInfo({ type: "fundingHistory", coin, startTime: cursor, endTime });
-        if (!Array.isArray(batch) || batch.length === 0) break;
-        for (const row of batch) { const time = Number(row.time); if (time >= startTime && time <= endTime) rows.push({ coin: row.coin, time, fundingRate: Number(row.fundingRate), premium: Number(row.premium) }); }
-        const lastTime = Number(batch[batch.length - 1]?.time); if (!Number.isFinite(lastTime) || batch.length < 500 || lastTime >= endTime) break; cursor = lastTime + 1;
+    function getPairsForAsset(selectedAsset=state.selectedAsset){
+      return Object.entries(state.data.pairs)
+        .filter(([_, pair]) => assetId(pair) === selectedAsset)
+        .sort((a,b)=>a[1].exchange.localeCompare(b[1].exchange));
+    }
+    function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>assetName(a[1]).localeCompare(assetName(b[1]), 'ko') || a[1].exchange.localeCompare(b[1].exchange)); } return entries; }
+
+    function renderAssetPicker(){
+      const select=document.getElementById('assetSelect');
+      const groups=getAssetGroups();
+      select.innerHTML='';
+      groups.forEach(group=>{
+        const option=document.createElement('option');
+        option.value=group.id;
+        option.textContent=group.name;
+        select.appendChild(option);
+      });
+      select.value=state.selectedAsset;
+    }
+
+    function renderExchangePicker(){
+      const select=document.getElementById('exchangeSelect');
+      const entries=getSortedEntries();
+      const sameAsset=entries.filter(([_, pair]) => assetId(pair) === state.selectedAsset);
+      select.innerHTML='';
+      sameAsset.forEach(([pairKey,val])=>{
+        const option=document.createElement('option');
+        option.value=pairKey;
+        option.textContent=val.exchange;
+        select.appendChild(option);
+      });
+      select.value=state.selectedPair;
+    }
+
+    function selectAsset(selectedAsset){
+      state.selectedAsset=selectedAsset;
+      const current=state.data.pairs[state.selectedPair];
+      if(!current || assetId(current) !== selectedAsset){
+        const first=getPairsForAsset(selectedAsset)[0];
+        if(first) state.selectedPair=first[0];
       }
-      return rows.sort((a, b) => a.time - b.time);
+      renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render();
     }
-    function average(values) { const finite = values.filter(Number.isFinite); if (!finite.length) return NaN; return finite.reduce((sum, value) => sum + value, 0) / finite.length; }
-    function latestRows() { return [...state.history.values()].flat().sort((a, b) => b.time - a.time); }
-    function filterHistoryWindow(historyMap, endTime) { const cutoff = endTime - state.rangeDays * 24 * 60 * 60 * 1000; return new Map(COINS.map(meta => [meta.coin, (historyMap.get(meta.coin) || []).filter(row => row.time >= cutoff && row.time <= endTime)])); }
-    function coinMeta(coin) { return COINS.find(item => item.coin === coin); }
-    function renderSummary() {
-      els.summaryGrid.innerHTML = COINS.map(meta => {
-        const current = state.current.get(meta.coin); const rows = state.history.get(meta.coin) || []; const latestRate = current?.funding ?? rows[rows.length - 1]?.fundingRate; const annual = annualize(latestRate); const avgAnnual = annualize(average(rows.map(row => row.fundingRate))); const latestHistory = rows[rows.length - 1];
-        return `<article class="metric-card"><div class="metric-head"><div class="coin-title"><i class="swatch" style="background:${meta.color}"></i><div><h2>${meta.label}</h2><span>${meta.urlLabel}</span></div></div><div class="mark">$${formatNumber(current?.markPx, 4)}</div></div><div class="annualized ${toneClass(annual)}">${formatPercent(annual)}</div><div class="metric-strip"><div class="mini-metric"><label>Current funding</label><div>${formatRate(latestRate)}</div></div><div class="mini-metric"><label>Period average</label><div class="${toneClass(avgAnnual)}">${formatPercent(avgAnnual)}</div></div><div class="mini-metric"><label>Latest record</label><div>${latestHistory ? formatTime(latestHistory.time) : "-"}</div></div></div></article>`;
-      }).join("");
+    function selectPair(pairKey){ state.selectedPair=pairKey; state.selectedAsset=assetId(state.data.pairs[pairKey]); renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render(); }
+    function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; state.favorites.forEach(pairKey=>{ const pair=state.data.pairs[pairKey]; if(!pair) return; const btn=document.createElement('button'); btn.className='chip'+(pairKey===state.selectedPair?' active':''); btn.textContent=`★ ${assetName(pair)} · ${pair.exchange}`; btn.onclick=()=>selectPair(pairKey); tabs.appendChild(btn); }); }
+    function renderWindowTabs(){ const tabs=document.getElementById('windowTabs'); tabs.innerHTML=''; Object.keys(state.data.meta.windows).forEach(key=>{ const btn=document.createElement('button'); btn.className='chip'+(key===state.selectedWindow?' active':''); btn.textContent=key; btn.onclick=()=>{ state.selectedWindow=key; renderWindowTabs(); render(); }; tabs.appendChild(btn); }); }
+    function renderComparisons(){
+      const body=document.getElementById('comparisonBody'); body.innerHTML='';
+      const selected=state.data.pairs[state.selectedPair];
+      const sameSymbolPairs=Object.entries(state.data.pairs).filter(([_,pair])=>assetId(pair)===assetId(selected));
+      sameSymbolPairs.forEach(([pairKey,pair])=>{
+        const tr=document.createElement('tr');
+        const isSelected=pairKey===state.selectedPair;
+        tr.innerHTML=`<td>${isSelected ? `<strong>${pair.exchange}</strong>` : `<span class="linkish">${pair.exchange}</span>`}</td><td><span class="pill good">지원</span></td><td class="muted">${isSelected ? displaySymbol(pair) : `${displaySymbol(pair)} 보기`}</td>`;
+        if(!isSelected){ tr.style.cursor='pointer'; tr.onclick=()=>selectPair(pairKey); }
+        body.appendChild(tr);
+      });
+      const shownNames = new Set(sameSymbolPairs.map(([_,pair]) => pair.exchange));
+      Object.entries(state.data.comparisons).forEach(([name,item])=>{
+        if (shownNames.has(name)) return;
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${name}</td><td>${item.supported ? '<span class="pill good">지원</span>' : '<span class="pill warn">미지원</span>'}</td><td class="muted">${item.notes}</td>`;
+        body.appendChild(tr);
+      });
     }
-    function makeChartData() { const selected = state.selectedCoin === "all" ? COINS : COINS.filter(item => item.coin === state.selectedCoin); return selected.map(meta => ({ ...meta, rows: (state.history.get(meta.coin) || []).map(row => ({ time: row.time, value: annualize(row.fundingRate) })).filter(row => Number.isFinite(row.value)) })).filter(series => series.rows.length); }
-    function renderChart() {
-      const series = makeChartData(); if (!series.length) { els.chartWrap.innerHTML = `<div class="empty-state">No funding history available for this window.</div>`; return; }
-      const width = 960, height = 390, margin = { top: 22, right: 56, bottom: 34, left: 60 }; const plotW = width - margin.left - margin.right, plotH = height - margin.top - margin.bottom; const allPoints = series.flatMap(item => item.rows); const minTime = Math.min(...allPoints.map(point => point.time)); const maxTime = Math.max(...allPoints.map(point => point.time)); let minY = Math.min(...allPoints.map(point => point.value)); let maxY = Math.max(...allPoints.map(point => point.value));
-      if (minY === maxY) { minY -= 1; maxY += 1; }
-      const pad = Math.max((maxY - minY) * .12, .5); minY -= pad; maxY += pad;
-      const x = time => margin.left + ((time - minTime) / Math.max(maxTime - minTime, 1)) * plotW; const y = value => margin.top + (1 - ((value - minY) / (maxY - minY))) * plotH;
-      const grid = Array.from({ length: 6 }, (_, index) => minY + ((maxY - minY) / 5) * index); const timeTicks = Array.from({ length: 4 }, (_, index) => minTime + ((maxTime - minTime) / 3) * index);
-      const lines = series.map(item => { const d = item.rows.map((point, index) => `${index === 0 ? "M" : "L"} ${x(point.time).toFixed(2)} ${y(point.value).toFixed(2)}`).join(" "); const last = item.rows[item.rows.length - 1]; return `<path class="chart-line" d="${d}" stroke="${item.color}"></path><circle class="chart-dot" cx="${x(last.time).toFixed(2)}" cy="${y(last.value).toFixed(2)}" r="4" fill="${item.color}"></circle><text class="axis-text" x="${Math.min(x(last.time) + 8, width - 80).toFixed(2)}" y="${y(last.value).toFixed(2)}" dominant-baseline="middle">${item.label}</text>`; }).join("");
-      const zeroY = y(0); const zeroLine = zeroY >= margin.top && zeroY <= height - margin.bottom ? `<line class="zero-line" x1="${margin.left}" x2="${width - margin.right}" y1="${zeroY.toFixed(2)}" y2="${zeroY.toFixed(2)}"></line>` : "";
-      els.chartWrap.innerHTML = `<svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Annualized funding chart">${grid.map(tick => { const gy = y(tick); return `<line class="grid-line" x1="${margin.left}" x2="${width - margin.right}" y1="${gy.toFixed(2)}" y2="${gy.toFixed(2)}"></line><text class="axis-text" x="${margin.left - 10}" y="${gy.toFixed(2)}" text-anchor="end" dominant-baseline="middle">${formatPercent(tick, 0)}</text>`; }).join("")}${timeTicks.map(tick => `<text class="axis-text" x="${x(tick).toFixed(2)}" y="${height - 10}" text-anchor="middle">${formatTime(tick, state.rangeDays > 1)}</text>`).join("")}${zeroLine}${lines}</svg>`;
+    function getFilteredRows(pair){ const days=state.data.meta.windows[state.selectedWindow]; const minTs=Date.now()-days*24*3600*1000; return pair.rows.filter(r=>r.fundingTime>=minTs); }
+
+    function renderPriceChart(rows){ const ctx=document.getElementById('priceChart'); if(state.priceChart) state.priceChart.destroy(); state.priceChart=new Chart(ctx,{ type:'line', data:{ labels:rows.map(r=>toUTC(r.fundingTime)), datasets:[{ label:'Mark Price', data:rows.map(r=>r.markPrice), borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.12)', borderWidth:2.2, fill:true, pointRadius:0, tension:0.18 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#9ca9c8' }, grid:{ color:'rgba(255,255,255,0.05)' } }, x:{ ticks:{ color:'#9ca9c8', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.03)' } } }, plugins:{ legend:{ labels:{ color:'#eef3ff' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } }); }
+
+    function formatCountdown(nextFundingTime){
+      if (!nextFundingTime) return '조회 실패';
+      const diff = nextFundingTime - Date.now();
+      if (diff <= 0) return '정산 중 / 갱신 대기';
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
-    function renderRank() {
-      const ranked = COINS.map(meta => { const rows = state.history.get(meta.coin) || []; const avgAnnual = annualize(average(rows.map(row => row.fundingRate))); return { ...meta, avgAnnual, count: rows.length }; }).sort((a, b) => (b.avgAnnual || -Infinity) - (a.avgAnnual || -Infinity));
-      els.rankPeriod.textContent = state.rangeDays === 1 ? "24H" : `${state.rangeDays}D`; els.rankList.innerHTML = ranked.map((item, index) => `<div class="insight"><div><b>${index + 1}. ${item.label}</b><span>${item.count.toLocaleString("en-US")} records</span></div><strong class="${toneClass(item.avgAnnual)}">${formatPercent(item.avgAnnual)}</strong></div>`).join("");
+
+    function startCountdown(nextFundingTime){
+      if(state.countdownTimer) clearInterval(state.countdownTimer);
+      const renderCountdown=()=>{
+        document.getElementById('nextFunding').textContent = formatCountdown(nextFundingTime);
+        document.getElementById('nextFundingAt').textContent = nextFundingTime ? ('정산 시각: ' + toKST(nextFundingTime)) : '정산 시각 조회 실패';
+      };
+      renderCountdown();
+      state.countdownTimer=setInterval(renderCountdown,1000);
     }
-    function renderMarket() { els.marketList.innerHTML = COINS.map(meta => { const current = state.current.get(meta.coin); return `<div class="insight"><div><b>${meta.label}</b><span>OI ${formatNumber(current?.openInterest, 2)} / ${current?.maxLeverage || "-"}x</span></div><strong class="${toneClass(current?.premium)}">${formatRate(current?.premium)}</strong></div>`; }).join(""); }
-    function renderTable() { const rows = latestRows().slice(0, 360); els.rowCount.textContent = `${latestRows().length.toLocaleString("en-US")} rows`; els.historyRows.innerHTML = rows.map(row => { const meta = coinMeta(row.coin); const annual = annualize(row.fundingRate); return `<tr><td>${formatTime(row.time)}</td><td>${meta?.label || row.coin}</td><td class="${toneClass(row.fundingRate)}">${formatRate(row.fundingRate)}</td><td class="${toneClass(annual)}">${formatPercent(annual)}</td><td class="${toneClass(row.premium)}">${formatRate(row.premium)}</td></tr>`; }).join(""); }
-    function renderStatus() {
-      if (state.loading) { els.statusText.innerHTML = "<strong>Updating</strong>"; return; }
-      const totalRows = latestRows().length; if (state.errors.length) { els.statusText.innerHTML = `<strong class="error">${state.errors.length} request failures</strong> / ${totalRows.toLocaleString("en-US")} records loaded`; return; }
-      const basis = state.usingLatestWindow && state.dataWindowEnd ? `latest available record: ${formatTime(state.dataWindowEnd)}` : "current-time window"; els.statusText.innerHTML = `<strong>${totalRows.toLocaleString("en-US")} records</strong> / ${basis} / Hyperliquid XYZ API`;
+
+    function renderChart(rows){ const ctx=document.getElementById('fundingChart'); if(state.chart) state.chart.destroy(); state.chart=new Chart(ctx,{ type:'line', data:{ labels:rows.map(r=>toUTC(r.fundingTime)), datasets:[{ label:'Funding Rate', data:rows.map(r=>r.fundingRate*100), borderColor:'#7aa2ff', backgroundColor:'rgba(122,162,255,0.2)', borderWidth:2, fill:true, pointRadius:1.5, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#9ca9c8', callback:v=>`${v.toFixed(3)}%` }, grid:{ color:'rgba(255,255,255,0.06)' } }, x:{ ticks:{ color:'#9ca9c8', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.04)' } } }, plugins:{ legend:{ labels:{ color:'#eef3ff' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } }); }
+
+    function getLatestForPair(pairKey, pair){
+      return state.liveLatestByPair[pairKey] || pair.latest || {};
     }
-    function renderAll() { renderSummary(); renderChart(); renderRank(); renderMarket(); renderTable(); renderStatus(); }
-    async function loadDashboard() {
-      state.loading = true; state.errors = []; state.usingLatestWindow = false; state.dataWindowEnd = null; els.refreshBtn.disabled = true; renderStatus();
-      const endTime = Date.now(); const startTime = endTime - state.rangeDays * 24 * 60 * 60 * 1000;
-      try {
-        const [current, ...historyResults] = await Promise.all([fetchCurrent(), ...COINS.map(async meta => { try { return [meta.coin, await fetchFundingHistory(meta.coin, startTime, endTime)]; } catch (error) { state.errors.push(`${meta.coin}: ${error.message}`); return [meta.coin, []]; } })]);
-        state.current = current; state.history = new Map(historyResults);
-        if (latestRows().length === 0) {
-          const fallbackDays = Math.max(240, state.rangeDays); const fallbackStart = endTime - fallbackDays * 24 * 60 * 60 * 1000;
-          const fallbackResults = await Promise.all(COINS.map(async meta => { try { return [meta.coin, await fetchFundingHistory(meta.coin, fallbackStart, endTime)]; } catch (error) { state.errors.push(`${meta.coin}: ${error.message}`); return [meta.coin, []]; } }));
-          const broadHistory = new Map(fallbackResults); const allFallbackRows = [...broadHistory.values()].flat(); const latestTime = Math.max(...allFallbackRows.map(row => row.time).filter(Number.isFinite));
-          if (Number.isFinite(latestTime)) { state.usingLatestWindow = true; state.dataWindowEnd = latestTime; state.history = filterHistoryWindow(broadHistory, latestTime); }
-        } else { const latestTime = Math.max(...latestRows().map(row => row.time)); state.dataWindowEnd = Number.isFinite(latestTime) ? latestTime : endTime; }
-        els.lastUpdated.textContent = `Updated ${new Intl.DateTimeFormat("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(new Date())}`;
-      } catch (error) { state.errors.push(error.message); }
-      finally { state.loading = false; els.refreshBtn.disabled = false; renderAll(); }
+
+    function render(){
+      const pair=state.data.pairs[state.selectedPair];
+      const windowSummary=pair.windows[state.selectedWindow];
+      const rows=getFilteredRows(pair);
+      const latest=getLatestForPair(state.selectedPair, pair);
+      document.getElementById('pairName').textContent=assetName(pair); const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedPair)?'★':'☆')+' 즐겨찾기';
+      document.getElementById('exchangeName').textContent=`${pair.exchange} · ${displaySymbol(pair)} · ${state.selectedWindow}`;
+      document.getElementById('sampleCount').textContent=windowSummary.count;
+      document.getElementById('avgFunding').textContent=fmtPct(windowSummary.avgFundingRate);
+      const annual=document.getElementById('annualized'); annual.textContent=fmtAnnual(windowSummary.annualizedPct); annual.className='value '+(windowSummary.annualizedPct>=0?'good':'bad');
+      document.getElementById('firstTime').textContent=windowSummary.firstFundingTime ? toKST(windowSummary.firstFundingTime) : '-';
+      document.getElementById('lastTime').textContent=windowSummary.lastFundingTime ? toKST(windowSummary.lastFundingTime) : '-';
+      document.getElementById('sumFunding').textContent=fmtPct(windowSummary.sumFundingRate);
+      document.getElementById('summaryAnnualized').textContent=fmtAnnual(windowSummary.annualizedPct);
+      document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate < 0 ? '<span class="pill good">Short → Long</span>' : '<span class="pill bad">Long → Short</span>';
+
+      if (latest.lastFundingRate == null) {
+        document.getElementById('latestFunding').textContent='-';
+        document.getElementById('latestFunding').className='value warn';
+      } else {
+        document.getElementById('latestFunding').textContent=fmtPct(latest.lastFundingRate);
+        document.getElementById('latestFunding').className='value '+(latest.lastFundingRate>=0?'bad':'good');
+      }
+      document.getElementById('markPrice').textContent=latest.markPrice == null ? '-' : fmtNumber(latest.markPrice);
+      document.getElementById('indexPrice').textContent=latest.indexPrice == null ? '-' : fmtNumber(latest.indexPrice);
+      document.getElementById('priceCard').textContent=latest.markPrice == null ? '-' : fmtNumber(latest.markPrice);
+      document.getElementById('snapshotTime').textContent=latest.time ? toKST(latest.time) : '조회 실패';
+      startCountdown(latest.nextFundingTime);
+
+      const body=document.getElementById('historyBody'); body.innerHTML='';
+      rows.slice().reverse().forEach((row,idx)=>{ const positive=row.fundingRate>=0; const tr=document.createElement('tr'); tr.innerHTML=`<td>${rows.length-idx}</td><td>${toUTC(row.fundingTime)}</td><td style="color:${positive?'var(--bad)':'var(--good)'}; font-weight:700;">${fmtPct(row.fundingRate)}</td><td>${row.markPrice == null ? '-' : fmtNumber(row.markPrice)}</td><td>${positive?'<span class="pill bad">Long → Short</span>':'<span class="pill good">Short → Long</span>'}</td>`; body.appendChild(tr); });
+      renderPriceChart(rows);
+      renderChart(rows);
     }
-    document.getElementById("rangeControl").addEventListener("click", event => { const button = event.target.closest("button[data-range]"); if (!button) return; state.rangeDays = Number(button.dataset.range); document.querySelectorAll("#rangeControl .segment").forEach(item => item.classList.toggle("active", item === button)); loadDashboard(); });
-    document.getElementById("annualControl").addEventListener("click", event => { const button = event.target.closest("button[data-mode]"); if (!button) return; state.annualMode = button.dataset.mode; document.querySelectorAll("#annualControl .segment").forEach(item => item.classList.toggle("active", item === button)); renderAll(); });
-    document.getElementById("pairControl").addEventListener("click", event => { const button = event.target.closest("button[data-coin]"); if (!button) return; state.selectedCoin = button.dataset.coin; document.querySelectorAll("#pairControl .pair-pill").forEach(item => item.classList.toggle("active", item === button)); renderChart(); });
-    els.refreshBtn.addEventListener("click", loadDashboard);
-    loadDashboard();
+
+    async function fetchLiveLatest(pairKey, pair){
+      if(pair.exchange === 'Binance'){
+        const res = await fetch(`${BINANCE_PREMIUM_INDEX_URL}?symbol=${pair.symbol}`);
+        if(!res.ok) throw new Error(`premiumIndex fetch failed: ${pairKey}`);
+        const row = await res.json();
+        state.liveLatestByPair[pairKey] = {
+          markPrice: Number(row.markPrice),
+          indexPrice: Number(row.indexPrice),
+          lastFundingRate: Number(row.lastFundingRate),
+          nextFundingTime: Number(row.nextFundingTime),
+          time: Number(row.time),
+          available: true,
+        };
+        return;
+      }
+      if(pair.exchange === 'Bybit'){
+        const res = await fetch(`${BYBIT_TICKERS_URL}?category=linear&symbol=${pair.symbol}`);
+        if(!res.ok) throw new Error(`bybit ticker fetch failed: ${pairKey}`);
+        const json = await res.json();
+        const row = json.result.list[0];
+        state.liveLatestByPair[pairKey] = {
+          markPrice: Number(row.markPrice),
+          indexPrice: Number(row.indexPrice),
+          lastFundingRate: Number(row.fundingRate),
+          nextFundingTime: Number(row.nextFundingTime),
+          time: Number(json.time),
+          available: true,
+        };
+        return;
+      }
+      if(pair.exchange === 'Hyperliquid'){
+        const res = await fetch(HYPERLIQUID_INFO_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'metaAndAssetCtxs', dex: pair.dex || 'xyz' }),
+        });
+        if(!res.ok) throw new Error(`hyperliquid info fetch failed: ${pairKey}`);
+        const [meta, ctxs] = await res.json();
+        const idx = meta.universe.findIndex(asset => asset.name === pair.symbol);
+        if(idx < 0) throw new Error(`hyperliquid asset not found: ${pair.symbol}`);
+        const row = ctxs[idx];
+        const now = Date.now();
+        state.liveLatestByPair[pairKey] = {
+          markPrice: Number(row.markPx),
+          indexPrice: Number(row.oraclePx),
+          lastFundingRate: Number(row.funding),
+          premium: Number(row.premium),
+          nextFundingTime: (Math.floor(now / 3600000) + 1) * 3600000,
+          time: now,
+          openInterest: Number(row.openInterest),
+          dayNtlVlm: Number(row.dayNtlVlm),
+          available: true,
+        };
+        return;
+      }
+      throw new Error(`Unsupported exchange: ${pair.exchange}`);
+    }
+
+    async function refreshLiveAll(){
+      const pairKeys = Object.keys(state.data.pairs);
+      await Promise.all(pairKeys.map(async (pairKey) => {
+        try {
+          await fetchLiveLatest(pairKey, state.data.pairs[pairKey]);
+        } catch (err) {
+          console.error(err);
+        }
+      }));
+      render();
+    }
+
+    async function init(){
+      const res=await fetch(`./funding_data.json?ts=${Date.now()}`, { cache: 'no-store' });
+      const data=await res.json();
+      state.data=data;
+      state.selectedPair=Object.keys(data.pairs)[0];
+      state.selectedAsset=assetId(data.pairs[state.selectedPair]);
+      try { state.favorites = JSON.parse(localStorage.getItem('favoritePairs') || '[]'); } catch(e) { state.favorites = []; }
+      document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt);
+      document.getElementById('assetSelect').addEventListener('change', e=>selectAsset(e.target.value));
+      document.getElementById('exchangeSelect').addEventListener('change', e=>selectPair(e.target.value));
+      document.getElementById('sortMode').addEventListener('change', e=>{ state.sortMode=e.target.value; renderAssetPicker(); renderExchangePicker(); });
+      document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const pairKey=state.selectedPair; if(state.favorites.includes(pairKey)){ state.favorites=state.favorites.filter(x=>x!==pairKey); } else { state.favorites.unshift(pairKey); } localStorage.setItem('favoritePairs', JSON.stringify(state.favorites.slice(0,12))); renderFavoriteTabs(); render(); });
+      renderAssetPicker();
+      renderExchangePicker();
+      renderFavoriteTabs();
+      renderWindowTabs();
+      renderComparisons();
+      render();
+      await refreshLiveAll();
+      state.liveRefreshTimer = setInterval(() => { refreshLiveAll().catch(console.error); }, LIVE_REFRESH_MS);
+    }
+    init();
   </script>
 </body>
 </html>
