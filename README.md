@@ -19,6 +19,8 @@
 
 ### Binance
 - GOOGLUSDT
+- SAMSUNGUSDT
+- SKHYNIXUSDT
 - XAUUSDT
 - AMZNUSDT
 - 7일 / 30일 / 90일 기준 annualized 계산
@@ -33,6 +35,7 @@
 
 ### 비교 상태 표시
 - Hyperliquid `xyz` HIP-3 perp → public info API로 funding 비교 가능
+- 같은 종목은 종목명 드롭다운에서 한 번 고른 뒤 Binance / Hyperliquid / Bybit 등 거래소 드롭다운으로 전환
 - THENA `GOOGLUSDT` → 현재 이 환경에서 public endpoint 접근이 403으로 차단되어 비교 불가
 
 ## 로컬 데이터 갱신

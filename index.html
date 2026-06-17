@@ -59,7 +59,7 @@
       <div class="stamp" id="updatedAt">Updated: -</div>
     </div>
 
-    <div class="toolbar"><select id="pairSelect" class="field pair-select"></select><select id="sortMode" class="field"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
+    <div class="toolbar"><select id="assetSelect" class="field pair-select"></select><select id="exchangeSelect" class="field"></select><select id="sortMode" class="field"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
     <div class="toolbar" id="favoriteTabs"></div>
     <div class="toolbar2" id="windowTabs"></div>
     <div class="card" style="margin-bottom:16px;">
@@ -68,7 +68,7 @@
     </div>
 
     <div class="grid">
-      <div class="card metric"><div class="label">선택 페어</div><div class="value" id="pairName">-</div><div class="mini" id="exchangeName">-</div></div>
+      <div class="card metric"><div class="label">선택 종목</div><div class="value" id="pairName">-</div><div class="mini" id="exchangeName">-</div></div>
       <div class="card metric"><div class="label">현재 Latest Funding</div><div class="value" id="latestFunding">-</div><div class="mini">거래소 public API 기준 최신값</div></div>
       <div class="card metric"><div class="label">다음 Funding</div><div class="value countdown" id="nextFunding">-</div><div class="mini" id="nextFundingAt">다음 정산까지 남은 시간</div></div>
       <div class="card metric"><div class="label">현재 Price</div><div class="value" id="priceCard">-</div><div class="mini"><strong style="color:#eef3ff">Mark:</strong> <span id="markPrice">-</span> &nbsp;|&nbsp; <strong style="color:#eef3ff">Index:</strong> <span id="indexPrice">-</span></div></div>
@@ -120,7 +120,7 @@
     const HYPERLIQUID_INFO_URL = 'https://api.hyperliquid.xyz/info';
     const LIVE_REFRESH_MS = 30000;
 
-    let state = { data:null, selectedPair:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{} };
+    let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{} };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
     const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
@@ -128,33 +128,71 @@
     const toUTC = ms => new Date(ms).toISOString().replace('T',' ').slice(0,19) + ' UTC';
 
     function displaySymbol(pair){ return pair.displaySymbol || pair.symbol; }
-    function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>displaySymbol(a[1]).localeCompare(displaySymbol(b[1])) || a[1].exchange.localeCompare(b[1].exchange)); } return entries; }
+    function assetId(pair){ return pair.assetId || displaySymbol(pair); }
+    function assetName(pair){ return pair.assetName || displaySymbol(pair); }
+    function getAssetGroups(){
+      const groups = new Map();
+      Object.entries(state.data.pairs).forEach(([pairKey, pair]) => {
+        const id = assetId(pair);
+        if(!groups.has(id)) groups.set(id, { id, name: assetName(pair), pairs: [] });
+        groups.get(id).pairs.push([pairKey, pair]);
+      });
+      return Array.from(groups.values()).sort((a,b)=>a.name.localeCompare(b.name, 'ko'));
+    }
+    function getPairsForAsset(selectedAsset=state.selectedAsset){
+      return Object.entries(state.data.pairs)
+        .filter(([_, pair]) => assetId(pair) === selectedAsset)
+        .sort((a,b)=>a[1].exchange.localeCompare(b[1].exchange));
+    }
+    function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>assetName(a[1]).localeCompare(assetName(b[1]), 'ko') || a[1].exchange.localeCompare(b[1].exchange)); } return entries; }
 
-    function pairDisplay(pair){ return `${displaySymbol(pair)} · ${pair.exchange}`; }
-    function renderPairPicker(){
-      const select=document.getElementById('pairSelect');
-      const entries=getSortedEntries();
+    function renderAssetPicker(){
+      const select=document.getElementById('assetSelect');
+      const groups=getAssetGroups();
       select.innerHTML='';
-      entries.forEach(([pairKey,val])=>{
+      groups.forEach(group=>{
+        const option=document.createElement('option');
+        option.value=group.id;
+        option.textContent=group.name;
+        select.appendChild(option);
+      });
+      select.value=state.selectedAsset;
+    }
+
+    function renderExchangePicker(){
+      const select=document.getElementById('exchangeSelect');
+      const entries=getSortedEntries();
+      const sameAsset=entries.filter(([_, pair]) => assetId(pair) === state.selectedAsset);
+      select.innerHTML='';
+      sameAsset.forEach(([pairKey,val])=>{
         const option=document.createElement('option');
         option.value=pairKey;
-        option.textContent=pairDisplay(val);
+        option.textContent=val.exchange;
         select.appendChild(option);
       });
       select.value=state.selectedPair;
     }
 
-    function selectPair(pairKey){ state.selectedPair=pairKey; renderFavoriteTabs(); renderPairPicker(); renderComparisons(); render(); }
-    function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; state.favorites.forEach(pairKey=>{ const pair=state.data.pairs[pairKey]; if(!pair) return; const btn=document.createElement('button'); btn.className='chip'+(pairKey===state.selectedPair?' active':''); btn.textContent=`★ ${displaySymbol(pair)} · ${pair.exchange}`; btn.onclick=()=>selectPair(pairKey); tabs.appendChild(btn); }); }
+    function selectAsset(selectedAsset){
+      state.selectedAsset=selectedAsset;
+      const current=state.data.pairs[state.selectedPair];
+      if(!current || assetId(current) !== selectedAsset){
+        const first=getPairsForAsset(selectedAsset)[0];
+        if(first) state.selectedPair=first[0];
+      }
+      renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render();
+    }
+    function selectPair(pairKey){ state.selectedPair=pairKey; state.selectedAsset=assetId(state.data.pairs[pairKey]); renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render(); }
+    function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; state.favorites.forEach(pairKey=>{ const pair=state.data.pairs[pairKey]; if(!pair) return; const btn=document.createElement('button'); btn.className='chip'+(pairKey===state.selectedPair?' active':''); btn.textContent=`★ ${assetName(pair)} · ${pair.exchange}`; btn.onclick=()=>selectPair(pairKey); tabs.appendChild(btn); }); }
     function renderWindowTabs(){ const tabs=document.getElementById('windowTabs'); tabs.innerHTML=''; Object.keys(state.data.meta.windows).forEach(key=>{ const btn=document.createElement('button'); btn.className='chip'+(key===state.selectedWindow?' active':''); btn.textContent=key; btn.onclick=()=>{ state.selectedWindow=key; renderWindowTabs(); render(); }; tabs.appendChild(btn); }); }
     function renderComparisons(){
       const body=document.getElementById('comparisonBody'); body.innerHTML='';
       const selected=state.data.pairs[state.selectedPair];
-      const sameSymbolPairs=Object.entries(state.data.pairs).filter(([_,pair])=>displaySymbol(pair)===displaySymbol(selected));
+      const sameSymbolPairs=Object.entries(state.data.pairs).filter(([_,pair])=>assetId(pair)===assetId(selected));
       sameSymbolPairs.forEach(([pairKey,pair])=>{
         const tr=document.createElement('tr');
         const isSelected=pairKey===state.selectedPair;
-        tr.innerHTML=`<td>${isSelected ? `<strong>${pair.exchange} · ${displaySymbol(pair)}</strong>` : `<span class="linkish">${pair.exchange} · ${displaySymbol(pair)}</span>`}</td><td><span class="pill good">지원</span></td><td class="muted">${isSelected ? '현재 보고 있는 거래소' : '클릭해서 이 거래소 데이터 보기'}</td>`;
+        tr.innerHTML=`<td>${isSelected ? `<strong>${pair.exchange}</strong>` : `<span class="linkish">${pair.exchange}</span>`}</td><td><span class="pill good">지원</span></td><td class="muted">${isSelected ? displaySymbol(pair) : `${displaySymbol(pair)} 보기`}</td>`;
         if(!isSelected){ tr.style.cursor='pointer'; tr.onclick=()=>selectPair(pairKey); }
         body.appendChild(tr);
       });
@@ -201,8 +239,8 @@
       const windowSummary=pair.windows[state.selectedWindow];
       const rows=getFilteredRows(pair);
       const latest=getLatestForPair(state.selectedPair, pair);
-      document.getElementById('pairName').textContent=displaySymbol(pair); const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedPair)?'★':'☆')+' 즐겨찾기';
-      document.getElementById('exchangeName').textContent=pair.exchange+' · '+state.selectedWindow;
+      document.getElementById('pairName').textContent=assetName(pair); const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedPair)?'★':'☆')+' 즐겨찾기';
+      document.getElementById('exchangeName').textContent=`${pair.exchange} · ${displaySymbol(pair)} · ${state.selectedWindow}`;
       document.getElementById('sampleCount').textContent=windowSummary.count;
       document.getElementById('avgFunding').textContent=fmtPct(windowSummary.avgFundingRate);
       const annual=document.getElementById('annualized'); annual.textContent=fmtAnnual(windowSummary.annualizedPct); annual.className='value '+(windowSummary.annualizedPct>=0?'good':'bad');
@@ -306,13 +344,15 @@
       const data=await res.json();
       state.data=data;
       state.selectedPair=Object.keys(data.pairs)[0];
+      state.selectedAsset=assetId(data.pairs[state.selectedPair]);
       try { state.favorites = JSON.parse(localStorage.getItem('favoritePairs') || '[]'); } catch(e) { state.favorites = []; }
       document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt);
-      const pairInput=document.getElementById('pairSelect');
-      pairInput.addEventListener('change', e=>selectPair(e.target.value));
-      document.getElementById('sortMode').addEventListener('change', e=>{ state.sortMode=e.target.value; renderPairPicker(); });
+      document.getElementById('assetSelect').addEventListener('change', e=>selectAsset(e.target.value));
+      document.getElementById('exchangeSelect').addEventListener('change', e=>selectPair(e.target.value));
+      document.getElementById('sortMode').addEventListener('change', e=>{ state.sortMode=e.target.value; renderAssetPicker(); renderExchangePicker(); });
       document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const pairKey=state.selectedPair; if(state.favorites.includes(pairKey)){ state.favorites=state.favorites.filter(x=>x!==pairKey); } else { state.favorites.unshift(pairKey); } localStorage.setItem('favoritePairs', JSON.stringify(state.favorites.slice(0,12))); renderFavoriteTabs(); render(); });
-      renderPairPicker();
+      renderAssetPicker();
+      renderExchangePicker();
       renderFavoriteTabs();
       renderWindowTabs();
       renderComparisons();
