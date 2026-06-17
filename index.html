@@ -64,12 +64,12 @@
     <div class="toolbar2" id="windowTabs"></div>
     <div class="card" style="margin-bottom:16px;">
       <h3 class="section-title">Pair 확장 안내</h3>
-      <div class="sub" style="margin:0;">현재는 Binance / Bybit 일부 선물을 자동 지원한다. 새 pair를 추가하려면 repo의 <code>update_data.py</code> 안 <code>PAIRS</code> 리스트에 거래소와 종목을 추가하면 된다.</div>
+      <div class="sub" style="margin:0;">현재는 Hyperliquid xyz HIP-3 perp, Binance, Bybit 일부 선물을 자동 지원한다. 새 pair를 추가하려면 repo의 <code>update_data.py</code> 안 <code>PAIRS</code> 리스트에 거래소와 종목을 추가하면 된다.</div>
     </div>
 
     <div class="grid">
       <div class="card metric"><div class="label">선택 페어</div><div class="value" id="pairName">-</div><div class="mini" id="exchangeName">-</div></div>
-      <div class="card metric"><div class="label">현재 Latest Funding</div><div class="value" id="latestFunding">-</div><div class="mini">premiumIndex 기준 최신값</div></div>
+      <div class="card metric"><div class="label">현재 Latest Funding</div><div class="value" id="latestFunding">-</div><div class="mini">거래소 public API 기준 최신값</div></div>
       <div class="card metric"><div class="label">다음 Funding</div><div class="value countdown" id="nextFunding">-</div><div class="mini" id="nextFundingAt">다음 정산까지 남은 시간</div></div>
       <div class="card metric"><div class="label">현재 Price</div><div class="value" id="priceCard">-</div><div class="mini"><strong style="color:#eef3ff">Mark:</strong> <span id="markPrice">-</span> &nbsp;|&nbsp; <strong style="color:#eef3ff">Index:</strong> <span id="indexPrice">-</span></div></div>
 
@@ -109,7 +109,7 @@
             <tbody id="historyBody"></tbody>
           </table>
         </div>
-        <div class="note">Annualized는 최근 표본의 평균 funding rate를 연장한 러닝레이트이며 미래 확정 수익률이 아니다. 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 상단 현재값은 브라우저에서 Binance premiumIndex를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있다.</div>
+        <div class="note">Annualized는 최근 표본의 평균 funding rate를 연장한 러닝레이트이며 미래 확정 수익률이 아니다. Binance/Bybit는 8시간 기준, Hyperliquid는 1시간 기준으로 연율화한다. 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 상단 현재값은 브라우저에서 거래소 public API를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있다.</div>
       </div>
     </div>
   </div>
@@ -117,6 +117,7 @@
   <script>
     const BINANCE_PREMIUM_INDEX_URL = 'https://fapi.binance.com/fapi/v1/premiumIndex';
     const BYBIT_TICKERS_URL = 'https://api.bybit.com/v5/market/tickers';
+    const HYPERLIQUID_INFO_URL = 'https://api.hyperliquid.xyz/info';
     const LIVE_REFRESH_MS = 30000;
 
     let state = { data:null, selectedPair:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{}, displayToPair:{} };
@@ -126,9 +127,10 @@
     const toKST = ms => new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
     const toUTC = ms => new Date(ms).toISOString().replace('T',' ').slice(0,19) + ' UTC';
 
-    function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>a[1].symbol.localeCompare(b[1].symbol) || a[1].exchange.localeCompare(b[1].exchange)); } return entries; }
+    function displaySymbol(pair){ return pair.displaySymbol || pair.symbol; }
+    function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>displaySymbol(a[1]).localeCompare(displaySymbol(b[1])) || a[1].exchange.localeCompare(b[1].exchange)); } return entries; }
 
-    function pairDisplay(pair){ return `${pair.symbol} · ${pair.exchange}`; }
+    function pairDisplay(pair){ return `${displaySymbol(pair)} · ${pair.exchange}`; }
     function selectedPairDisplay(){ const pair=state.data?.pairs?.[state.selectedPair]; return pair ? pairDisplay(pair) : ''; }
     function getPickerQuery(){
       const input = document.getElementById('pairSelect');
@@ -140,7 +142,7 @@
       const query = getPickerQuery();
       const entries = getSortedEntries();
       if (!query) return entries;
-      return entries.filter(([pairKey, val]) => `${pairKey} ${val.symbol} ${val.exchange}`.toLowerCase().includes(query));
+      return entries.filter(([pairKey, val]) => `${pairKey} ${val.symbol} ${displaySymbol(val)} ${val.exchange}`.toLowerCase().includes(query));
     }
 
     function renderPairPicker(preserveInput=false){
@@ -173,16 +175,16 @@
       if(first) selectPair(first[0]);
       else renderPairPicker();
     }
-    function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; state.favorites.forEach(pairKey=>{ const pair=state.data.pairs[pairKey]; if(!pair) return; const btn=document.createElement('button'); btn.className='chip'+(pairKey===state.selectedPair?' active':''); btn.textContent=`★ ${pair.symbol} · ${pair.exchange}`; btn.onclick=()=>selectPair(pairKey); tabs.appendChild(btn); }); }
+    function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; state.favorites.forEach(pairKey=>{ const pair=state.data.pairs[pairKey]; if(!pair) return; const btn=document.createElement('button'); btn.className='chip'+(pairKey===state.selectedPair?' active':''); btn.textContent=`★ ${displaySymbol(pair)} · ${pair.exchange}`; btn.onclick=()=>selectPair(pairKey); tabs.appendChild(btn); }); }
     function renderWindowTabs(){ const tabs=document.getElementById('windowTabs'); tabs.innerHTML=''; Object.keys(state.data.meta.windows).forEach(key=>{ const btn=document.createElement('button'); btn.className='chip'+(key===state.selectedWindow?' active':''); btn.textContent=key; btn.onclick=()=>{ state.selectedWindow=key; renderWindowTabs(); render(); }; tabs.appendChild(btn); }); }
     function renderComparisons(){
       const body=document.getElementById('comparisonBody'); body.innerHTML='';
       const selected=state.data.pairs[state.selectedPair];
-      const sameSymbolPairs=Object.entries(state.data.pairs).filter(([_,pair])=>pair.symbol===selected.symbol);
+      const sameSymbolPairs=Object.entries(state.data.pairs).filter(([_,pair])=>displaySymbol(pair)===displaySymbol(selected));
       sameSymbolPairs.forEach(([pairKey,pair])=>{
         const tr=document.createElement('tr');
         const isSelected=pairKey===state.selectedPair;
-        tr.innerHTML=`<td>${isSelected ? `<strong>${pair.exchange} · ${pair.symbol}</strong>` : `<span class="linkish">${pair.exchange} · ${pair.symbol}</span>`}</td><td><span class="pill good">지원</span></td><td class="muted">${isSelected ? '현재 보고 있는 거래소' : '클릭해서 이 거래소 데이터 보기'}</td>`;
+        tr.innerHTML=`<td>${isSelected ? `<strong>${pair.exchange} · ${displaySymbol(pair)}</strong>` : `<span class="linkish">${pair.exchange} · ${displaySymbol(pair)}</span>`}</td><td><span class="pill good">지원</span></td><td class="muted">${isSelected ? '현재 보고 있는 거래소' : '클릭해서 이 거래소 데이터 보기'}</td>`;
         if(!isSelected){ tr.style.cursor='pointer'; tr.onclick=()=>selectPair(pairKey); }
         body.appendChild(tr);
       });
@@ -229,7 +231,7 @@
       const windowSummary=pair.windows[state.selectedWindow];
       const rows=getFilteredRows(pair);
       const latest=getLatestForPair(state.selectedPair, pair);
-      document.getElementById('pairName').textContent=pair.symbol; const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedPair)?'★':'☆')+' 즐겨찾기';
+      document.getElementById('pairName').textContent=displaySymbol(pair); const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedPair)?'★':'☆')+' 즐겨찾기';
       document.getElementById('exchangeName').textContent=pair.exchange+' · '+state.selectedWindow;
       document.getElementById('sampleCount').textContent=windowSummary.count;
       document.getElementById('avgFunding').textContent=fmtPct(windowSummary.avgFundingRate);
@@ -285,6 +287,31 @@
           lastFundingRate: Number(row.fundingRate),
           nextFundingTime: Number(row.nextFundingTime),
           time: Number(json.time),
+          available: true,
+        };
+        return;
+      }
+      if(pair.exchange === 'Hyperliquid'){
+        const res = await fetch(HYPERLIQUID_INFO_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'metaAndAssetCtxs', dex: pair.dex || 'xyz' }),
+        });
+        if(!res.ok) throw new Error(`hyperliquid info fetch failed: ${pairKey}`);
+        const [meta, ctxs] = await res.json();
+        const idx = meta.universe.findIndex(asset => asset.name === pair.symbol);
+        if(idx < 0) throw new Error(`hyperliquid asset not found: ${pair.symbol}`);
+        const row = ctxs[idx];
+        const now = Date.now();
+        state.liveLatestByPair[pairKey] = {
+          markPrice: Number(row.markPx),
+          indexPrice: Number(row.oraclePx),
+          lastFundingRate: Number(row.funding),
+          premium: Number(row.premium),
+          nextFundingTime: (Math.floor(now / 3600000) + 1) * 3600000,
+          time: now,
+          openInterest: Number(row.openInterest),
+          dayNtlVlm: Number(row.dayNtlVlm),
           available: true,
         };
         return;

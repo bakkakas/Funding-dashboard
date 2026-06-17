@@ -9,6 +9,14 @@
 - `.nojekyll` — GitHub Pages 정적 배포용
 
 ## 현재 지원
+### Hyperliquid
+- `xyz:GOOGL`
+- `xyz:SAMSUNG` (`xyz:SMSN`)
+- `xyz:SKHYNIX` (`xyz:SKHX`)
+- 7일 / 30일 / 90일 기준 annualized 계산
+- 회차별 hourly funding history 테이블
+- current funding / mark / oracle / 다음 hourly funding 카운트다운 반영
+
 ### Binance
 - GOOGLUSDT
 - XAUUSDT
@@ -24,7 +32,7 @@
 - current funding / mark / index / next funding 반영
 
 ### 비교 상태 표시
-- Hyperliquid `xyz:GOOGL` → spot market이라 funding 비교 대상 아님
+- Hyperliquid `xyz` HIP-3 perp → public info API로 funding 비교 가능
 - THENA `GOOGLUSDT` → 현재 이 환경에서 public endpoint 접근이 403으로 차단되어 비교 불가
 
 ## 로컬 데이터 갱신

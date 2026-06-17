@@ -6,7 +6,11 @@ BINANCE_PREMIUM = "https://fapi.binance.com/fapi/v1/premiumIndex"
 BYBIT_TICKERS = "https://api.bybit.com/v5/market/tickers"
 BYBIT_FUNDING = "https://api.bybit.com/v5/market/funding/history"
 BYBIT_MARK_KLINE = "https://api.bybit.com/v5/market/mark-price-kline"
+HYPERLIQUID_INFO = "https://api.hyperliquid.xyz/info"
 PAIRS = [
+    {"symbol": "xyz:GOOGL", "exchange": "Hyperliquid", "dex": "xyz", "enabled": True},
+    {"symbol": "xyz:SMSN", "displaySymbol": "xyz:SAMSUNG", "exchange": "Hyperliquid", "dex": "xyz", "enabled": True},
+    {"symbol": "xyz:SKHX", "displaySymbol": "xyz:SKHYNIX", "exchange": "Hyperliquid", "dex": "xyz", "enabled": True},
     {"symbol": "GOOGLUSDT", "exchange": "Binance", "enabled": True},
     {"symbol": "GOOGLUSDT", "exchange": "Bybit", "enabled": True},
     {"symbol": "XAUUSDT", "exchange": "Binance", "enabled": True},
@@ -45,8 +49,34 @@ def fetch_json(url):
     raise RuntimeError(f"failed to fetch after {MAX_RETRIES} attempts: {url}: {last_error}")
 
 
+def post_json(url, payload):
+    body = json.dumps(payload).encode()
+    req = urllib.request.Request(
+        url,
+        data=body,
+        headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"},
+    )
+    last_error = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return json.loads(r.read().decode())
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+            last_error = e
+            if attempt == MAX_RETRIES:
+                break
+            time.sleep(RETRY_BASE_DELAY * attempt)
+    raise RuntimeError(f"failed to post after {MAX_RETRIES} attempts: {url}: {last_error}")
+
+
 def pair_key(pair):
     return f"{pair['exchange']}:{pair['symbol']}"
+
+
+def payments_per_day(pair):
+    if pair["exchange"] == "Hyperliquid":
+        return 24
+    return 3
 
 def fetch_binance_history(symbol, days):
     end_ms = int(time.time() * 1000)
@@ -181,11 +211,132 @@ def fetch_bybit_latest(symbol):
         }
 
 
+def fetch_hyperliquid_candles(symbol, days):
+    end_ms = int(time.time() * 1000)
+    start_ms = end_ms - days * 24 * 3600 * 1000
+    out = []
+    cur = start_ms
+    seen = set()
+    while cur < end_ms:
+        rows = post_json(HYPERLIQUID_INFO, {
+            "type": "candleSnapshot",
+            "req": {
+                "coin": symbol,
+                "interval": "1h",
+                "startTime": cur,
+                "endTime": end_ms,
+            },
+        })
+        if not rows:
+            break
+        for row in rows:
+            ts = int(row["t"])
+            if ts in seen:
+                continue
+            seen.add(ts)
+            out.append({
+                "time": ts,
+                "markPrice": float(row["c"]),
+            })
+        newest = max(int(row["t"]) for row in rows)
+        if newest < cur:
+            break
+        cur = newest + 3600000
+        if len(rows) < 500:
+            break
+    out.sort(key=lambda x: x["time"])
+    return out
+
+
+def fetch_hyperliquid_history(symbol, days):
+    end_ms = int(time.time() * 1000)
+    start_ms = end_ms - days * 24 * 3600 * 1000
+    funding_rows = []
+    cur = start_ms
+    seen = set()
+    while cur < end_ms:
+        batch = post_json(HYPERLIQUID_INFO, {
+            "type": "fundingHistory",
+            "coin": symbol,
+            "startTime": cur,
+            "endTime": end_ms,
+        })
+        if not batch:
+            break
+        for row in batch:
+            ts = int(row["time"])
+            if ts in seen:
+                continue
+            seen.add(ts)
+            funding_rows.append(row)
+        newest = max(int(row["time"]) for row in batch)
+        if newest < cur:
+            break
+        cur = newest + 1
+        if len(batch) < 500:
+            break
+    mark_rows = fetch_hyperliquid_candles(symbol, days)
+
+    def nearest_mark_price(ts):
+        eligible = [row for row in mark_rows if row["time"] <= ts]
+        if eligible:
+            return eligible[-1]["markPrice"]
+        return mark_rows[0]["markPrice"] if mark_rows else None
+
+    rows = []
+    for row in funding_rows:
+        ts = int(row["time"])
+        rows.append({
+            "fundingTime": ts,
+            "fundingRate": float(row["fundingRate"]),
+            "premium": float(row["premium"]),
+            "markPrice": nearest_mark_price(ts),
+        })
+    rows.sort(key=lambda x: x["fundingTime"])
+    return rows
+
+
+def fetch_hyperliquid_latest(symbol, dex):
+    try:
+        meta, ctxs = post_json(HYPERLIQUID_INFO, {"type": "metaAndAssetCtxs", "dex": dex})
+        for asset, ctx in zip(meta.get("universe", []), ctxs):
+            if asset.get("name") != symbol:
+                continue
+            now_ms = int(time.time() * 1000)
+            next_hour_ms = ((now_ms // 3600000) + 1) * 3600000
+            mark_price = float(ctx["markPx"])
+            return {
+                "markPrice": mark_price,
+                "indexPrice": float(ctx["oraclePx"]),
+                "lastFundingRate": float(ctx["funding"]),
+                "premium": float(ctx["premium"]),
+                "nextFundingTime": next_hour_ms,
+                "time": now_ms,
+                "openInterest": float(ctx["openInterest"]),
+                "dayNtlVlm": float(ctx["dayNtlVlm"]),
+                "available": True,
+            }
+        raise RuntimeError(f"{symbol} not found in Hyperliquid dex {dex}")
+    except Exception as e:
+        return {
+            "markPrice": None,
+            "indexPrice": None,
+            "lastFundingRate": None,
+            "premium": None,
+            "nextFundingTime": None,
+            "time": None,
+            "available": False,
+            "error": str(e)
+        }
+
+
 def fetch_history(pair, days):
     if pair["exchange"] == "Binance":
         return fetch_binance_history(pair["symbol"], days)
     if pair["exchange"] == "Bybit":
         return fetch_bybit_history(pair["symbol"], days)
+    if pair["exchange"] == "Hyperliquid":
+        return fetch_hyperliquid_history(pair["symbol"], days)
     raise ValueError(f"Unsupported exchange: {pair['exchange']}")
 
 
@@ -194,9 +345,11 @@ def fetch_latest(pair):
         return fetch_binance_latest(pair["symbol"])
     if pair["exchange"] == "Bybit":
         return fetch_bybit_latest(pair["symbol"])
+    if pair["exchange"] == "Hyperliquid":
+        return fetch_hyperliquid_latest(pair["symbol"], pair["dex"])
     raise ValueError(f"Unsupported exchange: {pair['exchange']}")
 
-def summarize(rows):
+def summarize(rows, periods_per_day):
     if not rows:
         return {
             "count": 0, "avgFundingRate": 0, "annualizedPct": 0,
@@ -207,7 +360,7 @@ def summarize(rows):
     return {
         "count": len(rows),
         "avgFundingRate": avg,
-        "annualizedPct": -avg * 3 * 365 * 100,
+        "annualizedPct": -avg * periods_per_day * 365 * 100,
         "sumFundingRate": sum(rates),
         "firstFundingTime": rows[0]["fundingTime"],
         "lastFundingTime": rows[-1]["fundingTime"],
@@ -228,10 +381,12 @@ def main():
             "partialFailure": False,
             "errors": [],
             "notes": {
+                "Hyperliquid xyz:GOOGL": "HIP-3 builder-deployed perp on dex xyz; hourly funding history available via public info API",
+                "Hyperliquid xyz:SAMSUNG": "Hyperliquid API symbol is xyz:SMSN; dashboard label shows xyz:SAMSUNG",
+                "Hyperliquid xyz:SKHYNIX": "Hyperliquid API symbol is xyz:SKHX; dashboard label shows xyz:SKHYNIX",
                 "Bybit GOOGLUSDT": "Funding history and current snapshot available via public linear market API",
                 "Binance XAUUSDT": "Funding history and current snapshot available via public futures API",
                 "Bybit XAUTUSDT": "Funding history and current snapshot available via public linear market API",
-                "Hyperliquid xyz:GOOGL": "spot market; funding history not applicable",
                 "THENA GOOGLUSDT": "public page/API access currently blocked (403) in this environment"
             }
         },
@@ -239,7 +394,7 @@ def main():
         "comparisons": {
             "Binance": {"supported": True, "notes": "Funding history available via public futures API"},
             "Bybit": {"supported": True, "notes": "Funding history + current snapshot available via public linear market API"},
-            "Hyperliquid xyz:GOOGL": {"supported": False, "notes": "Spot market, not perp funding market"},
+            "Hyperliquid": {"supported": True, "notes": "HIP-3 xyz perp funding history + current snapshot available via public info API"},
             "THENA GOOGLUSDT": {"supported": False, "notes": "Public endpoint unavailable from current environment (403)"}
         }
     }
@@ -250,7 +405,10 @@ def main():
         pair_out = {
             "key": key,
             "symbol": symbol,
+            "displaySymbol": pair.get("displaySymbol", symbol),
             "exchange": pair["exchange"],
+            "dex": pair.get("dex"),
+            "fundingPeriodsPerDay": payments_per_day(pair),
             "windows": {},
             "latest": {},
             "rows": []
@@ -263,7 +421,7 @@ def main():
             for label, days in WINDOWS.items():
                 min_ts = int(time.time() * 1000) - days * 24 * 3600 * 1000
                 filtered = [r for r in full_rows if r["fundingTime"] >= min_ts]
-                pair_out["windows"][label] = summarize(filtered)
+                pair_out["windows"][label] = summarize(filtered, payments_per_day(pair))
             pair_out["available"] = True
             data["pairs"][key] = pair_out
         except Exception as e:
