@@ -1,5 +1,5 @@
 {
-  "updatedAt": 1781846334962,
+  "updatedAt": 1781852460995,
   "meta": {
     "windows": {
       "1D": 1,
@@ -7,8 +7,14 @@
       "30D": 30,
       "90D": 90
     },
-    "partialFailure": false,
-    "errors": [],
+    "partialFailure": true,
+    "errors": [
+      {
+        "key": "Hyperliquid:xyz:TSM",
+        "error": "failed to post after 4 attempts: https://api.hyperliquid.xyz/info: HTTP Error 429: Too Many Requests",
+        "time": 1781852504840
+      }
+    ],
     "notes": {
       "Hyperliquid xyz:GOOGL": "HIP-3 builder-deployed perp on dex xyz; hourly funding history available via public info API",
       "SAMSUNG": "Binance symbol is SAMSUNGUSDT; Hyperliquid API symbol is xyz:SMSN",
@@ -32,61 +38,49 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": 3.2716791666666674e-06,
-          "annualizedPct": -2.865990950000001,
-          "sumFundingRate": 7.852030000000002e-05,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.501350000000002e-06,
+          "annualizedPct": -1.3151826000000015,
+          "sumFundingRate": 3.6032400000000045e-05,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": 1.3652054166666695e-05,
-          "annualizedPct": -11.959199450000026,
-          "sumFundingRate": 0.002293545100000005,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.3038084523809556e-05,
+          "annualizedPct": -11.421362042857172,
+          "sumFundingRate": 0.0021903982000000054,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 1.4233978611111066e-05,
-          "annualizedPct": -12.468965263333294,
-          "sumFundingRate": 0.010248464599999967,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.4135487499999949e-05,
+          "annualizedPct": -12.382687049999955,
+          "sumFundingRate": 0.010177550999999964,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 1.0038102129629533e-05,
-          "annualizedPct": -8.79337746555547,
-          "sumFundingRate": 0.02168230059999979,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.0018431805555457e-05,
+          "annualizedPct": -8.77614626166658,
+          "sumFundingRate": 0.021639812699999785,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 364.6,
-        "indexPrice": 365.11,
-        "lastFundingRate": -8.24749e-05,
-        "premium": -0.001365342,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846335055,
-        "openInterest": 164640.236,
-        "dayNtlVlm": 18145307.438109994,
+        "markPrice": 365.07,
+        "indexPrice": 364.91,
+        "lastFundingRate": 9.1942e-06,
+        "premium": 0.0005220465,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852461137,
+        "openInterest": 163901.836,
+        "dayNtlVlm": 17988210.4927,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": 6.25e-06,
-          "premium": -1.67976e-05,
-          "markPrice": 302.67
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": 6.25e-06,
-          "premium": -9.75792e-05,
-          "markPrice": 302.47
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": 6.25e-06,
@@ -13033,7 +13027,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": -4.18963e-05,
           "premium": -0.0009703408,
-          "markPrice": 364.6
+          "markPrice": 364.71
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": -3.62379e-05,
+          "premium": -0.0008798069,
+          "markPrice": 365.1
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 6.25e-06,
+          "premium": 7.91117e-05,
+          "markPrice": 365.16
         }
       ],
       "available": true
@@ -13082,11 +13088,11 @@
         }
       },
       "latest": {
-        "markPrice": 364.59,
-        "indexPrice": 365.02638387,
+        "markPrice": 364.98,
+        "indexPrice": 364.87930196,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846335296,
+        "time": 1781852461296,
         "available": true
       },
       "rows": [
@@ -14472,11 +14478,11 @@
         }
       },
       "latest": {
-        "markPrice": 364.89,
-        "indexPrice": 365.02,
+        "markPrice": 365.15,
+        "indexPrice": 364.88,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846336168,
+        "time": 1781852462500,
         "available": true
       },
       "rows": [
@@ -15290,61 +15296,49 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": 9.081362916666667e-05,
-          "annualizedPct": -79.55273915000001,
-          "sumFundingRate": 0.0021795271,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 8.354970833333334e-05,
+          "annualizedPct": -73.1895445,
+          "sumFundingRate": 0.002005193,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": 3.405178154761904e-05,
-          "annualizedPct": -29.829360635714274,
-          "sumFundingRate": 0.005720699299999999,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 3.51407488095238e-05,
+          "annualizedPct": -30.783295957142847,
+          "sumFundingRate": 0.0059036457999999984,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 3.776904916666663e-05,
-          "annualizedPct": -33.08568706999997,
-          "sumFundingRate": 0.027193715399999974,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 3.822860986111108e-05,
+          "annualizedPct": -33.488262238333306,
+          "sumFundingRate": 0.027524599099999977,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 5.3622484814814795e-05,
-          "annualizedPct": -46.97329669777777,
-          "sumFundingRate": 0.11582456719999996,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 5.384790569444443e-05,
+          "annualizedPct": -47.17076538833332,
+          "sumFundingRate": 0.11631147629999997,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 230.5,
-        "indexPrice": 230.2,
-        "lastFundingRate": 0.0001600603,
-        "premium": 0.0012966985,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846336717,
-        "openInterest": 97119.988,
-        "dayNtlVlm": 35942209.768429995,
+        "markPrice": 232.46,
+        "indexPrice": 231.59,
+        "lastFundingRate": 0.0002725698,
+        "premium": 0.003203938,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852463071,
+        "openInterest": 92315.776,
+        "dayNtlVlm": 37072046.12392998,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": -0.0003768729,
-          "premium": -0.0063299665,
-          "markPrice": 131.35
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": 7.08823e-05,
-          "premium": 0.0014341161,
-          "markPrice": 131.85
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": 0.0002697496,
@@ -28291,7 +28285,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": 0.000152431,
           "premium": 0.0027388958,
-          "markPrice": 230.48
+          "markPrice": 232.07
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": 8.77914e-05,
+          "premium": 0.001704663,
+          "markPrice": 232.31
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 9.31271e-05,
+          "premium": 0.0017900333,
+          "markPrice": 232.34
         }
       ],
       "available": true
@@ -28340,11 +28346,11 @@
         }
       },
       "latest": {
-        "markPrice": 230.72,
-        "indexPrice": 230.09827613,
-        "lastFundingRate": 0.0052326,
+        "markPrice": 232.5,
+        "indexPrice": 232.31533738,
+        "lastFundingRate": 0.00322549,
         "nextFundingTime": 1781856000000,
-        "time": 1781846337296,
+        "time": 1781852463296,
         "available": true
       },
       "rows": [
@@ -28650,11 +28656,11 @@
         }
       },
       "latest": {
-        "markPrice": 231.54,
-        "indexPrice": 230.59,
-        "lastFundingRate": 0.00294245,
+        "markPrice": 232.54,
+        "indexPrice": 232.49,
+        "lastFundingRate": 0.00215373,
         "nextFundingTime": 1781856000000,
-        "time": 1781846337878,
+        "time": 1781852464319,
         "available": true
       },
       "rows": [
@@ -28903,61 +28909,49 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": 0.00013060013749999997,
-          "annualizedPct": -114.40572044999998,
-          "sumFundingRate": 0.0031344032999999993,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 0.00012271196666666665,
+          "annualizedPct": -107.4956828,
+          "sumFundingRate": 0.0029450871999999995,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": 7.085932797619048e-05,
-          "annualizedPct": -62.07277130714287,
-          "sumFundingRate": 0.0119043671,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 6.792297559523809e-05,
+          "annualizedPct": -59.50052662142856,
+          "sumFundingRate": 0.0114110599,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 6.64644887499999e-05,
-          "annualizedPct": -58.2228921449999,
-          "sumFundingRate": 0.047854431899999925,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 6.614998597222213e-05,
+          "annualizedPct": -57.947387711666586,
+          "sumFundingRate": 0.04762798989999993,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 6.310404726851856e-05,
-          "annualizedPct": -55.279145407222266,
-          "sumFundingRate": 0.1363047421000001,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 6.306764013888893e-05,
+          "annualizedPct": -55.2472527616667,
+          "sumFundingRate": 0.13622610270000007,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 1783.2,
-        "indexPrice": 1781.0,
-        "lastFundingRate": 0.0001503536,
-        "premium": 0.0016611454,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846338382,
-        "openInterest": 83179.1940000001,
-        "dayNtlVlm": 172851174.85529995,
+        "markPrice": 1801.2,
+        "indexPrice": 1812.2,
+        "lastFundingRate": -0.0003754182,
+        "premium": -0.0065128021,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852464884,
+        "openInterest": 79826.524,
+        "dayNtlVlm": 170336195.43820003,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": 2.52111e-05,
-          "premium": 0.0007033778,
-          "markPrice": 644.25
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": -1.87106e-05,
-          "premium": -0.0005993699,
-          "markPrice": 644.03
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": 1.1059e-06,
@@ -41904,7 +41898,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": 0.0001897249,
           "premium": 0.003335598,
-          "markPrice": 1784.7
+          "markPrice": 1802.9
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": 0.0001025374,
+          "premium": 0.0019405985,
+          "markPrice": 1799.4
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": -0.0001746763,
+          "premium": -0.0030948207,
+          "markPrice": 1799.8
         }
       ],
       "available": true
@@ -41953,11 +41959,11 @@
         }
       },
       "latest": {
-        "markPrice": 1787.54268149,
-        "indexPrice": 1782.33597017,
-        "lastFundingRate": 0.00518525,
+        "markPrice": 1803.91,
+        "indexPrice": 1806.28413134,
+        "lastFundingRate": 0.0034996,
         "nextFundingTime": 1781856000000,
-        "time": 1781846338296,
+        "time": 1781852465296,
         "available": true
       },
       "rows": [
@@ -42263,11 +42269,11 @@
         }
       },
       "latest": {
-        "markPrice": 1791.44,
-        "indexPrice": 1785.42,
-        "lastFundingRate": 0.0023569,
+        "markPrice": 1807.79,
+        "indexPrice": 1803.88,
+        "lastFundingRate": 0.00181672,
         "nextFundingTime": 1781856000000,
-        "time": 1781846339637,
+        "time": 1781852466333,
         "available": true
       },
       "rows": [
@@ -42519,58 +42525,46 @@
           "avgFundingRate": 7.168729166666665e-06,
           "annualizedPct": -6.279806749999999,
           "sumFundingRate": 0.00017204949999999995,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
           "avgFundingRate": 8.925582738095219e-06,
           "annualizedPct": -7.818810478571411,
           "sumFundingRate": 0.0014994978999999969,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 7.621454722222305e-06,
-          "annualizedPct": -6.67639433666674,
-          "sumFundingRate": 0.0054874474000000594,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 7.598912083333415e-06,
+          "annualizedPct": -6.656646985000073,
+          "sumFundingRate": 0.005471216700000059,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
           "avgFundingRate": 6.3399516203702175e-06,
           "annualizedPct": -5.553797619444311,
           "sumFundingRate": 0.013694295499999669,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 4128.5,
-        "indexPrice": 4127.4,
-        "lastFundingRate": 6.25e-06,
-        "premium": 0.0002543974,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846340141,
-        "openInterest": 27396.3284,
-        "dayNtlVlm": 31980730.576,
+        "markPrice": 4151.5,
+        "indexPrice": 4149.3,
+        "lastFundingRate": 1.58036e-05,
+        "premium": 0.000642277,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852466901,
+        "openInterest": 27493.6,
+        "dayNtlVlm": 31399383.00153001,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": 6.25e-06,
-          "premium": -0.0001374933,
-          "markPrice": 4506.5
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": 6.25e-06,
-          "premium": 0.0002731508,
-          "markPrice": 4505.5
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": 6.25e-06,
@@ -55517,7 +55511,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": 6.25e-06,
           "premium": 0.0001314645,
-          "markPrice": 4128.5
+          "markPrice": 4141.2
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": 6.25e-06,
+          "premium": 0.000386603,
+          "markPrice": 4151.0
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 6.25e-06,
+          "premium": 0.0003841761,
+          "markPrice": 4152.0
         }
       ],
       "available": true
@@ -55566,11 +55572,11 @@
         }
       },
       "latest": {
-        "markPrice": 4131.08158821,
-        "indexPrice": 4128.01385675,
-        "lastFundingRate": 6.967e-05,
+        "markPrice": 4153.6325251,
+        "indexPrice": 4150.1303168,
+        "lastFundingRate": 0.00011636,
         "nextFundingTime": 1781856000000,
-        "time": 1781846340296,
+        "time": 1781852467296,
         "available": true
       },
       "rows": [
@@ -58321,11 +58327,11 @@
         }
       },
       "latest": {
-        "markPrice": 4116.1,
-        "indexPrice": 4118.48,
-        "lastFundingRate": -6.3e-05,
+        "markPrice": 4137.25,
+        "indexPrice": 4139.96,
+        "lastFundingRate": -9.227e-05,
         "nextFundingTime": 1781856000000,
-        "time": 1781846341530,
+        "time": 1781852468238,
         "available": true
       },
       "rows": [
@@ -59327,7 +59333,7 @@
         {
           "fundingTime": 1781841600000,
           "fundingRate": -7.015e-05,
-          "markPrice": 4116.1
+          "markPrice": 4137.25
         }
       ],
       "available": true
@@ -59344,61 +59350,49 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": 2.7670416666666793e-07,
-          "annualizedPct": -0.2423928500000011,
-          "sumFundingRate": 6.64090000000003e-06,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.5065541666666677e-06,
+          "annualizedPct": -1.3197414500000009,
+          "sumFundingRate": 3.615730000000003e-05,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": 1.0856639285714278e-05,
-          "annualizedPct": -9.510416014285708,
-          "sumFundingRate": 0.0018239153999999988,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.0958926190476184e-05,
+          "annualizedPct": -9.600019342857136,
+          "sumFundingRate": 0.0018410995999999988,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 1.4318457638888864e-05,
-          "annualizedPct": -12.542968891666645,
-          "sumFundingRate": 0.010309289499999982,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.4347426388888862e-05,
+          "annualizedPct": -12.568345516666643,
+          "sumFundingRate": 0.01033014699999998,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 1.0518159583333234e-05,
-          "annualizedPct": -9.213907794999914,
-          "sumFundingRate": 0.022719224699999784,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.0531824583333233e-05,
+          "annualizedPct": -9.225878334999912,
+          "sumFundingRate": 0.022748741099999782,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 241.69,
-        "indexPrice": 241.78,
-        "lastFundingRate": -2.38852e-05,
-        "premium": -0.0005955828,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846342082,
-        "openInterest": 71850.98,
-        "dayNtlVlm": 8820194.23954,
+        "markPrice": 242.29,
+        "indexPrice": 242.21,
+        "lastFundingRate": 6.9803e-06,
+        "premium": 0.0003674497,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852468705,
+        "openInterest": 71218.534,
+        "dayNtlVlm": 8872340.958509998,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": 6.25e-06,
-          "premium": -4.29612e-05,
-          "markPrice": 207.03
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": 6.25e-06,
-          "premium": 6.47551e-05,
-          "markPrice": 207.25
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": 6.25e-06,
@@ -72345,7 +72339,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": -2.06476e-05,
           "premium": -0.0006303621,
-          "markPrice": 241.71
+          "markPrice": 242.13
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": 6.25e-06,
+          "premium": -6.34486e-05,
+          "markPrice": 242.31
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 3.57664e-05,
+          "premium": 0.0008722628,
+          "markPrice": 242.31
         }
       ],
       "available": true
@@ -72394,11 +72400,11 @@
         }
       },
       "latest": {
-        "markPrice": 241.80257981,
-        "indexPrice": 241.90184632,
+        "markPrice": 242.53,
+        "indexPrice": 242.44479163,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846342297,
+        "time": 1781852469296,
         "available": true
       },
       "rows": [
@@ -73799,11 +73805,11 @@
         }
       },
       "latest": {
-        "markPrice": 241.8,
-        "indexPrice": 241.9,
+        "markPrice": 242.49,
+        "indexPrice": 242.45,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846343397,
+        "time": 1781852470005,
         "available": true
       },
       "rows": [
@@ -74602,61 +74608,49 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": -2.666995833333332e-06,
-          "annualizedPct": 2.3362883499999985,
-          "sumFundingRate": -6.400789999999997e-05,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": -5.3131333333333326e-06,
+          "annualizedPct": 4.654304799999999,
+          "sumFundingRate": -0.0001275152,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": 6.1544952380952234e-06,
-          "annualizedPct": -5.391337828571415,
-          "sumFundingRate": 0.0010339551999999975,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 5.755623214285699e-06,
+          "annualizedPct": -5.041925935714272,
+          "sumFundingRate": 0.0009669446999999975,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": -5.456445694444404e-06,
-          "annualizedPct": 4.779846428333298,
-          "sumFundingRate": -0.003928640899999971,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": -5.4191705555555144e-06,
+          "annualizedPct": 4.74719340666663,
+          "sumFundingRate": -0.00390180279999997,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 1.5966453703705733e-07,
-          "annualizedPct": -0.13986613444446225,
-          "sumFundingRate": 0.00034487540000004385,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.2864115740742746e-07,
+          "annualizedPct": -0.11268965388890648,
+          "sumFundingRate": 0.0002778649000000433,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 296.29,
-        "indexPrice": 296.59,
-        "lastFundingRate": 6.25e-06,
-        "premium": -0.0025557166,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846343876,
-        "openInterest": 54141.302,
-        "dayNtlVlm": 7829194.55918,
+        "markPrice": 296.42,
+        "indexPrice": 296.09,
+        "lastFundingRate": 5.5905e-05,
+        "premium": 0.0012715728,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852471036,
+        "openInterest": 53763.656,
+        "dayNtlVlm": 7867323.908950001,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": 6.25e-06,
-          "premium": 0.0002575075,
-          "markPrice": 249.95
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": 6.25e-06,
-          "premium": -0.0001364737,
-          "markPrice": 250.02
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": 6.25e-06,
@@ -87603,7 +87597,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": 1.34122e-05,
           "premium": 0.0005145952,
-          "markPrice": 295.83
+          "markPrice": 296.33
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": -6.07605e-05,
+          "premium": -0.0012721675,
+          "markPrice": 296.44
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 6.25e-06,
+          "premium": 0.0002091145,
+          "markPrice": 296.49
         }
       ],
       "available": true
@@ -87652,11 +87658,11 @@
         }
       },
       "latest": {
-        "markPrice": 296.28825334,
-        "indexPrice": 296.75829636,
+        "markPrice": 296.61456439,
+        "indexPrice": 296.21360212,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846344296,
+        "time": 1781852471296,
         "available": true
       },
       "rows": [
@@ -88972,11 +88978,11 @@
         }
       },
       "latest": {
-        "markPrice": 296.63,
-        "indexPrice": 296.76,
+        "markPrice": 296.6,
+        "indexPrice": 296.22,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846345044,
+        "time": 1781852472442,
         "available": true
       },
       "rows": [
@@ -89775,61 +89781,49 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": -1.1493833333333333e-05,
-          "annualizedPct": 10.068598,
-          "sumFundingRate": -0.000275852,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": -6.397370833333332e-06,
+          "annualizedPct": 5.604096849999999,
+          "sumFundingRate": -0.00015353689999999997,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": -5.714107142857158e-07,
-          "annualizedPct": 0.500555785714287,
-          "sumFundingRate": -9.599700000000025e-05,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 3.5819404761904553e-07,
+          "annualizedPct": -0.3137779857142839,
+          "sumFundingRate": 6.017659999999965e-05,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 2.163481805555554e-06,
-          "annualizedPct": -1.8952100616666654,
-          "sumFundingRate": 0.001557706899999999,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 2.2662997222222194e-06,
+          "annualizedPct": -1.9852785566666642,
+          "sumFundingRate": 0.001631735799999998,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 2.7173214814815125e-06,
-          "annualizedPct": -2.380373617777805,
-          "sumFundingRate": 0.005869414400000067,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 2.7686468055555853e-06,
+          "annualizedPct": -2.425334601666693,
+          "sumFundingRate": 0.005980277100000065,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 396.53,
-        "indexPrice": 396.86,
-        "lastFundingRate": -6.89437e-05,
-        "premium": -0.0008504258,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846345520,
-        "openInterest": 76195.28,
-        "dayNtlVlm": 21721356.45004991,
+        "markPrice": 399.23,
+        "indexPrice": 398.83,
+        "lastFundingRate": 5.27838e-05,
+        "premium": 0.0011621493,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852473040,
+        "openInterest": 76269.186,
+        "dayNtlVlm": 22385727.66694001,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": 6.25e-06,
-          "premium": -0.0001037845,
-          "markPrice": 372.02
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": 6.25e-06,
-          "premium": -9.56571e-05,
-          "markPrice": 372.51
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": 9.4043e-06,
@@ -102776,7 +102770,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": 2.3165e-06,
           "premium": -0.0002629359,
-          "markPrice": 396.53
+          "markPrice": 397.88
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": 6.25e-06,
+          "premium": -8.33098e-05,
+          "markPrice": 399.27
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 0.0001171127,
+          "premium": 0.0021738029,
+          "markPrice": 399.31
         }
       ],
       "available": true
@@ -102825,11 +102831,11 @@
         }
       },
       "latest": {
-        "markPrice": 397.00701966,
-        "indexPrice": 396.98522486,
+        "markPrice": 399.85265381,
+        "indexPrice": 399.39788359,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846345297,
+        "time": 1781852473296,
         "available": true
       },
       "rows": [
@@ -104230,11 +104236,11 @@
         }
       },
       "latest": {
-        "markPrice": 396.98,
-        "indexPrice": 396.98,
-        "lastFundingRate": 0.0,
+        "markPrice": 399.83,
+        "indexPrice": 399.41,
+        "lastFundingRate": 7.936e-05,
         "nextFundingTime": 1781856000000,
-        "time": 1781846346634,
+        "time": 1781852474159,
         "available": true
       },
       "rows": [
@@ -105138,61 +105144,49 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": 1.0677804166666667e-05,
-          "annualizedPct": -9.35375645,
-          "sumFundingRate": 0.0002562673,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 6.585854166666667e-06,
+          "annualizedPct": -5.76920825,
+          "sumFundingRate": 0.00015806050000000002,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": 1.7042385119047628e-05,
-          "annualizedPct": -14.929129364285721,
-          "sumFundingRate": 0.0028631207000000014,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.6666539285714293e-05,
+          "annualizedPct": -14.599888414285722,
+          "sumFundingRate": 0.0027999786000000013,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 1.8694456527777713e-05,
-          "annualizedPct": -16.376343918333276,
-          "sumFundingRate": 0.013460008699999953,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.8580496111111046e-05,
+          "annualizedPct": -16.276514593333278,
+          "sumFundingRate": 0.013377957199999953,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 1.0350840185185116e-05,
-          "annualizedPct": -9.067336002222161,
-          "sumFundingRate": 0.02235781479999985,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.0331884953703635e-05,
+          "annualizedPct": -9.050731219444383,
+          "sumFundingRate": 0.02231687149999985,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 208.85,
-        "indexPrice": 209.04,
-        "lastFundingRate": -9.67706e-05,
-        "premium": -0.0012389973,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846347143,
-        "openInterest": 854013.6299999999,
-        "dayNtlVlm": 36153978.26824997,
+        "markPrice": 209.12,
+        "indexPrice": 208.97,
+        "lastFundingRate": 2.9863e-05,
+        "premium": 0.0007465186,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852474838,
+        "openInterest": 853955.9140000001,
+        "dayNtlVlm": 36925138.417429976,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": -2.7564e-06,
-          "premium": -0.0003441026,
-          "markPrice": 174.46
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": -4.8324e-06,
-          "premium": -0.000377318,
-          "markPrice": 174.54
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": -1.16948e-05,
@@ -118139,7 +118133,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": -4.53807e-05,
           "premium": -0.001026091,
-          "markPrice": 208.81
+          "markPrice": 208.63
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": -7.59362e-05,
+          "premium": -0.0015149789,
+          "markPrice": 209.13
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 2.74041e-05,
+          "premium": 0.0007384658,
+          "markPrice": 209.12
         }
       ],
       "available": true
@@ -118188,11 +118194,11 @@
         }
       },
       "latest": {
-        "markPrice": 208.89193372,
-        "indexPrice": 209.01611744,
+        "markPrice": 209.23,
+        "indexPrice": 209.09493232,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846347296,
+        "time": 1781852475296,
         "available": true
       },
       "rows": [
@@ -119578,11 +119584,11 @@
         }
       },
       "latest": {
-        "markPrice": 208.95,
-        "indexPrice": 209.01,
+        "markPrice": 209.27,
+        "indexPrice": 209.1,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846348595,
+        "time": 1781852476417,
         "available": true
       },
       "rows": [
@@ -120261,61 +120267,49 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": 9.221445833333337e-06,
-          "annualizedPct": -8.077986550000004,
-          "sumFundingRate": 0.0002213147000000001,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 7.657241666666665e-06,
+          "annualizedPct": -6.707743699999999,
+          "sumFundingRate": 0.00018377379999999998,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": 1.590828095238095e-05,
-          "annualizedPct": -13.935654114285711,
-          "sumFundingRate": 0.0026725911999999994,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.579815714285714e-05,
+          "annualizedPct": -13.839185657142854,
+          "sumFundingRate": 0.0026540903999999997,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 1.4782299999999979e-05,
-          "annualizedPct": -12.949294799999983,
-          "sumFundingRate": 0.010643255999999985,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.4689773611111092e-05,
+          "annualizedPct": -12.868241683333318,
+          "sumFundingRate": 0.010576636999999986,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 1.0191362962962896e-05,
-          "annualizedPct": -8.927633955555498,
-          "sumFundingRate": 0.022013343999999855,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.0189180231481413e-05,
+          "annualizedPct": -8.925721882777719,
+          "sumFundingRate": 0.022008629299999853,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 571.12,
-        "indexPrice": 572.26,
-        "lastFundingRate": -0.0001356654,
-        "premium": -0.002064621,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846349072,
-        "openInterest": 34354.014,
-        "dayNtlVlm": 9112426.429189999,
+        "markPrice": 573.01,
+        "indexPrice": 573.07,
+        "lastFundingRate": -3.1131e-06,
+        "premium": -0.0002853055,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852477104,
+        "openInterest": 34323.606,
+        "dayNtlVlm": 9142313.149810003,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": -7.5361e-06,
-          "premium": -0.0004205776,
-          "markPrice": 596.96
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": 6.25e-06,
-          "premium": -0.000152188,
-          "markPrice": 597.67
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": 6.25e-06,
@@ -133262,7 +133256,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": -9.63297e-05,
           "premium": -0.0018412747,
-          "markPrice": 571.22
+          "markPrice": 573.33
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": -3.11658e-05,
+          "premium": -0.0007986526,
+          "markPrice": 572.87
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 2.5165e-05,
+          "premium": 0.0007026397,
+          "markPrice": 573.04
         }
       ],
       "available": true
@@ -133311,11 +133317,11 @@
         }
       },
       "latest": {
-        "markPrice": 571.54412563,
-        "indexPrice": 572.45944464,
+        "markPrice": 573.28658357,
+        "indexPrice": 573.3972267,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846349297,
+        "time": 1781852477296,
         "available": true
       },
       "rows": [
@@ -134701,11 +134707,11 @@
         }
       },
       "latest": {
-        "markPrice": 571.84,
-        "indexPrice": 571.81,
+        "markPrice": 573.79,
+        "indexPrice": 573.39,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846350146,
+        "time": 1781852478502,
         "available": true
       },
       "rows": [
@@ -135519,61 +135525,49 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": 1.8413020833333327e-05,
-          "annualizedPct": -16.129806249999994,
-          "sumFundingRate": 0.0004419124999999999,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 2.1858383333333327e-05,
+          "annualizedPct": -19.147943799999993,
+          "sumFundingRate": 0.0005246011999999998,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": 1.8248444047619047e-05,
-          "annualizedPct": -15.985636985714285,
-          "sumFundingRate": 0.0030657386,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.857266845238095e-05,
+          "annualizedPct": -16.269657564285712,
+          "sumFundingRate": 0.0031202082999999994,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 1.5347291111111116e-05,
-          "annualizedPct": -13.444227013333338,
-          "sumFundingRate": 0.011050049600000004,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.5470518611111113e-05,
+          "annualizedPct": -13.552174303333336,
+          "sumFundingRate": 0.011138773400000001,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 9.402450185185099e-06,
-          "annualizedPct": -8.236546362222146,
-          "sumFundingRate": 0.020309292399999814,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 9.443526018518434e-06,
+          "annualizedPct": -8.272528792222147,
+          "sumFundingRate": 0.020398016199999817,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 377.33,
-        "indexPrice": 377.45,
-        "lastFundingRate": -4.12313e-05,
-        "premium": -0.0004874818,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846350636,
-        "openInterest": 148144.124,
-        "dayNtlVlm": 26001649.456669986,
+        "markPrice": 379.52,
+        "indexPrice": 379.32,
+        "lastFundingRate": 6.25e-06,
+        "premium": 0.0006234841,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852479070,
+        "openInterest": 148214.4380000001,
+        "dayNtlVlm": 26092243.852789976,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": 6.25e-06,
-          "premium": 0.000179495,
-          "markPrice": 384.12
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": 6.25e-06,
-          "premium": 0.0003107944,
-          "markPrice": 384.17
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": 6.25e-06,
@@ -148520,7 +148514,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": 3.9528e-06,
           "premium": -0.0002367557,
-          "markPrice": 377.31
+          "markPrice": 379.9
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": 3.32671e-05,
+          "premium": 0.0008322737,
+          "markPrice": 379.62
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 6.79567e-05,
+          "premium": 0.0013873064,
+          "markPrice": 379.49
         }
       ],
       "available": true
@@ -148569,11 +148575,11 @@
         }
       },
       "latest": {
-        "markPrice": 377.45,
-        "indexPrice": 377.66326277,
+        "markPrice": 379.66863615,
+        "indexPrice": 379.54374353,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846350296,
+        "time": 1781852479296,
         "available": true
       },
       "rows": [
@@ -149679,11 +149685,11 @@
         }
       },
       "latest": {
-        "markPrice": 377.6,
-        "indexPrice": 377.66,
+        "markPrice": 379.58,
+        "indexPrice": 379.55,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846351787,
+        "time": 1781852480540,
         "available": true
       },
       "rows": [
@@ -150497,61 +150503,49 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": -5.6392166666666685e-06,
-          "annualizedPct": 4.939953800000001,
-          "sumFundingRate": -0.00013534120000000005,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 4.992499999999992e-08,
+          "annualizedPct": -0.043734299999999934,
+          "sumFundingRate": 1.1981999999999981e-06,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": 1.0445301190476186e-05,
-          "annualizedPct": -9.15008384285714,
-          "sumFundingRate": 0.0017548105999999992,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.1229110119047616e-05,
+          "annualizedPct": -9.836700464285713,
+          "sumFundingRate": 0.0018864904999999993,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 4.141801111111115e-06,
-          "annualizedPct": -3.6282177733333363,
-          "sumFundingRate": 0.002982096800000003,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 4.231508888888891e-06,
+          "annualizedPct": -3.7068017866666683,
+          "sumFundingRate": 0.0030466864000000017,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 2.7543714814815188e-06,
-          "annualizedPct": -2.4128294177778105,
-          "sumFundingRate": 0.005949442400000081,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 2.7823387037037407e-06,
+          "annualizedPct": -2.437328704444477,
+          "sumFundingRate": 0.00600985160000008,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 112.74,
-        "indexPrice": 112.43,
-        "lastFundingRate": 0.0002144469,
-        "premium": 0.0028061905,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846352317,
-        "openInterest": 246394.268,
-        "dayNtlVlm": 41936668.35240001,
+        "markPrice": 112.69,
+        "indexPrice": 112.61,
+        "lastFundingRate": 3.63922e-05,
+        "premium": 0.0006260545,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852481116,
+        "openInterest": 247958.244,
+        "dayNtlVlm": 41831003.128380015,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": 6.25e-06,
-          "premium": 9.73388e-05,
-          "markPrice": 136.96
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": 3.23808e-05,
-          "premium": 0.000818093,
-          "markPrice": 136.82
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": 6.25e-06,
@@ -163498,7 +163492,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": 6.14865e-05,
           "premium": 0.0012837834,
-          "markPrice": 112.75
+          "markPrice": 112.55
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": 7.75312e-05,
+          "premium": 0.0015404999,
+          "markPrice": 112.71
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 2.15088e-05,
+          "premium": 0.000644141,
+          "markPrice": 112.71
         }
       ],
       "available": true
@@ -163547,11 +163553,11 @@
         }
       },
       "latest": {
-        "markPrice": 112.93,
-        "indexPrice": 112.64857862,
+        "markPrice": 112.87,
+        "indexPrice": 112.79573575,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846352296,
+        "time": 1781852481296,
         "available": true
       },
       "rows": [
@@ -164952,11 +164958,11 @@
         }
       },
       "latest": {
-        "markPrice": 112.92,
-        "indexPrice": 112.66,
-        "lastFundingRate": 5.47e-05,
+        "markPrice": 112.9,
+        "indexPrice": 112.8,
+        "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846353400,
+        "time": 1781852482481,
         "available": true
       },
       "rows": [
@@ -165740,61 +165746,49 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": 3.975558333333334e-06,
-          "annualizedPct": -3.4825891000000007,
-          "sumFundingRate": 9.54134e-05,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 8.714233333333332e-06,
+          "annualizedPct": -7.633668399999999,
+          "sumFundingRate": 0.00020914159999999997,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": 1.332163214285717e-05,
-          "annualizedPct": -11.669749757142881,
-          "sumFundingRate": 0.0022380342000000047,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.4058867261904786e-05,
+          "annualizedPct": -12.315567721428593,
+          "sumFundingRate": 0.002361889700000004,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 9.629142638888943e-06,
-          "annualizedPct": -8.435128951666714,
-          "sumFundingRate": 0.0069329827000000396,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 9.7941619444445e-06,
+          "annualizedPct": -8.579685863333381,
+          "sumFundingRate": 0.007051796600000039,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 3.7751609259259712e-06,
-          "annualizedPct": -3.3070409711111504,
-          "sumFundingRate": 0.008154347600000098,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 3.8084675462963432e-06,
+          "annualizedPct": -3.336217570555597,
+          "sumFundingRate": 0.008226289900000102,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 162.74,
-        "indexPrice": 162.86,
-        "lastFundingRate": -6.39625e-05,
-        "premium": -0.0011635761,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846353945,
-        "openInterest": 39738.18,
-        "dayNtlVlm": 5786916.245759998,
+        "markPrice": 163.81,
+        "indexPrice": 163.7,
+        "lastFundingRate": 3.72393e-05,
+        "premium": 0.0006536347,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852483050,
+        "openInterest": 40372.04,
+        "dayNtlVlm": 5724876.806939997,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": 2.75516e-05,
-          "premium": 0.0007408259,
-          "markPrice": 199.45
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": 3.182e-05,
-          "premium": 0.0008091204,
-          "markPrice": 199.57
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": 3.57407e-05,
@@ -178741,7 +178735,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": -0.0001618913,
           "premium": -0.0028902606,
-          "markPrice": 162.7
+          "markPrice": 163.42
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": 6.25e-06,
+          "premium": 7.35725e-05,
+          "markPrice": 163.75
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 0.0001250639,
+          "premium": 0.0023010224,
+          "markPrice": 163.83
         }
       ],
       "available": true
@@ -178790,11 +178796,11 @@
         }
       },
       "latest": {
-        "markPrice": 162.81096814,
-        "indexPrice": 162.85962372,
-        "lastFundingRate": -0.00016546,
+        "markPrice": 164.01,
+        "indexPrice": 163.92865293,
+        "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846354297,
+        "time": 1781852483296,
         "available": true
       },
       "rows": [
@@ -180195,11 +180201,11 @@
         }
       },
       "latest": {
-        "markPrice": 162.86,
-        "indexPrice": 162.86,
-        "lastFundingRate": -0.00041571,
+        "markPrice": 163.93,
+        "indexPrice": 163.93,
+        "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846355113,
+        "time": 1781852484333,
         "available": true
       },
       "rows": [
@@ -193987,7 +193993,9 @@
           "markPrice": 451.6
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to post after 4 attempts: https://api.hyperliquid.xyz/info: HTTP Error 429: Too Many Requests",
+      "lastErrorAt": 1781852504840
     },
     "Binance:TSMUSDT": {
       "key": "Binance:TSMUSDT",
@@ -194033,11 +194041,11 @@
         }
       },
       "latest": {
-        "markPrice": 452.31,
-        "indexPrice": 454.09318035,
-        "lastFundingRate": -0.00086255,
+        "markPrice": 459.42596181,
+        "indexPrice": 456.00601164,
+        "lastFundingRate": -0.00017986,
         "nextFundingTime": 1781856000000,
-        "time": 1781846355297,
+        "time": 1781852504296,
         "available": true
       },
       "rows": [
@@ -195288,11 +195296,11 @@
         }
       },
       "latest": {
-        "markPrice": 452.38,
-        "indexPrice": 454.08,
-        "lastFundingRate": -0.00107082,
+        "markPrice": 459.43,
+        "indexPrice": 456.03,
+        "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846356718,
+        "time": 1781852505075,
         "available": true
       },
       "rows": [
@@ -196181,61 +196189,48 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": 2.622882083333333e-05,
-          "annualizedPct": -22.976447049999997,
-          "sumFundingRate": 0.0006294917,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 2.3230308333333332e-05,
+          "annualizedPct": -20.3497501,
+          "sumFundingRate": 0.0005575274,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": 2.4028491071428568e-05,
-          "annualizedPct": -21.048958178571425,
-          "sumFundingRate": 0.004036786499999999,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 2.3848721428571422e-05,
+          "annualizedPct": -20.891479971428563,
+          "sumFundingRate": 0.004006585199999999,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 1.8810849722222202e-05,
-          "annualizedPct": -16.478304356666648,
-          "sumFundingRate": 0.013543811799999986,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.874366930555553e-05,
+          "annualizedPct": -16.419454311666644,
+          "sumFundingRate": 0.013495441899999983,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 8.904048101851847e-06,
-          "annualizedPct": -7.799946137222218,
-          "sumFundingRate": 0.01923274389999999,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 8.921307314814809e-06,
+          "annualizedPct": -7.815065207777773,
+          "sumFundingRate": 0.019270023799999987,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 128.64,
-        "indexPrice": 128.64,
-        "lastFundingRate": -4.8007e-06,
-        "premium": -0.0003614739,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846357254,
-        "openInterest": 112139.648,
-        "dayNtlVlm": 7775461.861609999,
-        "available": true
+        "markPrice": null,
+        "indexPrice": null,
+        "lastFundingRate": null,
+        "premium": null,
+        "nextFundingTime": null,
+        "time": null,
+        "available": false,
+        "error": "failed to post after 4 attempts: https://api.hyperliquid.xyz/info: HTTP Error 429: Too Many Requests"
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": -3.0222e-05,
-          "premium": -0.0007835518,
-          "markPrice": 151.54
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": -3.2467e-06,
-          "premium": -0.0003519469,
-          "markPrice": 151.85
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": 7.9411e-06,
@@ -209182,7 +209177,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": -3.51847e-05,
           "premium": -0.0008629559,
-          "markPrice": 128.61
+          "markPrice": 128.64
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": -2.4388e-06,
+          "premium": -0.000339021,
+          "markPrice": 128.58
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 6.25e-06,
+          "premium": 0.0003033897,
+          "markPrice": 128.58
         }
       ],
       "available": true
@@ -209231,11 +209238,11 @@
         }
       },
       "latest": {
-        "markPrice": 128.66834459,
-        "indexPrice": 128.64461223,
+        "markPrice": 128.80361117,
+        "indexPrice": 128.74099493,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846359296,
+        "time": 1781852521296,
         "available": true
       },
       "rows": [
@@ -210636,11 +210643,11 @@
         }
       },
       "latest": {
-        "markPrice": 128.64,
-        "indexPrice": 128.64,
+        "markPrice": 128.75,
+        "indexPrice": 128.74,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846360274,
+        "time": 1781852521991,
         "available": true
       },
       "rows": [
@@ -211424,61 +211431,49 @@
       "windows": {
         "1D": {
           "count": 24,
-          "avgFundingRate": 5.338270833333333e-06,
-          "annualizedPct": -4.67632525,
-          "sumFundingRate": 0.0001281185,
-          "firstFundingTime": 1781762400043,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 5.728300000000001e-06,
+          "annualizedPct": -5.017990800000001,
+          "sumFundingRate": 0.00013747920000000002,
+          "firstFundingTime": 1781769600053,
+          "lastFundingTime": 1781852400062
         },
         "7D": {
           "count": 168,
-          "avgFundingRate": 1.606926785714286e-05,
-          "annualizedPct": -14.076678642857143,
-          "sumFundingRate": 0.0026996370000000004,
-          "firstFundingTime": 1781244000056,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.6298718452380954e-05,
+          "annualizedPct": -14.277677364285715,
+          "sumFundingRate": 0.0027381847000000005,
+          "firstFundingTime": 1781251200035,
+          "lastFundingTime": 1781852400062
         },
         "30D": {
           "count": 720,
-          "avgFundingRate": 1.1841162361111149e-05,
-          "annualizedPct": -10.372858228333365,
-          "sumFundingRate": 0.008525636900000027,
-          "firstFundingTime": 1779256800034,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 1.1772913472222258e-05,
+          "annualizedPct": -10.313072201666698,
+          "sumFundingRate": 0.008476497700000026,
+          "firstFundingTime": 1779264000081,
+          "lastFundingTime": 1781852400062
         },
         "90D": {
           "count": 2160,
-          "avgFundingRate": 9.3750088425925e-06,
-          "annualizedPct": -8.21250774611103,
-          "sumFundingRate": 0.0202500190999998,
-          "firstFundingTime": 1774072800066,
-          "lastFundingTime": 1781845200002
+          "avgFundingRate": 9.446248518518426e-06,
+          "annualizedPct": -8.274913702222142,
+          "sumFundingRate": 0.0204038967999998,
+          "firstFundingTime": 1774080000075,
+          "lastFundingTime": 1781852400062
         }
       },
       "latest": {
-        "markPrice": 107.09,
-        "indexPrice": 107.09,
-        "lastFundingRate": -2.70004e-05,
-        "premium": -0.000471566,
-        "nextFundingTime": 1781848800000,
-        "time": 1781846360895,
-        "openInterest": 30897.23,
-        "dayNtlVlm": 2113335.94369,
+        "markPrice": 107.13,
+        "indexPrice": 107.24,
+        "lastFundingRate": -4.3715e-05,
+        "premium": -0.0009278254,
+        "nextFundingTime": 1781856000000,
+        "time": 1781852522703,
+        "openInterest": 31416.762,
+        "dayNtlVlm": 2136208.18585,
         "available": true
       },
       "rows": [
-        {
-          "fundingTime": 1774072800066,
-          "fundingRate": -7.40705e-05,
-          "premium": -0.0014851285,
-          "markPrice": 123.39
-        },
-        {
-          "fundingTime": 1774076400010,
-          "fundingRate": -2.08614e-05,
-          "premium": -0.0006337818,
-          "markPrice": 123.43
-        },
         {
           "fundingTime": 1774080000075,
           "fundingRate": -7.76237e-05,
@@ -224425,7 +224420,19 @@
           "fundingTime": 1781845200002,
           "fundingRate": 6.25e-06,
           "premium": 7.57692e-05,
-          "markPrice": 107.12
+          "markPrice": 107.41
+        },
+        {
+          "fundingTime": 1781848800022,
+          "fundingRate": 6.25e-06,
+          "premium": 0.0001576122,
+          "markPrice": 107.13
+        },
+        {
+          "fundingTime": 1781852400062,
+          "fundingRate": 5.26958e-05,
+          "premium": 0.0011431323,
+          "markPrice": 107.13
         }
       ],
       "available": true
@@ -224474,11 +224481,11 @@
         }
       },
       "latest": {
-        "markPrice": 107.15,
-        "indexPrice": 107.12030444,
+        "markPrice": 107.28,
+        "indexPrice": 107.37947035,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846361296,
+        "time": 1781852523296,
         "available": true
       },
       "rows": [
@@ -225519,11 +225526,11 @@
         }
       },
       "latest": {
-        "markPrice": 107.16,
-        "indexPrice": 107.12,
+        "markPrice": 107.38,
+        "indexPrice": 107.38,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846362264,
+        "time": 1781852523971,
         "available": true
       },
       "rows": [
@@ -226129,11 +226136,11 @@
         }
       },
       "latest": {
-        "markPrice": 734.67944788,
-        "indexPrice": 735.04571332,
+        "markPrice": 737.89,
+        "indexPrice": 736.78854047,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846362296,
+        "time": 1781852523296,
         "available": true
       },
       "rows": [
@@ -227339,11 +227346,11 @@
         }
       },
       "latest": {
-        "markPrice": 734.6,
-        "indexPrice": 735.03,
-        "lastFundingRate": -5.55e-05,
+        "markPrice": 737.78,
+        "indexPrice": 736.84,
+        "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846362871,
+        "time": 1781852524637,
         "available": true
       },
       "rows": [
@@ -228039,11 +228046,11 @@
         }
       },
       "latest": {
-        "markPrice": 743.76981437,
-        "indexPrice": 743.89459052,
+        "markPrice": 745.51183301,
+        "indexPrice": 744.77770816,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846362296,
+        "time": 1781852524296,
         "available": true
       },
       "rows": [
@@ -229294,11 +229301,11 @@
         }
       },
       "latest": {
-        "markPrice": 743.62,
-        "indexPrice": 743.89,
+        "markPrice": 745.21,
+        "indexPrice": 744.79,
         "lastFundingRate": 0.0,
         "nextFundingTime": 1781856000000,
-        "time": 1781846363539,
+        "time": 1781852525289,
         "available": true
       },
       "rows": [
