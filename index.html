@@ -77,7 +77,7 @@
     .muted { color:var(--muted); }
     .note { margin-top:16px; color:var(--muted); font-size:13px; line-height:1.6; }
     .countdown { font-variant-numeric:tabular-nums; letter-spacing:0.02em; }
-    canvas { width:100% !important; height:320px !important; }
+    canvas { width:100% !important; height:320px !important; cursor:grab; }
     code { background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; }
     .modal-backdrop { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.62); z-index:10; padding:20px; }
     .modal-backdrop.open { display:flex; }
@@ -490,6 +490,12 @@
     }
     function enableWheelZoom(chart, canvas){
       if(canvas.$wheelZoomHandler) canvas.removeEventListener('wheel', canvas.$wheelZoomHandler);
+      if(canvas.$panHandlers){
+        canvas.removeEventListener('pointerdown', canvas.$panHandlers.down);
+        canvas.removeEventListener('pointermove', canvas.$panHandlers.move);
+        canvas.removeEventListener('pointerup', canvas.$panHandlers.up);
+        canvas.removeEventListener('pointercancel', canvas.$panHandlers.up);
+      }
       canvas.$wheelZoomHandler = event => {
         const total = chart.$fullLabels.length;
         if(total <= 2) return;
@@ -507,6 +513,46 @@
         applyChartRange(chart, Math.max(0, start), Math.min(total - 1, end));
       };
       canvas.addEventListener('wheel', canvas.$wheelZoomHandler, { passive:false });
+      const panState = { active:false, pointerId:null, startX:0, startStart:0, startEnd:0 };
+      const finishPan = event => {
+        if(!panState.active) return;
+        panState.active=false;
+        canvas.style.cursor='grab';
+        if(event && event.pointerId === panState.pointerId) {
+          try { canvas.releasePointerCapture(event.pointerId); } catch(e) {}
+        }
+      };
+      canvas.$panHandlers = {
+        down: event => {
+          if(event.button !== 0 || chart.$fullLabels.length <= 2) return;
+          panState.active=true;
+          panState.pointerId=event.pointerId;
+          panState.startX=event.clientX;
+          panState.startStart=chart.$zoomStart;
+          panState.startEnd=chart.$zoomEnd;
+          canvas.style.cursor='grabbing';
+          canvas.setPointerCapture(event.pointerId);
+        },
+        move: event => {
+          if(!panState.active || event.pointerId !== panState.pointerId) return;
+          event.preventDefault();
+          const total = chart.$fullLabels.length;
+          const visible = panState.startEnd - panState.startStart + 1;
+          if(visible >= total) return;
+          const rect = canvas.getBoundingClientRect();
+          const shift = Math.round((panState.startX - event.clientX) / rect.width * visible);
+          let start = panState.startStart + shift;
+          let end = panState.startEnd + shift;
+          if(start < 0){ end -= start; start = 0; }
+          if(end >= total){ start -= end - total + 1; end = total - 1; }
+          applyChartRange(chart, Math.max(0, start), Math.min(total - 1, end));
+        },
+        up: finishPan,
+      };
+      canvas.addEventListener('pointerdown', canvas.$panHandlers.down);
+      canvas.addEventListener('pointermove', canvas.$panHandlers.move);
+      canvas.addEventListener('pointerup', canvas.$panHandlers.up);
+      canvas.addEventListener('pointercancel', canvas.$panHandlers.up);
     }
     function renderPriceChart(rows){
       const ctx=document.getElementById('priceChart');
