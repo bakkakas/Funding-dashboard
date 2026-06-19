@@ -25,6 +25,8 @@
     .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
     .card { background:rgba(18,25,43,0.94); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,0.18); }
     .metric { grid-column:span 3; }
+    .metric.primary { grid-column:span 6; }
+    .metric.primary .value { font-size:36px; }
     .wide { grid-column:span 12; }
     .half { grid-column:span 6; }
     .label { color:var(--muted); font-size:14px; }
@@ -44,12 +46,14 @@
     .pill.warn { background:rgba(255,209,102,0.14); color:var(--warn); }
     .linkish { color:var(--accent); cursor:pointer; font-weight:700; }
     .linkish:hover { text-decoration:underline; }
+    .pair-link { color:var(--accent); font-weight:700; text-decoration:none; }
+    .pair-link:hover { text-decoration:underline; }
     .muted { color:var(--muted); }
     .note { margin-top:16px; color:var(--muted); font-size:13px; line-height:1.6; }
     .countdown { font-variant-numeric:tabular-nums; letter-spacing:0.02em; }
     canvas { width:100% !important; height:320px !important; }
     code { background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; }
-    @media (max-width:1100px){ .metric,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } }
+    @media (max-width:1100px){ .metric,.metric.primary,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } }
   </style>
 </head>
 <body>
@@ -69,23 +73,22 @@
     <div class="toolbar" id="favoriteTabs"></div>
     <div class="toolbar2" id="windowTabs"></div>
     <div class="card" style="margin-bottom:16px;">
-      <h3 class="section-title">거래소/마켓 내역</h3>
+      <h3 class="section-title">지원 거래소</h3>
       <table>
-        <thead><tr><th>거래소/마켓</th><th>상태</th><th>메모</th></tr></thead>
+        <thead><tr><th>거래소</th><th>페어</th></tr></thead>
         <tbody id="comparisonBody"></tbody>
       </table>
     </div>
 
     <div class="grid">
+      <div class="card metric primary"><div class="label">현재 Funding Rate</div><div class="value" id="latestFunding">-</div><div class="mini">거래소 public API 기준 최신값</div></div>
+      <div class="card metric primary"><div class="label">Annualized</div><div class="value" id="annualized">-</div><div class="mini">Long → Short = 음수 / Short → Long = 양수</div></div>
       <div class="card metric"><div class="label">선택 종목</div><div class="value" id="pairName">-</div><div class="mini" id="exchangeName">-</div></div>
-      <div class="card metric"><div class="label">현재 Latest Funding</div><div class="value" id="latestFunding">-</div><div class="mini">거래소 public API 기준 최신값</div></div>
       <div class="card metric"><div class="label">다음 Funding</div><div class="value countdown" id="nextFunding">-</div><div class="mini" id="nextFundingAt">다음 정산까지 남은 시간</div></div>
       <div class="card metric"><div class="label">현재 Price</div><div class="value" id="priceCard">-</div><div class="mini"><strong style="color:#eef3ff">Mark:</strong> <span id="markPrice">-</span> &nbsp;|&nbsp; <strong style="color:#eef3ff">Index:</strong> <span id="indexPrice">-</span></div></div>
 
       <div class="card metric"><div class="label">표본 수</div><div class="value" id="sampleCount">-</div><div class="mini">선택 기간의 funding 회차 수</div></div>
       <div class="card metric"><div class="label">평균 funding / 회</div><div class="value" id="avgFunding">-</div><div class="mini">최근 선택 구간 평균</div></div>
-      <div class="card metric"><div class="label">Annualized</div><div class="value" id="annualized">-</div><div class="mini">Long → Short = 음수 / Short → Long = 양수</div></div>
-      <div class="card metric"><div class="label">현재 Snapshot Time</div><div class="value" id="snapshotTime">-</div><div class="mini">실시간 조회 시각</div></div>
 
       <div class="card half">
         <h3 class="section-title">요약</h3>
@@ -131,6 +134,17 @@
     function displaySymbol(pair){ return pair.displaySymbol || pair.symbol; }
     function assetId(pair){ return pair.assetId || displaySymbol(pair); }
     function assetName(pair){ return pair.assetName || displaySymbol(pair); }
+    function pairDisplayName(pair){
+      if(pair.exchange === 'Hyperliquid') return pair.symbol;
+      if(pair.symbol.endsWith('USDT')) return `${pair.symbol.slice(0, -4)}:USDT`;
+      return pair.symbol;
+    }
+    function pairTradeUrl(pair){
+      if(pair.exchange === 'Binance') return `https://www.binance.com/en/futures/${pair.symbol}`;
+      if(pair.exchange === 'Bybit') return `https://www.bybit.com/trade/usdt/${pair.symbol}`;
+      if(pair.exchange === 'Hyperliquid') return `https://app.hyperliquid.xyz/trade/${pair.symbol}`;
+      return '#';
+    }
     function getAssetGroups(){
       const groups = new Map();
       Object.entries(state.data.pairs).forEach(([pairKey, pair]) => {
@@ -193,15 +207,25 @@
       sameSymbolPairs.forEach(([pairKey,pair])=>{
         const tr=document.createElement('tr');
         const isSelected=pairKey===state.selectedPair;
-        tr.innerHTML=`<td>${isSelected ? `<strong>${pair.exchange}</strong>` : `<span class="linkish">${pair.exchange}</span>`}</td><td><span class="pill good">지원</span></td><td class="muted">${isSelected ? displaySymbol(pair) : `${displaySymbol(pair)} 보기`}</td>`;
-        if(!isSelected){ tr.style.cursor='pointer'; tr.onclick=()=>selectPair(pairKey); }
-        body.appendChild(tr);
-      });
-      const shownNames = new Set(sameSymbolPairs.map(([_,pair]) => pair.exchange));
-      Object.entries(state.data.comparisons).forEach(([name,item])=>{
-        if (shownNames.has(name)) return;
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${name}</td><td>${item.supported ? '<span class="pill good">지원</span>' : '<span class="pill warn">미지원</span>'}</td><td class="muted">${item.notes}</td>`;
+        const exchangeCell=document.createElement('td');
+        const exchangeBtn=document.createElement('button');
+        exchangeBtn.type='button';
+        exchangeBtn.className='chip' + (isSelected ? ' active' : '');
+        exchangeBtn.textContent=pair.exchange;
+        exchangeBtn.onclick=()=>selectPair(pairKey);
+        exchangeCell.appendChild(exchangeBtn);
+
+        const pairCell=document.createElement('td');
+        const pairLink=document.createElement('a');
+        pairLink.className='pair-link';
+        pairLink.href=pairTradeUrl(pair);
+        pairLink.target='_blank';
+        pairLink.rel='noopener noreferrer';
+        pairLink.textContent=pairDisplayName(pair);
+        pairCell.appendChild(pairLink);
+
+        tr.appendChild(exchangeCell);
+        tr.appendChild(pairCell);
         body.appendChild(tr);
       });
     }
@@ -261,7 +285,6 @@
       document.getElementById('markPrice').textContent=latest.markPrice == null ? '-' : fmtNumber(latest.markPrice);
       document.getElementById('indexPrice').textContent=latest.indexPrice == null ? '-' : fmtNumber(latest.indexPrice);
       document.getElementById('priceCard').textContent=latest.markPrice == null ? '-' : fmtNumber(latest.markPrice);
-      document.getElementById('snapshotTime').textContent=latest.time ? toKST(latest.time) : '조회 실패';
       startCountdown(latest.nextFundingTime);
 
       const body=document.getElementById('historyBody'); body.innerHTML='';
