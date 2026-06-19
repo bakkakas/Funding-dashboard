@@ -7,9 +7,9 @@
   <link rel="icon" href="data:," />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root { --bg:#070a0f; --panel:#0d1117; --panel2:#111821; --panel3:#151d27; --text:#dce3ea; --muted:#7d8a98; --line:#202833; --good:#00c076; --bad:#f6465d; --warn:#f5c451; --accent:#23e7a5; --accent2:#3f8cff; --pair:#8ea2ff; }
+    :root { --bg:#07110c; --panel:#0d1712; --panel2:#102019; --panel3:#14251d; --text:#dce8df; --muted:#82958b; --line:#20362b; --good:#00c076; --bad:#f08a8a; --warn:#f5c451; --accent:#23e7a5; --accent2:#3f8cff; --pair:#8ea2ff; }
     * { box-sizing:border-box; }
-    body { margin:0; background:radial-gradient(circle at 50% 0%,rgba(35,231,165,0.09),transparent 28%),linear-gradient(180deg,#070a0f 0%,#0a0e14 100%); color:var(--text); font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,sans-serif; }
+    body { margin:0; background:radial-gradient(circle at 50% 0%,rgba(35,231,165,0.18),transparent 32%),linear-gradient(180deg,#07110c 0%,#0a1710 46%,#07100c 100%); color:var(--text); font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,sans-serif; }
     .wrap { max-width:1450px; margin:0 auto; padding:24px; }
     .header { display:flex; justify-content:space-between; gap:16px; align-items:end; margin-bottom:22px; }
     h1 { margin:0; font-size:28px; font-weight:750; letter-spacing:0; }
@@ -24,10 +24,10 @@
     .alt-link { color:var(--accent); text-decoration:none; font-size:13px; font-weight:800; }
     .alt-link:hover { text-decoration:underline; }
     .toolbar,.toolbar2 { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
-    .field { background:#0a0f15; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:11px 13px; outline:none; }
+    .field { background:#07140f; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:11px 13px; outline:none; }
     .field:focus { border-color:rgba(35,231,165,0.75); box-shadow:0 0 0 2px rgba(35,231,165,0.12); }
     .pair-select { flex:2 1 420px; min-width:280px; }
-    .chip { border:1px solid var(--line); background:#0a0f15; color:var(--text); border-radius:999px; padding:9px 13px; cursor:pointer; font-weight:750; }
+    .chip { border:1px solid var(--line); background:#07140f; color:var(--text); border-radius:999px; padding:9px 13px; cursor:pointer; font-weight:750; }
     .chip:hover { border-color:rgba(35,231,165,0.45); color:#f4fff9; }
     .chip.active { background:rgba(35,231,165,0.14); color:var(--accent); border-color:rgba(35,231,165,0.5); }
     .chip.subtle { border-radius:8px; }
@@ -38,7 +38,7 @@
     .rate-item .value { font-size:36px; }
     .rate-legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; font-size:13px; font-weight:700; }
     .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
-    .card { background:rgba(13,17,23,0.95); border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 14px 34px rgba(0,0,0,0.24); }
+    .card { background:rgba(13,23,18,0.95); border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 14px 34px rgba(0,0,0,0.24); }
     .metric { grid-column:span 3; }
     .wide { grid-column:span 12; }
     .half { grid-column:span 6; }
@@ -52,19 +52,19 @@
     table { width:100%; border-collapse:collapse; font-size:14px; }
     th,td { text-align:left; padding:10px; border-bottom:1px solid var(--line); }
     tr:hover td { background:rgba(255,255,255,0.018); }
-    th { color:var(--muted); font-size:12px; font-weight:800; position:sticky; top:0; background:rgba(13,17,23,0.98); text-transform:none; }
+    th { color:var(--muted); font-size:12px; font-weight:800; position:sticky; top:0; background:rgba(13,23,18,0.98); text-transform:none; }
     .summary-table th,.summary-table td { text-align:center; }
     .table-wrap { max-height:620px; overflow:auto; border-radius:12px; border:1px solid var(--line); }
     .pill { display:inline-flex; align-items:center; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:700; }
     .pill.good { background:rgba(46,204,113,0.14); color:var(--good); }
-    .pill.bad { background:rgba(255,107,107,0.14); color:var(--bad); }
+    .pill.bad { background:rgba(240,138,138,0.14); color:var(--bad); }
     .pill.warn { background:rgba(255,209,102,0.14); color:var(--warn); }
     .linkish { color:var(--accent); cursor:pointer; font-weight:800; }
     .linkish:hover { text-decoration:underline; }
     .pair-link { color:var(--pair); font-weight:800; text-decoration:none; }
     .pair-link:hover { text-decoration:underline; }
     .exchange-label { display:inline-flex; align-items:center; gap:7px; }
-    .exchange-logo { width:16px; height:16px; border-radius:50%; background:#0a0f15; flex:0 0 16px; }
+    .exchange-logo { width:16px; height:16px; border-radius:50%; background:#07140f; flex:0 0 16px; }
     .fee-value { font-weight:800; }
     .fee-value.good,.legend-good { color:var(--good); }
     .fee-value.bad,.legend-bad { color:var(--bad); }
@@ -247,7 +247,7 @@
     function saveAuth(email){
       state.auth = { email, provider:'email', synced:AUTH_BACKEND_CONFIGURED };
       localStorage.setItem(authStorageKey(), JSON.stringify(state.auth));
-      state.favorites = loadFavorites();
+      state.favorites = normalizeFavorites(loadFavorites());
       saveFavorites();
       renderAuth();
       renderFavoriteTabs();
@@ -255,6 +255,18 @@
     }
     function loadFavorites(){
       try { return JSON.parse(localStorage.getItem(favoriteStorageKey()) || '[]'); } catch(e) { return []; }
+    }
+    function normalizeFavorites(items){
+      const seen = new Set();
+      return items.map(item => {
+        const pair = state.data && state.data.pairs ? state.data.pairs[item] : null;
+        return pair ? assetId(pair) : item;
+      }).filter(item => {
+        const exists = getAssetGroups().some(group => group.id === item);
+        if(!exists || seen.has(item)) return false;
+        seen.add(item);
+        return true;
+      });
     }
     function saveFavorites(){
       localStorage.setItem(favoriteStorageKey(), JSON.stringify(state.favorites.slice(0,12)));
@@ -360,7 +372,7 @@
       renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render();
     }
     function selectPair(pairKey){ state.selectedPair=pairKey; state.selectedAsset=assetId(state.data.pairs[pairKey]); renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render(); }
-    function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; state.favorites.forEach(pairKey=>{ const pair=state.data.pairs[pairKey]; if(!pair) return; const btn=document.createElement('button'); btn.className='chip'+(pairKey===state.selectedPair?' active':''); btn.textContent=`★ ${assetName(pair)} · ${pair.exchange}`; btn.onclick=()=>selectPair(pairKey); tabs.appendChild(btn); }); }
+    function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; const groups=getAssetGroups(); state.favorites.forEach(favoriteAssetId=>{ const group=groups.find(item=>item.id===favoriteAssetId); if(!group) return; const btn=document.createElement('button'); btn.className='chip'+(favoriteAssetId===state.selectedAsset?' active':''); btn.textContent=`★ ${group.name}`; btn.onclick=()=>selectAsset(favoriteAssetId); tabs.appendChild(btn); }); }
     function renderWindowTabs(){ const tabs=document.getElementById('windowTabs'); tabs.innerHTML=''; Object.keys(state.data.meta.windows).forEach(key=>{ const btn=document.createElement('button'); btn.className='chip'+(key===state.selectedWindow?' active':''); btn.textContent=key; btn.onclick=()=>{ state.selectedWindow=key; renderWindowTabs(); render(); }; tabs.appendChild(btn); }); }
     function renderComparisons(){
       const body=document.getElementById('comparisonBody'); body.innerHTML='';
@@ -447,7 +459,7 @@
       const rows=getFilteredRows(pair);
       const latest=getLatestForPair(state.selectedPair, pair);
       renderComparisons();
-      const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedPair)?'★':'☆')+' 즐겨찾기';
+      const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedAsset)?'★':'☆')+' 즐겨찾기';
       document.getElementById('sampleCount').textContent=windowSummary.count;
       document.getElementById('avgFunding').textContent=fmtPct(windowSummary.avgFundingRate);
       const annual=document.getElementById('annualized'); annual.textContent=fmtAnnual(windowSummary.annualizedPct); annual.className='value '+(windowSummary.annualizedPct>=0?'good':'bad');
@@ -557,20 +569,21 @@
       state.selectedAsset=assetId(data.pairs[state.selectedPair]);
       trackLocalVisit();
       loadAuth();
-      state.favorites = loadFavorites();
+      state.favorites = normalizeFavorites(loadFavorites());
+      saveFavorites();
       renderAuth();
       fetchUsdKrw();
       document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt);
       document.getElementById('assetSearch').addEventListener('change', e=>selectAssetFromSearch(e.target.value));
       document.getElementById('assetSearch').addEventListener('keydown', e=>{ if(e.key==='Enter') selectAssetFromSearch(e.target.value); });
       document.getElementById('sortMode').addEventListener('change', e=>{ state.sortMode=e.target.value; renderAssetPicker(); renderExchangePicker(); });
-      document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const pairKey=state.selectedPair; if(state.favorites.includes(pairKey)){ state.favorites=state.favorites.filter(x=>x!==pairKey); } else { state.favorites.unshift(pairKey); } saveFavorites(); renderFavoriteTabs(); render(); });
+      document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const favoriteAssetId=state.selectedAsset; if(state.favorites.includes(favoriteAssetId)){ state.favorites=state.favorites.filter(x=>x!==favoriteAssetId); } else { state.favorites.unshift(favoriteAssetId); } saveFavorites(); renderFavoriteTabs(); render(); });
       document.getElementById('loginButton').addEventListener('click', ()=>openAuthModal('login'));
       document.getElementById('signupButton').addEventListener('click', ()=>{
         if(state.auth){
           localStorage.removeItem(authStorageKey());
           state.auth=null;
-          state.favorites=loadFavorites();
+          state.favorites=normalizeFavorites(loadFavorites());
           renderAuth();
           renderFavoriteTabs();
           render();
