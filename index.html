@@ -4,24 +4,33 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Funding Dashboard</title>
+  <link rel="icon" href="data:," />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root { --bg:#0a0f1c; --panel:#12192b; --panel2:#18233b; --text:#eef3ff; --muted:#9ca9c8; --line:#27324d; --good:#2ecc71; --bad:#ff6b6b; --warn:#ffd166; --accent:#7aa2ff; }
+    :root { --bg:#070a0f; --panel:#0d1117; --panel2:#111821; --panel3:#151d27; --text:#dce3ea; --muted:#7d8a98; --line:#202833; --good:#00c076; --bad:#f6465d; --warn:#f5c451; --accent:#23e7a5; --accent2:#3f8cff; }
     * { box-sizing:border-box; }
-    body { margin:0; background:linear-gradient(180deg,#0a0f1c 0%,#0f1727 100%); color:var(--text); font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,sans-serif; }
-    .wrap { max-width:1450px; margin:0 auto; padding:28px; }
+    body { margin:0; background:radial-gradient(circle at 50% 0%,rgba(35,231,165,0.09),transparent 28%),linear-gradient(180deg,#070a0f 0%,#0a0e14 100%); color:var(--text); font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,sans-serif; }
+    .wrap { max-width:1450px; margin:0 auto; padding:24px; }
     .header { display:flex; justify-content:space-between; gap:16px; align-items:end; margin-bottom:22px; }
-    h1 { margin:0; font-size:30px; }
-    .sub { margin-top:8px; color:var(--muted); line-height:1.5; }
-    .stamp { background:rgba(255,255,255,0.06); border:1px solid var(--line); color:var(--muted); padding:10px 14px; border-radius:999px; font-size:14px; white-space:nowrap; }
+    h1 { margin:0; font-size:28px; font-weight:750; letter-spacing:0; }
+    .sub { margin-top:8px; color:var(--muted); line-height:1.45; font-size:14px; }
+    .stamp,.fx-ticker { background:rgba(13,17,23,0.88); border:1px solid var(--line); color:var(--muted); padding:9px 12px; border-radius:8px; font-size:13px; white-space:nowrap; }
+    .fx-ticker { color:var(--text); font-weight:800; }
+    .fx-ticker.good { color:var(--good); }
+    .fx-ticker.bad { color:var(--bad); }
+    .fx-ticker.warn { color:var(--warn); }
     .header-side { display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
-    .alt-link { color:var(--accent); text-decoration:none; font-size:13px; font-weight:700; }
+    .header-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .alt-link { color:var(--accent); text-decoration:none; font-size:13px; font-weight:800; }
     .alt-link:hover { text-decoration:underline; }
     .toolbar,.toolbar2 { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
-    .field { background:#12192b; color:#eef3ff; border:1px solid #27324d; border-radius:12px; padding:12px 14px; }
+    .field { background:#0a0f15; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:11px 13px; outline:none; }
+    .field:focus { border-color:rgba(35,231,165,0.75); box-shadow:0 0 0 2px rgba(35,231,165,0.12); }
     .pair-select { flex:2 1 420px; min-width:280px; }
-    .chip { border:1px solid var(--line); background:var(--panel); color:var(--text); border-radius:999px; padding:10px 14px; cursor:pointer; font-weight:600; }
-    .chip.active { background:var(--accent); color:#07101f; border-color:transparent; }
+    .chip { border:1px solid var(--line); background:#0a0f15; color:var(--text); border-radius:999px; padding:9px 13px; cursor:pointer; font-weight:750; }
+    .chip:hover { border-color:rgba(35,231,165,0.45); color:#f4fff9; }
+    .chip.active { background:rgba(35,231,165,0.14); color:var(--accent); border-color:rgba(35,231,165,0.5); }
+    .chip.subtle { border-radius:8px; }
     .top-grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; margin-bottom:16px; align-items:stretch; }
     .top-panel { grid-column:span 6; margin-bottom:0; }
     .rate-combo { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
@@ -29,7 +38,7 @@
     .rate-item .value { font-size:36px; }
     .rate-legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; font-size:13px; font-weight:700; }
     .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
-    .card { background:rgba(18,25,43,0.94); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,0.18); }
+    .card { background:rgba(13,17,23,0.95); border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 14px 34px rgba(0,0,0,0.24); }
     .metric { grid-column:span 3; }
     .wide { grid-column:span 12; }
     .half { grid-column:span 6; }
@@ -38,23 +47,21 @@
     .value.good { color:var(--good); }
     .value.bad { color:var(--bad); }
     .value.warn { color:var(--warn); }
-    .section-title.good { color:var(--good); }
-    .section-title.bad { color:var(--bad); }
-    .section-title.warn { color:var(--warn); }
     .mini { color:var(--muted); font-size:13px; margin-top:8px; }
-    .section-title { margin:0 0 14px; font-size:18px; }
+    .section-title { margin:0 0 14px; font-size:17px; font-weight:800; }
     table { width:100%; border-collapse:collapse; font-size:14px; }
-    th,td { text-align:left; padding:11px 10px; border-bottom:1px solid var(--line); }
-    th { color:var(--muted); font-size:13px; font-weight:600; position:sticky; top:0; background:rgba(18,25,43,0.98); }
+    th,td { text-align:left; padding:10px; border-bottom:1px solid var(--line); }
+    tr:hover td { background:rgba(255,255,255,0.018); }
+    th { color:var(--muted); font-size:12px; font-weight:800; position:sticky; top:0; background:rgba(13,17,23,0.98); text-transform:none; }
     .summary-table th,.summary-table td { text-align:center; }
     .table-wrap { max-height:620px; overflow:auto; border-radius:12px; border:1px solid var(--line); }
     .pill { display:inline-flex; align-items:center; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:700; }
     .pill.good { background:rgba(46,204,113,0.14); color:var(--good); }
     .pill.bad { background:rgba(255,107,107,0.14); color:var(--bad); }
     .pill.warn { background:rgba(255,209,102,0.14); color:var(--warn); }
-    .linkish { color:var(--accent); cursor:pointer; font-weight:700; }
+    .linkish { color:var(--accent); cursor:pointer; font-weight:800; }
     .linkish:hover { text-decoration:underline; }
-    .pair-link { color:var(--accent); font-weight:700; text-decoration:none; }
+    .pair-link { color:var(--accent); font-weight:800; text-decoration:none; }
     .pair-link:hover { text-decoration:underline; }
     .fee-value { font-weight:800; }
     .fee-value.good,.legend-good { color:var(--good); }
@@ -65,7 +72,15 @@
     .countdown { font-variant-numeric:tabular-nums; letter-spacing:0.02em; }
     canvas { width:100% !important; height:320px !important; }
     code { background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; }
-    @media (max-width:1100px){ .top-panel,.metric,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } }
+    .modal-backdrop { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.62); z-index:10; padding:20px; }
+    .modal-backdrop.open { display:flex; }
+    .modal { width:min(440px,100%); background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px; box-shadow:0 24px 70px rgba(0,0,0,0.45); }
+    .modal-head { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:14px; }
+    .modal-head h3 { margin:0; font-size:18px; }
+    .modal-grid { display:grid; gap:10px; }
+    .auth-status { color:var(--muted); font-size:13px; line-height:1.55; }
+    .auth-status strong { color:var(--text); }
+    @media (max-width:1100px){ .top-panel,.metric,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } .header-side { align-items:flex-start; } .header-actions { justify-content:flex-start; } }
     @media (max-width:700px){ .rate-combo { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -77,6 +92,13 @@
         <div class="sub">history는 자동 적재하고, 현재 funding / mark / index / 다음 funding 카운트다운은 거래소별 public API 기준으로 실시간에 가깝게 반영하는 대시보드.</div>
       </div>
       <div class="header-side">
+        <div class="fx-ticker warn" id="usdKrwTicker">USD/KRW 조회 중</div>
+        <div class="header-actions">
+          <button class="chip subtle" id="loginButton" type="button">로그인</button>
+          <button class="chip subtle" id="signupButton" type="button">회원가입</button>
+          <button class="chip subtle" id="googleSignupButton" type="button">Google로 가입</button>
+          <a class="chip subtle" href="./admin.html" style="text-decoration:none;">관리자</a>
+        </div>
         <div class="stamp" id="updatedAt">Updated: -</div>
         <a class="alt-link" href="./v2.html">V2 보기</a>
       </div>
@@ -94,7 +116,7 @@
         </table>
       </div>
       <div class="card top-panel">
-        <h3 class="section-title" id="coreTitle">현재 Funding Fee : -</h3>
+        <h3 class="section-title" id="coreTitle">현재 Funding Fee 방향 : -</h3>
         <div class="rate-combo">
           <div class="rate-item"><div class="label">현재 Funding Rate</div><div class="value" id="latestFunding">-</div></div>
           <div class="rate-item"><div class="label">Annualized</div><div class="value" id="annualized">-</div></div>
@@ -105,7 +127,7 @@
 
     <div class="grid">
       <div class="card metric"><div class="label">다음 Funding</div><div class="value countdown" id="nextFunding">-</div><div class="mini" id="nextFundingAt">다음 정산까지 남은 시간</div></div>
-      <div class="card metric"><div class="label">현재 Price</div><div class="value" id="priceCard">-</div><div class="mini"><strong style="color:#eef3ff">Mark:</strong> <span id="markPrice">-</span> &nbsp;|&nbsp; <strong style="color:#eef3ff">Index:</strong> <span id="indexPrice">-</span></div></div>
+      <div class="card metric"><div class="label">현재 Price</div><div class="value" id="priceCard">-</div><div class="mini"><strong style="color:var(--text)">Mark:</strong> <span id="markPrice">-</span> &nbsp;|&nbsp; <strong style="color:var(--text)">Index:</strong> <span id="indexPrice">-</span></div></div>
 
       <div class="card metric"><div class="label">표본 수</div><div class="value" id="sampleCount">-</div><div class="mini">선택 기간의 funding 회차 수</div></div>
       <div class="card metric"><div class="label">평균 funding / 회</div><div class="value" id="avgFunding">-</div><div class="mini">최근 선택 구간 평균</div></div>
@@ -135,17 +157,37 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="authModal" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="authModalTitle">로그인</h3>
+        <button class="chip subtle" id="authCloseButton" type="button">닫기</button>
+      </div>
+      <form class="modal-grid" id="authForm">
+        <input class="field" id="authEmail" type="email" autocomplete="email" placeholder="email@example.com" />
+        <input class="field" id="authPassword" type="password" autocomplete="current-password" placeholder="password" />
+        <button class="chip active" id="authSubmitButton" type="button">저장</button>
+        <button class="chip subtle" id="authGoogleButton" type="button">Google로 계속하기</button>
+        <div class="auth-status" id="authStatus">백엔드 연결 전에는 현재 브라우저 기준으로만 계정 상태와 즐겨찾기를 저장해.</div>
+      </form>
+    </div>
+  </div>
+
   <script>
     const BINANCE_PREMIUM_INDEX_URL = 'https://fapi.binance.com/fapi/v1/premiumIndex';
     const BYBIT_TICKERS_URL = 'https://api.bybit.com/v5/market/tickers';
     const HYPERLIQUID_INFO_URL = 'https://api.hyperliquid.xyz/info';
     const LIVE_REFRESH_MS = 30000;
+    const FX_LATEST_URL = 'https://open.er-api.com/v6/latest/USD';
+    const FX_REFERENCE_URL = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
+    const AUTH_BACKEND_CONFIGURED = false;
 
-    let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{} };
+    let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{}, auth:null, authMode:'login' };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
     const fmtSignedPct = v => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(4)}%`;
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
     const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+    const fmtFx = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const toKST = ms => new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
     const toUTC = ms => new Date(ms).toISOString().replace('T',' ').slice(0,19) + ' UTC';
 
@@ -173,6 +215,82 @@
     function feeDirection(value){
       if(value == null || Number.isNaN(value)) return '-';
       return value >= 0 ? 'Short -> Long' : 'Long -> Short';
+    }
+    function trackLocalVisit(){
+      const today = new Date().toISOString().slice(0,10);
+      const total = Number(localStorage.getItem('dashboardLocalVisits') || '0') + 1;
+      const lastDay = localStorage.getItem('dashboardLastVisitDay');
+      const daily = Number(localStorage.getItem('dashboardDailyVisits') || '0') + (lastDay === today ? 1 : 0);
+      localStorage.setItem('dashboardLocalVisits', String(total));
+      localStorage.setItem('dashboardDailyVisits', String(lastDay === today ? daily : 1));
+      localStorage.setItem('dashboardLastVisitDay', today);
+    }
+    function authStorageKey(){ return 'fundingDashboardAuthUser'; }
+    function favoriteStorageKey(){
+      return state.auth && state.auth.email ? `favoritePairs:${state.auth.email.toLowerCase()}` : 'favoritePairs';
+    }
+    function loadAuth(){
+      try { state.auth = JSON.parse(localStorage.getItem(authStorageKey()) || 'null'); } catch(e) { state.auth = null; }
+    }
+    function saveAuth(email){
+      state.auth = { email, provider:'email', synced:AUTH_BACKEND_CONFIGURED };
+      localStorage.setItem(authStorageKey(), JSON.stringify(state.auth));
+      state.favorites = loadFavorites();
+      saveFavorites();
+      renderAuth();
+      renderFavoriteTabs();
+      render();
+    }
+    function loadFavorites(){
+      try { return JSON.parse(localStorage.getItem(favoriteStorageKey()) || '[]'); } catch(e) { return []; }
+    }
+    function saveFavorites(){
+      localStorage.setItem(favoriteStorageKey(), JSON.stringify(state.favorites.slice(0,12)));
+    }
+    function renderAuth(){
+      const loginButton=document.getElementById('loginButton');
+      if(!loginButton) return;
+      loginButton.textContent=state.auth ? state.auth.email : '로그인';
+      document.getElementById('signupButton').textContent=state.auth ? '로그아웃' : '회원가입';
+    }
+    function openAuthModal(mode){
+      state.authMode=mode;
+      const modal=document.getElementById('authModal');
+      document.getElementById('authModalTitle').textContent=mode === 'signup' ? '회원가입' : '로그인';
+      document.getElementById('authSubmitButton').textContent=mode === 'signup' ? '회원가입 저장' : '로그인 저장';
+      document.getElementById('authStatus').innerHTML=AUTH_BACKEND_CONFIGURED
+        ? '계정과 즐겨찾기가 클라우드에 동기화돼.'
+        : '현재는 GitHub Pages 정적 배포라 <strong>현재 브라우저에만</strong> 저장돼. Firebase/Supabase 키를 연결하면 기기 간 즐겨찾기 동기화가 활성화돼.';
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+      document.getElementById('authEmail').focus();
+    }
+    function closeAuthModal(){
+      const modal=document.getElementById('authModal');
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+    }
+    async function fetchUsdKrw(){
+      const ticker=document.getElementById('usdKrwTicker');
+      try {
+        const [latestRes, refRes] = await Promise.all([
+          fetch(FX_LATEST_URL, { cache:'no-store' }),
+          fetch(FX_REFERENCE_URL, { cache:'no-store' }),
+        ]);
+        const latestJson = await latestRes.json();
+        const refJson = await refRes.json();
+        const latest = Number(latestJson.rates && latestJson.rates.KRW);
+        const reference = Number(refJson.usd && refJson.usd.krw);
+        if(!latest || !reference) throw new Error('USD/KRW rate unavailable');
+        const change = (latest - reference) / reference;
+        ticker.textContent = `USD/KRW ${fmtFx(latest)} (${change >= 0 ? '+' : ''}${(change * 100).toFixed(2)}%)`;
+        ticker.className = 'fx-ticker ' + (change > 0 ? 'bad' : change < 0 ? 'good' : 'warn');
+        ticker.title = `latest: ${latestJson.time_last_update_utc || 'open.er-api'}, reference date: ${refJson.date || '-'}`;
+      } catch(err) {
+        console.error(err);
+        ticker.textContent = 'USD/KRW 조회 실패';
+        ticker.className = 'fx-ticker warn';
+      }
     }
     function getAssetGroups(){
       const groups = new Map();
@@ -270,7 +388,7 @@
     }
     function getFilteredRows(pair){ const days=state.data.meta.windows[state.selectedWindow]; const minTs=Date.now()-days*24*3600*1000; return pair.rows.filter(r=>r.fundingTime>=minTs); }
 
-    function renderPriceChart(rows){ const ctx=document.getElementById('priceChart'); if(state.priceChart) state.priceChart.destroy(); state.priceChart=new Chart(ctx,{ type:'line', data:{ labels:rows.map(r=>toUTC(r.fundingTime)), datasets:[{ label:'Mark Price', data:rows.map(r=>r.markPrice), borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.12)', borderWidth:2.2, fill:true, pointRadius:0, tension:0.18 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#9ca9c8' }, grid:{ color:'rgba(255,255,255,0.05)' } }, x:{ ticks:{ color:'#9ca9c8', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.03)' } } }, plugins:{ legend:{ labels:{ color:'#eef3ff' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } }); }
+    function renderPriceChart(rows){ const ctx=document.getElementById('priceChart'); if(state.priceChart) state.priceChart.destroy(); state.priceChart=new Chart(ctx,{ type:'line', data:{ labels:rows.map(r=>toUTC(r.fundingTime)), datasets:[{ label:'Mark Price', data:rows.map(r=>r.markPrice), borderColor:'#00c076', backgroundColor:'rgba(0,192,118,0.10)', borderWidth:2.2, fill:true, pointRadius:0, tension:0.18 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98' }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ labels:{ color:'#dce3ea' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } }); }
 
     function formatCountdown(nextFundingTime){
       if (!nextFundingTime) return '조회 실패';
@@ -292,7 +410,7 @@
       state.countdownTimer=setInterval(renderCountdown,1000);
     }
 
-    function renderChart(rows){ const ctx=document.getElementById('fundingChart'); if(state.chart) state.chart.destroy(); state.chart=new Chart(ctx,{ type:'line', data:{ labels:rows.map(r=>toUTC(r.fundingTime)), datasets:[{ label:'Funding Rate', data:rows.map(r=>r.fundingRate*100), borderColor:'#7aa2ff', backgroundColor:'rgba(122,162,255,0.2)', borderWidth:2, fill:true, pointRadius:1.5, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#9ca9c8', callback:v=>`${v.toFixed(3)}%` }, grid:{ color:'rgba(255,255,255,0.06)' } }, x:{ ticks:{ color:'#9ca9c8', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.04)' } } }, plugins:{ legend:{ labels:{ color:'#eef3ff' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } }); }
+    function renderChart(rows){ const ctx=document.getElementById('fundingChart'); if(state.chart) state.chart.destroy(); state.chart=new Chart(ctx,{ type:'line', data:{ labels:rows.map(r=>toUTC(r.fundingTime)), datasets:[{ label:'Funding Rate', data:rows.map(r=>r.fundingRate*100), borderColor:'#23e7a5', backgroundColor:'rgba(35,231,165,0.13)', borderWidth:2, fill:true, pointRadius:1.5, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98', callback:v=>`${v.toFixed(3)}%` }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ labels:{ color:'#dce3ea' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } }); }
 
     function getLatestForPair(pairKey, pair){
       return state.liveLatestByPair[pairKey] || pair.latest || {};
@@ -316,8 +434,8 @@
       const currentFee = fundingFeeValue(latest);
       const currentFeeTone = feeTone(currentFee);
       const coreTitle = document.getElementById('coreTitle');
-      coreTitle.textContent = `현재 Funding Fee : ${feeDirection(currentFee)}`;
-      coreTitle.className = 'section-title ' + currentFeeTone;
+      coreTitle.textContent = `현재 Funding Fee 방향 : ${feeDirection(currentFee)}`;
+      coreTitle.className = 'section-title';
       if (currentFee == null || Number.isNaN(currentFee)) {
         document.getElementById('latestFunding').textContent='-';
         document.getElementById('latestFunding').className='value warn';
@@ -412,12 +530,48 @@
       state.data=data;
       state.selectedPair=Object.keys(data.pairs)[0];
       state.selectedAsset=assetId(data.pairs[state.selectedPair]);
-      try { state.favorites = JSON.parse(localStorage.getItem('favoritePairs') || '[]'); } catch(e) { state.favorites = []; }
+      trackLocalVisit();
+      loadAuth();
+      state.favorites = loadFavorites();
+      renderAuth();
+      fetchUsdKrw();
       document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt);
       document.getElementById('assetSelect').addEventListener('change', e=>selectAsset(e.target.value));
       document.getElementById('exchangeSelect').addEventListener('change', e=>selectPair(e.target.value));
       document.getElementById('sortMode').addEventListener('change', e=>{ state.sortMode=e.target.value; renderAssetPicker(); renderExchangePicker(); });
-      document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const pairKey=state.selectedPair; if(state.favorites.includes(pairKey)){ state.favorites=state.favorites.filter(x=>x!==pairKey); } else { state.favorites.unshift(pairKey); } localStorage.setItem('favoritePairs', JSON.stringify(state.favorites.slice(0,12))); renderFavoriteTabs(); render(); });
+      document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const pairKey=state.selectedPair; if(state.favorites.includes(pairKey)){ state.favorites=state.favorites.filter(x=>x!==pairKey); } else { state.favorites.unshift(pairKey); } saveFavorites(); renderFavoriteTabs(); render(); });
+      document.getElementById('loginButton').addEventListener('click', ()=>openAuthModal('login'));
+      document.getElementById('signupButton').addEventListener('click', ()=>{
+        if(state.auth){
+          localStorage.removeItem(authStorageKey());
+          state.auth=null;
+          state.favorites=loadFavorites();
+          renderAuth();
+          renderFavoriteTabs();
+          render();
+          return;
+        }
+        openAuthModal('signup');
+      });
+      document.getElementById('googleSignupButton').addEventListener('click', ()=>openAuthModal('signup'));
+      document.getElementById('authGoogleButton').addEventListener('click', ()=>{
+        document.getElementById('authStatus').innerHTML='Google OAuth는 Firebase/Supabase 클라이언트 키 연결 후 활성화돼. 지금은 UI와 저장 구조만 준비된 상태야.';
+      });
+      document.getElementById('authCloseButton').addEventListener('click', closeAuthModal);
+      document.getElementById('authModal').addEventListener('click', e=>{ if(e.target.id === 'authModal') closeAuthModal(); });
+      document.getElementById('authSubmitButton').addEventListener('click', ()=>{
+        const email=document.getElementById('authEmail').value.trim();
+        if(!email || !email.includes('@')){
+          document.getElementById('authStatus').textContent='이메일 형식으로 입력해줘.';
+          return;
+        }
+        saveAuth(email);
+        closeAuthModal();
+      });
+      document.getElementById('authForm').addEventListener('submit', e=>{
+        e.preventDefault();
+        document.getElementById('authSubmitButton').click();
+      });
       renderAssetPicker();
       renderExchangePicker();
       renderFavoriteTabs();

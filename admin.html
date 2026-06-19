@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Funding Dashboard Admin</title>
+  <link rel="icon" href="data:," />
+  <style>
+    :root { --bg:#070a0f; --panel:#0d1117; --text:#dce3ea; --muted:#7d8a98; --line:#202833; --good:#00c076; --bad:#f6465d; --warn:#f5c451; --accent:#23e7a5; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:radial-gradient(circle at 50% 0%,rgba(35,231,165,0.09),transparent 28%),linear-gradient(180deg,#070a0f 0%,#0a0e14 100%); color:var(--text); font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,sans-serif; }
+    .wrap { max-width:1180px; margin:0 auto; padding:24px; }
+    .header { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; margin-bottom:18px; }
+    h1 { margin:0; font-size:28px; letter-spacing:0; }
+    .sub { margin-top:8px; color:var(--muted); font-size:14px; line-height:1.5; }
+    .chip { display:inline-flex; align-items:center; border:1px solid var(--line); background:#0a0f15; color:var(--text); border-radius:8px; padding:10px 13px; cursor:pointer; font-weight:800; text-decoration:none; }
+    .chip:hover { border-color:rgba(35,231,165,0.45); color:#f4fff9; }
+    .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
+    .card { grid-column:span 4; background:rgba(13,17,23,0.95); border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 14px 34px rgba(0,0,0,0.24); }
+    .wide { grid-column:span 12; }
+    .label { color:var(--muted); font-size:13px; }
+    .value { margin-top:10px; font-size:30px; font-weight:850; }
+    .good { color:var(--good); }
+    .warn { color:var(--warn); }
+    .note { margin-top:12px; color:var(--muted); font-size:13px; line-height:1.6; }
+    table { width:100%; border-collapse:collapse; font-size:14px; margin-top:8px; }
+    th,td { text-align:left; padding:11px 10px; border-bottom:1px solid var(--line); }
+    th { color:var(--muted); font-size:12px; font-weight:800; background:rgba(13,17,23,0.98); }
+    @media (max-width:900px){ .header { flex-direction:column; align-items:flex-start; } .card { grid-column:span 12; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div>
+        <h1>Funding Dashboard Admin</h1>
+        <div class="sub">방문자 수와 회원수 확인용 관리자 페이지. 정적 배포 상태에서는 전체 집계 대신 로컬 브라우저 기준 값과 백엔드 연결 상태를 표시해.</div>
+      </div>
+      <a class="chip" href="./index.html">대시보드로</a>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="label">방문자 수</div>
+        <div class="value" id="visitorCount">-</div>
+        <div class="note">현재 브라우저에서 기록된 방문 수.</div>
+      </div>
+      <div class="card">
+        <div class="label">회원수</div>
+        <div class="value" id="memberCount">-</div>
+        <div class="note">실제 전체 회원수는 Firebase/Supabase 연결 후 표시 가능.</div>
+      </div>
+      <div class="card">
+        <div class="label">즐겨찾기 동기화</div>
+        <div class="value warn" id="syncStatus">대기</div>
+        <div class="note">백엔드 키 연결 전에는 기기 간 동기화가 비활성화돼.</div>
+      </div>
+
+      <div class="card wide">
+        <div class="label">관리 상태</div>
+        <table>
+          <thead><tr><th>항목</th><th>현재 상태</th><th>실서비스 연결 시</th></tr></thead>
+          <tbody>
+            <tr><td>회원가입 / 로그인</td><td>프론트 UI + 로컬 저장</td><td>Auth provider 연결</td></tr>
+            <tr><td>Google 가입</td><td>버튼 및 플로우 준비</td><td>OAuth Client 연결</td></tr>
+            <tr><td>방문자 집계</td><td>로컬 방문 카운트</td><td>Analytics / DB 집계</td></tr>
+            <tr><td>회원수 집계</td><td>현재 브라우저 계정 0/1명</td><td>회원 DB count</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const totalVisits = Number(localStorage.getItem('dashboardLocalVisits') || '0');
+    const authUser = (() => {
+      try { return JSON.parse(localStorage.getItem('fundingDashboardAuthUser') || 'null'); } catch(e) { return null; }
+    })();
+    document.getElementById('visitorCount').textContent = totalVisits.toLocaleString('en-US');
+    document.getElementById('memberCount').textContent = authUser ? '1' : '0';
+    document.getElementById('syncStatus').textContent = authUser ? '로컬 저장' : '대기';
+    document.getElementById('syncStatus').className = 'value ' + (authUser ? 'good' : 'warn');
+  </script>
+</body>
+</html>
