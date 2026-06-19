@@ -27,6 +27,7 @@
     .rate-combo { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
     .rate-item { min-width:0; }
     .rate-item .value { font-size:36px; }
+    .rate-legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; font-size:13px; font-weight:700; }
     .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
     .card { background:rgba(18,25,43,0.94); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,0.18); }
     .metric { grid-column:span 3; }
@@ -37,6 +38,9 @@
     .value.good { color:var(--good); }
     .value.bad { color:var(--bad); }
     .value.warn { color:var(--warn); }
+    .section-title.good { color:var(--good); }
+    .section-title.bad { color:var(--bad); }
+    .section-title.warn { color:var(--warn); }
     .mini { color:var(--muted); font-size:13px; margin-top:8px; }
     .section-title { margin:0 0 14px; font-size:18px; }
     table { width:100%; border-collapse:collapse; font-size:14px; }
@@ -52,6 +56,10 @@
     .linkish:hover { text-decoration:underline; }
     .pair-link { color:var(--accent); font-weight:700; text-decoration:none; }
     .pair-link:hover { text-decoration:underline; }
+    .fee-value { font-weight:800; }
+    .fee-value.good,.legend-good { color:var(--good); }
+    .fee-value.bad,.legend-bad { color:var(--bad); }
+    .fee-value.warn { color:var(--warn); }
     .muted { color:var(--muted); }
     .note { margin-top:16px; color:var(--muted); font-size:13px; line-height:1.6; }
     .countdown { font-variant-numeric:tabular-nums; letter-spacing:0.02em; }
@@ -81,16 +89,17 @@
       <div class="card top-panel">
         <h3 class="section-title" id="supportTitle">지원 거래소</h3>
         <table>
-          <thead><tr><th>거래소</th><th>페어</th></tr></thead>
+          <thead><tr><th>지원 거래소</th><th>페어</th><th>현재 펀딩피</th></tr></thead>
           <tbody id="comparisonBody"></tbody>
         </table>
       </div>
       <div class="card top-panel">
-        <h3 class="section-title">핵심 지표</h3>
+        <h3 class="section-title" id="coreTitle">현재 Funding Fee : -</h3>
         <div class="rate-combo">
-          <div class="rate-item"><div class="label">현재 Funding Rate</div><div class="value" id="latestFunding">-</div><div class="mini">거래소 public API 기준 최신값</div></div>
-          <div class="rate-item"><div class="label">Annualized</div><div class="value" id="annualized">-</div><div class="mini">Long → Short = 음수 / Short → Long = 양수</div></div>
+          <div class="rate-item"><div class="label">현재 Funding Rate</div><div class="value" id="latestFunding">-</div></div>
+          <div class="rate-item"><div class="label">Annualized</div><div class="value" id="annualized">-</div></div>
         </div>
+        <div class="rate-legend"><span class="legend-good">양수 = Short -> Long</span><span class="legend-bad">음수 = Long -> Short</span></div>
       </div>
     </div>
 
@@ -134,6 +143,7 @@
 
     let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{} };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
+    const fmtSignedPct = v => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(4)}%`;
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
     const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const toKST = ms => new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
@@ -152,6 +162,17 @@
       if(pair.exchange === 'Bybit') return `https://www.bybit.com/trade/usdt/${pair.symbol}`;
       if(pair.exchange === 'Hyperliquid') return `https://app.hyperliquid.xyz/trade/${pair.symbol}`;
       return '#';
+    }
+    function fundingFeeValue(latest){
+      return latest.lastFundingRate == null ? null : -Number(latest.lastFundingRate);
+    }
+    function feeTone(value){
+      if(value == null || Number.isNaN(value)) return 'warn';
+      return value >= 0 ? 'good' : 'bad';
+    }
+    function feeDirection(value){
+      if(value == null || Number.isNaN(value)) return '-';
+      return value >= 0 ? 'Short -> Long' : 'Long -> Short';
     }
     function getAssetGroups(){
       const groups = new Map();
@@ -211,7 +232,7 @@
     function renderComparisons(){
       const body=document.getElementById('comparisonBody'); body.innerHTML='';
       const selected=state.data.pairs[state.selectedPair];
-      document.getElementById('supportTitle').textContent=`${assetName(selected)} 지원 거래소`;
+      document.getElementById('supportTitle').textContent=assetName(selected);
       const sameSymbolPairs=Object.entries(state.data.pairs).filter(([_,pair])=>assetId(pair)===assetId(selected));
       sameSymbolPairs.forEach(([pairKey,pair])=>{
         const tr=document.createElement('tr');
@@ -233,8 +254,17 @@
         pairLink.textContent=pairDisplayName(pair);
         pairCell.appendChild(pairLink);
 
+        const feeCell=document.createElement('td');
+        const latest=getLatestForPair(pairKey, pair);
+        const fee=fundingFeeValue(latest);
+        const feeEl=document.createElement('span');
+        feeEl.className='fee-value ' + feeTone(fee);
+        feeEl.textContent=fee == null || Number.isNaN(fee) ? '-' : fmtSignedPct(fee);
+        feeCell.appendChild(feeEl);
+
         tr.appendChild(exchangeCell);
         tr.appendChild(pairCell);
+        tr.appendChild(feeCell);
         body.appendChild(tr);
       });
     }
@@ -273,6 +303,7 @@
       const windowSummary=pair.windows[state.selectedWindow];
       const rows=getFilteredRows(pair);
       const latest=getLatestForPair(state.selectedPair, pair);
+      renderComparisons();
       const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedPair)?'★':'☆')+' 즐겨찾기';
       document.getElementById('sampleCount').textContent=windowSummary.count;
       document.getElementById('avgFunding').textContent=fmtPct(windowSummary.avgFundingRate);
@@ -282,12 +313,17 @@
       document.getElementById('sumFunding').textContent=fmtPct(windowSummary.sumFundingRate);
       document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate < 0 ? '<span class="pill good">Short → Long</span>' : '<span class="pill bad">Long → Short</span>';
 
-      if (latest.lastFundingRate == null) {
+      const currentFee = fundingFeeValue(latest);
+      const currentFeeTone = feeTone(currentFee);
+      const coreTitle = document.getElementById('coreTitle');
+      coreTitle.textContent = `현재 Funding Fee : ${feeDirection(currentFee)}`;
+      coreTitle.className = 'section-title ' + currentFeeTone;
+      if (currentFee == null || Number.isNaN(currentFee)) {
         document.getElementById('latestFunding').textContent='-';
         document.getElementById('latestFunding').className='value warn';
       } else {
-        document.getElementById('latestFunding').textContent=fmtPct(latest.lastFundingRate);
-        document.getElementById('latestFunding').className='value '+(latest.lastFundingRate>=0?'bad':'good');
+        document.getElementById('latestFunding').textContent=fmtSignedPct(currentFee);
+        document.getElementById('latestFunding').className='value '+currentFeeTone;
       }
       document.getElementById('markPrice').textContent=latest.markPrice == null ? '-' : fmtNumber(latest.markPrice);
       document.getElementById('indexPrice').textContent=latest.indexPrice == null ? '-' : fmtNumber(latest.indexPrice);
