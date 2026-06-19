@@ -20,6 +20,7 @@
     .fx-ticker .fx-change.bad { color:var(--bad); }
     .fx-ticker .fx-change.warn { color:var(--warn); }
     .header-side { display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+    .header-market-row { display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap; }
     .header-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
     .alt-link { color:var(--accent); text-decoration:none; font-size:13px; font-weight:800; }
     .alt-link:hover { text-decoration:underline; }
@@ -30,6 +31,7 @@
     .chip { border:1px solid var(--line); background:#07140f; color:var(--text); border-radius:999px; padding:9px 13px; cursor:pointer; font-weight:750; }
     .chip:hover { border-color:rgba(35,231,165,0.45); color:#f4fff9; }
     .chip.active { background:rgba(35,231,165,0.14); color:var(--accent); border-color:rgba(35,231,165,0.5); }
+    .chip.dragging { opacity:0.45; border-color:var(--accent); }
     .chip.subtle { border-radius:8px; }
     .top-grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; margin-bottom:16px; align-items:stretch; }
     .top-panel { grid-column:span 6; margin-bottom:0; }
@@ -85,7 +87,7 @@
     .modal-grid { display:grid; gap:10px; }
     .auth-status { color:var(--muted); font-size:13px; line-height:1.55; }
     .auth-status strong { color:var(--text); }
-    @media (max-width:1100px){ .top-panel,.metric,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } .header-side { align-items:flex-start; } .header-actions { justify-content:flex-start; } }
+    @media (max-width:1100px){ .top-panel,.metric,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } .header-side { align-items:flex-start; } .header-market-row,.header-actions { justify-content:flex-start; } }
     @media (max-width:700px){ .rate-combo { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -97,11 +99,13 @@
         <div class="sub">history는 자동 적재하고, 현재 funding / mark / index / 다음 funding 카운트다운은 거래소별 public API 기준으로 실시간에 가깝게 반영하는 대시보드.</div>
       </div>
       <div class="header-side">
-        <div class="fx-ticker warn" id="usdKrwTicker">USD/KRW 조회 중</div>
-        <div class="header-actions">
-          <button class="chip subtle" id="loginButton" type="button">로그인</button>
-          <button class="chip subtle" id="signupButton" type="button">회원가입</button>
-          <a class="chip subtle" href="./admin.html" style="text-decoration:none;">관리자</a>
+        <div class="header-market-row">
+          <div class="header-actions">
+            <button class="chip subtle" id="loginButton" type="button">로그인</button>
+            <button class="chip subtle" id="signupButton" type="button">회원가입</button>
+            <a class="chip subtle" href="./admin.html" style="text-decoration:none;">관리자</a>
+          </div>
+          <div class="fx-ticker warn" id="usdKrwTicker">USD/KRW 조회 중</div>
         </div>
         <div class="stamp" id="updatedAt">Updated: -</div>
         <a class="alt-link" href="./v2.html">V2 보기</a>
@@ -186,13 +190,20 @@
     const FX_REFERENCE_URL = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
     const AUTH_BACKEND_CONFIGURED = false;
 
-    let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{}, auth:null, authMode:'login' };
+    let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{}, auth:null, authMode:'login', draggedFavorite:null };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
     const fmtSignedPct = v => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(4)}%`;
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
     const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const fmtFx = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const toKST = ms => new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
+    function toKSTChartLabel(ms){
+      const parts = new Intl.DateTimeFormat('en-US', { timeZone:'Asia/Seoul', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false }).formatToParts(new Date(ms)).reduce((acc, part) => {
+        acc[part.type] = part.value;
+        return acc;
+      }, {});
+      return `${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
+    }
     const toUTC = ms => new Date(ms).toISOString().replace('T',' ').slice(0,19) + ' UTC';
 
     function displaySymbol(pair){ return pair.displaySymbol || pair.symbol; }
@@ -372,7 +383,52 @@
       renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render();
     }
     function selectPair(pairKey){ state.selectedPair=pairKey; state.selectedAsset=assetId(state.data.pairs[pairKey]); renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render(); }
-    function renderFavoriteTabs(){ const tabs=document.getElementById('favoriteTabs'); tabs.innerHTML=''; const groups=getAssetGroups(); state.favorites.forEach(favoriteAssetId=>{ const group=groups.find(item=>item.id===favoriteAssetId); if(!group) return; const btn=document.createElement('button'); btn.className='chip'+(favoriteAssetId===state.selectedAsset?' active':''); btn.textContent=`★ ${group.name}`; btn.onclick=()=>selectAsset(favoriteAssetId); tabs.appendChild(btn); }); }
+    function reorderFavorite(fromId, toId){
+      if(!fromId || !toId || fromId === toId) return;
+      const next = state.favorites.slice();
+      const fromIndex = next.indexOf(fromId);
+      const toIndex = next.indexOf(toId);
+      if(fromIndex < 0 || toIndex < 0) return;
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      state.favorites = next;
+      saveFavorites();
+      renderFavoriteTabs();
+    }
+    function renderFavoriteTabs(){
+      const tabs=document.getElementById('favoriteTabs');
+      tabs.innerHTML='';
+      const groups=getAssetGroups();
+      state.favorites.forEach(favoriteAssetId=>{
+        const group=groups.find(item=>item.id===favoriteAssetId);
+        if(!group) return;
+        const btn=document.createElement('button');
+        btn.className='chip'+(favoriteAssetId===state.selectedAsset?' active':'');
+        btn.textContent=`★ ${group.name}`;
+        btn.draggable=true;
+        btn.dataset.favoriteId=favoriteAssetId;
+        btn.onclick=()=>selectAsset(favoriteAssetId);
+        btn.addEventListener('dragstart', e=>{
+          state.draggedFavorite=favoriteAssetId;
+          btn.classList.add('dragging');
+          e.dataTransfer.effectAllowed='move';
+          e.dataTransfer.setData('text/plain', favoriteAssetId);
+        });
+        btn.addEventListener('dragend', ()=>{
+          state.draggedFavorite=null;
+          btn.classList.remove('dragging');
+        });
+        btn.addEventListener('dragover', e=>{
+          e.preventDefault();
+          e.dataTransfer.dropEffect='move';
+        });
+        btn.addEventListener('drop', e=>{
+          e.preventDefault();
+          reorderFavorite(e.dataTransfer.getData('text/plain') || state.draggedFavorite, favoriteAssetId);
+        });
+        tabs.appendChild(btn);
+      });
+    }
     function renderWindowTabs(){ const tabs=document.getElementById('windowTabs'); tabs.innerHTML=''; Object.keys(state.data.meta.windows).forEach(key=>{ const btn=document.createElement('button'); btn.className='chip'+(key===state.selectedWindow?' active':''); btn.textContent=key; btn.onclick=()=>{ state.selectedWindow=key; renderWindowTabs(); render(); }; tabs.appendChild(btn); }); }
     function renderComparisons(){
       const body=document.getElementById('comparisonBody'); body.innerHTML='';
@@ -425,7 +481,45 @@
     }
     function getFilteredRows(pair){ const days=state.data.meta.windows[state.selectedWindow]; const minTs=Date.now()-days*24*3600*1000; return pair.rows.filter(r=>r.fundingTime>=minTs); }
 
-    function renderPriceChart(rows){ const ctx=document.getElementById('priceChart'); if(state.priceChart) state.priceChart.destroy(); state.priceChart=new Chart(ctx,{ type:'line', data:{ labels:rows.map(r=>toUTC(r.fundingTime)), datasets:[{ label:'Mark Price', data:rows.map(r=>r.markPrice), borderColor:'#00c076', backgroundColor:'rgba(0,192,118,0.10)', borderWidth:2.2, fill:true, pointRadius:0, tension:0.18 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98' }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ labels:{ color:'#dce3ea' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } }); }
+    function applyChartRange(chart, start, end){
+      chart.$zoomStart = Math.max(0, start);
+      chart.$zoomEnd = Math.min(chart.$fullLabels.length - 1, end);
+      chart.data.labels = chart.$fullLabels.slice(chart.$zoomStart, chart.$zoomEnd + 1);
+      chart.data.datasets[0].data = chart.$fullData.slice(chart.$zoomStart, chart.$zoomEnd + 1);
+      chart.update('none');
+    }
+    function enableWheelZoom(chart, canvas){
+      if(canvas.$wheelZoomHandler) canvas.removeEventListener('wheel', canvas.$wheelZoomHandler);
+      canvas.$wheelZoomHandler = event => {
+        const total = chart.$fullLabels.length;
+        if(total <= 2) return;
+        event.preventDefault();
+        const visible = chart.$zoomEnd - chart.$zoomStart + 1;
+        const scale = event.deltaY < 0 ? 0.78 : 1.28;
+        const nextVisible = Math.max(8, Math.min(total, Math.round(visible * scale)));
+        const rect = canvas.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+        const center = chart.$zoomStart + Math.round((visible - 1) * ratio);
+        let start = Math.round(center - (nextVisible - 1) * ratio);
+        let end = start + nextVisible - 1;
+        if(start < 0){ end -= start; start = 0; }
+        if(end >= total){ start -= end - total + 1; end = total - 1; }
+        applyChartRange(chart, Math.max(0, start), Math.min(total - 1, end));
+      };
+      canvas.addEventListener('wheel', canvas.$wheelZoomHandler, { passive:false });
+    }
+    function renderPriceChart(rows){
+      const ctx=document.getElementById('priceChart');
+      const labels=rows.map(r=>toKSTChartLabel(r.fundingTime));
+      const values=rows.map(r=>r.markPrice);
+      if(state.priceChart) state.priceChart.destroy();
+      state.priceChart=new Chart(ctx,{ type:'line', data:{ labels, datasets:[{ label:'Mark Price', data:values, borderColor:'#00c076', backgroundColor:'rgba(0,192,118,0.10)', borderWidth:2.2, fill:true, pointRadius:0, tension:0.18 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98' }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ labels:{ color:'#dce3ea' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } });
+      state.priceChart.$fullLabels=labels;
+      state.priceChart.$fullData=values;
+      state.priceChart.$zoomStart=0;
+      state.priceChart.$zoomEnd=Math.max(0, labels.length - 1);
+      enableWheelZoom(state.priceChart, ctx);
+    }
 
     function formatCountdown(nextFundingTime){
       if (!nextFundingTime) return '조회 실패';
@@ -447,7 +541,18 @@
       state.countdownTimer=setInterval(renderCountdown,1000);
     }
 
-    function renderChart(rows){ const ctx=document.getElementById('fundingChart'); if(state.chart) state.chart.destroy(); state.chart=new Chart(ctx,{ type:'line', data:{ labels:rows.map(r=>toUTC(r.fundingTime)), datasets:[{ label:'Funding Rate', data:rows.map(r=>r.fundingRate*100), borderColor:'#23e7a5', backgroundColor:'rgba(35,231,165,0.13)', borderWidth:2, fill:true, pointRadius:1.5, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98', callback:v=>`${v.toFixed(3)}%` }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ labels:{ color:'#dce3ea' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } }); }
+    function renderChart(rows){
+      const ctx=document.getElementById('fundingChart');
+      const labels=rows.map(r=>toKSTChartLabel(r.fundingTime));
+      const values=rows.map(r=>r.fundingRate*100);
+      if(state.chart) state.chart.destroy();
+      state.chart=new Chart(ctx,{ type:'line', data:{ labels, datasets:[{ label:'Funding Rate', data:values, borderColor:'#23e7a5', backgroundColor:'rgba(35,231,165,0.13)', borderWidth:2, fill:true, pointRadius:1.5, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98', callback:v=>`${v.toFixed(3)}%` }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ labels:{ color:'#dce3ea' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } });
+      state.chart.$fullLabels=labels;
+      state.chart.$fullData=values;
+      state.chart.$zoomStart=0;
+      state.chart.$zoomEnd=Math.max(0, labels.length - 1);
+      enableWheelZoom(state.chart, ctx);
+    }
 
     function getLatestForPair(pairKey, pair){
       return state.liveLatestByPair[pairKey] || pair.latest || {};
@@ -576,6 +681,8 @@
       document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt);
       document.getElementById('assetSearch').addEventListener('change', e=>selectAssetFromSearch(e.target.value));
       document.getElementById('assetSearch').addEventListener('keydown', e=>{ if(e.key==='Enter') selectAssetFromSearch(e.target.value); });
+      document.getElementById('assetSearch').addEventListener('focus', e=>{ e.target.value=''; });
+      document.getElementById('assetSearch').addEventListener('blur', e=>{ if(!e.target.value.trim()) renderAssetPicker(); });
       document.getElementById('sortMode').addEventListener('change', e=>{ state.sortMode=e.target.value; renderAssetPicker(); renderExchangePicker(); });
       document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const favoriteAssetId=state.selectedAsset; if(state.favorites.includes(favoriteAssetId)){ state.favorites=state.favorites.filter(x=>x!==favoriteAssetId); } else { state.favorites.unshift(favoriteAssetId); } saveFavorites(); renderFavoriteTabs(); render(); });
       document.getElementById('loginButton').addEventListener('click', ()=>openAuthModal('login'));
