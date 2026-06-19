@@ -14,6 +14,17 @@
 - `xyz:SAMSUNG` (`xyz:SMSN`)
 - `xyz:SKHYNIX` (`xyz:SKHX`)
 - `xyz:GOLD`
+- `xyz:AMZN`
+- `xyz:AAPL`
+- `xyz:TSLA`
+- `xyz:NVDA`
+- `xyz:META`
+- `xyz:MSFT`
+- `xyz:MSTR`
+- `xyz:COIN`
+- `xyz:TSM`
+- `xyz:PLTR`
+- `xyz:BABA`
 - 1일 / 7일 / 30일 / 90일 기준 annualized 계산
 - 회차별 hourly funding history 테이블
 - current funding / mark / oracle / 다음 hourly funding 카운트다운 반영
@@ -24,19 +35,46 @@
 - SKHYNIXUSDT
 - XAUUSDT
 - AMZNUSDT
+- AAPLUSDT
+- TSLAUSDT
+- NVDAUSDT
+- METAUSDT
+- MSFTUSDT
+- MSTRUSDT
+- COINUSDT
+- TSMUSDT
+- PLTRUSDT
+- BABAUSDT
+- QQQUSDT
+- SPYUSDT
 - 1일 / 7일 / 30일 / 90일 기준 annualized 계산
 - 회차별 funding history 테이블
 - 차트 표시
 
 ### Bybit
 - GOOGLUSDT
+- SAMSUNGUSDT
+- SKHYNIXUSDT
 - XAUTUSDT
+- AMZNUSDT
+- AAPLUSDT
+- TSLAUSDT
+- NVDAUSDT
+- METAUSDT
+- MSFTUSDT
+- MSTRUSDT
+- COINUSDT
+- TSMUSDT
+- PLTRUSDT
+- BABAUSDT
+- QQQUSDT
+- SPYUSDT
 - 1일 / 7일 / 30일 / 90일 기준 annualized 계산
 - current funding / mark / index / next funding 반영
 
 ### 비교 상태 표시
 - Hyperliquid `xyz` HIP-3 perp → public info API로 funding 비교 가능
-- 같은 종목은 종목명 드롭다운에서 한 번 고른 뒤 Binance / Hyperliquid / Bybit 등 거래소 드롭다운으로 전환
+- 같은 종목은 종목명 검색으로 고른 뒤 지원 거래소 목록에서 Binance / Hyperliquid / Bybit 등 거래소 칩으로 전환
 
 ## 로컬 데이터 갱신
 ```bash
