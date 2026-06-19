@@ -68,7 +68,10 @@
         <div class="login-grid">
           <input class="field" id="adminEmail" type="email" autocomplete="email" placeholder="admin@example.com" />
           <input class="field" id="adminPassword" type="password" autocomplete="current-password" placeholder="password" />
-          <button class="chip active" id="loginButton" type="button">로그인</button>
+          <div class="actions">
+            <button class="chip active" id="loginButton" type="button">로그인</button>
+            <button class="chip" id="signupButton" type="button">회원가입</button>
+          </div>
         </div>
         <div class="note" id="loginStatus">Supabase Auth 계정 중 <code>profiles.role = 'admin'</code>인 계정만 집계를 볼 수 있어.</div>
       </div>
@@ -196,6 +199,17 @@
       }
       loginStatus.textContent = '로그인 완료';
       loadStats();
+    });
+    document.getElementById('signupButton').addEventListener('click', async () => {
+      if(!client) return;
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      const { error } = await client.auth.signUp({ email, password });
+      if(error){
+        loginStatus.textContent = error.message;
+        return;
+      }
+      loginStatus.textContent = '회원가입 완료. 이메일 확인이 필요하면 메일 인증 후 알려줘. 내가 admin 권한을 부여할게.';
     });
     logoutButton.addEventListener('click', async () => {
       if(client) await client.auth.signOut();
