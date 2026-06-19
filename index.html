@@ -7,7 +7,7 @@
   <link rel="icon" href="data:," />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root { --bg:#070a0f; --panel:#0d1117; --panel2:#111821; --panel3:#151d27; --text:#dce3ea; --muted:#7d8a98; --line:#202833; --good:#00c076; --bad:#f6465d; --warn:#f5c451; --accent:#23e7a5; --accent2:#3f8cff; }
+    :root { --bg:#070a0f; --panel:#0d1117; --panel2:#111821; --panel3:#151d27; --text:#dce3ea; --muted:#7d8a98; --line:#202833; --good:#00c076; --bad:#f6465d; --warn:#f5c451; --accent:#23e7a5; --accent2:#3f8cff; --pair:#8ea2ff; }
     * { box-sizing:border-box; }
     body { margin:0; background:radial-gradient(circle at 50% 0%,rgba(35,231,165,0.09),transparent 28%),linear-gradient(180deg,#070a0f 0%,#0a0e14 100%); color:var(--text); font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,sans-serif; }
     .wrap { max-width:1450px; margin:0 auto; padding:24px; }
@@ -16,9 +16,9 @@
     .sub { margin-top:8px; color:var(--muted); line-height:1.45; font-size:14px; }
     .stamp,.fx-ticker { background:rgba(13,17,23,0.88); border:1px solid var(--line); color:var(--muted); padding:9px 12px; border-radius:8px; font-size:13px; white-space:nowrap; }
     .fx-ticker { color:var(--text); font-weight:800; }
-    .fx-ticker.good { color:var(--good); }
-    .fx-ticker.bad { color:var(--bad); }
-    .fx-ticker.warn { color:var(--warn); }
+    .fx-ticker .fx-change.good { color:var(--good); }
+    .fx-ticker .fx-change.bad { color:var(--bad); }
+    .fx-ticker .fx-change.warn { color:var(--warn); }
     .header-side { display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
     .header-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
     .alt-link { color:var(--accent); text-decoration:none; font-size:13px; font-weight:800; }
@@ -61,12 +61,17 @@
     .pill.warn { background:rgba(255,209,102,0.14); color:var(--warn); }
     .linkish { color:var(--accent); cursor:pointer; font-weight:800; }
     .linkish:hover { text-decoration:underline; }
-    .pair-link { color:var(--accent); font-weight:800; text-decoration:none; }
+    .pair-link { color:var(--pair); font-weight:800; text-decoration:none; }
     .pair-link:hover { text-decoration:underline; }
+    .exchange-label { display:inline-flex; align-items:center; gap:7px; }
+    .exchange-logo { width:16px; height:16px; border-radius:50%; background:#0a0f15; flex:0 0 16px; }
     .fee-value { font-weight:800; }
     .fee-value.good,.legend-good { color:var(--good); }
     .fee-value.bad,.legend-bad { color:var(--bad); }
     .fee-value.warn { color:var(--warn); }
+    .direction-value.good { color:var(--good); }
+    .direction-value.bad { color:var(--bad); }
+    .direction-value.warn { color:var(--warn); }
     .muted { color:var(--muted); }
     .note { margin-top:16px; color:var(--muted); font-size:13px; line-height:1.6; }
     .countdown { font-variant-numeric:tabular-nums; letter-spacing:0.02em; }
@@ -96,7 +101,6 @@
         <div class="header-actions">
           <button class="chip subtle" id="loginButton" type="button">로그인</button>
           <button class="chip subtle" id="signupButton" type="button">회원가입</button>
-          <button class="chip subtle" id="googleSignupButton" type="button">Google로 가입</button>
           <a class="chip subtle" href="./admin.html" style="text-decoration:none;">관리자</a>
         </div>
         <div class="stamp" id="updatedAt">Updated: -</div>
@@ -104,7 +108,7 @@
       </div>
     </div>
 
-    <div class="toolbar"><select id="assetSelect" class="field pair-select"></select><select id="exchangeSelect" class="field"></select><select id="sortMode" class="field"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
+    <div class="toolbar"><input id="assetSearch" class="field pair-select" list="assetOptions" placeholder="종목명 검색" autocomplete="off" /><datalist id="assetOptions"></datalist><select id="sortMode" class="field"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
     <div class="toolbar" id="favoriteTabs"></div>
     <div class="toolbar2" id="windowTabs"></div>
     <div class="top-grid">
@@ -205,6 +209,14 @@
       if(pair.exchange === 'Hyperliquid') return `https://app.hyperliquid.xyz/trade/${pair.symbol}`;
       return '#';
     }
+    function exchangeLogoUrl(exchange){
+      const domains = {
+        Binance: 'binance.com',
+        Bybit: 'bybit.com',
+        Hyperliquid: 'hyperliquid.xyz',
+      };
+      return `https://www.google.com/s2/favicons?domain=${domains[exchange] || exchange.toLowerCase() + '.com'}&sz=32`;
+    }
     function fundingFeeValue(latest){
       return latest.lastFundingRate == null ? null : -Number(latest.lastFundingRate);
     }
@@ -283,8 +295,9 @@
         const reference = Number(refJson.usd && refJson.usd.krw);
         if(!latest || !reference) throw new Error('USD/KRW rate unavailable');
         const change = (latest - reference) / reference;
-        ticker.textContent = `USD/KRW ${fmtFx(latest)} (${change >= 0 ? '+' : ''}${(change * 100).toFixed(2)}%)`;
-        ticker.className = 'fx-ticker ' + (change > 0 ? 'bad' : change < 0 ? 'good' : 'warn');
+        const tone = change > 0 ? 'bad' : change < 0 ? 'good' : 'warn';
+        ticker.innerHTML = `USD/KRW ${fmtFx(latest)} <span class="fx-change ${tone}">(${change >= 0 ? '+' : ''}${(change * 100).toFixed(2)}%)</span>`;
+        ticker.className = 'fx-ticker';
         ticker.title = `latest: ${latestJson.time_last_update_utc || 'open.er-api'}, reference date: ${refJson.date || '-'}`;
       } catch(err) {
         console.error(err);
@@ -309,30 +322,32 @@
     function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>assetName(a[1]).localeCompare(assetName(b[1]), 'ko') || a[1].exchange.localeCompare(b[1].exchange)); } return entries; }
 
     function renderAssetPicker(){
-      const select=document.getElementById('assetSelect');
+      const input=document.getElementById('assetSearch');
+      const options=document.getElementById('assetOptions');
       const groups=getAssetGroups();
-      select.innerHTML='';
+      options.innerHTML='';
       groups.forEach(group=>{
         const option=document.createElement('option');
-        option.value=group.id;
-        option.textContent=group.name;
-        select.appendChild(option);
+        option.value=group.name;
+        option.label=group.id;
+        options.appendChild(option);
       });
-      select.value=state.selectedAsset;
+      const selected=groups.find(group=>group.id===state.selectedAsset);
+      input.value=selected ? selected.name : '';
     }
 
     function renderExchangePicker(){
-      const select=document.getElementById('exchangeSelect');
-      const entries=getSortedEntries();
-      const sameAsset=entries.filter(([_, pair]) => assetId(pair) === state.selectedAsset);
-      select.innerHTML='';
-      sameAsset.forEach(([pairKey,val])=>{
-        const option=document.createElement('option');
-        option.value=pairKey;
-        option.textContent=val.exchange;
-        select.appendChild(option);
-      });
-      select.value=state.selectedPair;
+      return;
+    }
+
+    function selectAssetFromSearch(value){
+      const normalized=value.trim().toLocaleLowerCase('ko');
+      if(!normalized) return;
+      const groups=getAssetGroups();
+      const exact=groups.find(group=>group.name.toLocaleLowerCase('ko')===normalized || group.id.toLocaleLowerCase('ko')===normalized);
+      if(exact){ selectAsset(exact.id); return; }
+      const matches=groups.filter(group=>group.name.toLocaleLowerCase('ko').includes(normalized));
+      if(matches.length===1) selectAsset(matches[0].id);
     }
 
     function selectAsset(selectedAsset){
@@ -359,7 +374,17 @@
         const exchangeBtn=document.createElement('button');
         exchangeBtn.type='button';
         exchangeBtn.className='chip' + (isSelected ? ' active' : '');
-        exchangeBtn.textContent=pair.exchange;
+        const exchangeLabel=document.createElement('span');
+        exchangeLabel.className='exchange-label';
+        const exchangeLogo=document.createElement('img');
+        exchangeLogo.className='exchange-logo';
+        exchangeLogo.alt='';
+        exchangeLogo.src=exchangeLogoUrl(pair.exchange);
+        const exchangeName=document.createElement('span');
+        exchangeName.textContent=pair.exchange;
+        exchangeLabel.appendChild(exchangeLogo);
+        exchangeLabel.appendChild(exchangeName);
+        exchangeBtn.appendChild(exchangeLabel);
         exchangeBtn.onclick=()=>selectPair(pairKey);
         exchangeCell.appendChild(exchangeBtn);
 
@@ -434,7 +459,7 @@
       const currentFee = fundingFeeValue(latest);
       const currentFeeTone = feeTone(currentFee);
       const coreTitle = document.getElementById('coreTitle');
-      coreTitle.textContent = `현재 Funding Fee 방향 : ${feeDirection(currentFee)}`;
+      coreTitle.innerHTML = `현재 Funding Fee 방향 : <span class="direction-value ${currentFeeTone}">${feeDirection(currentFee)}</span>`;
       coreTitle.className = 'section-title';
       if (currentFee == null || Number.isNaN(currentFee)) {
         document.getElementById('latestFunding').textContent='-';
@@ -536,8 +561,8 @@
       renderAuth();
       fetchUsdKrw();
       document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt);
-      document.getElementById('assetSelect').addEventListener('change', e=>selectAsset(e.target.value));
-      document.getElementById('exchangeSelect').addEventListener('change', e=>selectPair(e.target.value));
+      document.getElementById('assetSearch').addEventListener('change', e=>selectAssetFromSearch(e.target.value));
+      document.getElementById('assetSearch').addEventListener('keydown', e=>{ if(e.key==='Enter') selectAssetFromSearch(e.target.value); });
       document.getElementById('sortMode').addEventListener('change', e=>{ state.sortMode=e.target.value; renderAssetPicker(); renderExchangePicker(); });
       document.getElementById('favoriteToggle').addEventListener('click', ()=>{ const pairKey=state.selectedPair; if(state.favorites.includes(pairKey)){ state.favorites=state.favorites.filter(x=>x!==pairKey); } else { state.favorites.unshift(pairKey); } saveFavorites(); renderFavoriteTabs(); render(); });
       document.getElementById('loginButton').addEventListener('click', ()=>openAuthModal('login'));
@@ -553,7 +578,6 @@
         }
         openAuthModal('signup');
       });
-      document.getElementById('googleSignupButton').addEventListener('click', ()=>openAuthModal('signup'));
       document.getElementById('authGoogleButton').addEventListener('click', ()=>{
         document.getElementById('authStatus').innerHTML='Google OAuth는 Firebase/Supabase 클라이언트 키 연결 후 활성화돼. 지금은 UI와 저장 구조만 준비된 상태야.';
       });
