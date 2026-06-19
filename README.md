@@ -13,7 +13,8 @@
 - `xyz:GOOGL`
 - `xyz:SAMSUNG` (`xyz:SMSN`)
 - `xyz:SKHYNIX` (`xyz:SKHX`)
-- 7일 / 30일 / 90일 기준 annualized 계산
+- `xyz:GOLD`
+- 1일 / 7일 / 30일 / 90일 기준 annualized 계산
 - 회차별 hourly funding history 테이블
 - current funding / mark / oracle / 다음 hourly funding 카운트다운 반영
 
@@ -23,14 +24,14 @@
 - SKHYNIXUSDT
 - XAUUSDT
 - AMZNUSDT
-- 7일 / 30일 / 90일 기준 annualized 계산
+- 1일 / 7일 / 30일 / 90일 기준 annualized 계산
 - 회차별 funding history 테이블
 - 차트 표시
 
 ### Bybit
 - GOOGLUSDT
 - XAUTUSDT
-- 7일 / 30일 / 90일 기준 annualized 계산
+- 1일 / 7일 / 30일 / 90일 기준 annualized 계산
 - current funding / mark / index / next funding 반영
 
 ### 비교 상태 표시

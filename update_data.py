@@ -15,6 +15,7 @@ PAIRS = [
     {"symbol": "SAMSUNGUSDT", "displaySymbol": "SAMSUNG", "assetId": "SAMSUNG", "assetName": "삼성전자", "exchange": "Binance", "enabled": True},
     {"symbol": "xyz:SKHX", "displaySymbol": "SKHYNIX", "assetId": "SKHYNIX", "assetName": "SK하이닉스", "exchange": "Hyperliquid", "dex": "xyz", "enabled": True},
     {"symbol": "SKHYNIXUSDT", "displaySymbol": "SKHYNIX", "assetId": "SKHYNIX", "assetName": "SK하이닉스", "exchange": "Binance", "enabled": True},
+    {"symbol": "xyz:GOLD", "displaySymbol": "GOLD", "assetId": "GOLD", "assetName": "Gold", "exchange": "Hyperliquid", "dex": "xyz", "enabled": True},
     {"symbol": "XAUUSDT", "displaySymbol": "XAU", "assetId": "GOLD", "assetName": "Gold", "exchange": "Binance", "enabled": True},
     {"symbol": "XAUTUSDT", "displaySymbol": "XAUT", "assetId": "GOLD", "assetName": "Gold", "exchange": "Bybit", "enabled": True},
     {"symbol": "AMZNUSDT", "displaySymbol": "AMZN", "assetId": "AMZN", "assetName": "Amazon", "exchange": "Binance", "enabled": True},
@@ -31,7 +32,7 @@ PAIRS = [
     {"symbol": "QQQUSDT", "displaySymbol": "QQQ", "assetId": "QQQ", "assetName": "QQQ", "exchange": "Binance", "enabled": True},
     {"symbol": "SPYUSDT", "displaySymbol": "SPY", "assetId": "SPY", "assetName": "SPY", "exchange": "Binance", "enabled": True}
 ]
-WINDOWS = {"7D": 7, "30D": 30, "90D": 90}
+WINDOWS = {"1D": 1, "7D": 7, "30D": 30, "90D": 90}
 DATA_PATH = Path("funding_data.json")
 MAX_RETRIES = 4
 RETRY_BASE_DELAY = 1.5
@@ -386,6 +387,7 @@ def main():
                 "Hyperliquid xyz:GOOGL": "HIP-3 builder-deployed perp on dex xyz; hourly funding history available via public info API",
                 "SAMSUNG": "Binance symbol is SAMSUNGUSDT; Hyperliquid API symbol is xyz:SMSN",
                 "SKHYNIX": "Binance symbol is SKHYNIXUSDT; Hyperliquid API symbol is xyz:SKHX",
+                "GOLD": "Binance symbol is XAUUSDT; Bybit symbol is XAUTUSDT; Hyperliquid API symbol is xyz:GOLD",
                 "Bybit GOOGLUSDT": "Funding history and current snapshot available via public linear market API",
                 "Binance XAUUSDT": "Funding history and current snapshot available via public futures API",
                 "Bybit XAUTUSDT": "Funding history and current snapshot available via public linear market API",
