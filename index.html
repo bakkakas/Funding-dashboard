@@ -69,8 +69,11 @@
     <div class="toolbar" id="favoriteTabs"></div>
     <div class="toolbar2" id="windowTabs"></div>
     <div class="card" style="margin-bottom:16px;">
-      <h3 class="section-title">Pair 확장 안내</h3>
-      <div class="sub" style="margin:0;">현재는 Hyperliquid xyz HIP-3 perp, Binance, Bybit 일부 선물을 자동 지원한다. 새 pair를 추가하려면 repo의 <code>update_data.py</code> 안 <code>PAIRS</code> 리스트에 거래소와 종목을 추가하면 된다.</div>
+      <h3 class="section-title">거래소/마켓 내역</h3>
+      <table>
+        <thead><tr><th>거래소/마켓</th><th>상태</th><th>메모</th></tr></thead>
+        <tbody id="comparisonBody"></tbody>
+      </table>
     </div>
 
     <div class="grid">
@@ -93,14 +96,6 @@
           <tr><td class="muted">해당 구간 Annualized</td><td id="summaryAnnualized">-</td></tr>
           <tr><td class="muted">해석</td><td id="interpretation">-</td></tr>
         </tbody></table>
-      </div>
-
-      <div class="card half">
-        <h3 class="section-title">거래소 비교 상태</h3>
-        <table>
-          <thead><tr><th>거래소/마켓</th><th>상태</th><th>메모</th></tr></thead>
-          <tbody id="comparisonBody"></tbody>
-        </table>
       </div>
 
       <div class="card wide"><h3 class="section-title">Price Chart</h3><canvas id="priceChart"></canvas><div class="note">선택 구간의 mark price 흐름. TradingView 스타일에 가깝게 어두운 배경/라인 중심으로 표시.</div></div>

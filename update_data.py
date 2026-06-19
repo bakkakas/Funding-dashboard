@@ -390,16 +390,14 @@ def main():
                 "GOLD": "Binance symbol is XAUUSDT; Bybit symbol is XAUTUSDT; Hyperliquid API symbol is xyz:GOLD",
                 "Bybit GOOGLUSDT": "Funding history and current snapshot available via public linear market API",
                 "Binance XAUUSDT": "Funding history and current snapshot available via public futures API",
-                "Bybit XAUTUSDT": "Funding history and current snapshot available via public linear market API",
-                "THENA GOOGLUSDT": "public page/API access currently blocked (403) in this environment"
+                "Bybit XAUTUSDT": "Funding history and current snapshot available via public linear market API"
             }
         },
         "pairs": {},
         "comparisons": {
             "Binance": {"supported": True, "notes": "Funding history available via public futures API"},
             "Bybit": {"supported": True, "notes": "Funding history + current snapshot available via public linear market API"},
-            "Hyperliquid": {"supported": True, "notes": "HIP-3 xyz perp funding history + current snapshot available via public info API"},
-            "THENA GOOGLUSDT": {"supported": False, "notes": "Public endpoint unavailable from current environment (403)"}
+            "Hyperliquid": {"supported": True, "notes": "HIP-3 xyz perp funding history + current snapshot available via public info API"}
         }
     }
 
