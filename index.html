@@ -22,11 +22,14 @@
     .pair-select { flex:2 1 420px; min-width:280px; }
     .chip { border:1px solid var(--line); background:var(--panel); color:var(--text); border-radius:999px; padding:10px 14px; cursor:pointer; font-weight:600; }
     .chip.active { background:var(--accent); color:#07101f; border-color:transparent; }
+    .top-grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; margin-bottom:16px; align-items:stretch; }
+    .top-panel { grid-column:span 6; margin-bottom:0; }
+    .rate-combo { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .rate-item { min-width:0; }
+    .rate-item .value { font-size:36px; }
     .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
     .card { background:rgba(18,25,43,0.94); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,0.18); }
     .metric { grid-column:span 3; }
-    .metric.primary { grid-column:span 6; }
-    .metric.primary .value { font-size:36px; }
     .wide { grid-column:span 12; }
     .half { grid-column:span 6; }
     .label { color:var(--muted); font-size:14px; }
@@ -39,6 +42,7 @@
     table { width:100%; border-collapse:collapse; font-size:14px; }
     th,td { text-align:left; padding:11px 10px; border-bottom:1px solid var(--line); }
     th { color:var(--muted); font-size:13px; font-weight:600; position:sticky; top:0; background:rgba(18,25,43,0.98); }
+    .summary-table th,.summary-table td { text-align:center; }
     .table-wrap { max-height:620px; overflow:auto; border-radius:12px; border:1px solid var(--line); }
     .pill { display:inline-flex; align-items:center; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:700; }
     .pill.good { background:rgba(46,204,113,0.14); color:var(--good); }
@@ -53,7 +57,8 @@
     .countdown { font-variant-numeric:tabular-nums; letter-spacing:0.02em; }
     canvas { width:100% !important; height:320px !important; }
     code { background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; }
-    @media (max-width:1100px){ .metric,.metric.primary,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } }
+    @media (max-width:1100px){ .top-panel,.metric,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } }
+    @media (max-width:700px){ .rate-combo { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -72,33 +77,36 @@
     <div class="toolbar"><select id="assetSelect" class="field pair-select"></select><select id="exchangeSelect" class="field"></select><select id="sortMode" class="field"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
     <div class="toolbar" id="favoriteTabs"></div>
     <div class="toolbar2" id="windowTabs"></div>
-    <div class="card" style="margin-bottom:16px;">
-      <h3 class="section-title">지원 거래소</h3>
-      <table>
-        <thead><tr><th>거래소</th><th>페어</th></tr></thead>
-        <tbody id="comparisonBody"></tbody>
-      </table>
+    <div class="top-grid">
+      <div class="card top-panel">
+        <h3 class="section-title" id="supportTitle">지원 거래소</h3>
+        <table>
+          <thead><tr><th>거래소</th><th>페어</th></tr></thead>
+          <tbody id="comparisonBody"></tbody>
+        </table>
+      </div>
+      <div class="card top-panel">
+        <h3 class="section-title">핵심 지표</h3>
+        <div class="rate-combo">
+          <div class="rate-item"><div class="label">현재 Funding Rate</div><div class="value" id="latestFunding">-</div><div class="mini">거래소 public API 기준 최신값</div></div>
+          <div class="rate-item"><div class="label">Annualized</div><div class="value" id="annualized">-</div><div class="mini">Long → Short = 음수 / Short → Long = 양수</div></div>
+        </div>
+      </div>
     </div>
 
     <div class="grid">
-      <div class="card metric primary"><div class="label">현재 Funding Rate</div><div class="value" id="latestFunding">-</div><div class="mini">거래소 public API 기준 최신값</div></div>
-      <div class="card metric primary"><div class="label">Annualized</div><div class="value" id="annualized">-</div><div class="mini">Long → Short = 음수 / Short → Long = 양수</div></div>
-      <div class="card metric"><div class="label">선택 종목</div><div class="value" id="pairName">-</div><div class="mini" id="exchangeName">-</div></div>
       <div class="card metric"><div class="label">다음 Funding</div><div class="value countdown" id="nextFunding">-</div><div class="mini" id="nextFundingAt">다음 정산까지 남은 시간</div></div>
       <div class="card metric"><div class="label">현재 Price</div><div class="value" id="priceCard">-</div><div class="mini"><strong style="color:#eef3ff">Mark:</strong> <span id="markPrice">-</span> &nbsp;|&nbsp; <strong style="color:#eef3ff">Index:</strong> <span id="indexPrice">-</span></div></div>
 
       <div class="card metric"><div class="label">표본 수</div><div class="value" id="sampleCount">-</div><div class="mini">선택 기간의 funding 회차 수</div></div>
       <div class="card metric"><div class="label">평균 funding / 회</div><div class="value" id="avgFunding">-</div><div class="mini">최근 선택 구간 평균</div></div>
 
-      <div class="card half">
+      <div class="card wide">
         <h3 class="section-title">요약</h3>
-        <table><tbody>
-          <tr><td class="muted">첫 회차</td><td id="firstTime">-</td></tr>
-          <tr><td class="muted">마지막 회차</td><td id="lastTime">-</td></tr>
-          <tr><td class="muted">누적 funding 합계</td><td id="sumFunding">-</td></tr>
-          <tr><td class="muted">해당 구간 Annualized</td><td id="summaryAnnualized">-</td></tr>
-          <tr><td class="muted">해석</td><td id="interpretation">-</td></tr>
-        </tbody></table>
+        <table class="summary-table">
+          <thead><tr><th>첫 회차</th><th>마지막 회차</th><th>누적 funding 합계</th><th>해석</th></tr></thead>
+          <tbody><tr><td id="firstTime">-</td><td id="lastTime">-</td><td id="sumFunding">-</td><td id="interpretation">-</td></tr></tbody>
+        </table>
       </div>
 
       <div class="card wide"><h3 class="section-title">Price Chart</h3><canvas id="priceChart"></canvas><div class="note">선택 구간의 mark price 흐름. TradingView 스타일에 가깝게 어두운 배경/라인 중심으로 표시.</div></div>
@@ -203,6 +211,7 @@
     function renderComparisons(){
       const body=document.getElementById('comparisonBody'); body.innerHTML='';
       const selected=state.data.pairs[state.selectedPair];
+      document.getElementById('supportTitle').textContent=`${assetName(selected)} 지원 거래소`;
       const sameSymbolPairs=Object.entries(state.data.pairs).filter(([_,pair])=>assetId(pair)===assetId(selected));
       sameSymbolPairs.forEach(([pairKey,pair])=>{
         const tr=document.createElement('tr');
@@ -264,15 +273,13 @@
       const windowSummary=pair.windows[state.selectedWindow];
       const rows=getFilteredRows(pair);
       const latest=getLatestForPair(state.selectedPair, pair);
-      document.getElementById('pairName').textContent=assetName(pair); const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedPair)?'★':'☆')+' 즐겨찾기';
-      document.getElementById('exchangeName').textContent=`${pair.exchange} · ${displaySymbol(pair)} · ${state.selectedWindow}`;
+      const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedPair)?'★':'☆')+' 즐겨찾기';
       document.getElementById('sampleCount').textContent=windowSummary.count;
       document.getElementById('avgFunding').textContent=fmtPct(windowSummary.avgFundingRate);
       const annual=document.getElementById('annualized'); annual.textContent=fmtAnnual(windowSummary.annualizedPct); annual.className='value '+(windowSummary.annualizedPct>=0?'good':'bad');
       document.getElementById('firstTime').textContent=windowSummary.firstFundingTime ? toKST(windowSummary.firstFundingTime) : '-';
       document.getElementById('lastTime').textContent=windowSummary.lastFundingTime ? toKST(windowSummary.lastFundingTime) : '-';
       document.getElementById('sumFunding').textContent=fmtPct(windowSummary.sumFundingRate);
-      document.getElementById('summaryAnnualized').textContent=fmtAnnual(windowSummary.annualizedPct);
       document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate < 0 ? '<span class="pill good">Short → Long</span>' : '<span class="pill bad">Long → Short</span>';
 
       if (latest.lastFundingRate == null) {
