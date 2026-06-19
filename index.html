@@ -6,6 +6,8 @@
   <title>Funding Dashboard</title>
   <link rel="icon" href="data:," />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-config.js"></script>
   <style>
     :root { --bg:#07110c; --panel:#0d1712; --panel2:#102019; --panel3:#14251d; --text:#dce8df; --muted:#82958b; --line:#20362b; --good:#00c076; --bad:#f08a8a; --warn:#f5c451; --accent:#23e7a5; --accent2:#3f8cff; --pair:#8ea2ff; }
     * { box-sizing:border-box; }
@@ -189,6 +191,11 @@
     const FX_LATEST_URL = 'https://open.er-api.com/v6/latest/USD';
     const FX_REFERENCE_URL = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
     const AUTH_BACKEND_CONFIGURED = false;
+    const SUPABASE_CONFIG = window.FUNDING_SUPABASE || {};
+    const SUPABASE_URL = SUPABASE_CONFIG.url || '';
+    const SUPABASE_ANON_KEY = SUPABASE_CONFIG.anonKey || '';
+    const SUPABASE_FUNCTIONS_BASE_URL = (SUPABASE_CONFIG.functionsBaseUrl || (SUPABASE_URL ? `${SUPABASE_URL}/functions/v1` : '')).replace(/\/$/, '');
+    const ANALYTICS_BACKEND_CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_FUNCTIONS_BASE_URL);
 
     let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{}, auth:null, authMode:'login', draggedFavorite:null };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
@@ -247,6 +254,31 @@
       localStorage.setItem('dashboardLocalVisits', String(total));
       localStorage.setItem('dashboardDailyVisits', String(lastDay === today ? daily : 1));
       localStorage.setItem('dashboardLastVisitDay', today);
+      trackSupabaseVisit();
+    }
+    function visitorStorageKey(){ return 'fundingDashboardVisitorId'; }
+    function getVisitorId(){
+      let visitorId = localStorage.getItem(visitorStorageKey());
+      if(!visitorId){
+        visitorId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        localStorage.setItem(visitorStorageKey(), visitorId);
+      }
+      return visitorId;
+    }
+    function trackSupabaseVisit(){
+      if(!ANALYTICS_BACKEND_CONFIGURED) return;
+      fetch(`${SUPABASE_FUNCTIONS_BASE_URL}/track-visit`, {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'apikey':SUPABASE_ANON_KEY,
+        },
+        body:JSON.stringify({
+          visitorId:getVisitorId(),
+          path:location.pathname + location.search,
+          referrer:document.referrer || '',
+        }),
+      }).catch(console.error);
     }
     function authStorageKey(){ return 'fundingDashboardAuthUser'; }
     function favoriteStorageKey(){

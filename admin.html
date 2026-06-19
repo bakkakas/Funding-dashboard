@@ -5,28 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Funding Dashboard Admin</title>
   <link rel="icon" href="data:," />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-config.js"></script>
   <style>
-    :root { --bg:#070a0f; --panel:#0d1117; --text:#dce3ea; --muted:#7d8a98; --line:#202833; --good:#00c076; --bad:#f6465d; --warn:#f5c451; --accent:#23e7a5; }
+    :root { --bg:#07110c; --panel:#0d1712; --panel2:#102019; --text:#dce8df; --muted:#82958b; --line:#20362b; --good:#00c076; --bad:#f08a8a; --warn:#f5c451; --accent:#23e7a5; }
     * { box-sizing:border-box; }
-    body { margin:0; background:radial-gradient(circle at 50% 0%,rgba(35,231,165,0.09),transparent 28%),linear-gradient(180deg,#070a0f 0%,#0a0e14 100%); color:var(--text); font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,sans-serif; }
+    body { margin:0; background:radial-gradient(circle at 50% 0%,rgba(35,231,165,0.18),transparent 32%),linear-gradient(180deg,#07110c 0%,#0a1710 46%,#07100c 100%); color:var(--text); font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,sans-serif; }
     .wrap { max-width:1180px; margin:0 auto; padding:24px; }
     .header { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; margin-bottom:18px; }
     h1 { margin:0; font-size:28px; letter-spacing:0; }
     .sub { margin-top:8px; color:var(--muted); font-size:14px; line-height:1.5; }
-    .chip { display:inline-flex; align-items:center; border:1px solid var(--line); background:#0a0f15; color:var(--text); border-radius:8px; padding:10px 13px; cursor:pointer; font-weight:800; text-decoration:none; }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .chip { display:inline-flex; align-items:center; border:1px solid var(--line); background:#07140f; color:var(--text); border-radius:8px; padding:10px 13px; cursor:pointer; font-weight:800; text-decoration:none; }
     .chip:hover { border-color:rgba(35,231,165,0.45); color:#f4fff9; }
+    .chip.active { background:rgba(35,231,165,0.14); color:var(--accent); border-color:rgba(35,231,165,0.5); }
     .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
-    .card { grid-column:span 4; background:rgba(13,17,23,0.95); border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 14px 34px rgba(0,0,0,0.24); }
+    .card { grid-column:span 3; background:rgba(13,23,18,0.95); border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 14px 34px rgba(0,0,0,0.24); }
     .wide { grid-column:span 12; }
+    .half { grid-column:span 6; }
     .label { color:var(--muted); font-size:13px; }
     .value { margin-top:10px; font-size:30px; font-weight:850; }
     .good { color:var(--good); }
+    .bad { color:var(--bad); }
     .warn { color:var(--warn); }
     .note { margin-top:12px; color:var(--muted); font-size:13px; line-height:1.6; }
+    .field { width:100%; background:#07140f; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:11px 13px; outline:none; }
+    .field:focus { border-color:rgba(35,231,165,0.75); box-shadow:0 0 0 2px rgba(35,231,165,0.12); }
+    .login-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; align-items:end; margin-top:12px; }
     table { width:100%; border-collapse:collapse; font-size:14px; margin-top:8px; }
     th,td { text-align:left; padding:11px 10px; border-bottom:1px solid var(--line); }
-    th { color:var(--muted); font-size:12px; font-weight:800; background:rgba(13,17,23,0.98); }
-    @media (max-width:900px){ .header { flex-direction:column; align-items:flex-start; } .card { grid-column:span 12; } }
+    th { color:var(--muted); font-size:12px; font-weight:800; background:rgba(13,23,18,0.98); }
+    .status-box { background:rgba(245,196,81,0.1); border:1px solid rgba(245,196,81,0.25); border-radius:8px; padding:12px; color:var(--warn); font-weight:800; }
+    code { background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; }
+    @media (max-width:900px){ .header { flex-direction:column; align-items:flex-start; } .actions { justify-content:flex-start; } .card,.half { grid-column:span 12; } .login-grid { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -34,52 +45,170 @@
     <div class="header">
       <div>
         <h1>Funding Dashboard Admin</h1>
-        <div class="sub">방문자 수와 회원수 확인용 관리자 페이지. 정적 배포 상태에서는 전체 집계 대신 로컬 브라우저 기준 값과 백엔드 연결 상태를 표시해.</div>
+        <div class="sub">Supabase 기준 방문자, 회원, 국가별 유입을 보는 관리자 페이지.</div>
       </div>
-      <a class="chip" href="./index.html">대시보드로</a>
+      <div class="actions">
+        <button class="chip" id="logoutButton" type="button" style="display:none;">로그아웃</button>
+        <a class="chip" href="./index.html">대시보드로</a>
+      </div>
     </div>
 
     <div class="grid">
+      <div class="card wide" id="setupCard">
+        <div class="label">Supabase 연결 상태</div>
+        <div class="status-box" id="setupStatus">설정 확인 중</div>
+        <div class="note">
+          <code>supabase-config.js</code>에 Project URL과 anon public key가 들어가면 Supabase 집계 모드로 전환돼.
+          service role key는 프론트 코드에 넣지 않고 Edge Function secret으로만 사용해야 해.
+        </div>
+      </div>
+
+      <div class="card wide" id="loginCard" style="display:none;">
+        <div class="label">관리자 로그인</div>
+        <div class="login-grid">
+          <input class="field" id="adminEmail" type="email" autocomplete="email" placeholder="admin@example.com" />
+          <input class="field" id="adminPassword" type="password" autocomplete="current-password" placeholder="password" />
+          <button class="chip active" id="loginButton" type="button">로그인</button>
+        </div>
+        <div class="note" id="loginStatus">Supabase Auth 계정 중 <code>profiles.role = 'admin'</code>인 계정만 집계를 볼 수 있어.</div>
+      </div>
+
       <div class="card">
-        <div class="label">방문자 수</div>
-        <div class="value" id="visitorCount">-</div>
-        <div class="note">현재 브라우저에서 기록된 방문 수.</div>
+        <div class="label">오늘 방문자</div>
+        <div class="value" id="todayVisitors">-</div>
+        <div class="note">KST 기준 오늘의 고유 방문자.</div>
+      </div>
+      <div class="card">
+        <div class="label">전체 방문자</div>
+        <div class="value" id="totalVisitors">-</div>
+        <div class="note">익명 visitor_id 기준 전체 고유 방문자.</div>
+      </div>
+      <div class="card">
+        <div class="label">전체 페이지뷰</div>
+        <div class="value" id="totalPageviews">-</div>
+        <div class="note">전체 방문 이벤트 수.</div>
       </div>
       <div class="card">
         <div class="label">회원수</div>
         <div class="value" id="memberCount">-</div>
-        <div class="note">실제 전체 회원수는 Firebase/Supabase 연결 후 표시 가능.</div>
-      </div>
-      <div class="card">
-        <div class="label">즐겨찾기 동기화</div>
-        <div class="value warn" id="syncStatus">대기</div>
-        <div class="note">백엔드 키 연결 전에는 기기 간 동기화가 비활성화돼.</div>
+        <div class="note">Supabase Auth profile 기준.</div>
       </div>
 
-      <div class="card wide">
-        <div class="label">관리 상태</div>
+      <div class="card half">
+        <div class="label">일자별 방문자</div>
         <table>
-          <thead><tr><th>항목</th><th>현재 상태</th><th>실서비스 연결 시</th></tr></thead>
-          <tbody>
-            <tr><td>회원가입 / 로그인</td><td>프론트 UI + 로컬 저장</td><td>Auth provider 연결</td></tr>
-            <tr><td>Google 가입</td><td>버튼 및 플로우 준비</td><td>OAuth Client 연결</td></tr>
-            <tr><td>방문자 집계</td><td>로컬 방문 카운트</td><td>Analytics / DB 집계</td></tr>
-            <tr><td>회원수 집계</td><td>현재 브라우저 계정 0/1명</td><td>회원 DB count</td></tr>
-          </tbody>
+          <thead><tr><th>날짜</th><th>방문자</th><th>페이지뷰</th></tr></thead>
+          <tbody id="dailyBody"><tr><td colspan="3">-</td></tr></tbody>
+        </table>
+      </div>
+      <div class="card half">
+        <div class="label">국가별 방문자</div>
+        <table>
+          <thead><tr><th>국가</th><th>방문자</th><th>페이지뷰</th></tr></thead>
+          <tbody id="countryBody"><tr><td colspan="3">-</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
   <script>
-    const totalVisits = Number(localStorage.getItem('dashboardLocalVisits') || '0');
-    const authUser = (() => {
-      try { return JSON.parse(localStorage.getItem('fundingDashboardAuthUser') || 'null'); } catch(e) { return null; }
-    })();
-    document.getElementById('visitorCount').textContent = totalVisits.toLocaleString('en-US');
-    document.getElementById('memberCount').textContent = authUser ? '1' : '0';
-    document.getElementById('syncStatus').textContent = authUser ? '로컬 저장' : '대기';
-    document.getElementById('syncStatus').className = 'value ' + (authUser ? 'good' : 'warn');
+    const config = window.FUNDING_SUPABASE || {};
+    const hasConfig = Boolean(config.url && config.anonKey && window.supabase);
+    const client = hasConfig ? window.supabase.createClient(config.url, config.anonKey) : null;
+    const setupStatus = document.getElementById('setupStatus');
+    const loginCard = document.getElementById('loginCard');
+    const loginStatus = document.getElementById('loginStatus');
+    const logoutButton = document.getElementById('logoutButton');
+
+    function fmt(value){ return Number(value || 0).toLocaleString('en-US'); }
+    function setText(id, value){ document.getElementById(id).textContent = value; }
+    function renderRows(tbodyId, rows, columns){
+      const body = document.getElementById(tbodyId);
+      body.innerHTML = '';
+      if(!rows || !rows.length){
+        body.innerHTML = `<tr><td colspan="${columns.length}">데이터 없음</td></tr>`;
+        return;
+      }
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        columns.forEach(column => {
+          const td = document.createElement('td');
+          td.textContent = column.format ? column.format(row[column.key]) : (row[column.key] || '-');
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+    }
+    function clearStats(){
+      ['todayVisitors','totalVisitors','totalPageviews','memberCount'].forEach(id=>setText(id, '-'));
+      renderRows('dailyBody', [], [{key:'day'}]);
+      renderRows('countryBody', [], [{key:'country'}]);
+    }
+    async function loadStats(){
+      if(!client) return;
+      const { data: sessionData } = await client.auth.getSession();
+      if(!sessionData.session){
+        setupStatus.textContent = 'Supabase 설정 완료. 관리자 로그인이 필요해.';
+        setupStatus.className = 'status-box';
+        loginCard.style.display = 'block';
+        logoutButton.style.display = 'none';
+        clearStats();
+        return;
+      }
+
+      loginCard.style.display = 'none';
+      logoutButton.style.display = 'inline-flex';
+      setupStatus.textContent = `로그인됨: ${sessionData.session.user.email || sessionData.session.user.id}`;
+      setupStatus.className = 'status-box good';
+
+      const { data, error } = await client.rpc('admin_dashboard_stats', { days_back: 30 });
+      if(error){
+        setupStatus.textContent = `집계 조회 실패: ${error.message}`;
+        setupStatus.className = 'status-box';
+        clearStats();
+        return;
+      }
+
+      setText('todayVisitors', fmt(data.todayVisitors));
+      setText('totalVisitors', fmt(data.totalVisitors));
+      setText('totalPageviews', fmt(data.totalPageviews));
+      setText('memberCount', fmt(data.memberCount));
+      renderRows('dailyBody', data.daily, [
+        { key:'day' },
+        { key:'visitors', format:fmt },
+        { key:'pageviews', format:fmt },
+      ]);
+      renderRows('countryBody', data.countries, [
+        { key:'country' },
+        { key:'visitors', format:fmt },
+        { key:'pageviews', format:fmt },
+      ]);
+    }
+
+    document.getElementById('loginButton').addEventListener('click', async () => {
+      if(!client) return;
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      const { error } = await client.auth.signInWithPassword({ email, password });
+      if(error){
+        loginStatus.textContent = error.message;
+        return;
+      }
+      loginStatus.textContent = '로그인 완료';
+      loadStats();
+    });
+    logoutButton.addEventListener('click', async () => {
+      if(client) await client.auth.signOut();
+      loadStats();
+    });
+
+    if(!hasConfig){
+      setupStatus.textContent = 'Supabase URL / anon key 미설정. 현재는 연결 대기 상태야.';
+      setupStatus.className = 'status-box';
+      clearStats();
+    } else {
+      loadStats();
+    }
   </script>
 </body>
 </html>
