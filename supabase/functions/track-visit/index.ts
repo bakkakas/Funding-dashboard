@@ -12,6 +12,21 @@ async function sha256(value: string) {
   return Array.from(new Uint8Array(hash)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
+async function lookupCountry(ip: string) {
+  if (!ip || ip === "127.0.0.1" || ip.startsWith("10.") || ip.startsWith("192.168.")) return "Unknown";
+  try {
+    const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}?fields=success,country,country_code`, {
+      headers: { "Accept": "application/json" },
+    });
+    if (!res.ok) return "Unknown";
+    const json = await res.json();
+    if (!json.success) return "Unknown";
+    return json.country || json.country_code || "Unknown";
+  } catch (_err) {
+    return "Unknown";
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -38,12 +53,12 @@ Deno.serve(async (req) => {
   const body = await req.json().catch(() => ({}));
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("cf-connecting-ip") || "";
   const userAgent = req.headers.get("user-agent") || "";
-  const country =
+  const headerCountry =
     req.headers.get("cf-ipcountry") ||
     req.headers.get("x-vercel-ip-country") ||
     req.headers.get("x-country-code") ||
-    body.country ||
-    "Unknown";
+    body.country;
+  const country = headerCountry || await lookupCountry(ip);
 
   const visitorId = String(body.visitorId || "");
   if (!visitorId) {
