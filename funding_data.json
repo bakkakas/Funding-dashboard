@@ -1,5 +1,5 @@
 {
-  "updatedAt": 1782082866263,
+  "updatedAt": 1782083985065,
   "meta": {
     "windows": {
       "1D": 1,
@@ -7,8 +7,179 @@
       "30D": 30,
       "90D": 90
     },
-    "partialFailure": false,
-    "errors": [],
+    "partialFailure": true,
+    "errors": [
+      {
+        "key": "Binance:GOOGLUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=GOOGLUSDT&startTime=1774307997114&endTime=1782083997114&limit=1000: HTTP Error 451: ",
+        "time": 1782084006405
+      },
+      {
+        "key": "Bybit:GOOGLUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=GOOGLUSDT&startTime=1774308015793&endTime=1782084015793&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084024950
+      },
+      {
+        "key": "Binance:SAMSUNGUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=SAMSUNGUSDT&startTime=1774308037238&endTime=1782084037238&limit=1000: HTTP Error 451: ",
+        "time": 1782084046370
+      },
+      {
+        "key": "Bybit:SAMSUNGUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=SAMSUNGUSDT&startTime=1774308055493&endTime=1782084055493&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084064668
+      },
+      {
+        "key": "Binance:SKHYNIXUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=SKHYNIXUSDT&startTime=1774308076902&endTime=1782084076902&limit=1000: HTTP Error 451: ",
+        "time": 1782084086085
+      },
+      {
+        "key": "Bybit:SKHYNIXUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=SKHYNIXUSDT&startTime=1774308095375&endTime=1782084095375&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084104531
+      },
+      {
+        "key": "Binance:XAUUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=XAUUSDT&startTime=1774308117125&endTime=1782084117125&limit=1000: HTTP Error 451: ",
+        "time": 1782084126342
+      },
+      {
+        "key": "Bybit:XAUTUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=XAUTUSDT&startTime=1774308135520&endTime=1782084135520&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084144669
+      },
+      {
+        "key": "Binance:AMZNUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=AMZNUSDT&startTime=1774308157133&endTime=1782084157133&limit=1000: HTTP Error 451: ",
+        "time": 1782084166344
+      },
+      {
+        "key": "Bybit:AMZNUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=AMZNUSDT&startTime=1774308175595&endTime=1782084175595&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084184750
+      },
+      {
+        "key": "Binance:AAPLUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=AAPLUSDT&startTime=1774308197020&endTime=1782084197020&limit=1000: HTTP Error 451: ",
+        "time": 1782084206176
+      },
+      {
+        "key": "Bybit:AAPLUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=AAPLUSDT&startTime=1774308215359&endTime=1782084215359&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084224524
+      },
+      {
+        "key": "Binance:TSLAUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=TSLAUSDT&startTime=1774308236873&endTime=1782084236873&limit=1000: HTTP Error 451: ",
+        "time": 1782084246032
+      },
+      {
+        "key": "Bybit:TSLAUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=TSLAUSDT&startTime=1774308255306&endTime=1782084255306&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084264493
+      },
+      {
+        "key": "Binance:NVDAUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=NVDAUSDT&startTime=1774308276827&endTime=1782084276827&limit=1000: HTTP Error 451: ",
+        "time": 1782084285984
+      },
+      {
+        "key": "Bybit:NVDAUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=NVDAUSDT&startTime=1774308295227&endTime=1782084295227&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084304366
+      },
+      {
+        "key": "Binance:METAUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=METAUSDT&startTime=1774308316290&endTime=1782084316290&limit=1000: HTTP Error 451: ",
+        "time": 1782084325468
+      },
+      {
+        "key": "Bybit:METAUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=METAUSDT&startTime=1774308334625&endTime=1782084334625&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084343886
+      },
+      {
+        "key": "Binance:MSFTUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=MSFTUSDT&startTime=1774308356213&endTime=1782084356213&limit=1000: HTTP Error 451: ",
+        "time": 1782084365385
+      },
+      {
+        "key": "Bybit:MSFTUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=MSFTUSDT&startTime=1774308374998&endTime=1782084374998&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084384447
+      },
+      {
+        "key": "Binance:MSTRUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=MSTRUSDT&startTime=1774308396553&endTime=1782084396553&limit=1000: HTTP Error 451: ",
+        "time": 1782084405795
+      },
+      {
+        "key": "Bybit:MSTRUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=MSTRUSDT&startTime=1774308415301&endTime=1782084415301&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084424786
+      },
+      {
+        "key": "Binance:COINUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=COINUSDT&startTime=1774308436206&endTime=1782084436206&limit=1000: HTTP Error 451: ",
+        "time": 1782084445391
+      },
+      {
+        "key": "Bybit:COINUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=COINUSDT&startTime=1774308454696&endTime=1782084454696&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084463874
+      },
+      {
+        "key": "Binance:TSMUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=TSMUSDT&startTime=1774308476517&endTime=1782084476517&limit=1000: HTTP Error 451: ",
+        "time": 1782084486038
+      },
+      {
+        "key": "Bybit:TSMUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=TSMUSDT&startTime=1774308495179&endTime=1782084495179&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084504386
+      },
+      {
+        "key": "Binance:PLTRUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=PLTRUSDT&startTime=1774308517021&endTime=1782084517021&limit=1000: HTTP Error 451: ",
+        "time": 1782084526496
+      },
+      {
+        "key": "Bybit:PLTRUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=PLTRUSDT&startTime=1774308535798&endTime=1782084535798&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084544981
+      },
+      {
+        "key": "Binance:BABAUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=BABAUSDT&startTime=1774308558082&endTime=1782084558082&limit=1000: HTTP Error 451: ",
+        "time": 1782084567294
+      },
+      {
+        "key": "Bybit:BABAUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=BABAUSDT&startTime=1774308576497&endTime=1782084576497&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084585631
+      },
+      {
+        "key": "Binance:QQQUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=QQQUSDT&startTime=1774308594877&endTime=1782084594877&limit=1000: HTTP Error 451: ",
+        "time": 1782084604093
+      },
+      {
+        "key": "Bybit:QQQUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=QQQUSDT&startTime=1774308613313&endTime=1782084613313&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084622457
+      },
+      {
+        "key": "Binance:SPYUSDT",
+        "error": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=SPYUSDT&startTime=1774308635526&endTime=1782084635526&limit=1000: HTTP Error 451: ",
+        "time": 1782084644712
+      },
+      {
+        "key": "Bybit:SPYUSDT",
+        "error": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=SPYUSDT&startTime=1774308653839&endTime=1782084653839&limit=200: HTTP Error 403: Forbidden",
+        "time": 1782084662973
+      }
+    ],
     "notes": {
       "Hyperliquid xyz:GOOGL": "HIP-3 builder-deployed perp on dex xyz; hourly funding history available via public info API",
       "SAMSUNG": "Binance symbol is SAMSUNGUSDT; Hyperliquid API symbol is xyz:SMSN",
@@ -64,14 +235,14 @@
         }
       },
       "latest": {
-        "markPrice": 363.84,
-        "indexPrice": 363.63,
-        "lastFundingRate": 3.81542e-05,
-        "premium": 0.0006888871,
+        "markPrice": 363.7,
+        "indexPrice": 363.68,
+        "lastFundingRate": 6.25e-06,
+        "premium": 7.42411e-05,
         "nextFundingTime": 1782086400000,
-        "time": 1782082866385,
-        "openInterest": 162395.84,
-        "dayNtlVlm": 1711170.1554000003,
+        "time": 1782083985403,
+        "openInterest": 162860.288,
+        "dayNtlVlm": 1815686.8435799996,
         "available": true
       },
       "rows": [
@@ -13033,7 +13204,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": -2.63856e-05,
           "premium": -0.0007221702,
-          "markPrice": 363.84
+          "markPrice": 363.75
         }
       ],
       "available": true
@@ -14466,7 +14637,9 @@
           "markPrice": 364.20376323
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=GOOGLUSDT&startTime=1774307997114&endTime=1782083997114&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084006405
     },
     "Bybit:GOOGLUSDT": {
       "key": "Bybit:GOOGLUSDT",
@@ -15356,7 +15529,9 @@
           "markPrice": 364.48
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=GOOGLUSDT&startTime=1774308015793&endTime=1782084015793&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084024950
     },
     "Hyperliquid:xyz:SMSN": {
       "key": "Hyperliquid:xyz:SMSN",
@@ -15402,14 +15577,14 @@
         }
       },
       "latest": {
-        "markPrice": 232.23,
-        "indexPrice": 230.21,
-        "lastFundingRate": 0.0011363332,
-        "premium": 0.0204769558,
+        "markPrice": 231.23,
+        "indexPrice": 228.66,
+        "lastFundingRate": 0.0007019271,
+        "premium": 0.0116461121,
         "nextFundingTime": 1782086400000,
-        "time": 1782082867990,
-        "openInterest": 102362.852,
-        "dayNtlVlm": 5542787.62604,
+        "time": 1782084025337,
+        "openInterest": 106525.214,
+        "dayNtlVlm": 7116392.78246,
         "available": true
       },
       "rows": [
@@ -28371,7 +28546,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": -0.000116555,
           "premium": -0.0021648806,
-          "markPrice": 234.94
+          "markPrice": 231.36
         }
       ],
       "available": true
@@ -28724,7 +28899,9 @@
           "markPrice": 241.67606978
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=SAMSUNGUSDT&startTime=1774308037238&endTime=1782084037238&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084046370
     },
     "Bybit:SAMSUNGUSDT": {
       "key": "Bybit:SAMSUNGUSDT",
@@ -29049,7 +29226,9 @@
           "markPrice": 240.17
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=SAMSUNGUSDT&startTime=1774308055493&endTime=1782084055493&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084064668
     },
     "Hyperliquid:xyz:SKHX": {
       "key": "Hyperliquid:xyz:SKHX",
@@ -29095,14 +29274,14 @@
         }
       },
       "latest": {
-        "markPrice": 1828.9,
-        "indexPrice": 1822.7,
-        "lastFundingRate": 0.0006251426,
-        "premium": 0.0146343337,
+        "markPrice": 1834.2,
+        "indexPrice": 1809.5,
+        "lastFundingRate": 0.0006979093,
+        "premium": 0.0153688864,
         "nextFundingTime": 1782086400000,
-        "time": 1782082869645,
-        "openInterest": 94706.7779999999,
-        "dayNtlVlm": 44081727.74709993,
+        "time": 1782084065065,
+        "openInterest": 99211.5780000001,
+        "dayNtlVlm": 55281061.3990002,
         "available": true
       },
       "rows": [
@@ -42064,7 +42243,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": -0.0002730704,
           "premium": -0.0046691263,
-          "markPrice": 1850.0
+          "markPrice": 1837.0
         }
       ],
       "available": true
@@ -42417,7 +42596,9 @@
           "markPrice": 1914.24088095
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=SKHYNIXUSDT&startTime=1774308076902&endTime=1782084076902&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084086085
     },
     "Bybit:SKHYNIXUSDT": {
       "key": "Bybit:SKHYNIXUSDT",
@@ -42742,7 +42923,9 @@
           "markPrice": 1915.04
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=SKHYNIXUSDT&startTime=1774308095375&endTime=1782084095375&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084104531
     },
     "Hyperliquid:xyz:GOLD": {
       "key": "Hyperliquid:xyz:GOLD",
@@ -42788,14 +42971,14 @@
         }
       },
       "latest": {
-        "markPrice": 4158.3,
-        "indexPrice": 4156.4,
-        "lastFundingRate": 9.6337e-06,
-        "premium": 0.0004884034,
+        "markPrice": 4157.4,
+        "indexPrice": 4155.3,
+        "lastFundingRate": 1.33829e-05,
+        "premium": 0.0005138017,
         "nextFundingTime": 1782086400000,
-        "time": 1782082871652,
-        "openInterest": 26239.9726,
-        "dayNtlVlm": 9375026.852180002,
+        "time": 1782084104852,
+        "openInterest": 26178.8852,
+        "dayNtlVlm": 9954116.54086,
         "available": true
       },
       "rows": [
@@ -55757,7 +55940,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": 1.18568e-05,
           "premium": 0.0004897088,
-          "markPrice": 4158.4
+          "markPrice": 4158.0
         }
       ],
       "available": true
@@ -58515,7 +58698,9 @@
           "markPrice": 4169.33
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=XAUUSDT&startTime=1774308117125&endTime=1782084117125&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084126342
     },
     "Bybit:XAUTUSDT": {
       "key": "Bybit:XAUTUSDT",
@@ -59570,7 +59755,9 @@
           "markPrice": 4143.3
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=XAUTUSDT&startTime=1774308135520&endTime=1782084135520&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084144669
     },
     "Hyperliquid:xyz:AMZN": {
       "key": "Hyperliquid:xyz:AMZN",
@@ -59616,14 +59803,14 @@
         }
       },
       "latest": {
-        "markPrice": 242.19,
-        "indexPrice": 242.19,
-        "lastFundingRate": -8.5436e-06,
-        "premium": 0.003976217,
+        "markPrice": 241.86,
+        "indexPrice": 242.09,
+        "lastFundingRate": -2.88737e-05,
+        "premium": -0.0013383452,
         "nextFundingTime": 1782086400000,
-        "time": 1782082873353,
-        "openInterest": 72186.92,
-        "dayNtlVlm": 864545.09734,
+        "time": 1782084145097,
+        "openInterest": 72581.954,
+        "dayNtlVlm": 849438.5959499999,
         "available": true
       },
       "rows": [
@@ -72585,7 +72772,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": -9.18116e-05,
           "premium": -0.0017689858,
-          "markPrice": 242.67
+          "markPrice": 241.82
         }
       ],
       "available": true
@@ -73993,7 +74180,9 @@
           "markPrice": 243.35
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=AMZNUSDT&startTime=1774308157133&endTime=1782084157133&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084166344
     },
     "Bybit:AMZNUSDT": {
       "key": "Bybit:AMZNUSDT",
@@ -74868,7 +75057,9 @@
           "markPrice": 243.27
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=AMZNUSDT&startTime=1774308175595&endTime=1782084175595&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084184750
     },
     "Hyperliquid:xyz:AAPL": {
       "key": "Hyperliquid:xyz:AAPL",
@@ -74914,14 +75105,14 @@
         }
       },
       "latest": {
-        "markPrice": 294.06,
-        "indexPrice": 294.31,
-        "lastFundingRate": -2.57788e-05,
-        "premium": -0.0007814889,
+        "markPrice": 294.05,
+        "indexPrice": 294.2,
+        "lastFundingRate": -1.47927e-05,
+        "premium": -0.0003942896,
         "nextFundingTime": 1782086400000,
-        "time": 1782082875916,
-        "openInterest": 54403.746,
-        "dayNtlVlm": 815983.0184800001,
+        "time": 1782084184917,
+        "openInterest": 55241.406,
+        "dayNtlVlm": 980613.7959299999,
         "available": true
       },
       "rows": [
@@ -87883,7 +88074,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": -5.81619e-05,
           "premium": -0.00123059,
-          "markPrice": 294.06
+          "markPrice": 294.09
         }
       ],
       "available": true
@@ -89246,7 +89437,9 @@
           "markPrice": 295.53558033
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=AAPLUSDT&startTime=1774308197020&endTime=1782084197020&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084206176
     },
     "Bybit:AAPLUSDT": {
       "key": "Bybit:AAPLUSDT",
@@ -90121,7 +90314,9 @@
           "markPrice": 295.48
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=AAPLUSDT&startTime=1774308215359&endTime=1782084215359&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084224524
     },
     "Hyperliquid:xyz:TSLA": {
       "key": "Hyperliquid:xyz:TSLA",
@@ -90167,14 +90362,14 @@
         }
       },
       "latest": {
-        "markPrice": 401.29,
-        "indexPrice": 401.49,
-        "lastFundingRate": -2.902e-05,
-        "premium": -0.000976363,
+        "markPrice": 401.34,
+        "indexPrice": 401.34,
+        "lastFundingRate": -1.59918e-05,
+        "premium": 0.0001980864,
         "nextFundingTime": 1782086400000,
-        "time": 1782082877695,
-        "openInterest": 71403.812,
-        "dayNtlVlm": 1549369.20168,
+        "time": 1782084224857,
+        "openInterest": 71720.188,
+        "dayNtlVlm": 1655567.3026899996,
         "available": true
       },
       "rows": [
@@ -103136,7 +103331,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": -3.8402e-06,
           "premium": -0.0003614435,
-          "markPrice": 401.09
+          "markPrice": 401.28
         }
       ],
       "available": true
@@ -104544,7 +104739,9 @@
           "markPrice": 402.6760153
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=TSLAUSDT&startTime=1774308236873&endTime=1782084236873&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084246032
     },
     "Bybit:TSLAUSDT": {
       "key": "Bybit:TSLAUSDT",
@@ -105524,7 +105721,9 @@
           "markPrice": 401.97
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=TSLAUSDT&startTime=1774308255306&endTime=1782084255306&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084264493
     },
     "Hyperliquid:xyz:NVDA": {
       "key": "Hyperliquid:xyz:NVDA",
@@ -105570,14 +105769,14 @@
         }
       },
       "latest": {
-        "markPrice": 208.96,
-        "indexPrice": 209.09,
-        "lastFundingRate": -3.44381e-05,
-        "premium": -0.001671529,
+        "markPrice": 208.83,
+        "indexPrice": 208.98,
+        "lastFundingRate": -2.8493e-05,
+        "premium": -0.0006986314,
         "nextFundingTime": 1782086400000,
-        "time": 1782082879513,
-        "openInterest": 860644.656,
-        "dayNtlVlm": 5765081.264039996,
+        "time": 1782084264823,
+        "openInterest": 861710.1399999999,
+        "dayNtlVlm": 5907629.4229,
         "available": true
       },
       "rows": [
@@ -118539,7 +118738,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": -6.1145e-06,
           "premium": -0.0003978313,
-          "markPrice": 208.76
+          "markPrice": 208.85
         }
       ],
       "available": true
@@ -119972,7 +120171,9 @@
           "markPrice": 209.39
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=NVDAUSDT&startTime=1774308276827&endTime=1782084276827&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084285984
     },
     "Bybit:NVDAUSDT": {
       "key": "Bybit:NVDAUSDT",
@@ -120727,7 +120928,9 @@
           "markPrice": 209.31
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=NVDAUSDT&startTime=1774308295227&endTime=1782084295227&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084304366
     },
     "Hyperliquid:xyz:META": {
       "key": "Hyperliquid:xyz:META",
@@ -120773,14 +120976,14 @@
         }
       },
       "latest": {
-        "markPrice": 571.13,
-        "indexPrice": 572.18,
-        "lastFundingRate": -0.0001421066,
-        "premium": -0.0027937013,
+        "markPrice": 570.48,
+        "indexPrice": 571.3,
+        "lastFundingRate": -0.000115062,
+        "premium": -0.0015622265,
         "nextFundingTime": 1782086400000,
-        "time": 1782082881092,
-        "openInterest": 33989.95,
-        "dayNtlVlm": 510813.3497800001,
+        "time": 1782084304693,
+        "openInterest": 34090.178,
+        "dayNtlVlm": 601721.08038,
         "available": true
       },
       "rows": [
@@ -133742,7 +133945,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": -0.0001247604,
           "premium": -0.0022961659,
-          "markPrice": 570.31
+          "markPrice": 570.48
         }
       ],
       "available": true
@@ -135175,7 +135378,9 @@
           "markPrice": 576.43701205
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=METAUSDT&startTime=1774308316290&endTime=1782084316290&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084325468
     },
     "Bybit:METAUSDT": {
       "key": "Bybit:METAUSDT",
@@ -136065,7 +136270,9 @@
           "markPrice": 577.04
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=METAUSDT&startTime=1774308334625&endTime=1782084334625&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084343886
     },
     "Hyperliquid:xyz:MSFT": {
       "key": "Hyperliquid:xyz:MSFT",
@@ -136111,14 +136318,14 @@
         }
       },
       "latest": {
-        "markPrice": 379.62,
-        "indexPrice": 379.98,
-        "lastFundingRate": -6.5536e-05,
-        "premium": -0.0015790305,
+        "markPrice": 378.34,
+        "indexPrice": 379.3,
+        "lastFundingRate": -0.0001262194,
+        "premium": -0.002802531,
         "nextFundingTime": 1782086400000,
-        "time": 1782082894814,
-        "openInterest": 147986.75,
-        "dayNtlVlm": 822659.9429799999,
+        "time": 1782084344288,
+        "openInterest": 148382.248,
+        "dayNtlVlm": 931570.6775199999,
         "available": true
       },
       "rows": [
@@ -149080,7 +149287,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": -3.51033e-05,
           "premium": -0.0008616523,
-          "markPrice": 379.44
+          "markPrice": 378.15
         }
       ],
       "available": true
@@ -150233,7 +150440,9 @@
           "markPrice": 381.09985913
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=MSFTUSDT&startTime=1774308356213&endTime=1782084356213&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084365385
     },
     "Bybit:MSFTUSDT": {
       "key": "Bybit:MSFTUSDT",
@@ -151123,7 +151332,9 @@
           "markPrice": 381.24
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=MSFTUSDT&startTime=1774308374998&endTime=1782084374998&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084384447
     },
     "Hyperliquid:xyz:MSTR": {
       "key": "Hyperliquid:xyz:MSTR",
@@ -151169,14 +151380,14 @@
         }
       },
       "latest": {
-        "markPrice": 114.78,
-        "indexPrice": 114.94,
-        "lastFundingRate": -0.0001115264,
-        "premium": -0.0026579085,
+        "markPrice": 114.89,
+        "indexPrice": 114.87,
+        "lastFundingRate": -3.54243e-05,
+        "premium": 2.61165e-05,
         "nextFundingTime": 1782086400000,
-        "time": 1782082909584,
-        "openInterest": 248338.768,
-        "dayNtlVlm": 4154649.799240002,
+        "time": 1782084384753,
+        "openInterest": 248459.104,
+        "dayNtlVlm": 3851959.7203300004,
         "available": true
       },
       "rows": [
@@ -164138,7 +164349,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": -9.36971e-05,
           "premium": -0.0017991532,
-          "markPrice": 114.59
+          "markPrice": 114.87
         }
       ],
       "available": true
@@ -165546,7 +165757,9 @@
           "markPrice": 117.15233018
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=MSTRUSDT&startTime=1774308396553&endTime=1782084396553&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084405795
     },
     "Bybit:MSTRUSDT": {
       "key": "Bybit:MSTRUSDT",
@@ -166406,7 +166619,9 @@
           "markPrice": 116.74
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=MSTRUSDT&startTime=1774308415301&endTime=1782084415301&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084424786
     },
     "Hyperliquid:xyz:COIN": {
       "key": "Hyperliquid:xyz:COIN",
@@ -166452,14 +166667,14 @@
         }
       },
       "latest": {
-        "markPrice": 165.46,
-        "indexPrice": 165.46,
-        "lastFundingRate": -8.5492e-06,
-        "premium": -0.0018977396,
+        "markPrice": 165.39,
+        "indexPrice": 165.4,
+        "lastFundingRate": -1.85207e-05,
+        "premium": -0.0010096735,
         "nextFundingTime": 1782086400000,
-        "time": 1782082920037,
-        "openInterest": 39537.054,
-        "dayNtlVlm": 792687.5781299997,
+        "time": 1782084425131,
+        "openInterest": 39746.822,
+        "dayNtlVlm": 825008.2021499998,
         "available": true
       },
       "rows": [
@@ -179421,7 +179636,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": 2.00962e-05,
           "premium": 0.000621539,
-          "markPrice": 165.21
+          "markPrice": 165.29
         }
       ],
       "available": true
@@ -180829,7 +181044,9 @@
           "markPrice": 166.13431938
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=COINUSDT&startTime=1774308436206&endTime=1782084436206&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084445391
     },
     "Bybit:COINUSDT": {
       "key": "Bybit:COINUSDT",
@@ -181689,7 +181906,9 @@
           "markPrice": 166.51
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=COINUSDT&startTime=1774308454696&endTime=1782084454696&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084463874
     },
     "Hyperliquid:xyz:TSM": {
       "key": "Hyperliquid:xyz:TSM",
@@ -181735,14 +181954,14 @@
         }
       },
       "latest": {
-        "markPrice": 459.47,
-        "indexPrice": 460.15,
-        "lastFundingRate": -8.73717e-05,
-        "premium": -0.001674454,
+        "markPrice": 459.21,
+        "indexPrice": 459.7,
+        "lastFundingRate": -7.5023e-05,
+        "premium": -0.0015281705,
         "nextFundingTime": 1782086400000,
-        "time": 1782082922038,
-        "openInterest": 21636.414,
-        "dayNtlVlm": 782532.98024,
+        "time": 1782084464168,
+        "openInterest": 21920.636,
+        "dayNtlVlm": 864953.4742200001,
         "available": true
       },
       "rows": [
@@ -194704,7 +194923,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": -0.0001227877,
           "premium": -0.0022646026,
-          "markPrice": 459.28
+          "markPrice": 459.21
         }
       ],
       "available": true
@@ -196002,7 +196221,9 @@
           "markPrice": 464.53
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=TSMUSDT&startTime=1774308476517&endTime=1782084476517&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084486038
     },
     "Bybit:TSMUSDT": {
       "key": "Bybit:TSMUSDT",
@@ -196967,7 +197188,9 @@
           "markPrice": 462.47
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=TSMUSDT&startTime=1774308495179&endTime=1782084495179&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084504386
     },
     "Hyperliquid:xyz:PLTR": {
       "key": "Hyperliquid:xyz:PLTR",
@@ -197013,14 +197236,14 @@
         }
       },
       "latest": {
-        "markPrice": 128.09,
-        "indexPrice": 128.23,
-        "lastFundingRate": -5.89186e-05,
-        "premium": -0.0015285035,
+        "markPrice": 127.94,
+        "indexPrice": 128.11,
+        "lastFundingRate": -6.14682e-05,
+        "premium": -0.001764109,
         "nextFundingTime": 1782086400000,
-        "time": 1782082924032,
-        "openInterest": 113139.592,
-        "dayNtlVlm": 731473.2918500002,
+        "time": 1782084504744,
+        "openInterest": 113307.398,
+        "dayNtlVlm": 747842.8691600001,
         "available": true
       },
       "rows": [
@@ -209982,7 +210205,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": -4.23287e-05,
           "premium": -0.0009772586,
-          "markPrice": 127.98
+          "markPrice": 127.92
         }
       ],
       "available": true
@@ -211390,7 +211613,9 @@
           "markPrice": 128.87
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=PLTRUSDT&startTime=1774308517021&endTime=1782084517021&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084526496
     },
     "Bybit:PLTRUSDT": {
       "key": "Bybit:PLTRUSDT",
@@ -212250,7 +212475,9 @@
           "markPrice": 128.7
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=PLTRUSDT&startTime=1774308535798&endTime=1782084535798&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084544981
     },
     "Hyperliquid:xyz:BABA": {
       "key": "Hyperliquid:xyz:BABA",
@@ -212296,14 +212523,14 @@
         }
       },
       "latest": {
-        "markPrice": 107.71,
-        "indexPrice": 107.64,
-        "lastFundingRate": 1.77298e-05,
-        "premium": 0.0,
+        "markPrice": 107.53,
+        "indexPrice": 107.66,
+        "lastFundingRate": 6.25e-06,
+        "premium": -0.0026983095,
         "nextFundingTime": 1782086400000,
-        "time": 1782082926282,
-        "openInterest": 32526.7,
-        "dayNtlVlm": 63858.52282,
+        "time": 1782084545405,
+        "openInterest": 32541.764,
+        "dayNtlVlm": 64453.78187,
         "available": true
       },
       "rows": [
@@ -225265,7 +225492,7 @@
           "fundingTime": 1782082800061,
           "fundingRate": 5.86917e-05,
           "premium": 0.0012390678,
-          "markPrice": 107.72
+          "markPrice": 107.55
         }
       ],
       "available": true
@@ -226353,7 +226580,9 @@
           "markPrice": 107.63
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=BABAUSDT&startTime=1774308558082&endTime=1782084558082&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084567294
     },
     "Bybit:BABAUSDT": {
       "key": "Bybit:BABAUSDT",
@@ -227003,7 +227232,9 @@
           "markPrice": 107.74
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=BABAUSDT&startTime=1774308576497&endTime=1782084576497&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084585631
     },
     "Binance:QQQUSDT": {
       "key": "Binance:QQQUSDT",
@@ -228273,7 +228504,9 @@
           "markPrice": 737.69
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=QQQUSDT&startTime=1774308594877&endTime=1782084594877&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084604093
     },
     "Bybit:QQQUSDT": {
       "key": "Bybit:QQQUSDT",
@@ -229013,7 +229246,9 @@
           "markPrice": 739.5
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=QQQUSDT&startTime=1774308613313&endTime=1782084613313&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084622457
     },
     "Binance:SPYUSDT": {
       "key": "Binance:SPYUSDT",
@@ -230308,7 +230543,9 @@
           "markPrice": 746.83044754
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://fapi.binance.com/fapi/v1/fundingRate?symbol=SPYUSDT&startTime=1774308635526&endTime=1782084635526&limit=1000: HTTP Error 451: ",
+      "lastErrorAt": 1782084644712
     },
     "Bybit:SPYUSDT": {
       "key": "Bybit:SPYUSDT",
@@ -230943,7 +231180,9 @@
           "markPrice": 745.22
         }
       ],
-      "available": true
+      "available": false,
+      "lastError": "failed to fetch after 4 attempts: https://api.bybit.com/v5/market/funding/history?category=linear&symbol=SPYUSDT&startTime=1774308653839&endTime=1782084653839&limit=200: HTTP Error 403: Forbidden",
+      "lastErrorAt": 1782084662973
     }
   },
   "comparisons": {
