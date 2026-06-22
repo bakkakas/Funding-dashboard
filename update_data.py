@@ -18,6 +18,8 @@ OKX_INDEX_TICKER = "https://www.okx.com/api/v5/market/index-tickers"
 VARIATIONAL_STATS = "https://omni-client-api.prod.ap-northeast-1.variational.io/metadata/stats"
 ORBS_PERPS_FUNDING = "https://perps.thena.fi/api/proxy/fapi/fundingRate"
 ORBS_PERPS_PREMIUM = "https://perps.thena.fi/api/proxy/fapi/premiumIndex"
+ORBS_PERPS_AGGREGATED_FUNDING = "https://perps.thena.fi/api/solver/aggregatedFundingData?chainId=0"
+orbs_perps_funding_cache = None
 PAIRS = [
     {"symbol": "xyz:GOOGL", "displaySymbol": "GOOGL", "assetId": "GOOGL", "assetName": "Google", "exchange": "Hyperliquid", "dex": "xyz", "enabled": True},
     {"symbol": "GOOGLUSDT", "displaySymbol": "GOOGL", "assetId": "GOOGL", "assetName": "Google", "exchange": "Binance", "enabled": True},
@@ -756,15 +758,27 @@ def fetch_orbs_perps_history(symbol, days):
     return out
 
 
+def fetch_orbs_perps_funding_data():
+    global orbs_perps_funding_cache
+    if orbs_perps_funding_cache is None:
+        data = fetch_json(ORBS_PERPS_AGGREGATED_FUNDING)
+        orbs_perps_funding_cache = data.get("PERPS_HUB", {})
+    return orbs_perps_funding_cache
+
+
 def fetch_orbs_perps_latest(symbol):
     url = f"{ORBS_PERPS_PREMIUM}?symbol={symbol}"
     try:
         row = fetch_json(url)
+        funding = fetch_orbs_perps_funding_data().get(symbol, {})
         return {
             "markPrice": float(row["markPrice"]),
             "indexPrice": float(row["indexPrice"]),
+            "rawFundingRate": float(row["lastFundingRate"]),
             "lastFundingRate": float(row["lastFundingRate"]),
-            "nextFundingTime": int(row["nextFundingTime"]),
+            "longFundingFee": float(funding.get("next_funding_rate_long", -float(row["lastFundingRate"]))),
+            "shortFundingFee": float(funding.get("next_funding_rate_short", float(row["lastFundingRate"]))),
+            "nextFundingTime": int(funding.get("next_funding_time") or row["nextFundingTime"]),
             "time": int(row.get("time") or time.time() * 1000),
             "available": True
         }
@@ -866,7 +880,7 @@ def main():
             "Aster": {"supported": True, "notes": "Funding history + current snapshot available via public futures API"},
             "OKX": {"supported": True, "notes": "Funding history + current snapshot available via public API"},
             "Variational": {"supported": True, "notes": "Public API is current snapshot oriented; dashboard accumulates snapshots over time"},
-            "Orbs Perps Hub": {"supported": True, "notes": "Funding history + current snapshot available via THENA Perps public proxy API"}
+            "Orbs Perps Hub": {"supported": True, "notes": "Current Long/Short funding uses THENA Perps aggregatedFundingData; history uses raw public proxy funding API"}
         }
     }
 

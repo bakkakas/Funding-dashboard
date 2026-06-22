@@ -209,7 +209,7 @@
             <tbody id="historyBody"></tbody>
           </table>
         </div>
-        <div class="note">Annualized는 funding rate를 정산 주기에 맞춰 연장한 러닝레이트이며 미래 확정 수익률이 아니다. 거래소별 정산 주기를 기준으로 연율화하며, 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 거래소 목록의 현재값은 브라우저에서 거래소 public API를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있고, Orbs Perps Hub는 THENA Perps public proxy API 기준이다. Variational은 공개 API가 현재 스냅샷 중심이라 자동 업데이트 때마다 누적해 history를 채운다.</div>
+        <div class="note">Annualized는 funding rate를 정산 주기에 맞춰 연장한 러닝레이트이며 미래 확정 수익률이 아니다. 거래소별 정산 주기를 기준으로 연율화하며, 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 거래소 목록의 현재값은 브라우저에서 거래소 public API를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있고, Orbs Perps Hub의 현재값은 THENA Perps aggregatedFundingData의 Long/Short 실제 적용값을 우선 사용한다. Perps Hub 히스토리는 공개 proxy history의 raw funding rate 기준이다. Variational은 공개 API가 현재 스냅샷 중심이라 자동 업데이트 때마다 누적해 history를 채운다.</div>
       </div>
     </div>
   </div>
@@ -240,6 +240,7 @@
     const OKX_INDEX_TICKER_URL = 'https://www.okx.com/api/v5/market/index-tickers';
     const VARIATIONAL_STATS_URL = 'https://omni-client-api.prod.ap-northeast-1.variational.io/metadata/stats';
     const ORBS_PERPS_PREMIUM_INDEX_URL = 'https://perps.thena.fi/api/proxy/fapi/premiumIndex';
+    const ORBS_PERPS_AGGREGATED_FUNDING_URL = 'https://perps.thena.fi/api/solver/aggregatedFundingData?chainId=0';
     const EXTRA_EXCHANGE_PAIRS = {
       GOOGL: [
         { exchange:'Aster', symbol:'GOOGLUSDT', displaySymbol:'GOOGL', fundingIntervalHours:4 },
@@ -333,6 +334,7 @@
 
     let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{}, auth:null, authMode:'login', draggedFavorite:null };
     let variationalStatsCache = { time:0, promise:null };
+    let orbsPerpsFundingCache = { time:0, promise:null };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
     const fmtSignedPct = v => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(4)}%`;
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
@@ -379,7 +381,12 @@
       return `https://www.google.com/s2/favicons?domain=${domains[exchange] || exchange.toLowerCase() + '.com'}&sz=32`;
     }
     function fundingFeeValue(latest){
+      if(latest.longFundingFee != null) return Number(latest.longFundingFee);
       return latest.lastFundingRate == null ? null : -Number(latest.lastFundingRate);
+    }
+    function shortFundingFeeValue(latest){
+      if(latest.shortFundingFee != null) return Number(latest.shortFundingFee);
+      return latest.lastFundingRate == null ? null : Number(latest.lastFundingRate);
     }
     function feeTone(value){
       if(value == null || Number.isNaN(value)) return 'warn';
@@ -423,6 +430,21 @@
       if(annualized != null && !Number.isNaN(annualized)) return annualized;
       const summary = pair.windows && pair.windows[state.selectedWindow];
       return summary ? summary.annualizedPct : null;
+    }
+    function comparisonShortAnnualized(pair, latest){
+      return annualizedFromFee(pair, shortFundingFeeValue(latest), latest);
+    }
+    async function getOrbsPerpsFundingData(){
+      const now = Date.now();
+      if(orbsPerpsFundingCache.promise && now - orbsPerpsFundingCache.time < LIVE_REFRESH_MS){
+        return orbsPerpsFundingCache.promise;
+      }
+      orbsPerpsFundingCache.time = now;
+      orbsPerpsFundingCache.promise = fetch(ORBS_PERPS_AGGREGATED_FUNDING_URL, { cache:'no-store' }).then(res=>{
+        if(!res.ok) throw new Error('orbs perps aggregated funding fetch failed');
+        return res.json();
+      }).then(json=>json.PERPS_HUB || {});
+      return orbsPerpsFundingCache.promise;
     }
     function trackLocalVisit(){
       const today = new Date().toISOString().slice(0,10);
@@ -757,7 +779,12 @@
         const fee=fundingFeeValue(latest);
         const feeEl=document.createElement('span');
         feeEl.className='fee-value ' + feeTone(fee);
-        feeEl.textContent=fee == null || Number.isNaN(fee) ? '-' : fmtSignedPct(fee);
+        const shortFee=shortFundingFeeValue(latest);
+        if(latest.shortFundingFee != null && fee != null && !Number.isNaN(fee) && shortFee != null && !Number.isNaN(shortFee)){
+          feeEl.innerHTML=`L ${fmtSignedPct(fee)}<br>S ${fmtSignedPct(shortFee)}`;
+        } else {
+          feeEl.textContent=fee == null || Number.isNaN(fee) ? '-' : fmtSignedPct(fee);
+        }
         feeCell.appendChild(feeEl);
 
         const annualCell=document.createElement('td');
@@ -904,14 +931,17 @@
       return getPairsForAsset(assetId(selected)).map(([pairKey, pair])=>{
         const latest=getLatestForPair(pairKey, pair);
         const fee=fundingFeeValue(latest);
+        const shortFee=shortFundingFeeValue(latest);
         return {
           pairKey,
           pair,
           latest,
           fee,
+          shortFee,
           annualized:comparisonAnnualized(pairKey, pair, latest),
+          shortAnnualized:comparisonShortAnnualized(pair, latest),
         };
-      }).filter(item=>item.fee != null && !Number.isNaN(item.fee));
+      }).filter(item=>item.fee != null && !Number.isNaN(item.fee) && item.shortFee != null && !Number.isNaN(item.shortFee));
     }
 
     function renderExchangeTabs(){
@@ -928,18 +958,19 @@
     }
 
     function renderFundingInsights(stats, selectedPairKey, latest){
-      const sorted=stats.slice().sort((a,b)=>b.fee-a.fee);
-      const selectedRank=sorted.findIndex(item=>item.pairKey===selectedPairKey);
-      const longFavored=sorted[0];
-      const shortFavored=sorted[sorted.length-1];
+      const longSorted=stats.slice().sort((a,b)=>b.fee-a.fee);
+      const shortSorted=stats.slice().sort((a,b)=>b.shortFee-a.shortFee);
+      const selectedRank=longSorted.findIndex(item=>item.pairKey===selectedPairKey);
+      const longFavored=longSorted[0];
+      const shortFavored=shortSorted[0];
       const mark=Number(latest.markPrice);
       const index=Number(latest.indexPrice);
       const gap = Number.isFinite(mark) && Number.isFinite(index) && index !== 0 ? (mark - index) / index : null;
       const gapEl=document.getElementById('markIndexGap');
       gapEl.textContent=gap == null ? '-' : fmtSignedPct(gap);
       gapEl.className='detail-value ' + feeTone(gap);
-      document.getElementById('selectedExchangeRank').textContent=selectedRank >= 0 ? `${selectedRank + 1}/${sorted.length}` : '-';
-      const renderFavored = (box, el, label, item) => {
+      document.getElementById('selectedExchangeRank').textContent=selectedRank >= 0 ? `${selectedRank + 1}/${longSorted.length}` : '-';
+      const renderFavored = (box, el, label, item, side) => {
         if(!item){
           box.removeAttribute('href');
           box.classList.add('disabled');
@@ -948,16 +979,18 @@
         }
         box.href=pairTradeUrl(item.pair);
         box.classList.remove('disabled');
-        const annualized = item.annualized == null || Number.isNaN(item.annualized) ? '-' : fmtAnnual(item.annualized);
-        el.innerHTML = `<span class="detail-main"><span class="label">${label}</span><img class="exchange-logo" alt="" src="${exchangeLogoUrl(item.pair.exchange)}"><span class="favored-exchange-name">${item.pair.exchange}</span></span><span class="detail-sub">${fmtSignedPct(item.fee)} / ${annualized} Annualized</span>`;
+        const value = side === 'short' ? item.shortFee : item.fee;
+        const annualizedValue = side === 'short' ? item.shortAnnualized : item.annualized;
+        const annualized = annualizedValue == null || Number.isNaN(annualizedValue) ? '-' : fmtAnnual(annualizedValue);
+        el.innerHTML = `<span class="detail-main"><span class="label">${label}</span><img class="exchange-logo" alt="" src="${exchangeLogoUrl(item.pair.exchange)}"><span class="favored-exchange-name">${item.pair.exchange}</span></span><span class="detail-sub">${fmtSignedPct(value)} / ${annualized} Annualized</span>`;
       };
-      renderFavored(document.getElementById('longFavoredBox'), document.getElementById('longFavoredExchange'), 'Long 유리', longFavored);
-      renderFavored(document.getElementById('shortFavoredBox'), document.getElementById('shortFavoredExchange'), 'Short 유리', shortFavored);
+      renderFavored(document.getElementById('longFavoredBox'), document.getElementById('longFavoredExchange'), 'Long 유리', longFavored, 'long');
+      renderFavored(document.getElementById('shortFavoredBox'), document.getElementById('shortFavoredExchange'), 'Short 유리', shortFavored, 'short');
 
       const bars=document.getElementById('fundingBars');
       bars.innerHTML='';
-      const maxAbs=Math.max(...sorted.map(item=>Math.abs(item.fee)), 0.000001);
-      sorted.forEach(item=>{
+      const maxAbs=Math.max(...longSorted.map(item=>Math.abs(item.fee)), 0.000001);
+      longSorted.forEach(item=>{
         const row=document.createElement('div');
         row.className='funding-bar-row';
         const name=document.createElement('div');
@@ -1135,14 +1168,21 @@
         return;
       }
       if(pair.exchange === 'Orbs Perps Hub'){
-        const res = await fetch(`${ORBS_PERPS_PREMIUM_INDEX_URL}?symbol=${pair.symbol}`);
+        const [res, aggregated] = await Promise.all([
+          fetch(`${ORBS_PERPS_PREMIUM_INDEX_URL}?symbol=${pair.symbol}`),
+          getOrbsPerpsFundingData(),
+        ]);
         if(!res.ok) throw new Error(`orbs perps premiumIndex fetch failed: ${pairKey}`);
         const row = await res.json();
+        const funding = aggregated[pair.symbol] || {};
         state.liveLatestByPair[pairKey] = {
           markPrice: Number(row.markPrice),
           indexPrice: Number(row.indexPrice),
+          rawFundingRate: Number(row.lastFundingRate),
           lastFundingRate: Number(row.lastFundingRate),
-          nextFundingTime: Number(row.nextFundingTime),
+          longFundingFee: funding.next_funding_rate_long == null ? -Number(row.lastFundingRate) : Number(funding.next_funding_rate_long),
+          shortFundingFee: funding.next_funding_rate_short == null ? Number(row.lastFundingRate) : Number(funding.next_funding_rate_short),
+          nextFundingTime: Number(funding.next_funding_time || row.nextFundingTime),
           time: Number(row.time) || Date.now(),
           available: true,
         };
