@@ -59,9 +59,14 @@
     .funding-detail-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:14px; }
     .favored-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; }
     .detail-box { border:1px solid var(--line); border-radius:8px; padding:10px; background:rgba(16,32,25,0.55); min-height:62px; }
+    .favored-box { display:block; color:inherit; text-decoration:none; cursor:pointer; transition:border-color 0.16s ease, background 0.16s ease; }
+    .favored-box:hover { border-color:rgba(35,231,165,0.48); background:rgba(35,231,165,0.08); }
+    .favored-box.disabled { pointer-events:none; cursor:default; }
     .detail-box .label { font-size:12px; }
     .detail-box .detail-value { margin-top:6px; font-size:18px; font-weight:800; }
-    .detail-box .detail-main { display:block; color:var(--text); font-size:16px; font-weight:850; }
+    .detail-box .detail-main { display:flex; align-items:center; gap:7px; min-width:0; color:var(--text); font-size:16px; font-weight:850; }
+    .detail-box .detail-main .label { color:var(--muted); font-size:13px; font-weight:800; flex:0 0 auto; }
+    .detail-box .favored-exchange-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .detail-box .detail-sub { display:block; margin-top:5px; color:var(--muted); font-size:13px; font-weight:800; }
     .funding-bars { display:grid; gap:8px; margin-top:14px; }
     .funding-bar-row { display:grid; grid-template-columns:92px minmax(0,1fr) 86px; gap:8px; align-items:center; font-size:13px; }
@@ -157,8 +162,8 @@
           <tbody id="comparisonBody"></tbody>
         </table>
         <div class="favored-grid">
-          <div class="detail-box"><div class="label">Long 유리</div><div class="detail-value good" id="longFavoredExchange">-</div></div>
-          <div class="detail-box"><div class="label">Short 유리</div><div class="detail-value bad" id="shortFavoredExchange">-</div></div>
+          <a class="detail-box favored-box" id="longFavoredBox" href="#" target="_blank" rel="noopener noreferrer"><div class="detail-value good" id="longFavoredExchange">-</div></a>
+          <a class="detail-box favored-box" id="shortFavoredBox" href="#" target="_blank" rel="noopener noreferrer"><div class="detail-value bad" id="shortFavoredExchange">-</div></a>
         </div>
       </div>
       <div class="card top-panel">
@@ -931,16 +936,20 @@
       gapEl.textContent=gap == null ? '-' : fmtSignedPct(gap);
       gapEl.className='detail-value ' + feeTone(gap);
       document.getElementById('selectedExchangeRank').textContent=selectedRank >= 0 ? `${selectedRank + 1}/${sorted.length}` : '-';
-      const renderFavored = (el, item) => {
+      const renderFavored = (box, el, label, item) => {
         if(!item){
+          box.removeAttribute('href');
+          box.classList.add('disabled');
           el.textContent='-';
           return;
         }
+        box.href=pairTradeUrl(item.pair);
+        box.classList.remove('disabled');
         const annualized = item.annualized == null || Number.isNaN(item.annualized) ? '-' : fmtAnnual(item.annualized);
-        el.innerHTML = `<span class="detail-main">${item.pair.exchange}</span><span class="detail-sub">${fmtSignedPct(item.fee)} / ${annualized} Annualized</span>`;
+        el.innerHTML = `<span class="detail-main"><span class="label">${label}</span><img class="exchange-logo" alt="" src="${exchangeLogoUrl(item.pair.exchange)}"><span class="favored-exchange-name">${item.pair.exchange}</span></span><span class="detail-sub">${fmtSignedPct(item.fee)} / ${annualized} Annualized</span>`;
       };
-      renderFavored(document.getElementById('longFavoredExchange'), longFavored);
-      renderFavored(document.getElementById('shortFavoredExchange'), shortFavored);
+      renderFavored(document.getElementById('longFavoredBox'), document.getElementById('longFavoredExchange'), 'Long 유리', longFavored);
+      renderFavored(document.getElementById('shortFavoredBox'), document.getElementById('shortFavoredExchange'), 'Short 유리', shortFavored);
 
       const bars=document.getElementById('fundingBars');
       bars.innerHTML='';
