@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <style>
-    :root { --bg:#07110c; --panel:#0d1712; --panel2:#102019; --panel3:#14251d; --text:#dce8df; --muted:#82958b; --line:#20362b; --good:#00c076; --bad:#f08a8a; --warn:#f5c451; --accent:#23e7a5; --accent2:#3f8cff; --pair:#8ea2ff; }
+    :root { --bg:#07110c; --panel:#0d1712; --panel2:#102019; --panel3:#14251d; --text:#dce8df; --muted:#82958b; --line:#20362b; --good:#00c076; --bad:#f08a8a; --calm-good:#86a8ff; --calm-bad:#d7a96f; --warn:#f5c451; --accent:#23e7a5; --accent2:#3f8cff; --pair:#8ea2ff; }
     * { box-sizing:border-box; }
     body { margin:0; background:radial-gradient(circle at 50% 0%,rgba(35,231,165,0.18),transparent 32%),linear-gradient(180deg,#07110c 0%,#0a1710 46%,#07100c 100%); color:var(--text); font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,sans-serif; }
     .wrap { max-width:1450px; margin:0 auto; padding:24px; }
@@ -24,7 +24,7 @@
     .header-market-row { display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap; }
     .header-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
     .language-toggle { display:inline-flex; gap:4px; padding:3px; border:1px solid var(--line); border-radius:999px; background:#07140f; }
-    .language-toggle .chip { border:0; padding:6px 10px; }
+    .language-toggle .chip { border:0; width:34px; height:30px; padding:0; display:grid; place-items:center; font-size:17px; line-height:1; }
     .language-toggle .chip.active { background:rgba(35,231,165,0.16); }
     .alt-link { color:var(--accent); text-decoration:none; font-size:13px; font-weight:800; }
     .alt-link:hover { text-decoration:underline; }
@@ -74,22 +74,22 @@
     .payment-count-row { display:flex; justify-content:space-between; gap:8px; align-items:center; font-size:13px; font-weight:800; }
     .payment-count-row span:first-child { color:var(--muted); }
     .payment-count-row span:last-child { font-variant-numeric:tabular-nums; }
-    .payment-count-row .good { color:var(--good); }
-    .payment-count-row .bad { color:var(--bad); }
+    .payment-count-row .good { color:var(--calm-good); }
+    .payment-count-row .bad { color:var(--calm-bad); }
     .funding-bars { display:grid; gap:8px; margin-top:14px; }
     .funding-bar-row { display:grid; grid-template-columns:92px minmax(0,1fr) 86px; gap:8px; align-items:center; font-size:13px; }
     .funding-bar-name { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .funding-bar-track { position:relative; height:8px; border-radius:999px; background:rgba(255,255,255,0.07); overflow:hidden; }
     .funding-bar-track::before { content:""; position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(220,232,223,0.24); }
     .funding-bar-fill { position:absolute; top:1px; bottom:1px; border-radius:999px; }
-    .funding-bar-fill.good { left:50%; background:var(--good); }
-    .funding-bar-fill.bad { right:50%; background:var(--bad); }
+    .funding-bar-fill.good { left:50%; background:var(--calm-good); }
+    .funding-bar-fill.bad { right:50%; background:var(--calm-bad); }
     .funding-bar-value { text-align:right; font-weight:800; font-variant-numeric:tabular-nums; }
     .rate-legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; font-size:13px; font-weight:700; }
     .asset-summary-card { display:flex; justify-content:space-between; align-items:center; gap:18px; margin-bottom:16px; padding:18px 20px; }
     .asset-identity { display:flex; align-items:center; gap:10px; min-width:0; }
-    .asset-logo-wrap { position:relative; width:32px; height:32px; border-radius:50%; background:#f2f7f4; overflow:hidden; flex:0 0 auto; }
-    .asset-logo { width:100%; height:100%; object-fit:cover; display:none; }
+    .asset-logo-wrap { position:relative; width:36px; height:36px; border-radius:50%; background:#f2f7f4; overflow:hidden; flex:0 0 auto; border:1px solid rgba(255,255,255,0.16); }
+    .asset-logo { width:100%; height:100%; object-fit:contain; padding:4px; display:none; }
     .asset-logo.loaded { display:block; }
     .asset-logo-fallback { position:absolute; inset:0; display:grid; place-items:center; color:#b21d2b; font-size:12px; font-weight:900; }
     .asset-logo.loaded + .asset-logo-fallback { display:none; }
@@ -102,8 +102,8 @@
     .asset-metric-label { color:var(--muted); font-size:12px; font-weight:800; }
     .asset-price,.asset-metric-value { margin-top:6px; font-size:clamp(18px, 1.7vw, 27px); line-height:1; font-weight:850; font-variant-numeric:tabular-nums; }
     .asset-price { color:var(--good); }
-    .asset-metric-value.good { color:var(--good); }
-    .asset-metric-value.bad { color:var(--bad); }
+    .asset-metric-value.good { color:var(--calm-good); }
+    .asset-metric-value.bad { color:var(--calm-bad); }
     .asset-metric-value.warn { color:var(--warn); }
     .asset-price-meta,.asset-metric-meta { margin-top:6px; color:var(--muted); font-size:12px; font-weight:750; }
     .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
@@ -127,12 +127,14 @@
     .pill.good { background:rgba(46,204,113,0.14); color:var(--good); }
     .pill.bad { background:rgba(240,138,138,0.14); color:var(--bad); }
     .pill.warn { background:rgba(255,209,102,0.14); color:var(--warn); }
+    .asset-summary-card .pill.good { background:rgba(134,168,255,0.14); color:var(--calm-good); }
+    .asset-summary-card .pill.bad { background:rgba(215,169,111,0.14); color:var(--calm-bad); }
     .linkish { color:var(--accent); cursor:pointer; font-weight:800; }
     .linkish:hover { text-decoration:underline; }
     .pair-link { color:var(--pair); font-weight:800; text-decoration:none; }
     .pair-link:hover { text-decoration:underline; }
     .exchange-label { display:inline-flex; align-items:center; gap:7px; }
-    .exchange-logo { width:16px; height:16px; border-radius:50%; background:#07140f; flex:0 0 16px; }
+    .exchange-logo { width:20px; height:20px; border-radius:50%; background:#f2f7f4; flex:0 0 20px; object-fit:contain; padding:2px; border:1px solid rgba(255,255,255,0.14); }
     .fee-value { font-weight:800; }
     .fee-value.good,.legend-good { color:var(--good); }
     .fee-value.bad,.legend-bad { color:var(--bad); }
@@ -140,6 +142,8 @@
     .direction-value.good { color:var(--good); }
     .direction-value.bad { color:var(--bad); }
     .direction-value.warn { color:var(--warn); }
+    .top-panel .value.good,.top-panel .detail-value.good,.top-panel .fee-value.good,.top-panel .direction-value.good,.top-panel .legend-good { color:var(--calm-good); }
+    .top-panel .value.bad,.top-panel .detail-value.bad,.top-panel .fee-value.bad,.top-panel .direction-value.bad,.top-panel .legend-bad { color:var(--calm-bad); }
     .period-highlight { color:var(--accent); }
     .muted { color:var(--muted); }
     .note { margin-top:16px; color:var(--muted); font-size:13px; line-height:1.6; }
@@ -169,8 +173,8 @@
         <div class="header-market-row">
           <div class="header-actions">
             <div class="language-toggle" aria-label="Language">
-              <button class="chip subtle active" id="langKoButton" type="button">🇰🇷 한국어</button>
-              <button class="chip subtle" id="langEnButton" type="button">🇺🇸 English</button>
+              <button class="chip subtle active" id="langKoButton" type="button" aria-label="한국어" title="한국어">🇰🇷</button>
+              <button class="chip subtle" id="langEnButton" type="button" aria-label="English" title="English">🇺🇸</button>
             </div>
             <button class="chip subtle" id="loginButton" type="button">로그인</button>
             <button class="chip subtle" id="signupButton" type="button">회원가입</button>
@@ -590,11 +594,43 @@
         'Orbs Perps Hub': 'orbs.com',
         Variational: 'variational.io',
       };
-      return `https://www.google.com/s2/favicons?domain=${domains[exchange] || exchange.toLowerCase() + '.com'}&sz=32`;
+      const domain = domains[exchange] || exchange.toLowerCase() + '.com';
+      return `https://logo.clearbit.com/${domain}`;
+    }
+    function exchangeLogoFallbackUrl(exchange){
+      const domains = {
+        Aster: 'asterdex.com',
+        Binance: 'binance.com',
+        Bybit: 'bybit.com',
+        Hyperliquid: 'hyperliquid.xyz',
+        OKX: 'okx.com',
+        'Orbs Perps Hub': 'orbs.com',
+        Variational: 'variational.io',
+      };
+      const domain = domains[exchange] || exchange.toLowerCase() + '.com';
+      return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
     }
     function assetLogoUrl(symbol){
       const domain = ASSET_LOGO_DOMAINS[symbol];
-      return domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=64` : '';
+      return domain ? `https://logo.clearbit.com/${domain}` : '';
+    }
+    function assetLogoFallbackUrl(symbol){
+      const domain = ASSET_LOGO_DOMAINS[symbol];
+      return domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : '';
+    }
+    function setLogoImage(img, primaryUrl, fallbackUrl){
+      img.dataset.fallbackUrl = fallbackUrl || '';
+      img.onerror = () => {
+        if(img.dataset.fallbackUrl && img.src !== img.dataset.fallbackUrl){
+          img.src = img.dataset.fallbackUrl;
+          return;
+        }
+        img.classList.remove('loaded');
+      };
+      img.onload = () => img.classList.add('loaded');
+      img.classList.remove('loaded');
+      img.removeAttribute('src');
+      if(primaryUrl) img.src = primaryUrl;
     }
     function fundingFeeValue(latest){
       if(latest.longFundingFee != null) return Number(latest.longFundingFee);
@@ -994,7 +1030,7 @@
         const exchangeLogo=document.createElement('img');
         exchangeLogo.className='exchange-logo';
         exchangeLogo.alt='';
-        exchangeLogo.src=exchangeLogoUrl(pair.exchange);
+        setLogoImage(exchangeLogo, exchangeLogoUrl(pair.exchange), exchangeLogoFallbackUrl(pair.exchange));
         const exchangeName=document.createElement('span');
         exchangeName.textContent=pair.exchange;
         exchangeLabel.appendChild(exchangeLogo);
@@ -1280,7 +1316,24 @@
         const value = side === 'short' ? item.shortFee : item.fee;
         const annualizedValue = side === 'short' ? item.shortAnnualized : item.annualized;
         const annualized = annualizedValue == null || Number.isNaN(annualizedValue) ? '-' : fmtAnnual(annualizedValue);
-        el.innerHTML = `<span class="detail-main"><span class="label">${label}</span><img class="exchange-logo" alt="" src="${exchangeLogoUrl(item.pair.exchange)}"><span class="favored-exchange-name">${item.pair.exchange}</span></span><span class="detail-sub">${fmtSignedPct(value)} / ${annualized} Annualized</span>`;
+        el.innerHTML = '';
+        const main=document.createElement('span');
+        main.className='detail-main';
+        const labelEl=document.createElement('span');
+        labelEl.className='label';
+        labelEl.textContent=label;
+        const logo=document.createElement('img');
+        logo.className='exchange-logo';
+        logo.alt='';
+        setLogoImage(logo, exchangeLogoUrl(item.pair.exchange), exchangeLogoFallbackUrl(item.pair.exchange));
+        const name=document.createElement('span');
+        name.className='favored-exchange-name';
+        name.textContent=item.pair.exchange;
+        const sub=document.createElement('span');
+        sub.className='detail-sub';
+        sub.textContent=`${fmtSignedPct(value)} / ${annualized} Annualized`;
+        main.append(labelEl, logo, name);
+        el.append(main, sub);
       };
       renderFavored(document.getElementById('longFavoredBox'), document.getElementById('longFavoredExchange'), t('longFavored'), longFavored, 'long');
       renderFavored(document.getElementById('shortFavoredBox'), document.getElementById('shortFavoredExchange'), t('shortFavored'), shortFavored, 'short');
@@ -1329,13 +1382,7 @@
       const symbol=assetId(selected);
       const logo=document.getElementById('assetLogo');
       const logoUrl=assetLogoUrl(symbol);
-      logo.classList.remove('loaded');
-      logo.removeAttribute('src');
-      if(logoUrl){
-        logo.onload=()=>logo.classList.add('loaded');
-        logo.onerror=()=>logo.classList.remove('loaded');
-        logo.src=logoUrl;
-      }
+      setLogoImage(logo, logoUrl, assetLogoFallbackUrl(symbol));
       document.getElementById('assetLogoMark').textContent=symbol.slice(0,2).toUpperCase();
       document.getElementById('assetHeaderSymbol').textContent=displaySymbol(selected);
       document.getElementById('assetHeaderName').textContent=assetName(selected);
