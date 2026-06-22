@@ -71,6 +71,12 @@
     .detail-box .detail-main .label { color:var(--muted); font-size:13px; font-weight:800; flex:0 0 auto; }
     .detail-box .favored-exchange-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .detail-box .detail-sub { display:block; margin-top:5px; color:var(--muted); font-size:13px; font-weight:800; }
+    .payment-counts { display:grid; gap:6px; margin-top:7px; }
+    .payment-count-row { display:flex; justify-content:space-between; gap:8px; align-items:center; font-size:13px; font-weight:800; }
+    .payment-count-row span:first-child { color:var(--muted); }
+    .payment-count-row span:last-child { font-variant-numeric:tabular-nums; }
+    .payment-count-row .good { color:var(--good); }
+    .payment-count-row .bad { color:var(--bad); }
     .funding-bars { display:grid; gap:8px; margin-top:14px; }
     .funding-bar-row { display:grid; grid-template-columns:92px minmax(0,1fr) 86px; gap:8px; align-items:center; font-size:13px; }
     .funding-bar-name { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -135,6 +141,7 @@
     .direction-value.good { color:var(--good); }
     .direction-value.bad { color:var(--bad); }
     .direction-value.warn { color:var(--warn); }
+    .period-highlight { color:var(--accent); }
     .muted { color:var(--muted); }
     .note { margin-top:16px; color:var(--muted); font-size:13px; line-height:1.6; }
     .countdown { font-variant-numeric:tabular-nums; letter-spacing:0.02em; }
@@ -244,7 +251,13 @@
         </div>
         <div class="funding-detail-grid">
           <div class="detail-box"><div class="label" data-i18n="markIndexGap">Mark / Index 차이</div><div class="detail-value" id="markIndexGap">-</div></div>
-          <div class="detail-box"><div class="label" data-i18n="selectedExchangeRank">선택 거래소 순위</div><div class="detail-value" id="selectedExchangeRank">-</div></div>
+          <div class="detail-box">
+            <div class="label" data-i18n="paymentCounts">지급 횟수</div>
+            <div class="payment-counts">
+              <div class="payment-count-row"><span>Long → Short</span><span class="bad" id="longToShortCount">-</span></div>
+              <div class="payment-count-row"><span>Short → Long</span><span class="good" id="shortToLongCount">-</span></div>
+            </div>
+          </div>
         </div>
         <div class="funding-bars" id="fundingBars"></div>
         <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend">양수 = Short -> Long</span><span class="legend-bad" data-i18n="negativeLegend">음수 = Long -> Short</span></div>
@@ -431,7 +444,7 @@
         signupSave:'회원가입 저장', loginSave:'로그인 저장', close:'닫기',
         supportExchange:'지원 거래소', pair:'페어', currentFundingFee:'현재 펀딩피(주기)',
         selectedFundingDirection:'선택 기간 Funding Fee 방향', selectedAvgFundingFee:'선택 기간 평균 Funding Fee',
-        avgAnnualized:'평균 Annualized', markIndexGap:'Mark / Index 차이', selectedExchangeRank:'선택 거래소 순위',
+        avgAnnualized:'평균 Annualized', markIndexGap:'Mark / Index 차이', paymentCounts:'지급 횟수',
         positiveLegend:'양수 = Short -> Long', negativeLegend:'음수 = Long -> Short',
         nextFunding:'다음 Funding', nextFundingMini:'다음 정산까지 남은 시간', settlementTime:'정산 시각',
         settlementTimeFailed:'정산 시각 조회 실패', fetchFailed:'조회 실패', settling:'정산 중 / 갱신 대기',
@@ -458,7 +471,7 @@
         signupSave:'Save sign-up', loginSave:'Save login', close:'Close',
         supportExchange:'Supported exchange', pair:'Pair', currentFundingFee:'Current funding fee (interval)',
         selectedFundingDirection:'Selected-period funding fee direction', selectedAvgFundingFee:'Selected-period average funding fee',
-        avgAnnualized:'Average annualized', markIndexGap:'Mark / Index gap', selectedExchangeRank:'Selected exchange rank',
+        avgAnnualized:'Average annualized', markIndexGap:'Mark / Index gap', paymentCounts:'Payment counts',
         positiveLegend:'Positive = Short -> Long', negativeLegend:'Negative = Long -> Short',
         nextFunding:'Next funding', nextFundingMini:'Time left until next settlement', settlementTime:'Settlement time',
         settlementTimeFailed:'Settlement time unavailable', fetchFailed:'Unavailable', settling:'Settling / waiting for update',
@@ -510,6 +523,25 @@
     }
     const toUTC = ms => new Date(ms).toISOString().replace('T',' ').slice(0,19) + ' UTC';
     function t(key){ return (I18N[state.lang] && I18N[state.lang][key]) || I18N.ko[key] || key; }
+    function selectedWindowDays(){
+      const days = state.data && state.data.meta && state.data.meta.windows
+        ? Number(state.data.meta.windows[state.selectedWindow])
+        : NaN;
+      return Number.isFinite(days) ? days : null;
+    }
+    function selectedWindowLabel(){
+      const days = selectedWindowDays();
+      if(days == null) return state.selectedWindow;
+      if(state.lang === 'en') return `${days}D`;
+      return `${days}일`;
+    }
+    function selectedFundingDirectionTitle(tone, direction){
+      const period = selectedWindowLabel();
+      if(state.lang === 'en'){
+        return `<span class="period-highlight">${period}</span> Funding Fee Direction : <span class="direction-value ${tone}">${direction}</span>`;
+      }
+      return `<span class="period-highlight">${period}</span> Funding Fee 방향 : <span class="direction-value ${tone}">${direction}</span>`;
+    }
     function setLanguage(lang){
       state.lang = lang === 'en' ? 'en' : 'ko';
       localStorage.setItem('fundingDashboardLanguage', state.lang);
@@ -1226,7 +1258,6 @@
     function renderFundingInsights(stats, selectedPairKey, latest){
       const longSorted=stats.slice().sort((a,b)=>b.fee-a.fee);
       const shortSorted=stats.slice().sort((a,b)=>b.shortFee-a.shortFee);
-      const selectedRank=longSorted.findIndex(item=>item.pairKey===selectedPairKey);
       const longFavored=longSorted[0];
       const shortFavored=shortSorted[0];
       const mark=Number(latest.markPrice);
@@ -1235,7 +1266,6 @@
       const gapEl=document.getElementById('markIndexGap');
       gapEl.textContent=gap == null ? '-' : fmtSignedPct(gap);
       gapEl.className='detail-value ' + feeTone(gap);
-      document.getElementById('selectedExchangeRank').textContent=selectedRank >= 0 ? `${selectedRank + 1}/${longSorted.length}` : '-';
       const renderFavored = (box, el, label, item, side) => {
         if(!item){
           box.removeAttribute('href');
@@ -1274,6 +1304,13 @@
         row.append(name, track, value);
         bars.appendChild(row);
       });
+    }
+
+    function renderPaymentCounts(rows){
+      const longToShort = rows.filter(row=>Number(row.fundingRate) >= 0).length;
+      const shortToLong = rows.filter(row=>Number(row.fundingRate) < 0).length;
+      document.getElementById('longToShortCount').textContent=longToShort.toLocaleString('en-US');
+      document.getElementById('shortToLongCount').textContent=shortToLong.toLocaleString('en-US');
     }
 
     function currentPricePairForAsset(selected){
@@ -1319,6 +1356,7 @@
       const comparisonStats=getComparisonStats();
       renderExchangeTabs();
       renderFundingInsights(comparisonStats, state.selectedPair, latest);
+      renderPaymentCounts(rows);
       const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedAsset)?'★':'☆')+' '+t('favorite');
       const periodFee = periodFundingFee(windowSummary);
       const periodFeeTone = feeTone(periodFee);
@@ -1335,7 +1373,7 @@
       document.getElementById('interpretation').className='asset-metric-value';
 
       const coreTitle = document.getElementById('coreTitle');
-      coreTitle.innerHTML = `${t('selectedFundingDirection')} : <span class="direction-value ${periodFeeTone}">${feeDirection(periodFee)}</span>`;
+      coreTitle.innerHTML = selectedFundingDirectionTitle(periodFeeTone, feeDirection(periodFee));
       coreTitle.className = 'section-title';
       if (periodFee == null || Number.isNaN(periodFee)) {
         document.getElementById('latestFunding').textContent='-';
