@@ -165,22 +165,21 @@
     <div class="header">
       <div>
         <h1>Multi-Exchange Funding Dashboard</h1>
-        <div class="sub" data-i18n="subtitle">history는 자동 적재하고, 현재 funding / mark / index / 다음 funding 카운트다운은 거래소별 public API 기준으로 실시간에 가깝게 반영하는 대시보드.</div>
       </div>
       <div class="header-side">
         <div class="header-market-row">
           <div class="header-actions">
             <div class="language-toggle" aria-label="Language">
-              <button class="chip subtle active" id="langKoButton" type="button">한국어</button>
-              <button class="chip subtle" id="langEnButton" type="button">English</button>
+              <button class="chip subtle active" id="langKoButton" type="button">🇰🇷 한국어</button>
+              <button class="chip subtle" id="langEnButton" type="button">🇺🇸 English</button>
             </div>
             <button class="chip subtle" id="loginButton" type="button">로그인</button>
             <button class="chip subtle" id="signupButton" type="button">회원가입</button>
             <a class="chip subtle" href="./admin.html" style="text-decoration:none;" data-i18n="admin">관리자</a>
           </div>
           <div class="fx-ticker warn" id="usdKrwTicker">USD/KRW 조회 중</div>
+          <div class="stamp" id="updatedAt">Updated: -</div>
         </div>
-        <div class="stamp" id="updatedAt">Updated: -</div>
         <a class="alt-link" href="./v2.html" data-i18n="viewV2">V2 보기</a>
       </div>
     </div>
@@ -265,9 +264,9 @@
     </div>
 
     <div class="grid">
-      <div class="card wide"><h3 class="section-title" data-i18n="fundingRateChart">Funding Rate Chart</h3><canvas id="fundingChart"></canvas><div class="note" data-i18n="fundingChartNote">선택 구간의 회차별 funding rate 흐름.</div></div>
+      <div class="card wide"><h3 class="section-title" data-i18n="fundingRateChart">Funding Rate Chart</h3><canvas id="fundingChart"></canvas></div>
 
-      <div class="card wide"><h3 class="section-title" data-i18n="priceChart">Price Chart</h3><div class="toolbar2" id="priceCandleTabs"></div><canvas id="priceChart"></canvas><div class="note" data-i18n="priceChartNote">선택 구간의 mark price 흐름을 선택한 캔들 주기로 묶어 표시.</div></div>
+      <div class="card wide"><h3 class="section-title" data-i18n="priceChart">Price Chart</h3><div class="toolbar2" id="priceCandleTabs"></div><canvas id="priceChart"></canvas></div>
 
       <div class="card wide">
         <h3 class="section-title" data-i18n="fundingHistory">회차별 Funding History</h3>
@@ -500,6 +499,10 @@
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
     const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const fmtFx = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+    const ASSET_NAME_OVERRIDES = {
+      SAMSUNG: { ko:'삼성전자', en:'Samsung Electronics' },
+      SKHYNIX: { ko:'SK하이닉스', en:'SK hynix' },
+    };
     function toKST(ms){
       if(state.lang === 'en'){
         return new Date(ms).toLocaleString('en-US', { timeZone:'Asia/Seoul', year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
@@ -562,7 +565,11 @@
 
     function displaySymbol(pair){ return pair.displaySymbol || pair.symbol; }
     function assetId(pair){ return pair.assetId || displaySymbol(pair); }
-    function assetName(pair){ return pair.assetName || displaySymbol(pair); }
+    function assetName(pair){
+      const id = assetId(pair);
+      const override = ASSET_NAME_OVERRIDES[id] && ASSET_NAME_OVERRIDES[id][state.lang];
+      return override || pair.assetName || displaySymbol(pair);
+    }
     function pairDisplayName(pair){
       if(pair.exchange === 'Hyperliquid') return pair.symbol;
       if(pair.symbol.endsWith('USDT')) return `${pair.symbol.slice(0, -4)}:USDT`;
@@ -787,7 +794,7 @@
         if(!groups.has(id)) groups.set(id, { id, name: assetName(pair), pairs: [] });
         groups.get(id).pairs.push([pairKey, pair]);
       });
-      return Array.from(groups.values()).sort((a,b)=>a.name.localeCompare(b.name, 'ko'));
+      return Array.from(groups.values()).sort((a,b)=>a.name.localeCompare(b.name, state.lang === 'en' ? 'en' : 'ko'));
     }
     function getPairsForAsset(selectedAsset=state.selectedAsset){
       return Object.entries(state.data.pairs)
@@ -799,7 +806,7 @@
           return a[1].exchange.localeCompare(b[1].exchange);
         });
     }
-    function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>assetName(a[1]).localeCompare(assetName(b[1]), 'ko') || a[1].exchange.localeCompare(b[1].exchange)); } return entries; }
+    function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>assetName(a[1]).localeCompare(assetName(b[1]), state.lang === 'en' ? 'en' : 'ko') || a[1].exchange.localeCompare(b[1].exchange)); } return entries; }
 
     function renderAssetPicker(){
       const input=document.getElementById('assetSearch');
@@ -1325,9 +1332,6 @@
       const [pricePairKey, pairForPrice]=pricePair || [state.selectedPair, selected];
       const latest=getLatestForPair(pricePairKey, pairForPrice);
       const symbol=assetId(selected);
-      const displayPair = pairForPrice && pairForPrice.symbol
-        ? (pairForPrice.symbol.includes('USDT') ? pairForPrice.symbol.replace(/[-:]/g, '') : `${symbol}USDT`)
-        : `${symbol}USDT`;
       const logo=document.getElementById('assetLogo');
       const logoUrl=assetLogoUrl(symbol);
       logo.classList.remove('loaded');
@@ -1338,7 +1342,7 @@
         logo.src=logoUrl;
       }
       document.getElementById('assetLogoMark').textContent=symbol.slice(0,2).toUpperCase();
-      document.getElementById('assetHeaderSymbol').textContent=displayPair;
+      document.getElementById('assetHeaderSymbol').textContent=displaySymbol(selected);
       document.getElementById('assetHeaderName').textContent=assetName(selected);
       document.getElementById('assetHeaderPrice').textContent=latest.markPrice == null ? '-' : fmtNumber(latest.markPrice);
       document.getElementById('assetHeaderPriceMeta').textContent=latest.markPrice == null
