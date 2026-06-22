@@ -1,4 +1,4 @@
-import json, time, urllib.error, urllib.request, datetime
+import json, time, urllib.error, urllib.parse, urllib.request, datetime
 from pathlib import Path
 
 BINANCE_BASE = "https://fapi.binance.com/fapi/v1/fundingRate"
@@ -7,6 +7,15 @@ BYBIT_TICKERS = "https://api.bybit.com/v5/market/tickers"
 BYBIT_FUNDING = "https://api.bybit.com/v5/market/funding/history"
 BYBIT_MARK_KLINE = "https://api.bybit.com/v5/market/mark-price-kline"
 HYPERLIQUID_INFO = "https://api.hyperliquid.xyz/info"
+ASTER_FUNDING = "https://fapi.asterdex.com/fapi/v1/fundingRate"
+ASTER_MARK_KLINE = "https://fapi.asterdex.com/fapi/v1/markPriceKlines"
+ASTER_PREMIUM = "https://fapi.asterdex.com/fapi/v3/premiumIndex"
+OKX_FUNDING = "https://www.okx.com/api/v5/public/funding-rate"
+OKX_FUNDING_HISTORY = "https://www.okx.com/api/v5/public/funding-rate-history"
+OKX_MARK_PRICE = "https://www.okx.com/api/v5/public/mark-price"
+OKX_MARK_CANDLES = "https://www.okx.com/api/v5/market/mark-price-candles"
+OKX_INDEX_TICKER = "https://www.okx.com/api/v5/market/index-tickers"
+VARIATIONAL_STATS = "https://omni-client-api.prod.ap-northeast-1.variational.io/metadata/stats"
 PAIRS = [
     {"symbol": "xyz:GOOGL", "displaySymbol": "GOOGL", "assetId": "GOOGL", "assetName": "Google", "exchange": "Hyperliquid", "dex": "xyz", "enabled": True},
     {"symbol": "GOOGLUSDT", "displaySymbol": "GOOGL", "assetId": "GOOGL", "assetName": "Google", "exchange": "Binance", "enabled": True},
@@ -61,10 +70,56 @@ PAIRS = [
     {"symbol": "HYPEUSDT", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "Binance", "enabled": True},
     {"symbol": "HYPEUSDT", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "Bybit", "enabled": True}
 ]
+PAIRS.extend([
+    {"symbol": "GOOGLUSDT", "displaySymbol": "GOOGL", "assetId": "GOOGL", "assetName": "Google", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "GOOGL-USDT-SWAP", "displaySymbol": "GOOGL", "assetId": "GOOGL", "assetName": "Google", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "SAMSUNGUSDT", "displaySymbol": "SAMSUNG", "assetId": "SAMSUNG", "assetName": "삼성전자", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "SAMSUNG-USDT-SWAP", "displaySymbol": "SAMSUNG", "assetId": "SAMSUNG", "assetName": "삼성전자", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "SKHYNIXUSDT", "displaySymbol": "SKHYNIX", "assetId": "SKHYNIX", "assetName": "SK하이닉스", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "SKHYNIX-USDT-SWAP", "displaySymbol": "SKHYNIX", "assetId": "SKHYNIX", "assetName": "SK하이닉스", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "XAUUSDT", "displaySymbol": "XAU", "assetId": "GOLD", "assetName": "Gold", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "XAU-USDT-SWAP", "displaySymbol": "XAU", "assetId": "GOLD", "assetName": "Gold", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "XAU", "displaySymbol": "XAU", "assetId": "GOLD", "assetName": "Gold", "exchange": "Variational", "enabled": True},
+    {"symbol": "AMZNUSDT", "displaySymbol": "AMZN", "assetId": "AMZN", "assetName": "Amazon", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "AMZN-USDT-SWAP", "displaySymbol": "AMZN", "assetId": "AMZN", "assetName": "Amazon", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "AAPLUSDT", "displaySymbol": "AAPL", "assetId": "AAPL", "assetName": "Apple", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "AAPL-USDT-SWAP", "displaySymbol": "AAPL", "assetId": "AAPL", "assetName": "Apple", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "TSLAUSDT", "displaySymbol": "TSLA", "assetId": "TSLA", "assetName": "Tesla", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "TSLA-USDT-SWAP", "displaySymbol": "TSLA", "assetId": "TSLA", "assetName": "Tesla", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "TSLA", "displaySymbol": "TSLA", "assetId": "TSLA", "assetName": "Tesla", "exchange": "Variational", "enabled": True},
+    {"symbol": "NVDAUSDT", "displaySymbol": "NVDA", "assetId": "NVDA", "assetName": "NVIDIA", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "NVDA-USDT-SWAP", "displaySymbol": "NVDA", "assetId": "NVDA", "assetName": "NVIDIA", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "NVDA", "displaySymbol": "NVDA", "assetId": "NVDA", "assetName": "NVIDIA", "exchange": "Variational", "enabled": True},
+    {"symbol": "METAUSDT", "displaySymbol": "META", "assetId": "META", "assetName": "Meta", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "META-USDT-SWAP", "displaySymbol": "META", "assetId": "META", "assetName": "Meta", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "MSFTUSDT", "displaySymbol": "MSFT", "assetId": "MSFT", "assetName": "Microsoft", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "MSFT-USDT-SWAP", "displaySymbol": "MSFT", "assetId": "MSFT", "assetName": "Microsoft", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "MSTRUSDT", "displaySymbol": "MSTR", "assetId": "MSTR", "assetName": "MicroStrategy", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "MSTR-USDT-SWAP", "displaySymbol": "MSTR", "assetId": "MSTR", "assetName": "MicroStrategy", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "MSTR", "displaySymbol": "MSTR", "assetId": "MSTR", "assetName": "MicroStrategy", "exchange": "Variational", "enabled": True},
+    {"symbol": "COINUSDT", "displaySymbol": "COIN", "assetId": "COIN", "assetName": "Coinbase", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "COIN-USDT-SWAP", "displaySymbol": "COIN", "assetId": "COIN", "assetName": "Coinbase", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "COIN", "displaySymbol": "COIN", "assetId": "COIN", "assetName": "Coinbase", "exchange": "Variational", "enabled": True},
+    {"symbol": "TSMUSDT", "displaySymbol": "TSM", "assetId": "TSM", "assetName": "TSMC", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "TSM-USDT-SWAP", "displaySymbol": "TSM", "assetId": "TSM", "assetName": "TSMC", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "TSM", "displaySymbol": "TSM", "assetId": "TSM", "assetName": "TSMC", "exchange": "Variational", "enabled": True},
+    {"symbol": "PLTRUSDT", "displaySymbol": "PLTR", "assetId": "PLTR", "assetName": "Palantir", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "PLTR-USDT-SWAP", "displaySymbol": "PLTR", "assetId": "PLTR", "assetName": "Palantir", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "BABAUSDT", "displaySymbol": "BABA", "assetId": "BABA", "assetName": "Alibaba", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "QQQUSDT", "displaySymbol": "QQQ", "assetId": "QQQ", "assetName": "QQQ", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "QQQ-USDT-SWAP", "displaySymbol": "QQQ", "assetId": "QQQ", "assetName": "QQQ", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "QQQ", "displaySymbol": "QQQ", "assetId": "QQQ", "assetName": "QQQ", "exchange": "Variational", "enabled": True},
+    {"symbol": "SPYUSDT", "displaySymbol": "SPY", "assetId": "SPY", "assetName": "SPY", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "SPY-USDT-SWAP", "displaySymbol": "SPY", "assetId": "SPY", "assetName": "SPY", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "HYPEUSDT", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
+    {"symbol": "HYPE-USDT-SWAP", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
+    {"symbol": "HYPE", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "Variational", "enabled": True},
+])
 WINDOWS = {"1D": 1, "7D": 7, "30D": 30, "90D": 90}
 DATA_PATH = Path("funding_data.json")
 MAX_RETRIES = 4
 RETRY_BASE_DELAY = 1.5
+_variational_stats_cache = None
 
 def fetch_json(url):
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -105,10 +160,73 @@ def pair_key(pair):
     return f"{pair['exchange']}:{pair['symbol']}"
 
 
-def payments_per_day(pair):
+def funding_interval_hours(pair):
+    if pair.get("fundingIntervalHours"):
+        return float(pair["fundingIntervalHours"])
     if pair["exchange"] == "Hyperliquid":
-        return 24
-    return 3
+        return 1
+    if pair["exchange"] == "Aster":
+        return 4
+    return 8
+
+
+def payments_per_day(pair):
+    return 24 / funding_interval_hours(pair)
+
+
+def infer_funding_interval_hours(pair, rows):
+    if pair.get("fundingIntervalHours"):
+        return float(pair["fundingIntervalHours"])
+    if len(rows) < 2:
+        return funding_interval_hours(pair)
+    diffs = []
+    prev = None
+    for row in rows:
+        ts = int(row["fundingTime"])
+        if prev is not None:
+            gap_hours = (ts - prev) / 3600000
+            if 0.5 <= gap_hours <= 24:
+                diffs.append(gap_hours)
+        prev = ts
+    if not diffs:
+        return funding_interval_hours(pair)
+    diffs.sort()
+    return round(diffs[len(diffs) // 2], 4)
+
+
+def nearest_mark_price(mark_rows, ts):
+    eligible = [row for row in mark_rows if row["time"] <= ts]
+    if eligible:
+        return eligible[-1]["markPrice"]
+    return mark_rows[0]["markPrice"] if mark_rows else None
+
+
+def merge_rows(existing_rows, new_rows, days):
+    start_ms = int(time.time() * 1000) - days * 24 * 3600 * 1000
+    merged = {}
+    for row in (existing_rows or []) + (new_rows or []):
+        ts = int(row["fundingTime"])
+        if ts >= start_ms:
+            merged[ts] = row
+    return [merged[ts] for ts in sorted(merged)]
+
+
+def parse_iso_ms(value):
+    if not value:
+        return int(time.time() * 1000)
+    if value.endswith("Z"):
+        value = value[:-1] + "+00:00"
+    if "." in value:
+        head, tail = value.split(".", 1)
+        digits = ""
+        suffix = ""
+        for ch in tail:
+            if ch.isdigit() and not suffix:
+                digits += ch
+            else:
+                suffix += ch
+        value = f"{head}.{digits[:6].ljust(6, '0')}{suffix}"
+    return int(datetime.datetime.fromisoformat(value).timestamp() * 1000)
 
 def fetch_binance_history(symbol, days):
     end_ms = int(time.time() * 1000)
@@ -195,16 +313,25 @@ def fetch_bybit_mark_prices(symbol, days):
 def fetch_bybit_history(symbol, days):
     end_ms = int(time.time() * 1000)
     start_ms = end_ms - days * 24 * 3600 * 1000
-    url = f"{BYBIT_FUNDING}?category=linear&symbol={symbol}&startTime={start_ms}&endTime={end_ms}&limit=200"
-    data = fetch_json(url)
-    funding_rows = data.get("result", {}).get("list", [])
+    funding_rows = []
+    cur_end = end_ms
+    seen = set()
+    while True:
+        url = f"{BYBIT_FUNDING}?category=linear&symbol={symbol}&startTime={start_ms}&endTime={cur_end}&limit=200"
+        data = fetch_json(url)
+        batch = data.get("result", {}).get("list", [])
+        if not batch:
+            break
+        for row in batch:
+            ts = int(row["fundingRateTimestamp"])
+            if ts >= start_ms and ts not in seen:
+                seen.add(ts)
+                funding_rows.append(row)
+        oldest = min(int(row["fundingRateTimestamp"]) for row in batch)
+        if oldest <= start_ms or len(batch) < 200:
+            break
+        cur_end = oldest - 1
     mark_rows = fetch_bybit_mark_prices(symbol, days)
-
-    def nearest_mark_price(ts):
-        eligible = [row for row in mark_rows if row["time"] <= ts]
-        if eligible:
-            return eligible[-1]["markPrice"]
-        return mark_rows[0]["markPrice"] if mark_rows else None
 
     rows = []
     for row in funding_rows:
@@ -212,7 +339,7 @@ def fetch_bybit_history(symbol, days):
         rows.append({
             "fundingTime": ts,
             "fundingRate": float(row["fundingRate"]),
-            "markPrice": nearest_mark_price(ts),
+            "markPrice": nearest_mark_price(mark_rows, ts),
         })
     rows.sort(key=lambda x: x["fundingTime"])
     return rows
@@ -309,12 +436,6 @@ def fetch_hyperliquid_history(symbol, days):
             break
     mark_rows = fetch_hyperliquid_candles(symbol, days)
 
-    def nearest_mark_price(ts):
-        eligible = [row for row in mark_rows if row["time"] <= ts]
-        if eligible:
-            return eligible[-1]["markPrice"]
-        return mark_rows[0]["markPrice"] if mark_rows else None
-
     rows = []
     for row in funding_rows:
         ts = int(row["time"])
@@ -322,7 +443,7 @@ def fetch_hyperliquid_history(symbol, days):
             "fundingTime": ts,
             "fundingRate": float(row["fundingRate"]),
             "premium": float(row["premium"]),
-            "markPrice": nearest_mark_price(ts),
+            "markPrice": nearest_mark_price(mark_rows, ts),
         })
     rows.sort(key=lambda x: x["fundingTime"])
     return rows
@@ -365,13 +486,239 @@ def fetch_hyperliquid_latest(symbol, dex=None):
         }
 
 
-def fetch_history(pair, days):
+def fetch_aster_mark_prices(symbol, days):
+    end_ms = int(time.time() * 1000)
+    start_ms = end_ms - days * 24 * 3600 * 1000
+    url = f"{ASTER_MARK_KLINE}?symbol={symbol}&interval=4h&startTime={start_ms}&endTime={end_ms}&limit=1000"
+    rows = fetch_json(url)
+    out = []
+    for row in rows:
+        ts = int(row[0])
+        if ts >= start_ms:
+            out.append({"time": ts, "markPrice": float(row[4])})
+    out.sort(key=lambda x: x["time"])
+    return out
+
+
+def fetch_aster_history(symbol, days):
+    end_ms = int(time.time() * 1000)
+    start_ms = end_ms - days * 24 * 3600 * 1000
+    rows = []
+    cur = start_ms
+    while True:
+        url = f"{ASTER_FUNDING}?symbol={symbol}&startTime={cur}&endTime={end_ms}&limit=1000"
+        batch = fetch_json(url)
+        if not batch:
+            break
+        rows.extend(batch)
+        if len(batch) < 1000:
+            break
+        cur = int(batch[-1]["fundingTime"]) + 1
+    mark_rows = fetch_aster_mark_prices(symbol, days)
+    seen = set()
+    out = []
+    for row in rows:
+        ts = int(row["fundingTime"])
+        if ts in seen or ts < start_ms:
+            continue
+        seen.add(ts)
+        out.append({
+            "fundingTime": ts,
+            "fundingRate": float(row["fundingRate"]),
+            "markPrice": nearest_mark_price(mark_rows, ts),
+        })
+    out.sort(key=lambda x: x["fundingTime"])
+    return out
+
+
+def fetch_aster_latest(symbol):
+    url = f"{ASTER_PREMIUM}?symbol={symbol}"
+    try:
+        row = fetch_json(url)
+        return {
+            "markPrice": float(row["markPrice"]),
+            "indexPrice": float(row["indexPrice"]),
+            "lastFundingRate": float(row["lastFundingRate"]),
+            "nextFundingTime": int(row["nextFundingTime"]),
+            "fundingIntervalHours": 4,
+            "time": int(row.get("time") or time.time() * 1000),
+            "available": True
+        }
+    except Exception as e:
+        return {
+            "markPrice": None,
+            "indexPrice": None,
+            "lastFundingRate": None,
+            "nextFundingTime": None,
+            "fundingIntervalHours": 4,
+            "time": None,
+            "available": False,
+            "error": str(e)
+        }
+
+
+def fetch_okx_mark_prices(symbol, days):
+    start_ms = int(time.time() * 1000) - days * 24 * 3600 * 1000
+    out = []
+    seen = set()
+    after = None
+    while True:
+        params = {"instId": symbol, "bar": "4H", "limit": "100"}
+        if after:
+            params["after"] = str(after)
+        url = f"{OKX_MARK_CANDLES}?{urllib.parse.urlencode(params)}"
+        data = fetch_json(url)
+        batch = data.get("data", [])
+        if not batch:
+            break
+        for row in batch:
+            ts = int(row[0])
+            if ts >= start_ms and ts not in seen:
+                seen.add(ts)
+                out.append({"time": ts, "markPrice": float(row[4])})
+        oldest = min(int(row[0]) for row in batch)
+        if oldest <= start_ms or len(batch) < 100:
+            break
+        after = oldest
+    out.sort(key=lambda x: x["time"])
+    return out
+
+
+def fetch_okx_history(symbol, days):
+    start_ms = int(time.time() * 1000) - days * 24 * 3600 * 1000
+    funding_rows = []
+    seen = set()
+    after = None
+    while True:
+        params = {"instId": symbol, "limit": "100"}
+        if after:
+            params["after"] = str(after)
+        url = f"{OKX_FUNDING_HISTORY}?{urllib.parse.urlencode(params)}"
+        data = fetch_json(url)
+        batch = data.get("data", [])
+        if not batch:
+            break
+        for row in batch:
+            ts = int(row["fundingTime"])
+            if ts >= start_ms and ts not in seen:
+                seen.add(ts)
+                funding_rows.append(row)
+        oldest = min(int(row["fundingTime"]) for row in batch)
+        if oldest <= start_ms or len(batch) < 100:
+            break
+        after = oldest
+    mark_rows = fetch_okx_mark_prices(symbol, days)
+    out = []
+    for row in funding_rows:
+        ts = int(row["fundingTime"])
+        out.append({
+            "fundingTime": ts,
+            "fundingRate": float(row["realizedRate"] or row["fundingRate"]),
+            "markPrice": nearest_mark_price(mark_rows, ts),
+        })
+    out.sort(key=lambda x: x["fundingTime"])
+    return out
+
+
+def fetch_okx_latest(symbol):
+    try:
+        funding = fetch_json(f"{OKX_FUNDING}?instId={urllib.parse.quote(symbol)}")
+        mark = fetch_json(f"{OKX_MARK_PRICE}?instType=SWAP&instId={urllib.parse.quote(symbol)}")
+        index = fetch_json(f"{OKX_INDEX_TICKER}?instId={urllib.parse.quote(symbol.replace('-SWAP', ''))}")
+        funding_row = funding.get("data", [{}])[0]
+        mark_row = mark.get("data", [{}])[0]
+        index_row = index.get("data", [{}])[0]
+        return {
+            "markPrice": float(mark_row.get("markPx") or funding_row.get("markPx")),
+            "indexPrice": float(index_row["idxPx"]),
+            "lastFundingRate": float(funding_row["fundingRate"]),
+            "nextFundingTime": int(funding_row.get("nextFundingTime") or funding_row.get("nextFundingTimeMs")),
+            "fundingIntervalHours": 8,
+            "time": int(funding_row.get("ts") or time.time() * 1000),
+            "available": True
+        }
+    except Exception as e:
+        return {
+            "markPrice": None,
+            "indexPrice": None,
+            "lastFundingRate": None,
+            "nextFundingTime": None,
+            "fundingIntervalHours": 8,
+            "time": None,
+            "available": False,
+            "error": str(e)
+        }
+
+
+def get_variational_listing(symbol):
+    global _variational_stats_cache
+    if _variational_stats_cache is None:
+        _variational_stats_cache = fetch_json(VARIATIONAL_STATS)
+    data = _variational_stats_cache
+    for row in data.get("listings", []):
+        if str(row.get("ticker", "")).upper() == symbol.upper():
+            return row
+    raise RuntimeError(f"variational listing not found: {symbol}")
+
+
+def fetch_variational_latest(symbol):
+    try:
+        row = get_variational_listing(symbol)
+        interval_hours = float(row.get("funding_interval_s") or 28800) / 3600
+        payments_per_year = (24 / interval_hours) * 365
+        updated_ms = parse_iso_ms(row.get("quotes", {}).get("updated_at"))
+        return {
+            "markPrice": float(row["mark_price"]),
+            "indexPrice": float(row["mark_price"]),
+            "lastFundingRate": float(row["funding_rate"]) / payments_per_year,
+            "nextFundingTime": updated_ms + int(interval_hours * 3600000),
+            "fundingIntervalHours": interval_hours,
+            "time": updated_ms,
+            "available": True
+        }
+    except Exception as e:
+        return {
+            "markPrice": None,
+            "indexPrice": None,
+            "lastFundingRate": None,
+            "nextFundingTime": None,
+            "fundingIntervalHours": None,
+            "time": None,
+            "available": False,
+            "error": str(e)
+        }
+
+
+def fetch_variational_history(pair, days, previous_rows):
+    latest = fetch_variational_latest(pair["symbol"])
+    rows = []
+    if latest.get("available") and latest.get("lastFundingRate") is not None:
+        rows.append({
+            "fundingTime": int(latest["time"]),
+            "fundingRate": float(latest["lastFundingRate"]),
+            "markPrice": latest["markPrice"],
+            "source": "snapshot",
+        })
+        pair["_latest"] = latest
+        pair["_fundingIntervalHours"] = latest.get("fundingIntervalHours")
+    return merge_rows(previous_rows, rows, days)
+
+
+def fetch_history(pair, days, previous_rows=None):
     if pair["exchange"] == "Binance":
         return fetch_binance_history(pair["symbol"], days)
     if pair["exchange"] == "Bybit":
         return fetch_bybit_history(pair["symbol"], days)
     if pair["exchange"] == "Hyperliquid":
+        if previous_rows:
+            return merge_rows(previous_rows, fetch_hyperliquid_history(pair["symbol"], min(days, 2)), days)
         return fetch_hyperliquid_history(pair["symbol"], days)
+    if pair["exchange"] == "Aster":
+        return fetch_aster_history(pair["symbol"], days)
+    if pair["exchange"] == "OKX":
+        return fetch_okx_history(pair["symbol"], days)
+    if pair["exchange"] == "Variational":
+        return fetch_variational_history(pair, days, previous_rows or [])
     raise ValueError(f"Unsupported exchange: {pair['exchange']}")
 
 
@@ -382,6 +729,12 @@ def fetch_latest(pair):
         return fetch_bybit_latest(pair["symbol"])
     if pair["exchange"] == "Hyperliquid":
         return fetch_hyperliquid_latest(pair["symbol"], pair.get("dex"))
+    if pair["exchange"] == "Aster":
+        return fetch_aster_latest(pair["symbol"])
+    if pair["exchange"] == "OKX":
+        return fetch_okx_latest(pair["symbol"])
+    if pair["exchange"] == "Variational":
+        return pair.pop("_latest", None) or fetch_variational_latest(pair["symbol"])
     raise ValueError(f"Unsupported exchange: {pair['exchange']}")
 
 def summarize(rows, periods_per_day):
@@ -429,7 +782,10 @@ def main():
         "comparisons": {
             "Binance": {"supported": True, "notes": "Funding history available via public futures API"},
             "Bybit": {"supported": True, "notes": "Funding history + current snapshot available via public linear market API"},
-            "Hyperliquid": {"supported": True, "notes": "HIP-3 xyz perp funding history + current snapshot available via public info API"}
+            "Hyperliquid": {"supported": True, "notes": "HIP-3 xyz perp funding history + current snapshot available via public info API"},
+            "Aster": {"supported": True, "notes": "Funding history + current snapshot available via public futures API"},
+            "OKX": {"supported": True, "notes": "Funding history + current snapshot available via public API"},
+            "Variational": {"supported": True, "notes": "Public API is current snapshot oriented; dashboard accumulates snapshots over time"}
         }
     }
 
@@ -445,19 +801,27 @@ def main():
             "exchange": pair["exchange"],
             "dex": pair.get("dex"),
             "fundingPeriodsPerDay": payments_per_day(pair),
+            "fundingIntervalHours": funding_interval_hours(pair),
             "windows": {},
             "latest": {},
             "rows": []
         }
 
         try:
+            old_pair = previous.get("pairs", {}).get(key, {})
+            full_rows = fetch_history(pair, WINDOWS["90D"], old_pair.get("rows", []))
+            if pair.get("_fundingIntervalHours"):
+                pair_out["fundingIntervalHours"] = float(pair["_fundingIntervalHours"])
+                pair_out["fundingPeriodsPerDay"] = 24 / pair_out["fundingIntervalHours"]
+            elif full_rows:
+                pair_out["fundingIntervalHours"] = infer_funding_interval_hours(pair, full_rows)
+                pair_out["fundingPeriodsPerDay"] = 24 / pair_out["fundingIntervalHours"]
             pair_out["latest"] = fetch_latest(pair)
-            full_rows = fetch_history(pair, WINDOWS["90D"])
             pair_out["rows"] = full_rows
             for label, days in WINDOWS.items():
                 min_ts = int(time.time() * 1000) - days * 24 * 3600 * 1000
                 filtered = [r for r in full_rows if r["fundingTime"] >= min_ts]
-                pair_out["windows"][label] = summarize(filtered, payments_per_day(pair))
+                pair_out["windows"][label] = summarize(filtered, pair_out["fundingPeriodsPerDay"])
             pair_out["available"] = True
             data["pairs"][key] = pair_out
         except Exception as e:
