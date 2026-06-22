@@ -92,10 +92,10 @@
     .asset-symbol { font-size:22px; font-weight:850; color:#f3fff8; }
     .asset-badge { border:1px solid rgba(220,232,223,0.18); border-radius:6px; padding:2px 6px; color:var(--muted); font-size:11px; font-weight:850; }
     .asset-name { margin-top:4px; color:var(--muted); font-size:13px; font-weight:700; }
-    .asset-metrics { display:grid; grid-template-columns:repeat(3,minmax(130px,1fr)); gap:14px; align-items:start; flex:1 1 540px; max-width:760px; }
+    .asset-metrics { display:grid; grid-template-columns:repeat(5,minmax(118px,1fr)); gap:14px; align-items:start; flex:1 1 760px; max-width:1040px; }
     .asset-metric { min-width:0; text-align:right; }
     .asset-metric-label { color:var(--muted); font-size:12px; font-weight:800; }
-    .asset-price,.asset-metric-value { margin-top:6px; font-size:27px; line-height:1; font-weight:850; font-variant-numeric:tabular-nums; }
+    .asset-price,.asset-metric-value { margin-top:6px; font-size:clamp(18px, 1.7vw, 27px); line-height:1; font-weight:850; font-variant-numeric:tabular-nums; }
     .asset-price { color:var(--good); }
     .asset-metric-value.good { color:var(--good); }
     .asset-metric-value.bad { color:var(--bad); }
@@ -117,7 +117,6 @@
     th,td { text-align:left; padding:10px; border-bottom:1px solid var(--line); }
     tr:hover td { background:rgba(255,255,255,0.018); }
     th { color:var(--muted); font-size:12px; font-weight:800; position:sticky; top:0; background:rgba(13,23,18,0.98); text-transform:none; }
-    .summary-table th,.summary-table td { text-align:center; }
     .table-wrap { max-height:620px; overflow:auto; border-radius:12px; border:1px solid var(--line); }
     .pill { display:inline-flex; align-items:center; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:700; }
     .pill.good { background:rgba(46,204,113,0.14); color:var(--good); }
@@ -212,6 +211,16 @@
           <div class="asset-metric-value" id="avgFunding">-</div>
           <div class="asset-metric-meta" data-i18n="recentWindowAvg">최근 선택 구간 평균</div>
         </div>
+        <div class="asset-metric">
+          <div class="asset-metric-label" data-i18n="sumFunding">누적 funding 합계</div>
+          <div class="asset-metric-value" id="sumFunding">-</div>
+          <div class="asset-metric-meta" id="sumFundingMeta">-</div>
+        </div>
+        <div class="asset-metric">
+          <div class="asset-metric-label" data-i18n="interpretation">해석</div>
+          <div class="asset-metric-value" id="interpretation">-</div>
+          <div class="asset-metric-meta" data-i18n="selectedWindow">선택 기간</div>
+        </div>
       </div>
     </div>
     <div class="top-grid">
@@ -243,14 +252,6 @@
     </div>
 
     <div class="grid">
-      <div class="card wide">
-        <h3 class="section-title" data-i18n="summary">요약</h3>
-        <table class="summary-table">
-          <thead><tr><th data-i18n="firstRound">첫 회차</th><th data-i18n="lastRound">마지막 회차</th><th data-i18n="sumFunding">누적 funding 합계</th><th data-i18n="interpretation">해석</th></tr></thead>
-          <tbody><tr><td id="firstTime">-</td><td id="lastTime">-</td><td id="sumFunding">-</td><td id="interpretation">-</td></tr></tbody>
-        </table>
-      </div>
-
       <div class="card wide"><h3 class="section-title" data-i18n="priceChart">Price Chart</h3><canvas id="priceChart"></canvas><div class="note" data-i18n="priceChartNote">선택 구간의 mark price 흐름. TradingView 스타일에 가깝게 어두운 배경/라인 중심으로 표시.</div></div>
 
       <div class="card wide"><h3 class="section-title" data-i18n="fundingRateChart">Funding Rate Chart</h3><canvas id="fundingChart"></canvas><div class="note" data-i18n="fundingChartNote">선택 구간의 회차별 funding rate 흐름.</div></div>
@@ -430,7 +431,7 @@
         nextFunding:'다음 Funding', nextFundingMini:'다음 정산까지 남은 시간', settlementTime:'정산 시각',
         settlementTimeFailed:'정산 시각 조회 실패', fetchFailed:'조회 실패', settling:'정산 중 / 갱신 대기',
         avgFundingPerRound:'평균 Funding Fee / 회', recentWindowAvg:'최근 선택 구간 평균',
-        summary:'요약', firstRound:'첫 회차', lastRound:'마지막 회차', sumFunding:'누적 funding 합계', interpretation:'해석',
+        summary:'요약', firstRound:'첫 회차', lastRound:'마지막 회차', sumFunding:'누적 funding 합계', interpretation:'해석', selectedWindow:'선택 기간',
         priceChart:'Price Chart', priceChartNote:'선택 구간의 mark price 흐름. TradingView 스타일에 가깝게 어두운 배경/라인 중심으로 표시.',
         fundingRateChart:'Funding Rate Chart', fundingChartNote:'선택 구간의 회차별 funding rate 흐름.',
         fundingHistory:'회차별 Funding History', direction:'Direction',
@@ -457,7 +458,7 @@
         nextFunding:'Next funding', nextFundingMini:'Time left until next settlement', settlementTime:'Settlement time',
         settlementTimeFailed:'Settlement time unavailable', fetchFailed:'Unavailable', settling:'Settling / waiting for update',
         avgFundingPerRound:'Average funding fee / round', recentWindowAvg:'Average over selected window',
-        summary:'Summary', firstRound:'First round', lastRound:'Last round', sumFunding:'Cumulative funding sum', interpretation:'Interpretation',
+        summary:'Summary', firstRound:'First round', lastRound:'Last round', sumFunding:'Cumulative funding sum', interpretation:'Interpretation', selectedWindow:'Selected window',
         priceChart:'Price Chart', priceChartNote:'Mark price movement over the selected window, shown with a dark, line-focused TradingView-style chart.',
         fundingRateChart:'Funding Rate Chart', fundingChartNote:'Funding rate movement by round over the selected window.',
         fundingHistory:'Funding History By Round', direction:'Direction',
@@ -948,12 +949,7 @@
         const fee=fundingFeeValue(latest);
         const feeEl=document.createElement('span');
         feeEl.className='fee-value ' + feeTone(fee);
-        const shortFee=shortFundingFeeValue(latest);
-        if(latest.shortFundingFee != null && fee != null && !Number.isNaN(fee) && shortFee != null && !Number.isNaN(shortFee)){
-          feeEl.innerHTML=`L ${fmtSignedPct(fee)}<br>S ${fmtSignedPct(shortFee)}`;
-        } else {
-          feeEl.textContent=fee == null || Number.isNaN(fee) ? '-' : fmtSignedPct(fee);
-        }
+        feeEl.textContent=fee == null || Number.isNaN(fee) ? '-' : fmtSignedPct(fee);
         feeCell.appendChild(feeEl);
 
         const annualCell=document.createElement('td');
@@ -1230,10 +1226,12 @@
       const currentFee = fundingFeeValue(latest);
       const displayedAnnualized = windowSummary.annualizedPct;
       const annual=document.getElementById('annualized'); annual.textContent=fmtAnnual(displayedAnnualized); annual.className='value '+(displayedAnnualized>=0?'good':'bad');
-      document.getElementById('firstTime').textContent=windowSummary.firstFundingTime ? toKST(windowSummary.firstFundingTime) : '-';
-      document.getElementById('lastTime').textContent=windowSummary.lastFundingTime ? toKST(windowSummary.lastFundingTime) : '-';
+      const sumFundingTone = windowSummary.sumFundingRate < 0 ? 'good' : 'bad';
       document.getElementById('sumFunding').textContent=fmtPct(windowSummary.sumFundingRate);
+      document.getElementById('sumFunding').className='asset-metric-value '+sumFundingTone;
+      document.getElementById('sumFundingMeta').textContent=state.selectedWindow;
       document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate < 0 ? '<span class="pill good">Short → Long</span>' : '<span class="pill bad">Long → Short</span>';
+      document.getElementById('interpretation').className='asset-metric-value';
 
       const coreTitle = document.getElementById('coreTitle');
       coreTitle.innerHTML = `${t('selectedFundingDirection')} : <span class="direction-value ${periodFeeTone}">${feeDirection(periodFee)}</span>`;
@@ -1435,6 +1433,10 @@
         }
       });
       document.getElementById('assetSearch').addEventListener('focus', e=>{
+        e.target.value='';
+        openAssetDropdown();
+      });
+      document.getElementById('assetSearch').addEventListener('click', e=>{
         e.target.value='';
         openAssetDropdown();
       });
