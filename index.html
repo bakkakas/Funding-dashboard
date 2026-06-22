@@ -57,9 +57,11 @@
     .exchange-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
     .exchange-tabs .chip { padding:8px 11px; }
     .funding-detail-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:14px; }
+    .favored-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; }
     .detail-box { border:1px solid var(--line); border-radius:8px; padding:10px; background:rgba(16,32,25,0.55); min-height:62px; }
     .detail-box .label { font-size:12px; }
     .detail-box .detail-value { margin-top:6px; font-size:18px; font-weight:800; }
+    .detail-box .detail-sub { display:block; margin-top:4px; color:var(--muted); font-size:12px; font-weight:800; }
     .funding-bars { display:grid; gap:8px; margin-top:14px; }
     .funding-bar-row { display:grid; grid-template-columns:92px minmax(0,1fr) 86px; gap:8px; align-items:center; font-size:13px; }
     .funding-bar-name { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -119,7 +121,7 @@
     .auth-status { color:var(--muted); font-size:13px; line-height:1.55; }
     .auth-status strong { color:var(--text); }
     @media (max-width:1100px){ .top-panel,.metric,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } .header-side { align-items:flex-start; } .header-market-row,.header-actions { justify-content:flex-start; } }
-    @media (max-width:700px){ .rate-combo { grid-template-columns:1fr; } }
+    @media (max-width:700px){ .rate-combo,.favored-grid { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -153,19 +155,21 @@
           <thead><tr><th>지원 거래소</th><th>페어</th><th>현재 펀딩피</th><th>Annualized</th></tr></thead>
           <tbody id="comparisonBody"></tbody>
         </table>
+        <div class="favored-grid">
+          <div class="detail-box"><div class="label">Long 유리</div><div class="detail-value good" id="longFavoredExchange">-</div></div>
+          <div class="detail-box"><div class="label">Short 유리</div><div class="detail-value bad" id="shortFavoredExchange">-</div></div>
+        </div>
       </div>
       <div class="card top-panel">
-        <h3 class="section-title" id="coreTitle">현재 Funding Fee 방향 : -</h3>
+        <h3 class="section-title" id="coreTitle">선택 기간 Funding Fee 방향 : -</h3>
         <div class="exchange-tabs" id="exchangeTabs"></div>
         <div class="rate-combo">
-          <div class="rate-item"><div class="label">현재 Funding Rate</div><div class="value" id="latestFunding">-</div></div>
-          <div class="rate-item"><div class="label">Annualized</div><div class="value" id="annualized">-</div></div>
+          <div class="rate-item"><div class="label">선택 기간 평균 Funding Fee</div><div class="value" id="latestFunding">-</div></div>
+          <div class="rate-item"><div class="label">평균 Annualized</div><div class="value" id="annualized">-</div></div>
         </div>
         <div class="funding-detail-grid">
           <div class="detail-box"><div class="label">Mark / Index 차이</div><div class="detail-value" id="markIndexGap">-</div></div>
           <div class="detail-box"><div class="label">선택 거래소 순위</div><div class="detail-value" id="selectedExchangeRank">-</div></div>
-          <div class="detail-box"><div class="label">Long 유리</div><div class="detail-value good" id="longFavoredExchange">-</div></div>
-          <div class="detail-box"><div class="label">Short 유리</div><div class="detail-value bad" id="shortFavoredExchange">-</div></div>
         </div>
         <div class="funding-bars" id="fundingBars"></div>
         <div class="rate-legend"><span class="legend-good">양수 = Short -> Long</span><span class="legend-bad">음수 = Long -> Short</span></div>
@@ -177,7 +181,7 @@
       <div class="card metric"><div class="label">현재 Price</div><div class="value" id="priceCard">-</div><div class="mini"><strong style="color:var(--text)">Mark:</strong> <span id="markPrice">-</span> &nbsp;|&nbsp; <strong style="color:var(--text)">Index:</strong> <span id="indexPrice">-</span></div></div>
 
       <div class="card metric"><div class="label">표본 수</div><div class="value" id="sampleCount">-</div><div class="mini">선택 기간의 funding 회차 수</div></div>
-      <div class="card metric"><div class="label">평균 funding / 회</div><div class="value" id="avgFunding">-</div><div class="mini">최근 선택 구간 평균</div></div>
+      <div class="card metric"><div class="label">평균 Funding Fee / 회</div><div class="value" id="avgFunding">-</div><div class="mini">최근 선택 구간 평균</div></div>
 
       <div class="card wide">
         <h3 class="section-title">요약</h3>
@@ -199,7 +203,7 @@
             <tbody id="historyBody"></tbody>
           </table>
         </div>
-        <div class="note">Annualized는 최근 funding rate를 정산 주기에 맞춰 연장한 러닝레이트이며 미래 확정 수익률이 아니다. Hyperliquid는 1시간, Aster는 4시간, Binance/Bybit/OKX/Variational은 8시간 기준으로 연율화한다. 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 상단 현재값은 브라우저에서 거래소 public API를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있고, Aster/OKX/Variational은 현재 비교값 중심으로 표시된다.</div>
+        <div class="note">Annualized는 funding rate를 정산 주기에 맞춰 연장한 러닝레이트이며 미래 확정 수익률이 아니다. Hyperliquid는 1시간, Aster는 4시간, Binance/Bybit/OKX/Variational은 8시간 기준으로 연율화한다. 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 거래소 목록의 현재값은 브라우저에서 거래소 public API를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있고, Aster/OKX/Variational은 현재 비교값 중심으로 표시된다.</div>
       </div>
     </div>
   </div>
@@ -399,6 +403,10 @@
     function annualizedFromFee(pair, fee, latest={}){
       if(fee == null || Number.isNaN(fee)) return null;
       return fee * (24 / intervalHoursFor(pair, latest)) * 365 * 100;
+    }
+    function periodFundingFee(summary){
+      if(!summary || summary.avgFundingRate == null || Number.isNaN(summary.avgFundingRate)) return null;
+      return -Number(summary.avgFundingRate);
     }
     function comparisonAnnualized(pairKey, pair, latest){
       const fee = fundingFeeValue(latest);
@@ -922,8 +930,16 @@
       gapEl.textContent=gap == null ? '-' : fmtSignedPct(gap);
       gapEl.className='detail-value ' + feeTone(gap);
       document.getElementById('selectedExchangeRank').textContent=selectedRank >= 0 ? `${selectedRank + 1}/${sorted.length}` : '-';
-      document.getElementById('longFavoredExchange').textContent=longFavored ? `${longFavored.pair.exchange} ${fmtSignedPct(longFavored.fee)}` : '-';
-      document.getElementById('shortFavoredExchange').textContent=shortFavored ? `${shortFavored.pair.exchange} ${fmtSignedPct(shortFavored.fee)}` : '-';
+      const renderFavored = (el, item) => {
+        if(!item){
+          el.textContent='-';
+          return;
+        }
+        const annualized = item.annualized == null || Number.isNaN(item.annualized) ? '-' : fmtAnnual(item.annualized);
+        el.innerHTML = `${item.pair.exchange} ${fmtSignedPct(item.fee)} <span class="detail-sub">Annualized ${annualized}</span>`;
+      };
+      renderFavored(document.getElementById('longFavoredExchange'), longFavored);
+      renderFavored(document.getElementById('shortFavoredExchange'), shortFavored);
 
       const bars=document.getElementById('fundingBars');
       bars.innerHTML='';
@@ -958,27 +974,27 @@
       renderExchangeTabs();
       renderFundingInsights(comparisonStats, state.selectedPair, latest);
       const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedAsset)?'★':'☆')+' 즐겨찾기';
+      const periodFee = periodFundingFee(windowSummary);
+      const periodFeeTone = feeTone(periodFee);
       document.getElementById('sampleCount').textContent=windowSummary.count;
-      document.getElementById('avgFunding').textContent=fmtPct(windowSummary.avgFundingRate);
+      document.getElementById('avgFunding').textContent=periodFee == null ? '-' : fmtSignedPct(periodFee);
       const currentFee = fundingFeeValue(latest);
-      const liveAnnualized = annualizedFromFee(pair, currentFee, latest);
-      const displayedAnnualized = liveAnnualized == null || Number.isNaN(liveAnnualized) ? windowSummary.annualizedPct : liveAnnualized;
+      const displayedAnnualized = windowSummary.annualizedPct;
       const annual=document.getElementById('annualized'); annual.textContent=fmtAnnual(displayedAnnualized); annual.className='value '+(displayedAnnualized>=0?'good':'bad');
       document.getElementById('firstTime').textContent=windowSummary.firstFundingTime ? toKST(windowSummary.firstFundingTime) : '-';
       document.getElementById('lastTime').textContent=windowSummary.lastFundingTime ? toKST(windowSummary.lastFundingTime) : '-';
       document.getElementById('sumFunding').textContent=fmtPct(windowSummary.sumFundingRate);
       document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate < 0 ? '<span class="pill good">Short → Long</span>' : '<span class="pill bad">Long → Short</span>';
 
-      const currentFeeTone = feeTone(currentFee);
       const coreTitle = document.getElementById('coreTitle');
-      coreTitle.innerHTML = `현재 Funding Fee 방향 : <span class="direction-value ${currentFeeTone}">${feeDirection(currentFee)}</span>`;
+      coreTitle.innerHTML = `선택 기간 Funding Fee 방향 : <span class="direction-value ${periodFeeTone}">${feeDirection(periodFee)}</span>`;
       coreTitle.className = 'section-title';
-      if (currentFee == null || Number.isNaN(currentFee)) {
+      if (periodFee == null || Number.isNaN(periodFee)) {
         document.getElementById('latestFunding').textContent='-';
         document.getElementById('latestFunding').className='value warn';
       } else {
-        document.getElementById('latestFunding').textContent=fmtSignedPct(currentFee);
-        document.getElementById('latestFunding').className='value '+currentFeeTone;
+        document.getElementById('latestFunding').textContent=fmtSignedPct(periodFee);
+        document.getElementById('latestFunding').className='value '+periodFeeTone;
       }
       document.getElementById('markPrice').textContent=latest.markPrice == null ? '-' : fmtNumber(latest.markPrice);
       document.getElementById('indexPrice').textContent=latest.indexPrice == null ? '-' : fmtNumber(latest.indexPrice);
