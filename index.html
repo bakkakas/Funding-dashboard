@@ -78,6 +78,8 @@
     .payment-count-row .good { color:var(--calm-good); }
     .payment-count-row .bad { color:var(--calm-bad); }
     .funding-bars { display:grid; gap:8px; margin-top:14px; }
+    .funding-bars-block { margin-top:14px; border-top:1px solid var(--line); padding-top:14px; }
+    .compact-title { margin:0 0 10px; color:var(--muted); font-size:12px; font-weight:850; }
     .funding-bar-row { display:grid; grid-template-columns:92px minmax(0,1fr) 86px; gap:8px; align-items:center; font-size:13px; }
     .funding-bar-name { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .funding-bar-track { position:relative; height:8px; border-radius:999px; background:rgba(255,255,255,0.07); overflow:hidden; }
@@ -87,6 +89,21 @@
     .funding-bar-fill.bad { right:50%; background:var(--calm-bad); }
     .funding-bar-value { text-align:right; font-weight:800; font-variant-numeric:tabular-nums; }
     .rate-legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; font-size:13px; font-weight:700; }
+    .support-insights { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:14px; }
+    .support-insight-box { border:1px solid var(--line); border-radius:8px; padding:10px; background:rgba(16,32,25,0.55); min-height:76px; }
+    .support-insight-box .label { font-size:12px; }
+    .support-insight-box .value { margin-top:7px; font-size:22px; line-height:1; font-weight:850; font-variant-numeric:tabular-nums; }
+    .support-insight-box .mini { margin-top:7px; font-size:12px; }
+    .period-summary-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:14px; }
+    .period-summary-box { border:1px solid var(--line); border-radius:8px; padding:10px; background:rgba(16,32,25,0.55); }
+    .period-summary-title { color:var(--accent); font-size:13px; font-weight:900; margin-bottom:8px; }
+    .period-summary-row { display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:13px; font-weight:800; }
+    .period-summary-row + .period-summary-row { margin-top:6px; }
+    .period-summary-row span:first-child { color:var(--muted); flex:0 0 auto; }
+    .period-summary-row span:last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:right; }
+    .period-summary-row .good { color:var(--calm-good); }
+    .period-summary-row .bad { color:var(--calm-bad); }
+    .period-summary-row .warn { color:var(--warn); }
     .asset-summary-card { display:flex; justify-content:space-between; align-items:center; gap:18px; margin-bottom:16px; padding:18px 20px; }
     .asset-identity { display:flex; align-items:center; gap:10px; min-width:0; }
     .asset-logo-wrap { position:relative; width:36px; height:36px; border-radius:50%; background:#f2f7f4; overflow:hidden; flex:0 0 auto; border:1px solid rgba(255,255,255,0.16); }
@@ -159,7 +176,16 @@
     .auth-status strong { color:var(--text); }
     @media (max-width:1100px){ .top-panel,.metric,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } .header-side { align-items:flex-start; } .header-market-row,.header-actions { justify-content:flex-start; } }
     @media (max-width:900px){ .asset-summary-card { align-items:flex-start; flex-direction:column; } .asset-metrics { width:100%; max-width:none; grid-template-columns:1fr; } .asset-metric { text-align:left; } }
-    @media (max-width:700px){ .rate-combo,.favored-grid { grid-template-columns:1fr; } }
+    @media (max-width:700px){
+      .rate-combo,.favored-grid,.support-insights,.period-summary-grid { grid-template-columns:1fr; }
+      .comparison-table th,.comparison-table td { padding:8px 5px; font-size:12px; }
+      .comparison-table th:nth-child(1),.comparison-table td:nth-child(1) { width:34%; }
+      .comparison-table th:nth-child(2),.comparison-table td:nth-child(2) { width:22%; }
+      .comparison-table th:nth-child(3),.comparison-table td:nth-child(3) { width:24%; }
+      .comparison-table th:nth-child(4),.comparison-table td:nth-child(4) { width:20%; }
+      .exchange-logo { width:18px; height:18px; flex-basis:18px; }
+      .funding-bar-row { grid-template-columns:82px minmax(0,1fr) 78px; font-size:12px; }
+    }
   </style>
 </head>
 <body>
@@ -242,6 +268,23 @@
           <a class="detail-box favored-box" id="longFavoredBox" href="#" target="_blank" rel="noopener noreferrer"><div class="detail-value good" id="longFavoredExchange">-</div></a>
           <a class="detail-box favored-box" id="shortFavoredBox" href="#" target="_blank" rel="noopener noreferrer"><div class="detail-value bad" id="shortFavoredExchange">-</div></a>
         </div>
+        <div class="support-insights">
+          <div class="support-insight-box">
+            <div class="label" data-i18n="fundingSpread">Funding Spread</div>
+            <div class="value" id="fundingSpreadValue">-</div>
+            <div class="mini" id="fundingSpreadMeta">-</div>
+          </div>
+          <div class="support-insight-box">
+            <div class="label" data-i18n="spreadAlert">Spread Alert</div>
+            <div class="value" id="spreadAlertValue">-</div>
+            <div class="mini" id="spreadAlertMeta">-</div>
+          </div>
+        </div>
+        <div class="funding-bars-block">
+          <div class="compact-title" data-i18n="currentFundingComparison">현재 Funding Fee 비교</div>
+          <div class="funding-bars" id="fundingBars"></div>
+          <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend">양수 = Short -> Long</span><span class="legend-bad" data-i18n="negativeLegend">음수 = Long -> Short</span></div>
+        </div>
       </div>
       <div class="card top-panel insight-panel">
         <h3 class="section-title" id="coreTitle">선택 기간 Funding Fee 방향 : -</h3>
@@ -260,8 +303,7 @@
             </div>
           </div>
         </div>
-        <div class="funding-bars" id="fundingBars"></div>
-        <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend">양수 = Short -> Long</span><span class="legend-bad" data-i18n="negativeLegend">음수 = Long -> Short</span></div>
+        <div class="period-summary-grid" id="periodBestWorst"></div>
       </div>
     </div>
 
@@ -453,6 +495,9 @@
         priceChart:'Price Chart', fundingRateChart:'Funding Rate Chart',
         fundingHistory:'회차별 Funding History', direction:'Direction',
         noSearchResults:'검색 결과 없음', rank:'순위', longFavored:'Long 유리', shortFavored:'Short 유리',
+        fundingSpread:'Funding Spread', spreadAlert:'Spread Alert', currentFundingComparison:'현재 Funding Fee 비교',
+        noAlert:'정상', alertWide:'차이 큼', spreadThreshold:'20%p 이상', periodBestWorst:'기간별 Best / Worst',
+        bestLong:'Long 유리', bestShort:'Short 유리', noData:'데이터 없음',
         mark:'Mark', index:'Index', currentPrice:'현재 가격', updated:'Updated',
         authSynced:'계정과 즐겨찾기가 클라우드에 동기화돼.',
         authLocal:'현재는 GitHub Pages 정적 배포라 <strong>현재 브라우저에만</strong> 저장돼. Firebase/Supabase 키를 연결하면 기기 간 즐겨찾기 동기화가 활성화돼.',
@@ -478,6 +523,9 @@
         priceChart:'Price Chart', fundingRateChart:'Funding Rate Chart',
         fundingHistory:'Funding History By Round', direction:'Direction',
         noSearchResults:'No results', rank:'Rank', longFavored:'Long favored', shortFavored:'Short favored',
+        fundingSpread:'Funding Spread', spreadAlert:'Spread Alert', currentFundingComparison:'Current funding fee comparison',
+        noAlert:'Normal', alertWide:'Wide spread', spreadThreshold:'20pp or more', periodBestWorst:'Period Best / Worst',
+        bestLong:'Best long', bestShort:'Best short', noData:'No data',
         mark:'Mark', index:'Index', currentPrice:'Current price', updated:'Updated',
         authSynced:'Account and favorites are synced to the cloud.',
         authLocal:'This is currently a static GitHub Pages deployment, so data is saved <strong>only in this browser</strong>. Cross-device favorites will activate after Firebase/Supabase keys are connected.',
@@ -1279,6 +1327,26 @@
       }).filter(item=>item.fee != null && !Number.isNaN(item.fee) && item.shortFee != null && !Number.isNaN(item.shortFee));
     }
 
+    function periodComparisonStats(windowKey){
+      const selected=state.data.pairs[state.selectedPair];
+      return getPairsForAsset(assetId(selected)).map(([pairKey, pair])=>{
+        const summary=pair.windows && pair.windows[windowKey];
+        if(!summary || !summary.count) return null;
+        const longFee=periodFundingFee(summary);
+        if(longFee == null || Number.isNaN(longFee)) return null;
+        const longAnnualized=summary.annualizedPct;
+        return {
+          pairKey,
+          pair,
+          fee:longFee,
+          shortFee:-longFee,
+          annualized:longAnnualized,
+          shortAnnualized:longAnnualized == null || Number.isNaN(longAnnualized) ? null : -longAnnualized,
+          count:summary.count || 0,
+        };
+      }).filter(Boolean);
+    }
+
     function renderExchangeTabs(){
       const tabs=document.getElementById('exchangeTabs');
       tabs.innerHTML='';
@@ -1289,6 +1357,80 @@
         btn.textContent=pair.exchange;
         btn.onclick=()=>selectPair(pairKey);
         tabs.appendChild(btn);
+      });
+    }
+
+    function renderSpreadInsights(stats){
+      const spreadValue=document.getElementById('fundingSpreadValue');
+      const spreadMeta=document.getElementById('fundingSpreadMeta');
+      const alertValue=document.getElementById('spreadAlertValue');
+      const alertMeta=document.getElementById('spreadAlertMeta');
+      if(!stats.length){
+        spreadValue.textContent='-';
+        spreadValue.className='value warn';
+        spreadMeta.textContent='-';
+        alertValue.textContent='-';
+        alertValue.className='value warn';
+        alertMeta.textContent='-';
+        return;
+      }
+      const sorted=stats.slice().sort((a,b)=>b.fee-a.fee);
+      const high=sorted[0];
+      const low=sorted[sorted.length-1];
+      const spread=high.fee-low.fee;
+      const annualSpread = high.annualized != null && low.annualized != null
+        ? high.annualized - low.annualized
+        : null;
+      spreadValue.textContent=fmtSignedPct(spread);
+      spreadValue.className='value ' + feeTone(spread);
+      spreadMeta.textContent=annualSpread == null || Number.isNaN(annualSpread)
+        ? `${high.pair.exchange} - ${low.pair.exchange}`
+        : `${fmtAnnual(annualSpread)} Annualized / ${high.pair.exchange} - ${low.pair.exchange}`;
+      const isWide=annualSpread != null && Math.abs(annualSpread) >= 20;
+      alertValue.textContent=isWide ? t('alertWide') : t('noAlert');
+      alertValue.className='value ' + (isWide ? 'warn' : 'good');
+      alertMeta.textContent=isWide
+        ? `${t('spreadThreshold')} / ${fmtAnnual(annualSpread)}`
+        : `${stats.length}${state.lang === 'ko' ? '개 거래소 비교 중' : ' exchanges compared'}`;
+    }
+
+    function renderPeriodBestWorst(){
+      const wrap=document.getElementById('periodBestWorst');
+      wrap.innerHTML='';
+      Object.keys(state.data.meta.windows).forEach(windowKey=>{
+        const stats=periodComparisonStats(windowKey);
+        const box=document.createElement('div');
+        box.className='period-summary-box';
+        const title=document.createElement('div');
+        title.className='period-summary-title';
+        title.textContent=state.lang === 'ko' ? `${state.data.meta.windows[windowKey]}일 Best / Worst` : `${windowKey} Best / Worst`;
+        box.appendChild(title);
+        if(!stats.length){
+          const empty=document.createElement('div');
+          empty.className='mini';
+          empty.textContent=t('noData');
+          box.appendChild(empty);
+          wrap.appendChild(box);
+          return;
+        }
+        const longBest=stats.slice().sort((a,b)=>b.fee-a.fee)[0];
+        const shortBest=stats.slice().sort((a,b)=>b.shortFee-a.shortFee)[0];
+        const makeRow=(label, item, side)=>{
+          const row=document.createElement('div');
+          row.className='period-summary-row';
+          const labelEl=document.createElement('span');
+          labelEl.textContent=label;
+          const valueEl=document.createElement('span');
+          const fee=side === 'short' ? item.shortFee : item.fee;
+          const annual=side === 'short' ? item.shortAnnualized : item.annualized;
+          valueEl.className=feeTone(fee);
+          valueEl.textContent=`${item.pair.exchange} ${fmtSignedPct(fee)} / ${annual == null || Number.isNaN(annual) ? '-' : fmtAnnual(annual)}`;
+          row.append(labelEl, valueEl);
+          return row;
+        };
+        box.appendChild(makeRow(t('bestLong'), longBest, 'long'));
+        box.appendChild(makeRow(t('bestShort'), shortBest, 'short'));
+        wrap.appendChild(box);
       });
     }
 
@@ -1336,6 +1478,8 @@
       };
       renderFavored(document.getElementById('longFavoredBox'), document.getElementById('longFavoredExchange'), t('longFavored'), longFavored, 'long');
       renderFavored(document.getElementById('shortFavoredBox'), document.getElementById('shortFavoredExchange'), t('shortFavored'), shortFavored, 'short');
+      renderSpreadInsights(stats);
+      renderPeriodBestWorst();
 
       const bars=document.getElementById('fundingBars');
       bars.innerHTML='';
