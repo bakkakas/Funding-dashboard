@@ -15,7 +15,6 @@
     .wrap { max-width:1450px; margin:0 auto; padding:24px; }
     .header { display:flex; justify-content:space-between; gap:16px; align-items:end; margin-bottom:22px; }
     h1 { margin:0; font-size:28px; font-weight:750; letter-spacing:0; }
-    .sub { margin-top:8px; color:var(--muted); line-height:1.45; font-size:14px; }
     .stamp,.fx-ticker { background:rgba(13,17,23,0.88); border:1px solid var(--line); color:var(--muted); padding:9px 12px; border-radius:8px; font-size:13px; white-space:nowrap; }
     .fx-ticker { color:var(--text); font-weight:800; }
     .fx-ticker .fx-change.good { color:var(--good); }
@@ -436,7 +435,6 @@
     const ANALYTICS_BACKEND_CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_FUNCTIONS_BASE_URL);
     const I18N = {
       ko: {
-        subtitle:'history는 자동 적재하고, 현재 funding / mark / index / 다음 funding 카운트다운은 거래소별 public API 기준으로 실시간에 가깝게 반영하는 대시보드.',
         admin:'관리자', viewV2:'V2 보기', assetSearchPlaceholder:'종목명 검색',
         sortName:'이름순', sortAnnualHigh:'Annualized 높은순', sortAnnualLow:'Annualized 낮은순',
         favorite:'즐겨찾기', login:'로그인', logout:'로그아웃', signup:'회원가입',
@@ -449,8 +447,7 @@
         settlementTimeFailed:'정산 시각 조회 실패', fetchFailed:'조회 실패', settling:'정산 중 / 갱신 대기',
         avgFundingPerRound:'평균 Funding Fee / 회', recentWindowAvg:'최근 선택 구간 평균',
         summary:'요약', firstRound:'첫 회차', lastRound:'마지막 회차', sumFunding:'누적 funding 합계', interpretation:'해석', selectedWindow:'선택 기간',
-        priceChart:'Price Chart', priceChartNote:'선택 구간의 mark price 흐름을 선택한 캔들 주기로 묶어 표시.',
-        fundingRateChart:'Funding Rate Chart', fundingChartNote:'선택 구간의 회차별 funding rate 흐름.',
+        priceChart:'Price Chart', fundingRateChart:'Funding Rate Chart',
         fundingHistory:'회차별 Funding History', direction:'Direction',
         noSearchResults:'검색 결과 없음', rank:'순위', longFavored:'Long 유리', shortFavored:'Short 유리',
         mark:'Mark', index:'Index', currentPrice:'현재 가격', updated:'Updated',
@@ -463,7 +460,6 @@
         usdKrwLoading:'USD/KRW 조회 중', usdKrwFailed:'USD/KRW 조회 실패',
       },
       en: {
-        subtitle:'A dashboard that stores funding history automatically and refreshes current funding, mark, index, and next-funding countdowns from each exchange public API.',
         admin:'Admin', viewV2:'View V2', assetSearchPlaceholder:'Search asset',
         sortName:'Name', sortAnnualHigh:'Annualized high to low', sortAnnualLow:'Annualized low to high',
         favorite:'Favorites', login:'Log in', logout:'Log out', signup:'Sign up',
@@ -476,8 +472,7 @@
         settlementTimeFailed:'Settlement time unavailable', fetchFailed:'Unavailable', settling:'Settling / waiting for update',
         avgFundingPerRound:'Average funding fee / round', recentWindowAvg:'Average over selected window',
         summary:'Summary', firstRound:'First round', lastRound:'Last round', sumFunding:'Cumulative funding sum', interpretation:'Interpretation', selectedWindow:'Selected window',
-        priceChart:'Price Chart', priceChartNote:'Mark price movement over the selected window, grouped by the selected candle interval.',
-        fundingRateChart:'Funding Rate Chart', fundingChartNote:'Funding rate movement by round over the selected window.',
+        priceChart:'Price Chart', fundingRateChart:'Funding Rate Chart',
         fundingHistory:'Funding History By Round', direction:'Direction',
         noSearchResults:'No results', rank:'Rank', longFavored:'Long favored', shortFavored:'Short favored',
         mark:'Mark', index:'Index', currentPrice:'Current price', updated:'Updated',
