@@ -254,6 +254,16 @@
         { exchange:'Aster', symbol:'SKHYNIXUSDT', displaySymbol:'SKHYNIX', fundingIntervalHours:4 },
         { exchange:'OKX', symbol:'SKHYNIX-USDT-SWAP', displaySymbol:'SKHYNIX', fundingIntervalHours:8 },
       ],
+      SNDK: [
+        { exchange:'Aster', symbol:'SNDKUSDT', displaySymbol:'SNDK', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'SNDK-USDT-SWAP', displaySymbol:'SNDK', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'SNDK', displaySymbol:'SNDK', fundingIntervalHours:8 },
+      ],
+      MU: [
+        { exchange:'Aster', symbol:'MUUSDT', displaySymbol:'MU', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'MU-USDT-SWAP', displaySymbol:'MU', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'MU', displaySymbol:'MU', fundingIntervalHours:8 },
+      ],
       GOLD: [
         { exchange:'Aster', symbol:'XAUUSDT', displaySymbol:'XAU', fundingIntervalHours:4 },
         { exchange:'OKX', symbol:'XAU-USDT-SWAP', displaySymbol:'XAU', fundingIntervalHours:8 },
@@ -332,7 +342,7 @@
     const SUPABASE_FUNCTIONS_BASE_URL = (SUPABASE_CONFIG.functionsBaseUrl || (SUPABASE_URL ? `${SUPABASE_URL}/functions/v1` : '')).replace(/\/$/, '');
     const ANALYTICS_BACKEND_CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_FUNCTIONS_BASE_URL);
 
-    let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'90D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{}, auth:null, authMode:'login', draggedFavorite:null };
+    let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'7D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{}, auth:null, authMode:'login', draggedFavorite:null };
     let variationalStatsCache = { time:0, promise:null };
     let orbsPerpsFundingCache = { time:0, promise:null };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
@@ -914,7 +924,7 @@
       const labels=rows.map(r=>toKSTChartLabel(r.fundingTime));
       const values=rows.map(r=>r.fundingRate*100);
       if(state.chart) state.chart.destroy();
-      state.chart=new Chart(ctx,{ type:'line', data:{ labels, datasets:[{ label:'Funding Rate', data:values, borderColor:'#23e7a5', backgroundColor:'rgba(35,231,165,0.13)', borderWidth:2, fill:true, pointRadius:1.5, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98', callback:v=>`${v.toFixed(3)}%` }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ labels:{ color:'#dce3ea' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } });
+      state.chart=new Chart(ctx,{ type:'line', data:{ labels, datasets:[{ label:'Funding Rate', data:values, borderColor:'#23e7a5', backgroundColor:'rgba(35,231,165,0.13)', borderWidth:2, fill:true, pointRadius:0, pointHoverRadius:4, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98', callback:v=>`${v.toFixed(3)}%` }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ labels:{ color:'#dce3ea' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } });
       state.chart.$fullLabels=labels;
       state.chart.$fullData=values;
       state.chart.$zoomStart=0;
