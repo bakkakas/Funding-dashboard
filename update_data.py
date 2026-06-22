@@ -16,6 +16,8 @@ OKX_MARK_PRICE = "https://www.okx.com/api/v5/public/mark-price"
 OKX_MARK_CANDLES = "https://www.okx.com/api/v5/market/mark-price-candles"
 OKX_INDEX_TICKER = "https://www.okx.com/api/v5/market/index-tickers"
 VARIATIONAL_STATS = "https://omni-client-api.prod.ap-northeast-1.variational.io/metadata/stats"
+ORBS_PERPS_FUNDING = "https://perps.thena.fi/api/proxy/fapi/fundingRate"
+ORBS_PERPS_PREMIUM = "https://perps.thena.fi/api/proxy/fapi/premiumIndex"
 PAIRS = [
     {"symbol": "xyz:GOOGL", "displaySymbol": "GOOGL", "assetId": "GOOGL", "assetName": "Google", "exchange": "Hyperliquid", "dex": "xyz", "enabled": True},
     {"symbol": "GOOGLUSDT", "displaySymbol": "GOOGL", "assetId": "GOOGL", "assetName": "Google", "exchange": "Binance", "enabled": True},
@@ -114,6 +116,26 @@ PAIRS.extend([
     {"symbol": "HYPEUSDT", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "Aster", "fundingIntervalHours": 4, "enabled": True},
     {"symbol": "HYPE-USDT-SWAP", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "OKX", "fundingIntervalHours": 8, "enabled": True},
     {"symbol": "HYPE", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "Variational", "enabled": True},
+])
+PAIRS.extend([
+    {"symbol": "GOOGLUSDT", "displaySymbol": "GOOGL", "assetId": "GOOGL", "assetName": "Google", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "SAMSUNGUSDT", "displaySymbol": "SAMSUNG", "assetId": "SAMSUNG", "assetName": "삼성전자", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "SKHYNIXUSDT", "displaySymbol": "SKHYNIX", "assetId": "SKHYNIX", "assetName": "SK하이닉스", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "XAUUSDT", "displaySymbol": "XAU", "assetId": "GOLD", "assetName": "Gold", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "AMZNUSDT", "displaySymbol": "AMZN", "assetId": "AMZN", "assetName": "Amazon", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "AAPLUSDT", "displaySymbol": "AAPL", "assetId": "AAPL", "assetName": "Apple", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "TSLAUSDT", "displaySymbol": "TSLA", "assetId": "TSLA", "assetName": "Tesla", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "NVDAUSDT", "displaySymbol": "NVDA", "assetId": "NVDA", "assetName": "NVIDIA", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "METAUSDT", "displaySymbol": "META", "assetId": "META", "assetName": "Meta", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "MSFTUSDT", "displaySymbol": "MSFT", "assetId": "MSFT", "assetName": "Microsoft", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "MSTRUSDT", "displaySymbol": "MSTR", "assetId": "MSTR", "assetName": "MicroStrategy", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "COINUSDT", "displaySymbol": "COIN", "assetId": "COIN", "assetName": "Coinbase", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "TSMUSDT", "displaySymbol": "TSM", "assetId": "TSM", "assetName": "TSMC", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "PLTRUSDT", "displaySymbol": "PLTR", "assetId": "PLTR", "assetName": "Palantir", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "BABAUSDT", "displaySymbol": "BABA", "assetId": "BABA", "assetName": "Alibaba", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "QQQUSDT", "displaySymbol": "QQQ", "assetId": "QQQ", "assetName": "QQQ", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "SPYUSDT", "displaySymbol": "SPY", "assetId": "SPY", "assetName": "SPY", "exchange": "Orbs Perps Hub", "enabled": True},
+    {"symbol": "HYPEUSDT", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "Orbs Perps Hub", "enabled": True},
 ])
 WINDOWS = {"1D": 1, "7D": 7, "30D": 30, "90D": 90}
 DATA_PATH = Path("funding_data.json")
@@ -704,6 +726,60 @@ def fetch_variational_history(pair, days, previous_rows):
     return merge_rows(previous_rows, rows, days)
 
 
+def fetch_orbs_perps_history(symbol, days):
+    end_ms = int(time.time() * 1000)
+    start_ms = end_ms - days * 24 * 3600 * 1000
+    rows = []
+    cur = start_ms
+    while True:
+        url = f"{ORBS_PERPS_FUNDING}?symbol={symbol}&startTime={cur}&endTime={end_ms}&limit=1000"
+        batch = fetch_json(url)
+        if not batch:
+            break
+        rows.extend(batch)
+        if len(batch) < 1000:
+            break
+        cur = int(batch[-1]["fundingTime"]) + 1
+    seen = set()
+    out = []
+    for row in rows:
+        ts = int(row["fundingTime"])
+        if ts in seen or ts < start_ms:
+            continue
+        seen.add(ts)
+        out.append({
+            "fundingTime": ts,
+            "fundingRate": float(row["fundingRate"]),
+            "markPrice": float(row["markPrice"]) if row.get("markPrice") is not None else None,
+        })
+    out.sort(key=lambda x: x["fundingTime"])
+    return out
+
+
+def fetch_orbs_perps_latest(symbol):
+    url = f"{ORBS_PERPS_PREMIUM}?symbol={symbol}"
+    try:
+        row = fetch_json(url)
+        return {
+            "markPrice": float(row["markPrice"]),
+            "indexPrice": float(row["indexPrice"]),
+            "lastFundingRate": float(row["lastFundingRate"]),
+            "nextFundingTime": int(row["nextFundingTime"]),
+            "time": int(row.get("time") or time.time() * 1000),
+            "available": True
+        }
+    except Exception as e:
+        return {
+            "markPrice": None,
+            "indexPrice": None,
+            "lastFundingRate": None,
+            "nextFundingTime": None,
+            "time": None,
+            "available": False,
+            "error": str(e)
+        }
+
+
 def fetch_history(pair, days, previous_rows=None):
     if pair["exchange"] == "Binance":
         return fetch_binance_history(pair["symbol"], days)
@@ -719,6 +795,8 @@ def fetch_history(pair, days, previous_rows=None):
         return fetch_okx_history(pair["symbol"], days)
     if pair["exchange"] == "Variational":
         return fetch_variational_history(pair, days, previous_rows or [])
+    if pair["exchange"] == "Orbs Perps Hub":
+        return fetch_orbs_perps_history(pair["symbol"], days)
     raise ValueError(f"Unsupported exchange: {pair['exchange']}")
 
 
@@ -735,6 +813,8 @@ def fetch_latest(pair):
         return fetch_okx_latest(pair["symbol"])
     if pair["exchange"] == "Variational":
         return pair.pop("_latest", None) or fetch_variational_latest(pair["symbol"])
+    if pair["exchange"] == "Orbs Perps Hub":
+        return fetch_orbs_perps_latest(pair["symbol"])
     raise ValueError(f"Unsupported exchange: {pair['exchange']}")
 
 def summarize(rows, periods_per_day):
@@ -785,7 +865,8 @@ def main():
             "Hyperliquid": {"supported": True, "notes": "HIP-3 xyz perp funding history + current snapshot available via public info API"},
             "Aster": {"supported": True, "notes": "Funding history + current snapshot available via public futures API"},
             "OKX": {"supported": True, "notes": "Funding history + current snapshot available via public API"},
-            "Variational": {"supported": True, "notes": "Public API is current snapshot oriented; dashboard accumulates snapshots over time"}
+            "Variational": {"supported": True, "notes": "Public API is current snapshot oriented; dashboard accumulates snapshots over time"},
+            "Orbs Perps Hub": {"supported": True, "notes": "Funding history + current snapshot available via THENA Perps public proxy API"}
         }
     }
 

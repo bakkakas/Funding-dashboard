@@ -209,7 +209,7 @@
             <tbody id="historyBody"></tbody>
           </table>
         </div>
-        <div class="note">Annualized는 funding rate를 정산 주기에 맞춰 연장한 러닝레이트이며 미래 확정 수익률이 아니다. 거래소별 정산 주기를 기준으로 연율화하며, 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 거래소 목록의 현재값은 브라우저에서 거래소 public API를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있고, Variational은 공개 API가 현재 스냅샷 중심이라 자동 업데이트 때마다 누적해 history를 채운다.</div>
+        <div class="note">Annualized는 funding rate를 정산 주기에 맞춰 연장한 러닝레이트이며 미래 확정 수익률이 아니다. 거래소별 정산 주기를 기준으로 연율화하며, 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 거래소 목록의 현재값은 브라우저에서 거래소 public API를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있고, Orbs Perps Hub는 THENA Perps public proxy API 기준이다. Variational은 공개 API가 현재 스냅샷 중심이라 자동 업데이트 때마다 누적해 history를 채운다.</div>
       </div>
     </div>
   </div>
@@ -239,6 +239,7 @@
     const OKX_MARK_PRICE_URL = 'https://www.okx.com/api/v5/public/mark-price';
     const OKX_INDEX_TICKER_URL = 'https://www.okx.com/api/v5/market/index-tickers';
     const VARIATIONAL_STATS_URL = 'https://omni-client-api.prod.ap-northeast-1.variational.io/metadata/stats';
+    const ORBS_PERPS_PREMIUM_INDEX_URL = 'https://perps.thena.fi/api/proxy/fapi/premiumIndex';
     const EXTRA_EXCHANGE_PAIRS = {
       GOOGL: [
         { exchange:'Aster', symbol:'GOOGLUSDT', displaySymbol:'GOOGL', fundingIntervalHours:4 },
@@ -362,6 +363,7 @@
       if(pair.exchange === 'Aster') return `https://www.asterdex.com/en/futures/${pair.symbol}`;
       if(pair.exchange === 'OKX') return `https://www.okx.com/trade-swap/${pair.symbol.toLowerCase()}`;
       if(pair.exchange === 'Variational') return `https://app.variational.io/`;
+      if(pair.exchange === 'Orbs Perps Hub') return `https://perps.thena.fi/trade/${pair.symbol}`;
       return '#';
     }
     function exchangeLogoUrl(exchange){
@@ -371,6 +373,7 @@
         Bybit: 'bybit.com',
         Hyperliquid: 'hyperliquid.xyz',
         OKX: 'okx.com',
+        'Orbs Perps Hub': 'orbs.com',
         Variational: 'variational.io',
       };
       return `https://www.google.com/s2/favicons?domain=${domains[exchange] || exchange.toLowerCase() + '.com'}&sz=32`;
@@ -387,7 +390,7 @@
       return value >= 0 ? 'Short -> Long' : 'Long -> Short';
     }
     function exchangeSortWeight(exchange){
-      return ['Hyperliquid','Binance','Bybit','Aster','OKX','Variational'].indexOf(exchange);
+      return ['Hyperliquid','Binance','Bybit','Aster','OKX','Orbs Perps Hub','Variational'].indexOf(exchange);
     }
     async function getVariationalListings(){
       const now = Date.now();
@@ -1127,6 +1130,20 @@
           nextFundingTime: updatedAt + intervalHours * 3600000,
           fundingIntervalHours: intervalHours,
           time: updatedAt,
+          available: true,
+        };
+        return;
+      }
+      if(pair.exchange === 'Orbs Perps Hub'){
+        const res = await fetch(`${ORBS_PERPS_PREMIUM_INDEX_URL}?symbol=${pair.symbol}`);
+        if(!res.ok) throw new Error(`orbs perps premiumIndex fetch failed: ${pairKey}`);
+        const row = await res.json();
+        state.liveLatestByPair[pairKey] = {
+          markPrice: Number(row.markPrice),
+          indexPrice: Number(row.indexPrice),
+          lastFundingRate: Number(row.lastFundingRate),
+          nextFundingTime: Number(row.nextFundingTime),
+          time: Number(row.time) || Date.now(),
           available: true,
         };
         return;
