@@ -705,10 +705,12 @@
         return;
       }
       if(pair.exchange === 'Hyperliquid'){
+        const payload = { type: 'metaAndAssetCtxs' };
+        if(pair.dex) payload.dex = pair.dex;
         const res = await fetch(HYPERLIQUID_INFO_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'metaAndAssetCtxs', dex: pair.dex || 'xyz' }),
+          body: JSON.stringify(payload),
         });
         if(!res.ok) throw new Error(`hyperliquid info fetch failed: ${pairKey}`);
         const [meta, ctxs] = await res.json();

@@ -25,6 +25,7 @@
 - `xyz:TSM`
 - `xyz:PLTR`
 - `xyz:BABA`
+- `HYPE`
 - 1일 / 7일 / 30일 / 90일 기준 annualized 계산
 - 회차별 hourly funding history 테이블
 - current funding / mark / oracle / 다음 hourly funding 카운트다운 반영
@@ -47,6 +48,7 @@
 - BABAUSDT
 - QQQUSDT
 - SPYUSDT
+- HYPEUSDT
 - 1일 / 7일 / 30일 / 90일 기준 annualized 계산
 - 회차별 funding history 테이블
 - 차트 표시
@@ -69,6 +71,7 @@
 - BABAUSDT
 - QQQUSDT
 - SPYUSDT
+- HYPEUSDT
 - 1일 / 7일 / 30일 / 90일 기준 annualized 계산
 - current funding / mark / index / next funding 반영
 

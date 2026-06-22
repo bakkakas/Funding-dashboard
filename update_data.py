@@ -56,7 +56,10 @@ PAIRS = [
     {"symbol": "QQQUSDT", "displaySymbol": "QQQ", "assetId": "QQQ", "assetName": "QQQ", "exchange": "Binance", "enabled": True},
     {"symbol": "QQQUSDT", "displaySymbol": "QQQ", "assetId": "QQQ", "assetName": "QQQ", "exchange": "Bybit", "enabled": True},
     {"symbol": "SPYUSDT", "displaySymbol": "SPY", "assetId": "SPY", "assetName": "SPY", "exchange": "Binance", "enabled": True},
-    {"symbol": "SPYUSDT", "displaySymbol": "SPY", "assetId": "SPY", "assetName": "SPY", "exchange": "Bybit", "enabled": True}
+    {"symbol": "SPYUSDT", "displaySymbol": "SPY", "assetId": "SPY", "assetName": "SPY", "exchange": "Bybit", "enabled": True},
+    {"symbol": "HYPE", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "Hyperliquid", "enabled": True},
+    {"symbol": "HYPEUSDT", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "Binance", "enabled": True},
+    {"symbol": "HYPEUSDT", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "Bybit", "enabled": True}
 ]
 WINDOWS = {"1D": 1, "7D": 7, "30D": 30, "90D": 90}
 DATA_PATH = Path("funding_data.json")
@@ -325,9 +328,12 @@ def fetch_hyperliquid_history(symbol, days):
     return rows
 
 
-def fetch_hyperliquid_latest(symbol, dex):
+def fetch_hyperliquid_latest(symbol, dex=None):
     try:
-        meta, ctxs = post_json(HYPERLIQUID_INFO, {"type": "metaAndAssetCtxs", "dex": dex})
+        payload = {"type": "metaAndAssetCtxs"}
+        if dex:
+            payload["dex"] = dex
+        meta, ctxs = post_json(HYPERLIQUID_INFO, payload)
         for asset, ctx in zip(meta.get("universe", []), ctxs):
             if asset.get("name") != symbol:
                 continue
@@ -375,7 +381,7 @@ def fetch_latest(pair):
     if pair["exchange"] == "Bybit":
         return fetch_bybit_latest(pair["symbol"])
     if pair["exchange"] == "Hyperliquid":
-        return fetch_hyperliquid_latest(pair["symbol"], pair["dex"])
+        return fetch_hyperliquid_latest(pair["symbol"], pair.get("dex"))
     raise ValueError(f"Unsupported exchange: {pair['exchange']}")
 
 def summarize(rows, periods_per_day):
