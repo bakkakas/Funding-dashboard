@@ -146,13 +146,18 @@ begin
     raise exception 'admin access required';
   end if;
 
-  with base as (
+  with human_visit_events as (
+    select *
+    from public.visit_events
+    where coalesce(user_agent, '') !~* '(HeadlessChrome|Playwright|Puppeteer|bot|crawler|spider)'
+  ),
+  base as (
     select
       visited_at,
       (visited_at at time zone 'Asia/Seoul')::date as kst_day,
       visitor_id,
       coalesce(nullif(country, ''), 'Unknown') as country
-    from public.visit_events
+    from human_visit_events
     where visited_at >= now() - make_interval(days => greatest(days_back, 1))
   ),
   daily as (
@@ -185,7 +190,7 @@ begin
       count(*)::integer as pageviews,
       count(distinct visitor_id)::integer as visitors,
       count(distinct visitor_id) filter (where (visited_at at time zone 'Asia/Seoul')::date = (now() at time zone 'Asia/Seoul')::date)::integer as today_visitors
-    from public.visit_events
+    from human_visit_events
   ),
   members as (
     select count(*)::integer as member_count from public.profiles
