@@ -26,6 +26,7 @@
     .language-toggle { display:inline-flex; gap:4px; padding:3px; border:1px solid var(--line); border-radius:999px; background:#07140f; }
     .language-toggle .chip { border:0; width:34px; height:30px; padding:0; display:grid; place-items:center; font-size:17px; line-height:1; }
     .language-toggle .chip.active { background:rgba(35,231,165,0.16); }
+    .flag-icon { width:20px; height:14px; display:block; object-fit:cover; border-radius:2px; box-shadow:0 0 0 1px rgba(255,255,255,0.16); }
     .alt-link { color:var(--accent); text-decoration:none; font-size:13px; font-weight:800; }
     .alt-link:hover { text-decoration:underline; }
     .toolbar,.toolbar2 { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
@@ -102,8 +103,8 @@
     .asset-metric-label { color:var(--muted); font-size:12px; font-weight:800; }
     .asset-price,.asset-metric-value { margin-top:6px; font-size:clamp(18px, 1.7vw, 27px); line-height:1; font-weight:850; font-variant-numeric:tabular-nums; }
     .asset-price { color:var(--good); }
-    .asset-metric-value.good { color:var(--calm-good); }
-    .asset-metric-value.bad { color:var(--calm-bad); }
+    .asset-metric-value.good { color:var(--good); }
+    .asset-metric-value.bad { color:var(--bad); }
     .asset-metric-value.warn { color:var(--warn); }
     .asset-price-meta,.asset-metric-meta { margin-top:6px; color:var(--muted); font-size:12px; font-weight:750; }
     .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
@@ -127,8 +128,6 @@
     .pill.good { background:rgba(46,204,113,0.14); color:var(--good); }
     .pill.bad { background:rgba(240,138,138,0.14); color:var(--bad); }
     .pill.warn { background:rgba(255,209,102,0.14); color:var(--warn); }
-    .asset-summary-card .pill.good { background:rgba(134,168,255,0.14); color:var(--calm-good); }
-    .asset-summary-card .pill.bad { background:rgba(215,169,111,0.14); color:var(--calm-bad); }
     .linkish { color:var(--accent); cursor:pointer; font-weight:800; }
     .linkish:hover { text-decoration:underline; }
     .pair-link { color:var(--pair); font-weight:800; text-decoration:none; }
@@ -142,8 +141,8 @@
     .direction-value.good { color:var(--good); }
     .direction-value.bad { color:var(--bad); }
     .direction-value.warn { color:var(--warn); }
-    .top-panel .value.good,.top-panel .detail-value.good,.top-panel .fee-value.good,.top-panel .direction-value.good,.top-panel .legend-good { color:var(--calm-good); }
-    .top-panel .value.bad,.top-panel .detail-value.bad,.top-panel .fee-value.bad,.top-panel .direction-value.bad,.top-panel .legend-bad { color:var(--calm-bad); }
+    .insight-panel .value.good,.insight-panel .detail-value.good,.insight-panel .direction-value.good,.insight-panel .legend-good { color:var(--calm-good); }
+    .insight-panel .value.bad,.insight-panel .detail-value.bad,.insight-panel .direction-value.bad,.insight-panel .legend-bad { color:var(--calm-bad); }
     .period-highlight { color:var(--accent); }
     .muted { color:var(--muted); }
     .note { margin-top:16px; color:var(--muted); font-size:13px; line-height:1.6; }
@@ -173,8 +172,8 @@
         <div class="header-market-row">
           <div class="header-actions">
             <div class="language-toggle" aria-label="Language">
-              <button class="chip subtle active" id="langKoButton" type="button" aria-label="한국어" title="한국어">🇰🇷</button>
-              <button class="chip subtle" id="langEnButton" type="button" aria-label="English" title="English">🇺🇸</button>
+              <button class="chip subtle active" id="langKoButton" type="button" aria-label="한국어" title="한국어"><img class="flag-icon" alt="" src="https://flagcdn.com/w40/kr.png" /></button>
+              <button class="chip subtle" id="langEnButton" type="button" aria-label="English" title="English"><img class="flag-icon" alt="" src="https://flagcdn.com/w40/us.png" /></button>
             </div>
             <button class="chip subtle" id="loginButton" type="button">로그인</button>
             <button class="chip subtle" id="signupButton" type="button">회원가입</button>
@@ -244,7 +243,7 @@
           <a class="detail-box favored-box" id="shortFavoredBox" href="#" target="_blank" rel="noopener noreferrer"><div class="detail-value bad" id="shortFavoredExchange">-</div></a>
         </div>
       </div>
-      <div class="card top-panel">
+      <div class="card top-panel insight-panel">
         <h3 class="section-title" id="coreTitle">선택 기간 Funding Fee 방향 : -</h3>
         <div class="exchange-tabs" id="exchangeTabs"></div>
         <div class="rate-combo">
