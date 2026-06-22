@@ -61,7 +61,8 @@
     .detail-box { border:1px solid var(--line); border-radius:8px; padding:10px; background:rgba(16,32,25,0.55); min-height:62px; }
     .detail-box .label { font-size:12px; }
     .detail-box .detail-value { margin-top:6px; font-size:18px; font-weight:800; }
-    .detail-box .detail-sub { display:block; margin-top:4px; color:var(--muted); font-size:12px; font-weight:800; }
+    .detail-box .detail-main { display:block; color:var(--text); font-size:16px; font-weight:850; }
+    .detail-box .detail-sub { display:block; margin-top:5px; color:var(--muted); font-size:13px; font-weight:800; }
     .funding-bars { display:grid; gap:8px; margin-top:14px; }
     .funding-bar-row { display:grid; grid-template-columns:92px minmax(0,1fr) 86px; gap:8px; align-items:center; font-size:13px; }
     .funding-bar-name { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -936,7 +937,7 @@
           return;
         }
         const annualized = item.annualized == null || Number.isNaN(item.annualized) ? '-' : fmtAnnual(item.annualized);
-        el.innerHTML = `${item.pair.exchange} ${fmtSignedPct(item.fee)} <span class="detail-sub">Annualized ${annualized}</span>`;
+        el.innerHTML = `<span class="detail-main">${item.pair.exchange}</span><span class="detail-sub">${fmtSignedPct(item.fee)} / ${annualized} Annualized</span>`;
       };
       renderFavored(document.getElementById('longFavoredExchange'), longFavored);
       renderFavored(document.getElementById('shortFavoredExchange'), shortFavored);
