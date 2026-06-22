@@ -45,9 +45,30 @@
     .chip.subtle { border-radius:8px; }
     .top-grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; margin-bottom:16px; align-items:stretch; }
     .top-panel { grid-column:span 6; margin-bottom:0; }
+    .comparison-table { table-layout:fixed; }
+    .comparison-table th,.comparison-table td { padding:9px 8px; }
+    .comparison-table th:nth-child(1),.comparison-table td:nth-child(1) { width:31%; }
+    .comparison-table th:nth-child(2),.comparison-table td:nth-child(2) { width:24%; }
+    .comparison-table th:nth-child(3),.comparison-table td:nth-child(3) { width:23%; }
+    .comparison-table th:nth-child(4),.comparison-table td:nth-child(4) { width:22%; }
     .rate-combo { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
     .rate-item { min-width:0; }
     .rate-item .value { font-size:36px; }
+    .exchange-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+    .exchange-tabs .chip { padding:8px 11px; }
+    .funding-detail-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:14px; }
+    .detail-box { border:1px solid var(--line); border-radius:8px; padding:10px; background:rgba(16,32,25,0.55); min-height:62px; }
+    .detail-box .label { font-size:12px; }
+    .detail-box .detail-value { margin-top:6px; font-size:18px; font-weight:800; }
+    .funding-bars { display:grid; gap:8px; margin-top:14px; }
+    .funding-bar-row { display:grid; grid-template-columns:92px minmax(0,1fr) 86px; gap:8px; align-items:center; font-size:13px; }
+    .funding-bar-name { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .funding-bar-track { position:relative; height:8px; border-radius:999px; background:rgba(255,255,255,0.07); overflow:hidden; }
+    .funding-bar-track::before { content:""; position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(220,232,223,0.24); }
+    .funding-bar-fill { position:absolute; top:1px; bottom:1px; border-radius:999px; }
+    .funding-bar-fill.good { left:50%; background:var(--good); }
+    .funding-bar-fill.bad { right:50%; background:var(--bad); }
+    .funding-bar-value { text-align:right; font-weight:800; font-variant-numeric:tabular-nums; }
     .rate-legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; font-size:13px; font-weight:700; }
     .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
     .card { background:rgba(13,23,18,0.95); border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 14px 34px rgba(0,0,0,0.24); }
@@ -128,17 +149,25 @@
     <div class="top-grid">
       <div class="card top-panel">
         <h3 class="section-title" id="supportTitle">지원 거래소</h3>
-        <table>
-          <thead><tr><th>지원 거래소</th><th>페어</th><th>현재 펀딩피</th></tr></thead>
+        <table class="comparison-table">
+          <thead><tr><th>지원 거래소</th><th>페어</th><th>현재 펀딩피</th><th>Annualized</th></tr></thead>
           <tbody id="comparisonBody"></tbody>
         </table>
       </div>
       <div class="card top-panel">
         <h3 class="section-title" id="coreTitle">현재 Funding Fee 방향 : -</h3>
+        <div class="exchange-tabs" id="exchangeTabs"></div>
         <div class="rate-combo">
           <div class="rate-item"><div class="label">현재 Funding Rate</div><div class="value" id="latestFunding">-</div></div>
           <div class="rate-item"><div class="label">Annualized</div><div class="value" id="annualized">-</div></div>
         </div>
+        <div class="funding-detail-grid">
+          <div class="detail-box"><div class="label">Mark / Index 차이</div><div class="detail-value" id="markIndexGap">-</div></div>
+          <div class="detail-box"><div class="label">선택 거래소 순위</div><div class="detail-value" id="selectedExchangeRank">-</div></div>
+          <div class="detail-box"><div class="label">Long 유리</div><div class="detail-value good" id="longFavoredExchange">-</div></div>
+          <div class="detail-box"><div class="label">Short 유리</div><div class="detail-value bad" id="shortFavoredExchange">-</div></div>
+        </div>
+        <div class="funding-bars" id="fundingBars"></div>
         <div class="rate-legend"><span class="legend-good">양수 = Short -> Long</span><span class="legend-bad">음수 = Long -> Short</span></div>
       </div>
     </div>
@@ -170,7 +199,7 @@
             <tbody id="historyBody"></tbody>
           </table>
         </div>
-        <div class="note">Annualized는 최근 표본의 평균 funding rate를 연장한 러닝레이트이며 미래 확정 수익률이 아니다. Binance/Bybit는 8시간 기준, Hyperliquid는 1시간 기준으로 연율화한다. 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 상단 현재값은 브라우저에서 거래소 public API를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있다.</div>
+        <div class="note">Annualized는 최근 funding rate를 정산 주기에 맞춰 연장한 러닝레이트이며 미래 확정 수익률이 아니다. Hyperliquid는 1시간, Aster는 4시간, Binance/Bybit/OKX/Variational은 8시간 기준으로 연율화한다. 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 상단 현재값은 브라우저에서 거래소 public API를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있고, Aster/OKX/Variational은 현재 비교값 중심으로 표시된다.</div>
       </div>
     </div>
   </div>
@@ -195,6 +224,18 @@
     const BINANCE_PREMIUM_INDEX_URL = 'https://fapi.binance.com/fapi/v1/premiumIndex';
     const BYBIT_TICKERS_URL = 'https://api.bybit.com/v5/market/tickers';
     const HYPERLIQUID_INFO_URL = 'https://api.hyperliquid.xyz/info';
+    const ASTER_PREMIUM_INDEX_URL = 'https://fapi.asterdex.com/fapi/v3/premiumIndex';
+    const OKX_FUNDING_RATE_URL = 'https://www.okx.com/api/v5/public/funding-rate';
+    const OKX_MARK_PRICE_URL = 'https://www.okx.com/api/v5/public/mark-price';
+    const OKX_INDEX_TICKER_URL = 'https://www.okx.com/api/v5/market/index-tickers';
+    const VARIATIONAL_STATS_URL = 'https://omni-client-api.prod.ap-northeast-1.variational.io/metadata/stats';
+    const EXTRA_EXCHANGE_PAIRS = {
+      HYPE: [
+        { exchange:'Aster', symbol:'HYPEUSDT', displaySymbol:'HYPE', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'HYPE-USDT-SWAP', displaySymbol:'HYPE', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'HYPE', displaySymbol:'HYPE', fundingIntervalHours:8 },
+      ],
+    };
     const LIVE_REFRESH_MS = 30000;
     const FX_LATEST_URL = 'https://open.er-api.com/v6/latest/USD';
     const FX_REFERENCE_URL = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
@@ -233,13 +274,19 @@
       if(pair.exchange === 'Binance') return `https://www.binance.com/en/futures/${pair.symbol}`;
       if(pair.exchange === 'Bybit') return `https://www.bybit.com/trade/usdt/${pair.symbol}`;
       if(pair.exchange === 'Hyperliquid') return `https://app.hyperliquid.xyz/trade/${pair.symbol}`;
+      if(pair.exchange === 'Aster') return `https://www.asterdex.com/en/futures/${pair.symbol}`;
+      if(pair.exchange === 'OKX') return `https://www.okx.com/trade-swap/${pair.symbol.toLowerCase()}`;
+      if(pair.exchange === 'Variational') return `https://app.variational.io/`;
       return '#';
     }
     function exchangeLogoUrl(exchange){
       const domains = {
+        Aster: 'asterdex.com',
         Binance: 'binance.com',
         Bybit: 'bybit.com',
         Hyperliquid: 'hyperliquid.xyz',
+        OKX: 'okx.com',
+        Variational: 'variational.io',
       };
       return `https://www.google.com/s2/favicons?domain=${domains[exchange] || exchange.toLowerCase() + '.com'}&sz=32`;
     }
@@ -253,6 +300,25 @@
     function feeDirection(value){
       if(value == null || Number.isNaN(value)) return '-';
       return value >= 0 ? 'Short -> Long' : 'Long -> Short';
+    }
+    function exchangeSortWeight(exchange){
+      return ['Hyperliquid','Binance','Bybit','Aster','OKX','Variational'].indexOf(exchange);
+    }
+    function intervalHoursFor(pair, latest={}){
+      if(latest.fundingIntervalHours) return Number(latest.fundingIntervalHours);
+      if(pair.fundingIntervalHours) return Number(pair.fundingIntervalHours);
+      return pair.exchange === 'Hyperliquid' ? 1 : 8;
+    }
+    function annualizedFromFee(pair, fee, latest={}){
+      if(fee == null || Number.isNaN(fee)) return null;
+      return fee * (24 / intervalHoursFor(pair, latest)) * 365 * 100;
+    }
+    function comparisonAnnualized(pairKey, pair, latest){
+      const fee = fundingFeeValue(latest);
+      const annualized = annualizedFromFee(pair, fee, latest);
+      if(annualized != null && !Number.isNaN(annualized)) return annualized;
+      const summary = pair.windows && pair.windows[state.selectedWindow];
+      return summary ? summary.annualizedPct : null;
     }
     function trackLocalVisit(){
       const today = new Date().toISOString().slice(0,10);
@@ -380,7 +446,12 @@
     function getPairsForAsset(selectedAsset=state.selectedAsset){
       return Object.entries(state.data.pairs)
         .filter(([_, pair]) => assetId(pair) === selectedAsset)
-        .sort((a,b)=>a[1].exchange.localeCompare(b[1].exchange));
+        .sort((a,b)=>{
+          const aw=exchangeSortWeight(a[1].exchange);
+          const bw=exchangeSortWeight(b[1].exchange);
+          if(aw !== bw) return (aw < 0 ? 99 : aw) - (bw < 0 ? 99 : bw);
+          return a[1].exchange.localeCompare(b[1].exchange);
+        });
     }
     function getSortedEntries(){ let entries=Object.entries(state.data.pairs); if(state.sortMode==='annualized_desc'){ entries.sort((a,b)=>b[1].windows[state.selectedWindow].annualizedPct-a[1].windows[state.selectedWindow].annualizedPct); } else if(state.sortMode==='annualized_asc'){ entries.sort((a,b)=>a[1].windows[state.selectedWindow].annualizedPct-b[1].windows[state.selectedWindow].annualizedPct); } else { entries.sort((a,b)=>assetName(a[1]).localeCompare(assetName(b[1]), 'ko') || a[1].exchange.localeCompare(b[1].exchange)); } return entries; }
 
@@ -439,6 +510,40 @@
 
     function renderExchangePicker(){
       return;
+    }
+
+    function ensureExtraExchangePairs(){
+      Object.entries(EXTRA_EXCHANGE_PAIRS).forEach(([asset, extras])=>{
+        const basePair = Object.values(state.data.pairs).find(pair=>assetId(pair) === asset);
+        if(!basePair) return;
+        extras.forEach(extra=>{
+          const key = `${extra.exchange}:${extra.symbol}`;
+          if(state.data.pairs[key]) return;
+          const windows = {};
+          Object.keys(state.data.meta.windows).forEach(windowKey=>{
+            windows[windowKey] = {
+              count: 0,
+              avgFundingRate: 0,
+              sumFundingRate: 0,
+              annualizedPct: 0,
+              firstFundingTime: null,
+              lastFundingTime: null,
+            };
+          });
+          state.data.pairs[key] = {
+            symbol: extra.symbol,
+            displaySymbol: extra.displaySymbol || basePair.displaySymbol || asset,
+            assetId: asset,
+            assetName: basePair.assetName || asset,
+            exchange: extra.exchange,
+            fundingIntervalHours: extra.fundingIntervalHours,
+            rows: [],
+            latest: {},
+            windows,
+            liveOnly: true,
+          };
+        });
+      });
     }
 
     function selectAssetFromSearch(value){
@@ -512,7 +617,7 @@
       const body=document.getElementById('comparisonBody'); body.innerHTML='';
       const selected=state.data.pairs[state.selectedPair];
       document.getElementById('supportTitle').textContent=assetName(selected);
-      const sameSymbolPairs=Object.entries(state.data.pairs).filter(([_,pair])=>assetId(pair)===assetId(selected));
+      const sameSymbolPairs=getPairsForAsset(assetId(selected));
       sameSymbolPairs.forEach(([pairKey,pair])=>{
         const tr=document.createElement('tr');
         const isSelected=pairKey===state.selectedPair;
@@ -551,9 +656,17 @@
         feeEl.textContent=fee == null || Number.isNaN(fee) ? '-' : fmtSignedPct(fee);
         feeCell.appendChild(feeEl);
 
+        const annualCell=document.createElement('td');
+        const annualized=comparisonAnnualized(pairKey, pair, latest);
+        const annualEl=document.createElement('span');
+        annualEl.className='fee-value ' + feeTone(annualized == null ? null : annualized);
+        annualEl.textContent=annualized == null || Number.isNaN(annualized) ? '-' : fmtAnnual(annualized);
+        annualCell.appendChild(annualEl);
+
         tr.appendChild(exchangeCell);
         tr.appendChild(pairCell);
         tr.appendChild(feeCell);
+        tr.appendChild(annualCell);
         body.appendChild(tr);
       });
     }
@@ -682,22 +795,93 @@
       return state.liveLatestByPair[pairKey] || pair.latest || {};
     }
 
+    function getComparisonStats(){
+      const selected=state.data.pairs[state.selectedPair];
+      return getPairsForAsset(assetId(selected)).map(([pairKey, pair])=>{
+        const latest=getLatestForPair(pairKey, pair);
+        const fee=fundingFeeValue(latest);
+        return {
+          pairKey,
+          pair,
+          latest,
+          fee,
+          annualized:comparisonAnnualized(pairKey, pair, latest),
+        };
+      }).filter(item=>item.fee != null && !Number.isNaN(item.fee));
+    }
+
+    function renderExchangeTabs(){
+      const tabs=document.getElementById('exchangeTabs');
+      tabs.innerHTML='';
+      getPairsForAsset(state.selectedAsset).forEach(([pairKey, pair])=>{
+        const btn=document.createElement('button');
+        btn.type='button';
+        btn.className='chip' + (pairKey===state.selectedPair ? ' active' : '');
+        btn.textContent=pair.exchange;
+        btn.onclick=()=>selectPair(pairKey);
+        tabs.appendChild(btn);
+      });
+    }
+
+    function renderFundingInsights(stats, selectedPairKey, latest){
+      const sorted=stats.slice().sort((a,b)=>b.fee-a.fee);
+      const selectedRank=sorted.findIndex(item=>item.pairKey===selectedPairKey);
+      const longFavored=sorted[0];
+      const shortFavored=sorted[sorted.length-1];
+      const mark=Number(latest.markPrice);
+      const index=Number(latest.indexPrice);
+      const gap = Number.isFinite(mark) && Number.isFinite(index) && index !== 0 ? (mark - index) / index : null;
+      const gapEl=document.getElementById('markIndexGap');
+      gapEl.textContent=gap == null ? '-' : fmtSignedPct(gap);
+      gapEl.className='detail-value ' + feeTone(gap);
+      document.getElementById('selectedExchangeRank').textContent=selectedRank >= 0 ? `${selectedRank + 1}/${sorted.length}` : '-';
+      document.getElementById('longFavoredExchange').textContent=longFavored ? `${longFavored.pair.exchange} ${fmtSignedPct(longFavored.fee)}` : '-';
+      document.getElementById('shortFavoredExchange').textContent=shortFavored ? `${shortFavored.pair.exchange} ${fmtSignedPct(shortFavored.fee)}` : '-';
+
+      const bars=document.getElementById('fundingBars');
+      bars.innerHTML='';
+      const maxAbs=Math.max(...sorted.map(item=>Math.abs(item.fee)), 0.000001);
+      sorted.forEach(item=>{
+        const row=document.createElement('div');
+        row.className='funding-bar-row';
+        const name=document.createElement('div');
+        name.className='funding-bar-name';
+        name.textContent=item.pair.exchange;
+        const track=document.createElement('div');
+        track.className='funding-bar-track';
+        const fill=document.createElement('div');
+        fill.className='funding-bar-fill ' + feeTone(item.fee);
+        fill.style.width=`${Math.max(3, Math.min(50, Math.abs(item.fee) / maxAbs * 50))}%`;
+        track.appendChild(fill);
+        const value=document.createElement('div');
+        value.className='funding-bar-value ' + feeTone(item.fee);
+        value.textContent=fmtSignedPct(item.fee);
+        row.append(name, track, value);
+        bars.appendChild(row);
+      });
+    }
+
     function render(){
       const pair=state.data.pairs[state.selectedPair];
       const windowSummary=pair.windows[state.selectedWindow];
       const rows=getFilteredRows(pair);
       const latest=getLatestForPair(state.selectedPair, pair);
       renderComparisons();
+      const comparisonStats=getComparisonStats();
+      renderExchangeTabs();
+      renderFundingInsights(comparisonStats, state.selectedPair, latest);
       const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedAsset)?'★':'☆')+' 즐겨찾기';
       document.getElementById('sampleCount').textContent=windowSummary.count;
       document.getElementById('avgFunding').textContent=fmtPct(windowSummary.avgFundingRate);
-      const annual=document.getElementById('annualized'); annual.textContent=fmtAnnual(windowSummary.annualizedPct); annual.className='value '+(windowSummary.annualizedPct>=0?'good':'bad');
+      const currentFee = fundingFeeValue(latest);
+      const liveAnnualized = annualizedFromFee(pair, currentFee, latest);
+      const displayedAnnualized = liveAnnualized == null || Number.isNaN(liveAnnualized) ? windowSummary.annualizedPct : liveAnnualized;
+      const annual=document.getElementById('annualized'); annual.textContent=fmtAnnual(displayedAnnualized); annual.className='value '+(displayedAnnualized>=0?'good':'bad');
       document.getElementById('firstTime').textContent=windowSummary.firstFundingTime ? toKST(windowSummary.firstFundingTime) : '-';
       document.getElementById('lastTime').textContent=windowSummary.lastFundingTime ? toKST(windowSummary.lastFundingTime) : '-';
       document.getElementById('sumFunding').textContent=fmtPct(windowSummary.sumFundingRate);
       document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate < 0 ? '<span class="pill good">Short → Long</span>' : '<span class="pill bad">Long → Short</span>';
 
-      const currentFee = fundingFeeValue(latest);
       const currentFeeTone = feeTone(currentFee);
       const coreTitle = document.getElementById('coreTitle');
       coreTitle.innerHTML = `현재 Funding Fee 방향 : <span class="direction-value ${currentFeeTone}">${feeDirection(currentFee)}</span>`;
@@ -777,6 +961,65 @@
         };
         return;
       }
+      if(pair.exchange === 'Aster'){
+        const res = await fetch(`${ASTER_PREMIUM_INDEX_URL}?symbol=${pair.symbol}`);
+        if(!res.ok) throw new Error(`aster premiumIndex fetch failed: ${pairKey}`);
+        const row = await res.json();
+        state.liveLatestByPair[pairKey] = {
+          markPrice: Number(row.markPrice),
+          indexPrice: Number(row.indexPrice),
+          lastFundingRate: Number(row.lastFundingRate),
+          nextFundingTime: Number(row.nextFundingTime),
+          fundingIntervalHours: pair.fundingIntervalHours || 4,
+          time: Number(row.time) || Date.now(),
+          available: true,
+        };
+        return;
+      }
+      if(pair.exchange === 'OKX'){
+        const [fundingRes, markRes, indexRes] = await Promise.all([
+          fetch(`${OKX_FUNDING_RATE_URL}?instId=${encodeURIComponent(pair.symbol)}`),
+          fetch(`${OKX_MARK_PRICE_URL}?instType=SWAP&instId=${encodeURIComponent(pair.symbol)}`),
+          fetch(`${OKX_INDEX_TICKER_URL}?instId=${encodeURIComponent(pair.symbol.replace('-SWAP',''))}`),
+        ]);
+        if(!fundingRes.ok || !markRes.ok || !indexRes.ok) throw new Error(`okx funding fetch failed: ${pairKey}`);
+        const fundingJson = await fundingRes.json();
+        const markJson = await markRes.json();
+        const indexJson = await indexRes.json();
+        const funding = fundingJson.data && fundingJson.data[0] ? fundingJson.data[0] : {};
+        const mark = markJson.data && markJson.data[0] ? markJson.data[0] : {};
+        const index = indexJson.data && indexJson.data[0] ? indexJson.data[0] : {};
+        state.liveLatestByPair[pairKey] = {
+          markPrice: Number(mark.markPx || funding.markPx),
+          indexPrice: Number(index.idxPx),
+          lastFundingRate: Number(funding.fundingRate),
+          nextFundingTime: Number(funding.nextFundingTime || funding.nextFundingTimeMs),
+          fundingIntervalHours: pair.fundingIntervalHours || 8,
+          time: Number(funding.ts) || Date.now(),
+          available: true,
+        };
+        return;
+      }
+      if(pair.exchange === 'Variational'){
+        const res = await fetch(VARIATIONAL_STATS_URL);
+        if(!res.ok) throw new Error(`variational stats fetch failed: ${pairKey}`);
+        const json = await res.json();
+        const row = (json.listings || []).find(item => String(item.ticker).toUpperCase() === pair.displaySymbol.toUpperCase());
+        if(!row) throw new Error(`variational listing not found: ${pair.displaySymbol}`);
+        const intervalHours = Number(row.funding_interval_s || 28800) / 3600;
+        const paymentsPerYear = (24 / intervalHours) * 365;
+        const updatedAt = row.quotes && row.quotes.updated_at ? Date.parse(row.quotes.updated_at) : Date.now();
+        state.liveLatestByPair[pairKey] = {
+          markPrice: Number(row.mark_price),
+          indexPrice: Number(row.mark_price),
+          lastFundingRate: Number(row.funding_rate) / paymentsPerYear,
+          nextFundingTime: updatedAt + intervalHours * 3600000,
+          fundingIntervalHours: intervalHours,
+          time: updatedAt,
+          available: true,
+        };
+        return;
+      }
       throw new Error(`Unsupported exchange: ${pair.exchange}`);
     }
 
@@ -796,6 +1039,7 @@
       const res=await fetch(`./funding_data.json?ts=${Date.now()}`, { cache: 'no-store' });
       const data=await res.json();
       state.data=data;
+      ensureExtraExchangePairs();
       state.selectedPair=Object.keys(data.pairs)[0];
       state.selectedAsset=assetId(data.pairs[state.selectedPair]);
       trackLocalVisit();
