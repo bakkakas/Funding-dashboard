@@ -27,6 +27,10 @@ async function lookupCountry(ip: string) {
   }
 }
 
+function isBotOrTestUserAgent(userAgent: string) {
+  return /HeadlessChrome|Playwright|Puppeteer|bot|crawler|spider/i.test(userAgent);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -53,6 +57,11 @@ Deno.serve(async (req) => {
   const body = await req.json().catch(() => ({}));
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("cf-connecting-ip") || "";
   const userAgent = req.headers.get("user-agent") || "";
+  if (isBotOrTestUserAgent(userAgent)) {
+    return new Response(JSON.stringify({ ok: true, skipped: "bot_or_test_user_agent" }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
   const headerCountry =
     req.headers.get("cf-ipcountry") ||
     req.headers.get("x-vercel-ip-country") ||

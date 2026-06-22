@@ -24,6 +24,9 @@
     .header-side { display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
     .header-market-row { display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap; }
     .header-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .language-toggle { display:inline-flex; gap:4px; padding:3px; border:1px solid var(--line); border-radius:999px; background:#07140f; }
+    .language-toggle .chip { border:0; padding:6px 10px; }
+    .language-toggle .chip.active { background:rgba(35,231,165,0.16); }
     .alt-link { color:var(--accent); text-decoration:none; font-size:13px; font-weight:800; }
     .alt-link:hover { text-decoration:underline; }
     .toolbar,.toolbar2 { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
@@ -78,6 +81,16 @@
     .funding-bar-fill.bad { right:50%; background:var(--bad); }
     .funding-bar-value { text-align:right; font-weight:800; font-variant-numeric:tabular-nums; }
     .rate-legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; font-size:13px; font-weight:700; }
+    .asset-summary-card { display:flex; justify-content:space-between; align-items:center; gap:18px; margin-bottom:16px; padding:18px 20px; }
+    .asset-identity { display:flex; align-items:center; gap:10px; min-width:0; }
+    .asset-logo { width:28px; height:28px; border-radius:50%; background:#f2f7f4; display:grid; place-items:center; color:#b21d2b; font-size:12px; font-weight:900; flex:0 0 auto; }
+    .asset-title-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .asset-symbol { font-size:22px; font-weight:850; color:#f3fff8; }
+    .asset-badge { border:1px solid rgba(220,232,223,0.18); border-radius:6px; padding:2px 6px; color:var(--muted); font-size:11px; font-weight:850; }
+    .asset-name { margin-top:4px; color:var(--muted); font-size:13px; font-weight:700; }
+    .asset-price-block { text-align:right; flex:0 0 auto; }
+    .asset-price { color:var(--good); font-size:28px; line-height:1; font-weight:850; font-variant-numeric:tabular-nums; }
+    .asset-price-meta { margin-top:6px; color:var(--muted); font-size:12px; font-weight:750; }
     .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
     .card { background:rgba(13,23,18,0.95); border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 14px 34px rgba(0,0,0,0.24); }
     .metric { grid-column:span 3; }
@@ -127,6 +140,7 @@
     .auth-status { color:var(--muted); font-size:13px; line-height:1.55; }
     .auth-status strong { color:var(--text); }
     @media (max-width:1100px){ .top-panel,.metric,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } .header-side { align-items:flex-start; } .header-market-row,.header-actions { justify-content:flex-start; } }
+    @media (max-width:760px){ .asset-summary-card { align-items:flex-start; flex-direction:column; } .asset-price-block { text-align:left; } }
     @media (max-width:700px){ .rate-combo,.favored-grid { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -135,30 +149,50 @@
     <div class="header">
       <div>
         <h1>Multi-Exchange Funding Dashboard</h1>
-        <div class="sub">history는 자동 적재하고, 현재 funding / mark / index / 다음 funding 카운트다운은 거래소별 public API 기준으로 실시간에 가깝게 반영하는 대시보드.</div>
+        <div class="sub" data-i18n="subtitle">history는 자동 적재하고, 현재 funding / mark / index / 다음 funding 카운트다운은 거래소별 public API 기준으로 실시간에 가깝게 반영하는 대시보드.</div>
       </div>
       <div class="header-side">
         <div class="header-market-row">
           <div class="header-actions">
+            <div class="language-toggle" aria-label="Language">
+              <button class="chip subtle active" id="langKoButton" type="button">한국어</button>
+              <button class="chip subtle" id="langEnButton" type="button">English</button>
+            </div>
             <button class="chip subtle" id="loginButton" type="button">로그인</button>
             <button class="chip subtle" id="signupButton" type="button">회원가입</button>
-            <a class="chip subtle" href="./admin.html" style="text-decoration:none;">관리자</a>
+            <a class="chip subtle" href="./admin.html" style="text-decoration:none;" data-i18n="admin">관리자</a>
           </div>
           <div class="fx-ticker warn" id="usdKrwTicker">USD/KRW 조회 중</div>
         </div>
         <div class="stamp" id="updatedAt">Updated: -</div>
-        <a class="alt-link" href="./v2.html">V2 보기</a>
+        <a class="alt-link" href="./v2.html" data-i18n="viewV2">V2 보기</a>
       </div>
     </div>
 
-    <div class="toolbar"><div class="asset-search-wrap"><input id="assetSearch" class="field pair-select" placeholder="종목명 검색" autocomplete="off" /><div id="assetDropdown" class="asset-dropdown"></div></div><select id="sortMode" class="field"><option value="symbol">이름순</option><option value="annualized_desc">Annualized 높은순</option><option value="annualized_asc">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
+    <div class="toolbar"><div class="asset-search-wrap"><input id="assetSearch" class="field pair-select" data-i18n-placeholder="assetSearchPlaceholder" placeholder="종목명 검색" autocomplete="off" /><div id="assetDropdown" class="asset-dropdown"></div></div><select id="sortMode" class="field"><option value="symbol" data-i18n="sortName">이름순</option><option value="annualized_desc" data-i18n="sortAnnualHigh">Annualized 높은순</option><option value="annualized_asc" data-i18n="sortAnnualLow">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
     <div class="toolbar" id="favoriteTabs"></div>
     <div class="toolbar2" id="windowTabs"></div>
+    <div class="card asset-summary-card">
+      <div class="asset-identity">
+        <div class="asset-logo" id="assetLogoMark">-</div>
+        <div>
+          <div class="asset-title-row">
+            <span class="asset-symbol" id="assetHeaderSymbol">-</span>
+            <span class="asset-badge">Perp</span>
+          </div>
+          <div class="asset-name" id="assetHeaderName">-</div>
+        </div>
+      </div>
+      <div class="asset-price-block">
+        <div class="asset-price" id="assetHeaderPrice">-</div>
+        <div class="asset-price-meta" id="assetHeaderPriceMeta">-</div>
+      </div>
+    </div>
     <div class="top-grid">
       <div class="card top-panel">
         <h3 class="section-title" id="supportTitle">지원 거래소</h3>
         <table class="comparison-table">
-          <thead><tr><th>지원 거래소</th><th>페어</th><th>현재 펀딩피</th><th>Annualized</th></tr></thead>
+          <thead><tr><th data-i18n="supportExchange">지원 거래소</th><th data-i18n="pair">페어</th><th data-i18n="currentFundingFee">현재 펀딩피</th><th>Annualized</th></tr></thead>
           <tbody id="comparisonBody"></tbody>
         </table>
         <div class="favored-grid">
@@ -170,46 +204,42 @@
         <h3 class="section-title" id="coreTitle">선택 기간 Funding Fee 방향 : -</h3>
         <div class="exchange-tabs" id="exchangeTabs"></div>
         <div class="rate-combo">
-          <div class="rate-item"><div class="label">선택 기간 평균 Funding Fee</div><div class="value" id="latestFunding">-</div></div>
-          <div class="rate-item"><div class="label">평균 Annualized</div><div class="value" id="annualized">-</div></div>
+          <div class="rate-item"><div class="label" data-i18n="selectedAvgFundingFee">선택 기간 평균 Funding Fee</div><div class="value" id="latestFunding">-</div></div>
+          <div class="rate-item"><div class="label" data-i18n="avgAnnualized">평균 Annualized</div><div class="value" id="annualized">-</div></div>
         </div>
         <div class="funding-detail-grid">
-          <div class="detail-box"><div class="label">Mark / Index 차이</div><div class="detail-value" id="markIndexGap">-</div></div>
-          <div class="detail-box"><div class="label">선택 거래소 순위</div><div class="detail-value" id="selectedExchangeRank">-</div></div>
+          <div class="detail-box"><div class="label" data-i18n="markIndexGap">Mark / Index 차이</div><div class="detail-value" id="markIndexGap">-</div></div>
+          <div class="detail-box"><div class="label" data-i18n="selectedExchangeRank">선택 거래소 순위</div><div class="detail-value" id="selectedExchangeRank">-</div></div>
         </div>
         <div class="funding-bars" id="fundingBars"></div>
-        <div class="rate-legend"><span class="legend-good">양수 = Short -> Long</span><span class="legend-bad">음수 = Long -> Short</span></div>
+        <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend">양수 = Short -> Long</span><span class="legend-bad" data-i18n="negativeLegend">음수 = Long -> Short</span></div>
       </div>
     </div>
 
     <div class="grid">
-      <div class="card metric"><div class="label">다음 Funding</div><div class="value countdown" id="nextFunding">-</div><div class="mini" id="nextFundingAt">다음 정산까지 남은 시간</div></div>
-      <div class="card metric"><div class="label">현재 Price</div><div class="value" id="priceCard">-</div><div class="mini"><strong style="color:var(--text)">Mark:</strong> <span id="markPrice">-</span> &nbsp;|&nbsp; <strong style="color:var(--text)">Index:</strong> <span id="indexPrice">-</span></div></div>
-
-      <div class="card metric"><div class="label">표본 수</div><div class="value" id="sampleCount">-</div><div class="mini">선택 기간의 funding 회차 수</div></div>
-      <div class="card metric"><div class="label">평균 Funding Fee / 회</div><div class="value" id="avgFunding">-</div><div class="mini">최근 선택 구간 평균</div></div>
+      <div class="card metric half"><div class="label" data-i18n="nextFunding">다음 Funding</div><div class="value countdown" id="nextFunding">-</div><div class="mini" id="nextFundingAt">다음 정산까지 남은 시간</div></div>
+      <div class="card metric half"><div class="label" data-i18n="avgFundingPerRound">평균 Funding Fee / 회</div><div class="value" id="avgFunding">-</div><div class="mini" data-i18n="recentWindowAvg">최근 선택 구간 평균</div></div>
 
       <div class="card wide">
-        <h3 class="section-title">요약</h3>
+        <h3 class="section-title" data-i18n="summary">요약</h3>
         <table class="summary-table">
-          <thead><tr><th>첫 회차</th><th>마지막 회차</th><th>누적 funding 합계</th><th>해석</th></tr></thead>
+          <thead><tr><th data-i18n="firstRound">첫 회차</th><th data-i18n="lastRound">마지막 회차</th><th data-i18n="sumFunding">누적 funding 합계</th><th data-i18n="interpretation">해석</th></tr></thead>
           <tbody><tr><td id="firstTime">-</td><td id="lastTime">-</td><td id="sumFunding">-</td><td id="interpretation">-</td></tr></tbody>
         </table>
       </div>
 
-      <div class="card wide"><h3 class="section-title">Price Chart</h3><canvas id="priceChart"></canvas><div class="note">선택 구간의 mark price 흐름. TradingView 스타일에 가깝게 어두운 배경/라인 중심으로 표시.</div></div>
+      <div class="card wide"><h3 class="section-title" data-i18n="priceChart">Price Chart</h3><canvas id="priceChart"></canvas><div class="note" data-i18n="priceChartNote">선택 구간의 mark price 흐름. TradingView 스타일에 가깝게 어두운 배경/라인 중심으로 표시.</div></div>
 
-      <div class="card wide"><h3 class="section-title">Funding Rate Chart</h3><canvas id="fundingChart"></canvas><div class="note">선택 구간의 회차별 funding rate 흐름.</div></div>
+      <div class="card wide"><h3 class="section-title" data-i18n="fundingRateChart">Funding Rate Chart</h3><canvas id="fundingChart"></canvas><div class="note" data-i18n="fundingChartNote">선택 구간의 회차별 funding rate 흐름.</div></div>
 
       <div class="card wide">
-        <h3 class="section-title">회차별 Funding History</h3>
+        <h3 class="section-title" data-i18n="fundingHistory">회차별 Funding History</h3>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>#</th><th>Funding Time (UTC)</th><th>Funding Rate</th><th>Mark Price</th><th>Direction</th></tr></thead>
+            <thead><tr><th>#</th><th>Funding Time (UTC)</th><th>Funding Rate</th><th>Mark Price</th><th data-i18n="direction">Direction</th></tr></thead>
             <tbody id="historyBody"></tbody>
           </table>
         </div>
-        <div class="note">Annualized는 funding rate를 정산 주기에 맞춰 연장한 러닝레이트이며 미래 확정 수익률이 아니다. 거래소별 정산 주기를 기준으로 연율화하며, 이 대시보드에서는 Long → Short 구간을 음수(-), Short → Long 구간을 양수(+)로 표기한다. 거래소 목록의 현재값은 브라우저에서 거래소 public API를 직접 조회한 값이라 저장된 history와 시차가 있을 수 있고, Orbs Perps Hub의 현재값은 THENA Perps aggregatedFundingData의 Long/Short 실제 적용값을 우선 사용한다. Perps Hub 히스토리는 공개 proxy history의 raw funding rate 기준이다. Variational은 공개 API가 현재 스냅샷 중심이라 자동 업데이트 때마다 누적해 history를 채운다.</div>
       </div>
     </div>
   </div>
@@ -218,13 +248,13 @@
     <div class="modal">
       <div class="modal-head">
         <h3 id="authModalTitle">로그인</h3>
-        <button class="chip subtle" id="authCloseButton" type="button">닫기</button>
+        <button class="chip subtle" id="authCloseButton" type="button" data-i18n="close">닫기</button>
       </div>
       <form class="modal-grid" id="authForm">
         <input class="field" id="authEmail" type="email" autocomplete="email" placeholder="email@example.com" />
         <input class="field" id="authPassword" type="password" autocomplete="current-password" placeholder="password" />
         <button class="chip active" id="authSubmitButton" type="button">저장</button>
-        <button class="chip subtle" id="authGoogleButton" type="button">Google로 계속하기</button>
+        <button class="chip subtle" id="authGoogleButton" type="button" data-i18n="continueGoogle">Google로 계속하기</button>
         <div class="auth-status" id="authStatus">백엔드 연결 전에는 현재 브라우저 기준으로만 계정 상태와 즐겨찾기를 저장해.</div>
       </form>
     </div>
@@ -341,8 +371,64 @@
     const SUPABASE_ANON_KEY = SUPABASE_CONFIG.anonKey || '';
     const SUPABASE_FUNCTIONS_BASE_URL = (SUPABASE_CONFIG.functionsBaseUrl || (SUPABASE_URL ? `${SUPABASE_URL}/functions/v1` : '')).replace(/\/$/, '');
     const ANALYTICS_BACKEND_CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_FUNCTIONS_BASE_URL);
+    const I18N = {
+      ko: {
+        subtitle:'history는 자동 적재하고, 현재 funding / mark / index / 다음 funding 카운트다운은 거래소별 public API 기준으로 실시간에 가깝게 반영하는 대시보드.',
+        admin:'관리자', viewV2:'V2 보기', assetSearchPlaceholder:'종목명 검색',
+        sortName:'이름순', sortAnnualHigh:'Annualized 높은순', sortAnnualLow:'Annualized 낮은순',
+        favorite:'즐겨찾기', login:'로그인', logout:'로그아웃', signup:'회원가입',
+        signupSave:'회원가입 저장', loginSave:'로그인 저장', close:'닫기',
+        supportExchange:'지원 거래소', pair:'페어', currentFundingFee:'현재 펀딩피',
+        selectedFundingDirection:'선택 기간 Funding Fee 방향', selectedAvgFundingFee:'선택 기간 평균 Funding Fee',
+        avgAnnualized:'평균 Annualized', markIndexGap:'Mark / Index 차이', selectedExchangeRank:'선택 거래소 순위',
+        positiveLegend:'양수 = Short -> Long', negativeLegend:'음수 = Long -> Short',
+        nextFunding:'다음 Funding', nextFundingMini:'다음 정산까지 남은 시간', settlementTime:'정산 시각',
+        settlementTimeFailed:'정산 시각 조회 실패', fetchFailed:'조회 실패', settling:'정산 중 / 갱신 대기',
+        avgFundingPerRound:'평균 Funding Fee / 회', recentWindowAvg:'최근 선택 구간 평균',
+        summary:'요약', firstRound:'첫 회차', lastRound:'마지막 회차', sumFunding:'누적 funding 합계', interpretation:'해석',
+        priceChart:'Price Chart', priceChartNote:'선택 구간의 mark price 흐름. TradingView 스타일에 가깝게 어두운 배경/라인 중심으로 표시.',
+        fundingRateChart:'Funding Rate Chart', fundingChartNote:'선택 구간의 회차별 funding rate 흐름.',
+        fundingHistory:'회차별 Funding History', direction:'Direction',
+        noSearchResults:'검색 결과 없음', rank:'순위', longFavored:'Long 유리', shortFavored:'Short 유리',
+        mark:'Mark', index:'Index', currentPrice:'현재 가격', updated:'Updated',
+        authSynced:'계정과 즐겨찾기가 클라우드에 동기화돼.',
+        authLocal:'현재는 GitHub Pages 정적 배포라 <strong>현재 브라우저에만</strong> 저장돼. Firebase/Supabase 키를 연결하면 기기 간 즐겨찾기 동기화가 활성화돼.',
+        authDefault:'백엔드 연결 전에는 현재 브라우저 기준으로만 계정 상태와 즐겨찾기를 저장해.',
+        continueGoogle:'Google로 계속하기',
+        googlePending:'Google OAuth는 Firebase/Supabase 클라이언트 키 연결 후 활성화돼. 지금은 UI와 저장 구조만 준비된 상태야.',
+        invalidEmail:'이메일 형식으로 입력해줘.',
+        usdKrwLoading:'USD/KRW 조회 중', usdKrwFailed:'USD/KRW 조회 실패',
+      },
+      en: {
+        subtitle:'A dashboard that stores funding history automatically and refreshes current funding, mark, index, and next-funding countdowns from each exchange public API.',
+        admin:'Admin', viewV2:'View V2', assetSearchPlaceholder:'Search asset',
+        sortName:'Name', sortAnnualHigh:'Annualized high to low', sortAnnualLow:'Annualized low to high',
+        favorite:'Favorites', login:'Log in', logout:'Log out', signup:'Sign up',
+        signupSave:'Save sign-up', loginSave:'Save login', close:'Close',
+        supportExchange:'Supported exchange', pair:'Pair', currentFundingFee:'Current funding fee',
+        selectedFundingDirection:'Selected-period funding fee direction', selectedAvgFundingFee:'Selected-period average funding fee',
+        avgAnnualized:'Average annualized', markIndexGap:'Mark / Index gap', selectedExchangeRank:'Selected exchange rank',
+        positiveLegend:'Positive = Short -> Long', negativeLegend:'Negative = Long -> Short',
+        nextFunding:'Next funding', nextFundingMini:'Time left until next settlement', settlementTime:'Settlement time',
+        settlementTimeFailed:'Settlement time unavailable', fetchFailed:'Unavailable', settling:'Settling / waiting for update',
+        avgFundingPerRound:'Average funding fee / round', recentWindowAvg:'Average over selected window',
+        summary:'Summary', firstRound:'First round', lastRound:'Last round', sumFunding:'Cumulative funding sum', interpretation:'Interpretation',
+        priceChart:'Price Chart', priceChartNote:'Mark price movement over the selected window, shown with a dark, line-focused TradingView-style chart.',
+        fundingRateChart:'Funding Rate Chart', fundingChartNote:'Funding rate movement by round over the selected window.',
+        fundingHistory:'Funding History By Round', direction:'Direction',
+        noSearchResults:'No results', rank:'Rank', longFavored:'Long favored', shortFavored:'Short favored',
+        mark:'Mark', index:'Index', currentPrice:'Current price', updated:'Updated',
+        authSynced:'Account and favorites are synced to the cloud.',
+        authLocal:'This is currently a static GitHub Pages deployment, so data is saved <strong>only in this browser</strong>. Cross-device favorites will activate after Firebase/Supabase keys are connected.',
+        authDefault:'Before backend connection, account state and favorites are saved only in this browser.',
+        continueGoogle:'Continue with Google',
+        googlePending:'Google OAuth will activate after Firebase/Supabase client keys are connected. For now, only the UI and storage structure are ready.',
+        invalidEmail:'Enter a valid email address.',
+        usdKrwLoading:'Loading USD/KRW', usdKrwFailed:'USD/KRW unavailable',
+      },
+    };
 
-    let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'7D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{}, auth:null, authMode:'login', draggedFavorite:null };
+    let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'7D', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{}, auth:null, authMode:'login', draggedFavorite:null, lang:localStorage.getItem('fundingDashboardLanguage') || 'ko' };
     let variationalStatsCache = { time:0, promise:null };
     let orbsPerpsFundingCache = { time:0, promise:null };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
@@ -350,7 +436,12 @@
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
     const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const fmtFx = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
-    const toKST = ms => new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
+    function toKST(ms){
+      if(state.lang === 'en'){
+        return new Date(ms).toLocaleString('en-US', { timeZone:'Asia/Seoul', year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+      }
+      return new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
+    }
     function toKSTChartLabel(ms){
       const parts = new Intl.DateTimeFormat('en-US', { timeZone:'Asia/Seoul', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false }).formatToParts(new Date(ms)).reduce((acc, part) => {
         acc[part.type] = part.value;
@@ -359,6 +450,24 @@
       return `${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
     }
     const toUTC = ms => new Date(ms).toISOString().replace('T',' ').slice(0,19) + ' UTC';
+    function t(key){ return (I18N[state.lang] && I18N[state.lang][key]) || I18N.ko[key] || key; }
+    function setLanguage(lang){
+      state.lang = lang === 'en' ? 'en' : 'ko';
+      localStorage.setItem('fundingDashboardLanguage', state.lang);
+      document.documentElement.lang = state.lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+      document.getElementById('langKoButton')?.classList.toggle('active', state.lang === 'ko');
+      document.getElementById('langEnButton')?.classList.toggle('active', state.lang === 'en');
+      if(state.data) document.getElementById('updatedAt').textContent=t('updated')+': '+toKST(state.data.updatedAt);
+      const fxTicker=document.getElementById('usdKrwTicker');
+      if(fxTicker && (fxTicker.textContent === I18N.ko.usdKrwLoading || fxTicker.textContent === I18N.en.usdKrwLoading)) fxTicker.textContent=t('usdKrwLoading');
+      renderAuth();
+      renderAssetPicker();
+      renderFavoriteTabs();
+      renderComparisons();
+      if(state.data && state.selectedPair) render();
+    }
 
     function displaySymbol(pair){ return pair.displaySymbol || pair.symbol; }
     function assetId(pair){ return pair.assetId || displaySymbol(pair); }
@@ -477,6 +586,7 @@
     }
     function trackSupabaseVisit(){
       if(!ANALYTICS_BACKEND_CONFIGURED) return;
+      if(/HeadlessChrome|Playwright|Puppeteer|bot|crawler|spider/i.test(navigator.userAgent || '')) return;
       fetch(`${SUPABASE_FUNCTIONS_BASE_URL}/track-visit`, {
         method:'POST',
         headers:{
@@ -527,17 +637,17 @@
     function renderAuth(){
       const loginButton=document.getElementById('loginButton');
       if(!loginButton) return;
-      loginButton.textContent=state.auth ? state.auth.email : '로그인';
-      document.getElementById('signupButton').textContent=state.auth ? '로그아웃' : '회원가입';
+      loginButton.textContent=state.auth ? state.auth.email : t('login');
+      document.getElementById('signupButton').textContent=state.auth ? t('logout') : t('signup');
     }
     function openAuthModal(mode){
       state.authMode=mode;
       const modal=document.getElementById('authModal');
-      document.getElementById('authModalTitle').textContent=mode === 'signup' ? '회원가입' : '로그인';
-      document.getElementById('authSubmitButton').textContent=mode === 'signup' ? '회원가입 저장' : '로그인 저장';
+      document.getElementById('authModalTitle').textContent=mode === 'signup' ? t('signup') : t('login');
+      document.getElementById('authSubmitButton').textContent=mode === 'signup' ? t('signupSave') : t('loginSave');
       document.getElementById('authStatus').innerHTML=AUTH_BACKEND_CONFIGURED
-        ? '계정과 즐겨찾기가 클라우드에 동기화돼.'
-        : '현재는 GitHub Pages 정적 배포라 <strong>현재 브라우저에만</strong> 저장돼. Firebase/Supabase 키를 연결하면 기기 간 즐겨찾기 동기화가 활성화돼.';
+        ? t('authSynced')
+        : t('authLocal');
       modal.classList.add('open');
       modal.setAttribute('aria-hidden','false');
       document.getElementById('authEmail').focus();
@@ -566,7 +676,7 @@
         ticker.title = `latest: ${latestJson.time_last_update_utc || 'open.er-api'}, reference date: ${refJson.date || '-'}`;
       } catch(err) {
         console.error(err);
-        ticker.textContent = 'USD/KRW 조회 실패';
+        ticker.textContent = t('usdKrwFailed');
         ticker.className = 'fx-ticker warn';
       }
     }
@@ -610,7 +720,7 @@
       if(!groups.length){
         const empty=document.createElement('div');
         empty.className='asset-empty';
-        empty.textContent='검색 결과 없음';
+        empty.textContent=t('noSearchResults');
         dropdown.appendChild(empty);
         return;
       }
@@ -752,7 +862,7 @@
     function renderComparisons(){
       const body=document.getElementById('comparisonBody'); body.innerHTML='';
       const selected=state.data.pairs[state.selectedPair];
-      document.getElementById('supportTitle').textContent=assetName(selected);
+      document.getElementById('supportTitle').textContent=t('supportExchange');
       const sameSymbolPairs=getPairsForAsset(assetId(selected));
       sameSymbolPairs.forEach(([pairKey,pair])=>{
         const tr=document.createElement('tr');
@@ -900,9 +1010,9 @@
     }
 
     function formatCountdown(nextFundingTime){
-      if (!nextFundingTime) return '조회 실패';
+      if (!nextFundingTime) return t('fetchFailed');
       const diff = nextFundingTime - Date.now();
-      if (diff <= 0) return '정산 중 / 갱신 대기';
+      if (diff <= 0) return t('settling');
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       const s = Math.floor((diff % 60000) / 1000);
@@ -913,7 +1023,7 @@
       if(state.countdownTimer) clearInterval(state.countdownTimer);
       const renderCountdown=()=>{
         document.getElementById('nextFunding').textContent = formatCountdown(nextFundingTime);
-        document.getElementById('nextFundingAt').textContent = nextFundingTime ? ('정산 시각: ' + toKST(nextFundingTime)) : '정산 시각 조회 실패';
+        document.getElementById('nextFundingAt').textContent = nextFundingTime ? (`${t('settlementTime')}: ` + toKST(nextFundingTime)) : t('settlementTimeFailed');
       };
       renderCountdown();
       state.countdownTimer=setInterval(renderCountdown,1000);
@@ -994,8 +1104,8 @@
         const annualized = annualizedValue == null || Number.isNaN(annualizedValue) ? '-' : fmtAnnual(annualizedValue);
         el.innerHTML = `<span class="detail-main"><span class="label">${label}</span><img class="exchange-logo" alt="" src="${exchangeLogoUrl(item.pair.exchange)}"><span class="favored-exchange-name">${item.pair.exchange}</span></span><span class="detail-sub">${fmtSignedPct(value)} / ${annualized} Annualized</span>`;
       };
-      renderFavored(document.getElementById('longFavoredBox'), document.getElementById('longFavoredExchange'), 'Long 유리', longFavored, 'long');
-      renderFavored(document.getElementById('shortFavoredBox'), document.getElementById('shortFavoredExchange'), 'Short 유리', shortFavored, 'short');
+      renderFavored(document.getElementById('longFavoredBox'), document.getElementById('longFavoredExchange'), t('longFavored'), longFavored, 'long');
+      renderFavored(document.getElementById('shortFavoredBox'), document.getElementById('shortFavoredExchange'), t('shortFavored'), shortFavored, 'short');
 
       const bars=document.getElementById('fundingBars');
       bars.innerHTML='';
@@ -1020,19 +1130,43 @@
       });
     }
 
+    function currentPricePairForAsset(selected){
+      const pairs=getPairsForAsset(assetId(selected));
+      return pairs.find(([_, pair])=>pair.exchange === 'Binance')
+        || pairs.find(([_, pair])=>pair.exchange === 'Orbs Perps Hub')
+        || pairs[0];
+    }
+
+    function renderAssetSummary(selected){
+      const pricePair=currentPricePairForAsset(selected);
+      const [pricePairKey, pairForPrice]=pricePair || [state.selectedPair, selected];
+      const latest=getLatestForPair(pricePairKey, pairForPrice);
+      const symbol=assetId(selected);
+      const displayPair = pairForPrice && pairForPrice.symbol
+        ? (pairForPrice.symbol.includes('USDT') ? pairForPrice.symbol.replace(/[-:]/g, '') : `${symbol}USDT`)
+        : `${symbol}USDT`;
+      document.getElementById('assetLogoMark').textContent=symbol.slice(0,2).toUpperCase();
+      document.getElementById('assetHeaderSymbol').textContent=displayPair;
+      document.getElementById('assetHeaderName').textContent=assetName(selected);
+      document.getElementById('assetHeaderPrice').textContent=latest.markPrice == null ? '-' : fmtNumber(latest.markPrice);
+      document.getElementById('assetHeaderPriceMeta').textContent=latest.markPrice == null
+        ? t('currentPrice')
+        : `${t('currentPrice')} · ${pairForPrice.exchange} ${t('mark')}`;
+    }
+
     function render(){
       const pair=state.data.pairs[state.selectedPair];
       const windowSummary=pair.windows[state.selectedWindow];
       const rows=getFilteredRows(pair);
       const latest=getLatestForPair(state.selectedPair, pair);
+      renderAssetSummary(pair);
       renderComparisons();
       const comparisonStats=getComparisonStats();
       renderExchangeTabs();
       renderFundingInsights(comparisonStats, state.selectedPair, latest);
-      const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedAsset)?'★':'☆')+' 즐겨찾기';
+      const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedAsset)?'★':'☆')+' '+t('favorite');
       const periodFee = periodFundingFee(windowSummary);
       const periodFeeTone = feeTone(periodFee);
-      document.getElementById('sampleCount').textContent=windowSummary.count;
       document.getElementById('avgFunding').textContent=periodFee == null ? '-' : fmtSignedPct(periodFee);
       const currentFee = fundingFeeValue(latest);
       const displayedAnnualized = windowSummary.annualizedPct;
@@ -1043,7 +1177,7 @@
       document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate < 0 ? '<span class="pill good">Short → Long</span>' : '<span class="pill bad">Long → Short</span>';
 
       const coreTitle = document.getElementById('coreTitle');
-      coreTitle.innerHTML = `선택 기간 Funding Fee 방향 : <span class="direction-value ${periodFeeTone}">${feeDirection(periodFee)}</span>`;
+      coreTitle.innerHTML = `${t('selectedFundingDirection')} : <span class="direction-value ${periodFeeTone}">${feeDirection(periodFee)}</span>`;
       coreTitle.className = 'section-title';
       if (periodFee == null || Number.isNaN(periodFee)) {
         document.getElementById('latestFunding').textContent='-';
@@ -1052,9 +1186,6 @@
         document.getElementById('latestFunding').textContent=fmtSignedPct(periodFee);
         document.getElementById('latestFunding').className='value '+periodFeeTone;
       }
-      document.getElementById('markPrice').textContent=latest.markPrice == null ? '-' : fmtNumber(latest.markPrice);
-      document.getElementById('indexPrice').textContent=latest.indexPrice == null ? '-' : fmtNumber(latest.indexPrice);
-      document.getElementById('priceCard').textContent=latest.markPrice == null ? '-' : fmtNumber(latest.markPrice);
       startCountdown(latest.nextFundingTime);
 
       const body=document.getElementById('historyBody'); body.innerHTML='';
@@ -1224,9 +1355,12 @@
       loadAuth();
       state.favorites = normalizeFavorites(loadFavorites());
       saveFavorites();
+      document.getElementById('langKoButton').addEventListener('click', ()=>setLanguage('ko'));
+      document.getElementById('langEnButton').addEventListener('click', ()=>setLanguage('en'));
+      setLanguage(state.lang);
       renderAuth();
       fetchUsdKrw();
-      document.getElementById('updatedAt').textContent='Updated: '+toKST(data.updatedAt);
+      document.getElementById('updatedAt').textContent=t('updated')+': '+toKST(data.updatedAt);
       document.getElementById('assetSearch').addEventListener('input', e=>{
         renderAssetDropdown(e.target.value);
         openAssetDropdown();
@@ -1267,14 +1401,14 @@
         openAuthModal('signup');
       });
       document.getElementById('authGoogleButton').addEventListener('click', ()=>{
-        document.getElementById('authStatus').innerHTML='Google OAuth는 Firebase/Supabase 클라이언트 키 연결 후 활성화돼. 지금은 UI와 저장 구조만 준비된 상태야.';
+        document.getElementById('authStatus').innerHTML=t('googlePending');
       });
       document.getElementById('authCloseButton').addEventListener('click', closeAuthModal);
       document.getElementById('authModal').addEventListener('click', e=>{ if(e.target.id === 'authModal') closeAuthModal(); });
       document.getElementById('authSubmitButton').addEventListener('click', ()=>{
         const email=document.getElementById('authEmail').value.trim();
         if(!email || !email.includes('@')){
-          document.getElementById('authStatus').textContent='이메일 형식으로 입력해줘.';
+          document.getElementById('authStatus').textContent=t('invalidEmail');
           return;
         }
         saveAuth(email);
