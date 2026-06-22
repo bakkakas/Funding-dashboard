@@ -227,7 +227,7 @@
       <div class="card top-panel">
         <h3 class="section-title" id="supportTitle">지원 거래소</h3>
         <table class="comparison-table">
-          <thead><tr><th data-i18n="supportExchange">지원 거래소</th><th data-i18n="pair">페어</th><th data-i18n="currentFundingFee">현재 펀딩피</th><th>Annualized</th></tr></thead>
+          <thead><tr><th data-i18n="supportExchange">지원 거래소</th><th data-i18n="pair">페어</th><th data-i18n="currentFundingFee">현재 펀딩피(주기)</th><th>Annualized</th></tr></thead>
           <tbody id="comparisonBody"></tbody>
         </table>
         <div class="favored-grid">
@@ -252,9 +252,9 @@
     </div>
 
     <div class="grid">
-      <div class="card wide"><h3 class="section-title" data-i18n="priceChart">Price Chart</h3><canvas id="priceChart"></canvas><div class="note" data-i18n="priceChartNote">선택 구간의 mark price 흐름. TradingView 스타일에 가깝게 어두운 배경/라인 중심으로 표시.</div></div>
-
       <div class="card wide"><h3 class="section-title" data-i18n="fundingRateChart">Funding Rate Chart</h3><canvas id="fundingChart"></canvas><div class="note" data-i18n="fundingChartNote">선택 구간의 회차별 funding rate 흐름.</div></div>
+
+      <div class="card wide"><h3 class="section-title" data-i18n="priceChart">Price Chart</h3><canvas id="priceChart"></canvas><div class="note" data-i18n="priceChartNote">선택 구간의 mark price 흐름을 인접 회차 기준 캔들 형태로 표시.</div></div>
 
       <div class="card wide">
         <h3 class="section-title" data-i18n="fundingHistory">회차별 Funding History</h3>
@@ -424,7 +424,7 @@
         sortName:'이름순', sortAnnualHigh:'Annualized 높은순', sortAnnualLow:'Annualized 낮은순',
         favorite:'즐겨찾기', login:'로그인', logout:'로그아웃', signup:'회원가입',
         signupSave:'회원가입 저장', loginSave:'로그인 저장', close:'닫기',
-        supportExchange:'지원 거래소', pair:'페어', currentFundingFee:'현재 펀딩피',
+        supportExchange:'지원 거래소', pair:'페어', currentFundingFee:'현재 펀딩피(주기)',
         selectedFundingDirection:'선택 기간 Funding Fee 방향', selectedAvgFundingFee:'선택 기간 평균 Funding Fee',
         avgAnnualized:'평균 Annualized', markIndexGap:'Mark / Index 차이', selectedExchangeRank:'선택 거래소 순위',
         positiveLegend:'양수 = Short -> Long', negativeLegend:'음수 = Long -> Short',
@@ -432,7 +432,7 @@
         settlementTimeFailed:'정산 시각 조회 실패', fetchFailed:'조회 실패', settling:'정산 중 / 갱신 대기',
         avgFundingPerRound:'평균 Funding Fee / 회', recentWindowAvg:'최근 선택 구간 평균',
         summary:'요약', firstRound:'첫 회차', lastRound:'마지막 회차', sumFunding:'누적 funding 합계', interpretation:'해석', selectedWindow:'선택 기간',
-        priceChart:'Price Chart', priceChartNote:'선택 구간의 mark price 흐름. TradingView 스타일에 가깝게 어두운 배경/라인 중심으로 표시.',
+        priceChart:'Price Chart', priceChartNote:'선택 구간의 mark price 흐름을 인접 회차 기준 캔들 형태로 표시.',
         fundingRateChart:'Funding Rate Chart', fundingChartNote:'선택 구간의 회차별 funding rate 흐름.',
         fundingHistory:'회차별 Funding History', direction:'Direction',
         noSearchResults:'검색 결과 없음', rank:'순위', longFavored:'Long 유리', shortFavored:'Short 유리',
@@ -451,7 +451,7 @@
         sortName:'Name', sortAnnualHigh:'Annualized high to low', sortAnnualLow:'Annualized low to high',
         favorite:'Favorites', login:'Log in', logout:'Log out', signup:'Sign up',
         signupSave:'Save sign-up', loginSave:'Save login', close:'Close',
-        supportExchange:'Supported exchange', pair:'Pair', currentFundingFee:'Current funding fee',
+        supportExchange:'Supported exchange', pair:'Pair', currentFundingFee:'Current funding fee (interval)',
         selectedFundingDirection:'Selected-period funding fee direction', selectedAvgFundingFee:'Selected-period average funding fee',
         avgAnnualized:'Average annualized', markIndexGap:'Mark / Index gap', selectedExchangeRank:'Selected exchange rank',
         positiveLegend:'Positive = Short -> Long', negativeLegend:'Negative = Long -> Short',
@@ -459,7 +459,7 @@
         settlementTimeFailed:'Settlement time unavailable', fetchFailed:'Unavailable', settling:'Settling / waiting for update',
         avgFundingPerRound:'Average funding fee / round', recentWindowAvg:'Average over selected window',
         summary:'Summary', firstRound:'First round', lastRound:'Last round', sumFunding:'Cumulative funding sum', interpretation:'Interpretation', selectedWindow:'Selected window',
-        priceChart:'Price Chart', priceChartNote:'Mark price movement over the selected window, shown with a dark, line-focused TradingView-style chart.',
+        priceChart:'Price Chart', priceChartNote:'Mark price movement over the selected window, shown as approximate candles between adjacent rounds.',
         fundingRateChart:'Funding Rate Chart', fundingChartNote:'Funding rate movement by round over the selected window.',
         fundingHistory:'Funding History By Round', direction:'Direction',
         noSearchResults:'No results', rank:'Rank', longFavored:'Long favored', shortFavored:'Short favored',
@@ -487,6 +487,14 @@
         return new Date(ms).toLocaleString('en-US', { timeZone:'Asia/Seoul', year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
       }
       return new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
+    }
+    function toKSTCompact(ms){
+      const parts = new Intl.DateTimeFormat('en-US', { timeZone:'Asia/Seoul', month:'numeric', day:'numeric', hour:'numeric', minute:'numeric', hour12:false }).formatToParts(new Date(ms)).reduce((acc, part) => {
+        acc[part.type] = part.value;
+        return acc;
+      }, {});
+      if(state.lang === 'en') return `${parts.month}/${parts.day} ${parts.hour}:${String(parts.minute).padStart(2,'0')}`;
+      return `${Number(parts.month)}. ${Number(parts.day)}. ${Number(parts.hour)}시 ${Number(parts.minute)}분`;
     }
     function toKSTChartLabel(ms){
       const parts = new Intl.DateTimeFormat('en-US', { timeZone:'Asia/Seoul', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false }).formatToParts(new Date(ms)).reduce((acc, part) => {
@@ -584,6 +592,11 @@
       if(latest.fundingIntervalHours) return Number(latest.fundingIntervalHours);
       if(pair.fundingIntervalHours) return Number(pair.fundingIntervalHours);
       return pair.exchange === 'Hyperliquid' ? 1 : 8;
+    }
+    function fmtIntervalHours(hours){
+      const value = Number(hours);
+      if(!Number.isFinite(value)) return '-';
+      return `${Number.isInteger(value) ? value : value.toFixed(1).replace(/\.0$/,'')}H`;
     }
     function annualizedFromFee(pair, fee, latest={}){
       if(fee == null || Number.isNaN(fee)) return null;
@@ -949,7 +962,8 @@
         const fee=fundingFeeValue(latest);
         const feeEl=document.createElement('span');
         feeEl.className='fee-value ' + feeTone(fee);
-        feeEl.textContent=fee == null || Number.isNaN(fee) ? '-' : fmtSignedPct(fee);
+        const intervalText=fmtIntervalHours(intervalHoursFor(pair, latest));
+        feeEl.textContent=fee == null || Number.isNaN(fee) ? '-' : `${fmtSignedPct(fee)}(${intervalText})`;
         feeCell.appendChild(feeEl);
 
         const annualCell=document.createElement('td');
@@ -973,6 +987,7 @@
       chart.$zoomEnd = Math.min(chart.$fullLabels.length - 1, end);
       chart.data.labels = chart.$fullLabels.slice(chart.$zoomStart, chart.$zoomEnd + 1);
       chart.data.datasets[0].data = chart.$fullData.slice(chart.$zoomStart, chart.$zoomEnd + 1);
+      if(chart.$fullOhlcData) chart.$ohlcData = chart.$fullOhlcData.slice(chart.$zoomStart, chart.$zoomEnd + 1);
       chart.update('none');
     }
     function enableWheelZoom(chart, canvas){
@@ -1041,14 +1056,65 @@
       canvas.addEventListener('pointerup', canvas.$panHandlers.up);
       canvas.addEventListener('pointercancel', canvas.$panHandlers.up);
     }
+    const candleOverlayPlugin = {
+      id:'candleOverlay',
+      afterDatasetsDraw(chart){
+        if(!chart.$isCandleChart || !chart.$ohlcData) return;
+        const { ctx, chartArea, scales } = chart;
+        const xScale = scales.x;
+        const yScale = scales.y;
+        const width = Math.max(3, Math.min(13, chartArea.width / Math.max(chart.$ohlcData.length, 1) * 0.56));
+        ctx.save();
+        chart.$ohlcData.forEach((candle, index)=>{
+          const x = xScale.getPixelForValue(index);
+          const openY = yScale.getPixelForValue(candle.open);
+          const closeY = yScale.getPixelForValue(candle.close);
+          const highY = yScale.getPixelForValue(candle.high);
+          const lowY = yScale.getPixelForValue(candle.low);
+          const up = candle.close >= candle.open;
+          const color = up ? '#00c076' : '#f08a8a';
+          ctx.strokeStyle = color;
+          ctx.fillStyle = up ? 'rgba(0,192,118,0.82)' : 'rgba(240,138,138,0.82)';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(x, highY);
+          ctx.lineTo(x, lowY);
+          ctx.stroke();
+          const bodyTop = Math.min(openY, closeY);
+          const bodyHeight = Math.max(2, Math.abs(closeY - openY));
+          ctx.fillRect(x - width / 2, bodyTop, width, bodyHeight);
+        });
+        ctx.restore();
+      }
+    };
+    Chart.register(candleOverlayPlugin);
+    function buildCandles(rows){
+      return rows.map((row, index)=>{
+        const close = Number(row.markPrice);
+        const previous = index > 0 ? Number(rows[index - 1].markPrice) : close;
+        const open = Number.isFinite(previous) ? previous : close;
+        const move = Math.abs(close - open);
+        const pad = Math.max(move * 0.25, Math.abs(close || open || 1) * 0.00015);
+        return {
+          open,
+          high:Math.max(open, close) + pad,
+          low:Math.min(open, close) - pad,
+          close,
+        };
+      }).filter(candle=>Number.isFinite(candle.close) && Number.isFinite(candle.open));
+    }
     function renderPriceChart(rows){
       const ctx=document.getElementById('priceChart');
       const labels=rows.map(r=>toKSTChartLabel(r.fundingTime));
       const values=rows.map(r=>r.markPrice);
+      const candles=buildCandles(rows);
       if(state.priceChart) state.priceChart.destroy();
-      state.priceChart=new Chart(ctx,{ type:'line', data:{ labels, datasets:[{ label:'Mark Price', data:values, borderColor:'#00c076', backgroundColor:'rgba(0,192,118,0.10)', borderWidth:2.2, fill:true, pointRadius:0, tension:0.18 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98' }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ labels:{ color:'#dce3ea' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } });
+      state.priceChart=new Chart(ctx,{ type:'line', data:{ labels, datasets:[{ label:'Mark Price', data:values, borderColor:'rgba(0,192,118,0)', backgroundColor:'rgba(0,192,118,0)', borderWidth:0, pointRadius:0, pointHoverRadius:0, tension:0 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98' }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ display:false }, tooltip:{ mode:'index', intersect:false, callbacks:{ label:context=>{ const candle=state.priceChart.$ohlcData && state.priceChart.$ohlcData[context.dataIndex]; return candle ? `O ${fmtNumber(candle.open)}  H ${fmtNumber(candle.high)}  L ${fmtNumber(candle.low)}  C ${fmtNumber(candle.close)}` : `Mark ${fmtNumber(context.parsed.y)}`; } } } }, interaction:{ mode:'index', intersect:false } } });
+      state.priceChart.$isCandleChart=true;
       state.priceChart.$fullLabels=labels;
       state.priceChart.$fullData=values;
+      state.priceChart.$fullOhlcData=candles;
+      state.priceChart.$ohlcData=candles;
       state.priceChart.$zoomStart=0;
       state.priceChart.$zoomEnd=Math.max(0, labels.length - 1);
       enableWheelZoom(state.priceChart, ctx);
@@ -1068,7 +1134,7 @@
       if(state.countdownTimer) clearInterval(state.countdownTimer);
       const renderCountdown=()=>{
         document.getElementById('nextFunding').textContent = formatCountdown(nextFundingTime);
-        document.getElementById('nextFundingAt').textContent = nextFundingTime ? (`${t('settlementTime')}: ` + toKST(nextFundingTime)) : t('settlementTimeFailed');
+        document.getElementById('nextFundingAt').textContent = nextFundingTime ? (`${t('settlementTime')}: ` + toKSTCompact(nextFundingTime)) : t('settlementTimeFailed');
       };
       renderCountdown();
       state.countdownTimer=setInterval(renderCountdown,1000);
