@@ -113,7 +113,8 @@
     .period-summary-row .good { color:var(--calm-good); }
     .period-summary-row .bad { color:var(--calm-bad); }
     .period-summary-row .warn { color:var(--warn); }
-    .asset-summary-card { display:flex; justify-content:space-between; align-items:center; gap:18px; margin-bottom:16px; padding:18px 20px; }
+    .asset-summary-card { display:flex; flex-direction:column; align-items:stretch; gap:14px; margin-bottom:16px; padding:18px 20px; }
+    .asset-summary-main { display:flex; justify-content:space-between; align-items:center; gap:18px; min-width:0; }
     .asset-identity { display:flex; align-items:center; gap:10px; min-width:0; }
     .asset-logo-wrap { position:relative; width:36px; height:36px; border-radius:50%; background:#f2f7f4; overflow:hidden; flex:0 0 auto; border:1px solid rgba(255,255,255,0.16); }
     .asset-logo { width:100%; height:100%; object-fit:contain; padding:4px; display:none; }
@@ -123,7 +124,7 @@
     .asset-title-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     .asset-window-tabs { margin:0 0 0 8px; gap:6px; }
     .asset-window-tabs .chip { padding:7px 10px; }
-    .asset-exchange-tabs { margin:10px 0 0; gap:6px; }
+    .asset-exchange-tabs { margin:0; gap:6px; flex-wrap:nowrap; overflow-x:auto; padding-bottom:2px; scrollbar-width:thin; }
     .asset-exchange-tabs .chip { padding:7px 10px; }
     .asset-exchange-tabs .exchange-logo { width:18px; height:18px; flex-basis:18px; }
     .asset-symbol { font-size:22px; font-weight:850; color:#f3fff8; }
@@ -190,7 +191,7 @@
     .auth-status { color:var(--muted); font-size:13px; line-height:1.55; }
     .auth-status strong { color:var(--text); }
     @media (max-width:1100px){ .top-panel,.metric,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } .header-side { align-items:flex-start; } .header-market-row,.header-actions { justify-content:flex-start; } }
-    @media (max-width:900px){ .asset-summary-card { align-items:flex-start; flex-direction:column; } .asset-metrics { width:100%; max-width:none; grid-template-columns:1fr; } .asset-metric { text-align:left; } }
+    @media (max-width:900px){ .asset-summary-card { align-items:stretch; flex-direction:column; } .asset-summary-main { width:100%; flex-direction:column; align-items:flex-start; } .asset-exchange-tabs { width:100%; } .asset-metrics { width:100%; max-width:none; grid-template-columns:1fr; } .asset-metric { text-align:left; } }
     @media (max-width:700px){
       .rate-combo,.favored-grid,.support-insights,.period-summary-grid { grid-template-columns:1fr; }
       .comparison-table th,.comparison-table td { padding:8px 5px; font-size:12px; }
@@ -230,46 +231,48 @@
     <div class="toolbar"><div class="asset-search-wrap"><input id="assetSearch" class="field pair-select" data-i18n-placeholder="assetSearchPlaceholder" placeholder="종목명 검색" autocomplete="off" /><div id="assetDropdown" class="asset-dropdown"></div></div><select id="sortMode" class="field"><option value="symbol" data-i18n="sortName">이름순</option><option value="annualized_desc" data-i18n="sortAnnualHigh">Annualized 높은순</option><option value="annualized_asc" data-i18n="sortAnnualLow">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
     <div class="toolbar" id="favoriteTabs"></div>
     <div class="card asset-summary-card">
-      <div class="asset-identity">
-        <div class="asset-logo-wrap">
-          <img class="asset-logo" id="assetLogo" alt="" />
-          <span class="asset-logo-fallback" id="assetLogoMark">-</span>
-        </div>
-        <div>
-          <div class="asset-title-row">
-            <span class="asset-symbol" id="assetHeaderSymbol">-</span>
-            <span class="asset-badge">Perp</span>
-            <div class="toolbar2 asset-window-tabs" id="windowTabs"></div>
+      <div class="exchange-tabs asset-exchange-tabs" id="exchangeTabs"></div>
+      <div class="asset-summary-main">
+        <div class="asset-identity">
+          <div class="asset-logo-wrap">
+            <img class="asset-logo" id="assetLogo" alt="" />
+            <span class="asset-logo-fallback" id="assetLogoMark">-</span>
           </div>
-          <div class="asset-name" id="assetHeaderName">-</div>
-          <div class="exchange-tabs asset-exchange-tabs" id="exchangeTabs"></div>
+          <div>
+            <div class="asset-title-row">
+              <span class="asset-symbol" id="assetHeaderSymbol">-</span>
+              <span class="asset-badge">Perp</span>
+              <div class="toolbar2 asset-window-tabs" id="windowTabs"></div>
+            </div>
+            <div class="asset-name" id="assetHeaderName">-</div>
+          </div>
         </div>
-      </div>
-      <div class="asset-metrics">
-        <div class="asset-metric">
-          <div class="asset-metric-label" data-i18n="currentPrice">현재 가격</div>
-          <div class="asset-price" id="assetHeaderPrice">-</div>
-          <div class="asset-price-meta" id="assetHeaderPriceMeta">-</div>
-        </div>
-        <div class="asset-metric">
-          <div class="asset-metric-label" data-i18n="nextFunding">다음 Funding</div>
-          <div class="asset-metric-value countdown" id="nextFunding">-</div>
-          <div class="asset-metric-meta" id="nextFundingAt">다음 정산까지 남은 시간</div>
-        </div>
-        <div class="asset-metric">
-          <div class="asset-metric-label" data-i18n="avgFundingPerRound">평균 Funding Fee / 회</div>
-          <div class="asset-metric-value" id="avgFunding">-</div>
-          <div class="asset-metric-meta" data-i18n="recentWindowAvg">최근 선택 구간 평균</div>
-        </div>
-        <div class="asset-metric">
-          <div class="asset-metric-label" data-i18n="sumFunding">누적 funding 합계</div>
-          <div class="asset-metric-value" id="sumFunding">-</div>
-          <div class="asset-metric-meta" id="sumFundingMeta"></div>
-        </div>
-        <div class="asset-metric">
-          <div class="asset-metric-label" data-i18n="interpretation">해석</div>
-          <div class="asset-metric-value" id="interpretation">-</div>
-          <div class="asset-metric-meta" id="interpretationMeta"></div>
+        <div class="asset-metrics">
+          <div class="asset-metric">
+            <div class="asset-metric-label" data-i18n="currentPrice">현재 가격</div>
+            <div class="asset-price" id="assetHeaderPrice">-</div>
+            <div class="asset-price-meta" id="assetHeaderPriceMeta">-</div>
+          </div>
+          <div class="asset-metric">
+            <div class="asset-metric-label" data-i18n="nextFunding">다음 Funding</div>
+            <div class="asset-metric-value countdown" id="nextFunding">-</div>
+            <div class="asset-metric-meta" id="nextFundingAt">다음 정산까지 남은 시간</div>
+          </div>
+          <div class="asset-metric">
+            <div class="asset-metric-label" data-i18n="avgFundingPerRound">평균 Funding Fee / 회</div>
+            <div class="asset-metric-value" id="avgFunding">-</div>
+            <div class="asset-metric-meta" data-i18n="recentWindowAvg">최근 선택 구간 평균</div>
+          </div>
+          <div class="asset-metric">
+            <div class="asset-metric-label" data-i18n="sumFunding">누적 funding 합계</div>
+            <div class="asset-metric-value" id="sumFunding">-</div>
+            <div class="asset-metric-meta" id="sumFundingMeta"></div>
+          </div>
+          <div class="asset-metric">
+            <div class="asset-metric-label" data-i18n="interpretation">해석</div>
+            <div class="asset-metric-value" id="interpretation">-</div>
+            <div class="asset-metric-meta" id="interpretationMeta"></div>
+          </div>
         </div>
       </div>
     </div>
