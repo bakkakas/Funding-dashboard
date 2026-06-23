@@ -18,16 +18,16 @@ import { renderAssetSummary as renderAssetSummaryView } from './render/asset-sum
 import { renderChart, renderPriceChart } from './render/charts.js';
 import { renderComparisons as renderComparisonsView, renderExchangeTabs as renderExchangeTabsView } from './render/comparisons.js';
 import { renderFundingBars } from './render/funding-bars.js';
+import { renderHistoryRows, renderPaymentCounts } from './render/history.js';
+import { renderPeriodBestWorst as renderPeriodBestWorstView } from './render/period-summary.js';
 import { renderSpreadInsights } from './render/spread-insights.js';
 import {
   fmtAnnual,
   fmtFx,
-  fmtNumber,
   fmtPct,
   fmtSignedPct,
   toKST,
   toKSTCompact,
-  toUTC,
 } from './formatters.js';
 import { state } from './state.js';
     function selectedWindowDays(){
@@ -613,49 +613,7 @@ import { state } from './state.js';
     function renderExchangeTabs(){ renderExchangeTabsView(comparisonRenderDeps()); }
 
     function renderPeriodBestWorst(){
-      const wrap=document.getElementById('periodBestWorst');
-      wrap.innerHTML='';
-      Object.keys(state.data.meta.windows).forEach(windowKey=>{
-        const stats=periodComparisonStats(windowKey);
-        const box=document.createElement('div');
-        box.className='period-summary-box';
-        const title=document.createElement('div');
-        title.className='period-summary-title';
-        title.textContent=state.lang === 'ko' ? `${state.data.meta.windows[windowKey]}일 Best / Worst` : `${windowKey} Best / Worst`;
-        box.appendChild(title);
-        if(!stats.length){
-          const empty=document.createElement('div');
-          empty.className='mini';
-          empty.textContent=t('noData');
-          box.appendChild(empty);
-          wrap.appendChild(box);
-          return;
-        }
-        const longBest=stats.slice().sort((a,b)=>b.fee-a.fee)[0];
-        const shortBest=stats.slice().sort((a,b)=>b.shortFee-a.shortFee)[0];
-        const makeRow=(label, item, side)=>{
-          const row=document.createElement('div');
-          row.className='period-summary-row';
-          const labelEl=document.createElement('span');
-          labelEl.textContent=label;
-          const valueEl=document.createElement('span');
-          const fee=side === 'short' ? item.shortFee : item.fee;
-          const annual=side === 'short' ? item.shortAnnualized : item.annualized;
-          valueEl.className='period-summary-value';
-          const exchangeEl=document.createElement('span');
-          exchangeEl.className='period-summary-exchange';
-          exchangeEl.textContent=item.pair.exchange;
-          const metricEl=document.createElement('span');
-          metricEl.className='period-summary-metric ' + feeTone(fee);
-          metricEl.textContent=`${fmtSignedPct(fee)} / ${annual == null || Number.isNaN(annual) ? '-' : fmtAnnual(annual)}`;
-          valueEl.append(exchangeEl, metricEl);
-          row.append(labelEl, valueEl);
-          return row;
-        };
-        box.appendChild(makeRow(t('bestLong'), longBest, 'long'));
-        box.appendChild(makeRow(t('bestShort'), shortBest, 'short'));
-        wrap.appendChild(box);
-      });
+      renderPeriodBestWorstView({ periodComparisonStats, feeTone });
     }
 
     function renderFundingInsights(stats, selectedPairKey, latest){
@@ -706,13 +664,6 @@ import { state } from './state.js';
       renderPeriodBestWorst();
 
       renderFundingBars('fundingBars', longSorted, feeTone);
-    }
-
-    function renderPaymentCounts(rows){
-      const longToShort = rows.filter(row=>Number(row.fundingRate) >= 0).length;
-      const shortToLong = rows.filter(row=>Number(row.fundingRate) < 0).length;
-      document.getElementById('longToShortCount').textContent=longToShort.toLocaleString('en-US');
-      document.getElementById('shortToLongCount').textContent=shortToLong.toLocaleString('en-US');
     }
 
     function renderAssetSummary(selected){
@@ -778,8 +729,7 @@ import { state } from './state.js';
       }
       startCountdown(latest.nextFundingTime);
 
-      const body=document.getElementById('historyBody'); body.innerHTML='';
-      rows.slice().reverse().forEach((row,idx)=>{ const positive=row.fundingRate>=0; const tr=document.createElement('tr'); tr.innerHTML=`<td>${rows.length-idx}</td><td>${toUTC(row.fundingTime)}</td><td style="color:${positive?'var(--bad)':'var(--good)'}; font-weight:700;">${fmtPct(row.fundingRate)}</td><td>${row.markPrice == null ? '-' : fmtNumber(row.markPrice)}</td><td>${positive?'<span class="pill bad">Long → Short</span>':'<span class="pill good">Short → Long</span>'}</td>`; body.appendChild(tr); });
+      renderHistoryRows(rows);
       renderPriceChart(rows);
       renderChart(rows);
     }
