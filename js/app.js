@@ -21,7 +21,7 @@ import {
   renderCurrentFundingInsights,
   renderPeriodFundingInsights,
   renderSelectedPairFundingMetrics,
-} from './render/funding-insights.js';
+} from './render/funding-insights.js?v=7';
 import { renderHistoryRows, renderPaymentCounts } from './render/history.js';
 import {
   fmtFx,
