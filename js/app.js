@@ -17,15 +17,14 @@ import { I18N, t } from './i18n.js';
 import { renderAssetSummary as renderAssetSummaryView } from './render/asset-summary.js';
 import { renderChart, renderPriceChart } from './render/charts.js';
 import { renderComparisons as renderComparisonsView, renderExchangeTabs as renderExchangeTabsView } from './render/comparisons.js';
-import { renderFundingBars } from './render/funding-bars.js';
-import { renderHistoryRows, renderPaymentCounts } from './render/history.js';
-import { renderPeriodBestWorst as renderPeriodBestWorstView } from './render/period-summary.js';
-import { renderSpreadInsights } from './render/spread-insights.js';
 import {
-  fmtAnnual,
+  renderCurrentFundingInsights,
+  renderPeriodFundingInsights,
+  renderSelectedPairFundingMetrics,
+} from './render/funding-insights.js';
+import { renderHistoryRows, renderPaymentCounts } from './render/history.js';
+import {
   fmtFx,
-  fmtPct,
-  fmtSignedPct,
   toKST,
   toKSTCompact,
 } from './formatters.js';
@@ -612,60 +611,6 @@ import { state } from './state.js';
 
     function renderExchangeTabs(){ renderExchangeTabsView(comparisonRenderDeps()); }
 
-    function renderPeriodBestWorst(){
-      renderPeriodBestWorstView({ periodComparisonStats, feeTone });
-    }
-
-    function renderFundingInsights(stats, selectedPairKey, latest){
-      const longSorted=stats.slice().sort((a,b)=>b.fee-a.fee);
-      const shortSorted=stats.slice().sort((a,b)=>b.shortFee-a.shortFee);
-      const longFavored=longSorted[0];
-      const shortFavored=shortSorted[0];
-      const mark=Number(latest.markPrice);
-      const index=Number(latest.indexPrice);
-      const gap = Number.isFinite(mark) && Number.isFinite(index) && index !== 0 ? (mark - index) / index : null;
-      const gapEl=document.getElementById('markIndexGap');
-      gapEl.textContent=gap == null ? '-' : fmtSignedPct(gap);
-      gapEl.className='detail-value ' + feeTone(gap);
-      const renderFavored = (box, el, label, item, side) => {
-        if(!item){
-          box.removeAttribute('href');
-          box.classList.add('disabled');
-          el.textContent='-';
-          return;
-        }
-        box.href=pairTradeUrl(item.pair);
-        box.classList.remove('disabled');
-        const value = side === 'short' ? item.shortFee : item.fee;
-        const annualizedValue = side === 'short' ? item.shortAnnualized : item.annualized;
-        const annualized = annualizedValue == null || Number.isNaN(annualizedValue) ? '-' : fmtAnnual(annualizedValue);
-        el.innerHTML = '';
-        const main=document.createElement('span');
-        main.className='detail-main';
-        const labelEl=document.createElement('span');
-        labelEl.className='label';
-        labelEl.textContent=label;
-        const logo=document.createElement('img');
-        logo.className='exchange-logo';
-        logo.alt='';
-        setLogoImage(logo, exchangeLogoUrl(item.pair.exchange), exchangeLogoFallbackUrl(item.pair.exchange));
-        const name=document.createElement('span');
-        name.className='favored-exchange-name';
-        name.textContent=item.pair.exchange;
-        const sub=document.createElement('span');
-        sub.className='detail-sub';
-        sub.textContent=`${fmtSignedPct(value)} / ${annualized} Annualized`;
-        main.append(labelEl, logo, name);
-        el.append(main, sub);
-      };
-      renderFavored(document.getElementById('longFavoredBox'), document.getElementById('longFavoredExchange'), t('longFavored'), longFavored, 'long');
-      renderFavored(document.getElementById('shortFavoredBox'), document.getElementById('shortFavoredExchange'), t('shortFavored'), shortFavored, 'short');
-      renderSpreadInsights(stats);
-      renderPeriodBestWorst();
-
-      renderFundingBars('fundingBars', longSorted, feeTone);
-    }
-
     function renderAssetSummary(selected){
       renderAssetSummaryView(selected, {
         assetId,
@@ -688,45 +633,35 @@ import { state } from './state.js';
       if(!options.skipComparisons) renderComparisons();
       const comparisonStats=getComparisonStats();
       renderExchangeTabs();
-      renderFundingInsights(comparisonStats, state.selectedPair, latest);
-      const periodStats=periodComparisonStats(state.selectedWindow);
-      const periodBarsTitle=document.getElementById('periodFundingBarsTitle');
-      periodBarsTitle.textContent=state.lang === 'ko'
-        ? `${selectedWindowLabel()} Funding Fee 비교 (8H 환산)`
-        : `${selectedWindowLabel()} funding fee comparison (8H eq.)`;
-      renderSpreadInsights(periodStats, {
-        spreadValue:'periodFundingSpreadValue',
-        spreadMeta:'periodFundingSpreadMeta',
-        alertValue:'periodSpreadAlertValue',
-        alertMeta:'periodSpreadAlertMeta',
+      renderCurrentFundingInsights({
+        stats:comparisonStats,
+        latest,
+        feeTone,
+        periodComparisonStats,
+        deps:{
+          exchangeLogoFallbackUrl,
+          exchangeLogoUrl,
+          pairTradeUrl,
+          setLogoImage,
+        },
       });
-      renderFundingBars('periodFundingBars', periodStats, feeTone);
+      const periodStats=periodComparisonStats(state.selectedWindow);
+      renderPeriodFundingInsights({
+        stats:periodStats,
+        windowLabel:selectedWindowLabel(),
+        lang:state.lang,
+        feeTone,
+      });
       renderPaymentCounts(rows);
       const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedAsset)?'★':'☆')+' '+t('favorite');
       const periodFee = periodFundingFee(windowSummary);
       const periodFeeTone = feeTone(periodFee);
-      document.getElementById('avgFunding').textContent=periodFee == null ? '-' : fmtSignedPct(periodFee);
-      document.getElementById('avgFunding').className='asset-metric-value '+periodFeeTone;
-      const currentFee = fundingFeeValue(latest);
-      const displayedAnnualized = windowSummary.annualizedPct;
-      const annual=document.getElementById('annualized'); annual.textContent=fmtAnnual(displayedAnnualized); annual.className='value '+(displayedAnnualized>=0?'good':'bad');
-      const sumFundingTone = windowSummary.sumFundingRate < 0 ? 'good' : 'bad';
-      document.getElementById('sumFunding').textContent=fmtPct(windowSummary.sumFundingRate);
-      document.getElementById('sumFunding').className='asset-metric-value '+sumFundingTone;
-      document.getElementById('sumFundingMeta').textContent='';
-      document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate < 0 ? '<span class="pill good asset-direction-pill">Short → Long</span>' : '<span class="pill bad asset-direction-pill">Long → Short</span>';
-      document.getElementById('interpretation').className='asset-metric-value';
-
-      const coreTitle = document.getElementById('coreTitle');
-      coreTitle.innerHTML = selectedFundingDirectionTitle(periodFeeTone, feeDirection(periodFee));
-      coreTitle.className = 'section-title';
-      if (periodFee == null || Number.isNaN(periodFee)) {
-        document.getElementById('latestFunding').textContent='-';
-        document.getElementById('latestFunding').className='value warn';
-      } else {
-        document.getElementById('latestFunding').textContent=fmtSignedPct(periodFee);
-        document.getElementById('latestFunding').className='value '+periodFeeTone;
-      }
+      renderSelectedPairFundingMetrics({
+        windowSummary,
+        periodFee,
+        periodFeeTone,
+        directionTitle:selectedFundingDirectionTitle(periodFeeTone, feeDirection(periodFee)),
+      });
       startCountdown(latest.nextFundingTime);
 
       renderHistoryRows(rows);
