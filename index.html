@@ -108,8 +108,11 @@
     .period-summary-title { color:var(--accent); font-size:13px; font-weight:900; margin-bottom:8px; }
     .period-summary-row { display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:13px; font-weight:800; }
     .period-summary-row + .period-summary-row { margin-top:6px; }
-    .period-summary-row span:first-child { color:var(--muted); flex:0 0 auto; }
-    .period-summary-row span:last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:right; }
+    .period-summary-row > span:first-child { color:var(--muted); flex:0 0 auto; }
+    .period-summary-row > span:last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:right; }
+    .period-summary-value { display:flex; justify-content:flex-end; gap:5px; min-width:0; }
+    .period-summary-exchange { color:#f4fff9; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .period-summary-metric { flex:0 0 auto; font-variant-numeric:tabular-nums; }
     .period-summary-row .good { color:var(--calm-good); }
     .period-summary-row .bad { color:var(--calm-bad); }
     .period-summary-row .warn { color:var(--warn); }
@@ -1611,8 +1614,14 @@
           const valueEl=document.createElement('span');
           const fee=side === 'short' ? item.shortFee : item.fee;
           const annual=side === 'short' ? item.shortAnnualized : item.annualized;
-          valueEl.className=feeTone(fee);
-          valueEl.textContent=`${item.pair.exchange} ${fmtSignedPct(fee)} / ${annual == null || Number.isNaN(annual) ? '-' : fmtAnnual(annual)}`;
+          valueEl.className='period-summary-value';
+          const exchangeEl=document.createElement('span');
+          exchangeEl.className='period-summary-exchange';
+          exchangeEl.textContent=item.pair.exchange;
+          const metricEl=document.createElement('span');
+          metricEl.className='period-summary-metric ' + feeTone(fee);
+          metricEl.textContent=`${fmtSignedPct(fee)} / ${annual == null || Number.isNaN(annual) ? '-' : fmtAnnual(annual)}`;
+          valueEl.append(exchangeEl, metricEl);
           row.append(labelEl, valueEl);
           return row;
         };
