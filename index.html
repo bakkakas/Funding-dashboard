@@ -24,9 +24,11 @@
     .header-market-row { display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap; }
     .header-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
     .language-toggle { display:inline-flex; gap:4px; padding:3px; border:1px solid var(--line); border-radius:999px; background:#07140f; }
-    .language-toggle .chip { border:0; width:34px; height:30px; padding:0; display:grid; place-items:center; font-size:17px; line-height:1; }
+    .language-toggle .chip { border:0; min-width:58px; height:30px; padding:0 8px; display:inline-flex; align-items:center; justify-content:center; gap:6px; font-size:17px; line-height:1; }
     .language-toggle .chip.active { background:rgba(35,231,165,0.16); }
     .flag-icon { width:20px; height:14px; display:block; object-fit:cover; border-radius:2px; box-shadow:0 0 0 1px rgba(255,255,255,0.16); }
+    .language-code { color:var(--muted); font-size:11px; font-weight:900; letter-spacing:0; }
+    .language-toggle .chip.active .language-code { color:var(--accent); }
     .alt-link { color:var(--accent); text-decoration:none; font-size:13px; font-weight:800; }
     .alt-link:hover { text-decoration:underline; }
     .toolbar,.toolbar2 { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
@@ -93,7 +95,9 @@
     .support-insight-box { border:1px solid var(--line); border-radius:8px; padding:10px; background:rgba(16,32,25,0.55); min-height:76px; }
     .support-insight-box .label { font-size:12px; }
     .support-insight-box .value { margin-top:7px; font-size:22px; line-height:1; font-weight:850; font-variant-numeric:tabular-nums; }
+    .support-insight-box .value.info { color:var(--calm-good); }
     .support-insight-box .mini { margin-top:7px; font-size:12px; }
+    .support-insight-box .mini.info { color:var(--calm-good); }
     .support-insight-box .mini.good { color:var(--good); }
     .support-insight-box .mini.bad { color:var(--bad); }
     .support-insight-box .mini.warn { color:var(--warn); }
@@ -201,8 +205,8 @@
         <div class="header-market-row">
           <div class="header-actions">
             <div class="language-toggle" aria-label="Language">
-              <button class="chip subtle active" id="langKoButton" type="button" aria-label="한국어" title="한국어"><img class="flag-icon" alt="" src="https://flagcdn.com/w40/kr.png" /></button>
-              <button class="chip subtle" id="langEnButton" type="button" aria-label="English" title="English"><img class="flag-icon" alt="" src="https://flagcdn.com/w40/us.png" /></button>
+              <button class="chip subtle active" id="langKoButton" type="button" aria-label="한국어" title="한국어"><img class="flag-icon" alt="" src="https://flagcdn.com/w40/kr.png" /><span class="language-code">KR</span></button>
+              <button class="chip subtle" id="langEnButton" type="button" aria-label="English" title="English"><img class="flag-icon" alt="" src="https://flagcdn.com/w40/us.png" /><span class="language-code">EN</span></button>
             </div>
             <button class="chip subtle" id="loginButton" type="button">로그인</button>
             <button class="chip subtle" id="signupButton" type="button">회원가입</button>
@@ -306,12 +310,12 @@
             </div>
           </div>
         </div>
+        <div class="period-summary-grid" id="periodBestWorst"></div>
         <div class="funding-bars-block">
           <div class="compact-title" id="periodFundingBarsTitle" data-i18n="selectedPeriodFundingComparison">선택 기간 Funding Fee 비교</div>
           <div class="funding-bars" id="periodFundingBars"></div>
           <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend">양수 = Short -> Long</span><span class="legend-bad" data-i18n="negativeLegend">음수 = Long -> Short</span></div>
         </div>
-        <div class="period-summary-grid" id="periodBestWorst"></div>
       </div>
     </div>
 
@@ -706,7 +710,7 @@
       if(!Number.isFinite(absSpread)) return { label:'-', tone:'warn' };
       if(absSpread >= 20) return { label:t('alertWide'), tone:'bad' };
       if(absSpread >= 5) return { label:t('alertNarrow'), tone:'warn' };
-      return { label:t('noAlert'), tone:'good' };
+      return { label:t('noAlert'), tone:'info' };
     }
     function feeDirection(value){
       if(value == null || Number.isNaN(value)) return '-';
