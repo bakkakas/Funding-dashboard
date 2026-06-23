@@ -448,6 +448,26 @@
         { exchange:'Aster', symbol:'SPYUSDT', displaySymbol:'SPY', fundingIntervalHours:4 },
         { exchange:'OKX', symbol:'SPY-USDT-SWAP', displaySymbol:'SPY', fundingIntervalHours:8 },
       ],
+      BTC: [
+        { exchange:'Aster', symbol:'BTCUSDT', displaySymbol:'BTC', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'BTC-USDT-SWAP', displaySymbol:'BTC', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'BTC', displaySymbol:'BTC', fundingIntervalHours:8 },
+      ],
+      ETH: [
+        { exchange:'Aster', symbol:'ETHUSDT', displaySymbol:'ETH', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'ETH-USDT-SWAP', displaySymbol:'ETH', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'ETH', displaySymbol:'ETH', fundingIntervalHours:8 },
+      ],
+      SOL: [
+        { exchange:'Aster', symbol:'SOLUSDT', displaySymbol:'SOL', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'SOL-USDT-SWAP', displaySymbol:'SOL', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'SOL', displaySymbol:'SOL', fundingIntervalHours:8 },
+      ],
+      BNB: [
+        { exchange:'Aster', symbol:'BNBUSDT', displaySymbol:'BNB', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'BNB-USDT-SWAP', displaySymbol:'BNB', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'BNB', displaySymbol:'BNB', fundingIntervalHours:8 },
+      ],
       HYPE: [
         { exchange:'Aster', symbol:'HYPEUSDT', displaySymbol:'HYPE', fundingIntervalHours:4 },
         { exchange:'OKX', symbol:'HYPE-USDT-SWAP', displaySymbol:'HYPE', fundingIntervalHours:8 },
@@ -458,7 +478,10 @@
       AAPL:'apple.com',
       AMZN:'amazon.com',
       BABA:'alibaba.com',
+      BNB:'bnbchain.org',
+      BTC:'bitcoin.org',
       COIN:'coinbase.com',
+      ETH:'ethereum.org',
       GOLD:'gold.org',
       GOOGL:'google.com',
       HYPE:'hyperliquid.xyz',
@@ -472,6 +495,7 @@
       SAMSUNG:'samsung.com',
       SKHYNIX:'skhynix.com',
       SNDK:'sandisk.com',
+      SOL:'solana.com',
       SPY:'ssga.com',
       TSLA:'tesla.com',
       TSM:'tsmc.com',
@@ -682,7 +706,13 @@
       return domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : '';
     }
     function setLogoImage(img, primaryUrl, fallbackUrl){
-      img.dataset.fallbackUrl = fallbackUrl || '';
+      const nextPrimary=primaryUrl || '';
+      const nextFallback=fallbackUrl || '';
+      if(img.dataset.primaryUrl === nextPrimary && img.dataset.fallbackUrl === nextFallback && img.getAttribute('src')){
+        return;
+      }
+      img.dataset.primaryUrl = nextPrimary;
+      img.dataset.fallbackUrl = nextFallback;
       img.onerror = () => {
         if(img.dataset.fallbackUrl && img.src !== img.dataset.fallbackUrl){
           img.src = img.dataset.fallbackUrl;
@@ -691,9 +721,12 @@
         img.classList.remove('loaded');
       };
       img.onload = () => img.classList.add('loaded');
-      img.classList.remove('loaded');
-      img.removeAttribute('src');
-      if(primaryUrl) img.src = primaryUrl;
+      if(primaryUrl){
+        img.src = primaryUrl;
+      } else {
+        img.classList.remove('loaded');
+        img.removeAttribute('src');
+      }
     }
     function fundingFeeValue(latest){
       if(latest.longFundingFee != null) return Number(latest.longFundingFee);
@@ -1071,7 +1104,7 @@
         tabs.appendChild(btn);
       });
     }
-    function renderWindowTabs(){ const tabs=document.getElementById('windowTabs'); tabs.innerHTML=''; Object.keys(state.data.meta.windows).forEach(key=>{ const btn=document.createElement('button'); btn.className='chip'+(key===state.selectedWindow?' active':''); btn.textContent=key; btn.onclick=()=>{ state.selectedWindow=key; renderWindowTabs(); render(); }; tabs.appendChild(btn); }); }
+    function renderWindowTabs(){ const tabs=document.getElementById('windowTabs'); tabs.innerHTML=''; Object.keys(state.data.meta.windows).forEach(key=>{ const btn=document.createElement('button'); btn.className='chip'+(key===state.selectedWindow?' active':''); btn.textContent=key; btn.onclick=()=>{ state.selectedWindow=key; renderWindowTabs(); render({ skipComparisons:true }); }; tabs.appendChild(btn); }); }
     function renderPriceCandleTabs(){
       const tabs=document.getElementById('priceCandleTabs');
       tabs.innerHTML='';
@@ -1583,13 +1616,13 @@
         : `${pairForPrice.exchange} ${t('mark')}`;
     }
 
-    function render(){
+    function render(options={}){
       const pair=state.data.pairs[state.selectedPair];
       const windowSummary=pair.windows[state.selectedWindow];
       const rows=getFilteredRows(pair);
       const latest=getLatestForPair(state.selectedPair, pair);
       renderAssetSummary(pair);
-      renderComparisons();
+      if(!options.skipComparisons) renderComparisons();
       const comparisonStats=getComparisonStats();
       renderExchangeTabs();
       renderFundingInsights(comparisonStats, state.selectedPair, latest);
