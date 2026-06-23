@@ -1,153 +1,33 @@
-    const BINANCE_PREMIUM_INDEX_URL = 'https://fapi.binance.com/fapi/v1/premiumIndex';
-    const BYBIT_TICKERS_URL = 'https://api.bybit.com/v5/market/tickers';
-    const HYPERLIQUID_INFO_URL = 'https://api.hyperliquid.xyz/info';
-    const ASTER_PREMIUM_INDEX_URL = 'https://fapi.asterdex.com/fapi/v3/premiumIndex';
-    const OKX_FUNDING_RATE_URL = 'https://www.okx.com/api/v5/public/funding-rate';
-    const OKX_MARK_PRICE_URL = 'https://www.okx.com/api/v5/public/mark-price';
-    const OKX_INDEX_TICKER_URL = 'https://www.okx.com/api/v5/market/index-tickers';
-    const VARIATIONAL_STATS_URL = 'https://omni-client-api.prod.ap-northeast-1.variational.io/metadata/stats';
-    const ORBS_PERPS_PREMIUM_INDEX_URL = 'https://perps.thena.fi/api/proxy/fapi/premiumIndex';
-    const ORBS_PERPS_AGGREGATED_FUNDING_URL = 'https://perps.thena.fi/api/solver/aggregatedFundingData?chainId=0';
-    const ASSET_LOGO_DOMAINS = {
-      AAPL:'apple.com',
-      AMZN:'amazon.com',
-      BABA:'alibaba.com',
-      BNB:'bnbchain.org',
-      BTC:'bitcoin.org',
-      COIN:'coinbase.com',
-      ETH:'ethereum.org',
-      GOLD:'gold.org',
-      GOOGL:'google.com',
-      HYPE:'hyperliquid.xyz',
-      META:'meta.com',
-      MSFT:'microsoft.com',
-      MSTR:'microstrategy.com',
-      MU:'micron.com',
-      NVDA:'nvidia.com',
-      PLTR:'palantir.com',
-      QQQ:'invesco.com',
-      SAMSUNG:'samsung.com',
-      SKHYNIX:'skhynix.com',
-      SNDK:'sandisk.com',
-      SOL:'solana.com',
-      SPY:'ssga.com',
-      TSLA:'tesla.com',
-      TSM:'tsmc.com',
-    };
-    const LIVE_REFRESH_MS = 30000;
-    const PRICE_CANDLE_WINDOWS = [
-      { key:'1H', hours:1 },
-      { key:'4H', hours:4 },
-      { key:'1D', hours:24 },
-    ];
-    const FX_LATEST_URL = 'https://open.er-api.com/v6/latest/USD';
-    const FX_REFERENCE_URL = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
-    const AUTH_BACKEND_CONFIGURED = false;
-    const SUPABASE_CONFIG = window.FUNDING_SUPABASE || {};
-    const SUPABASE_URL = SUPABASE_CONFIG.url || '';
-    const SUPABASE_ANON_KEY = SUPABASE_CONFIG.anonKey || '';
-    const SUPABASE_FUNCTIONS_BASE_URL = (SUPABASE_CONFIG.functionsBaseUrl || (SUPABASE_URL ? `${SUPABASE_URL}/functions/v1` : '')).replace(/\/$/, '');
-    const ANALYTICS_BACKEND_CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_FUNCTIONS_BASE_URL);
-    const I18N = {
-      ko: {
-        admin:'관리자', viewV2:'V2 보기', assetSearchPlaceholder:'종목명 검색',
-        sortName:'이름순', sortAnnualHigh:'Annualized 높은순', sortAnnualLow:'Annualized 낮은순',
-        favorite:'즐겨찾기', login:'로그인', logout:'로그아웃', signup:'회원가입',
-        signupSave:'회원가입 저장', loginSave:'로그인 저장', close:'닫기',
-        supportExchange:'지원 거래소', pair:'페어', currentFundingFee:'현재 펀딩피(주기)',
-        selectedFundingDirection:'선택 기간 Funding Fee 방향', selectedAvgFundingFee:'선택 기간 평균 Funding Fee',
-        avgAnnualized:'평균 Annualized', markIndexGap:'Mark / Index 차이', paymentCounts:'지급 횟수',
-        positiveLegend:'양수 = Short -> Long', negativeLegend:'음수 = Long -> Short',
-        nextFunding:'다음 Funding', nextFundingMini:'다음 정산까지 남은 시간', settlementTime:'정산 시각',
-        settlementTimeFailed:'정산 시각 조회 실패', fetchFailed:'조회 실패', settling:'정산 중 / 갱신 대기',
-        avgFundingPerRound:'평균 Funding Fee / 회', recentWindowAvg:'최근 선택 구간 평균',
-        summary:'요약', firstRound:'첫 회차', lastRound:'마지막 회차', sumFunding:'누적 funding 합계', interpretation:'지급방향', selectedWindow:'선택 기간',
-        priceChart:'Price Chart', fundingRateChart:'Funding Rate Chart',
-        fundingHistory:'회차별 Funding History', direction:'Direction',
-        noSearchResults:'검색 결과 없음', rank:'순위', longFavored:'Long 유리', shortFavored:'Short 유리',
-        fundingSpread:'Funding Spread', spreadAlert:'Spread Alert', currentFundingComparison:'현재 Funding Fee 비교 (8H 환산)',
-        selectedPeriodFundingComparison:'선택 기간 Funding Fee 비교 (8H 환산)',
-        noAlert:'정상', alertNarrow:'차이 적음', alertWide:'차이 큼', spreadThreshold:'20%p 이상', periodBestWorst:'기간별 Best / Worst',
-        bestLong:'Long 유리', bestShort:'Short 유리', noData:'데이터 없음',
-        mark:'Mark', index:'Index', currentPrice:'현재 가격', updated:'Updated',
-        authSynced:'계정과 즐겨찾기가 클라우드에 동기화돼.',
-        authLocal:'현재는 GitHub Pages 정적 배포라 <strong>현재 브라우저에만</strong> 저장돼. Firebase/Supabase 키를 연결하면 기기 간 즐겨찾기 동기화가 활성화돼.',
-        authDefault:'백엔드 연결 전에는 현재 브라우저 기준으로만 계정 상태와 즐겨찾기를 저장해.',
-        continueGoogle:'Google로 계속하기',
-        googlePending:'Google OAuth는 Firebase/Supabase 클라이언트 키 연결 후 활성화돼. 지금은 UI와 저장 구조만 준비된 상태야.',
-        invalidEmail:'이메일 형식으로 입력해줘.',
-        usdKrwLoading:'USD/KRW 조회 중', usdKrwFailed:'USD/KRW 조회 실패',
-      },
-      en: {
-        admin:'Admin', viewV2:'View V2', assetSearchPlaceholder:'Search asset',
-        sortName:'Name', sortAnnualHigh:'Annualized high to low', sortAnnualLow:'Annualized low to high',
-        favorite:'Favorites', login:'Log in', logout:'Log out', signup:'Sign up',
-        signupSave:'Save sign-up', loginSave:'Save login', close:'Close',
-        supportExchange:'Supported exchange', pair:'Pair', currentFundingFee:'Current funding fee (interval)',
-        selectedFundingDirection:'Selected-period funding fee direction', selectedAvgFundingFee:'Selected-period average funding fee',
-        avgAnnualized:'Average annualized', markIndexGap:'Mark / Index gap', paymentCounts:'Payment counts',
-        positiveLegend:'Positive = Short -> Long', negativeLegend:'Negative = Long -> Short',
-        nextFunding:'Next funding', nextFundingMini:'Time left until next settlement', settlementTime:'Settlement time',
-        settlementTimeFailed:'Settlement time unavailable', fetchFailed:'Unavailable', settling:'Settling / waiting for update',
-        avgFundingPerRound:'Average funding fee / round', recentWindowAvg:'Average over selected window',
-        summary:'Summary', firstRound:'First round', lastRound:'Last round', sumFunding:'Cumulative funding sum', interpretation:'Payment direction', selectedWindow:'Selected window',
-        priceChart:'Price Chart', fundingRateChart:'Funding Rate Chart',
-        fundingHistory:'Funding History By Round', direction:'Direction',
-        noSearchResults:'No results', rank:'Rank', longFavored:'Long favored', shortFavored:'Short favored',
-        fundingSpread:'Funding Spread', spreadAlert:'Spread Alert', currentFundingComparison:'Current funding fee comparison (8H eq.)',
-        selectedPeriodFundingComparison:'Selected-period funding fee comparison (8H eq.)',
-        noAlert:'Normal', alertNarrow:'Small spread', alertWide:'Wide spread', spreadThreshold:'20pp or more', periodBestWorst:'Period Best / Worst',
-        bestLong:'Best long', bestShort:'Best short', noData:'No data',
-        mark:'Mark', index:'Index', currentPrice:'Current price', updated:'Updated',
-        authSynced:'Account and favorites are synced to the cloud.',
-        authLocal:'This is currently a static GitHub Pages deployment, so data is saved <strong>only in this browser</strong>. Cross-device favorites will activate after Firebase/Supabase keys are connected.',
-        authDefault:'Before backend connection, account state and favorites are saved only in this browser.',
-        continueGoogle:'Continue with Google',
-        googlePending:'Google OAuth will activate after Firebase/Supabase client keys are connected. For now, only the UI and storage structure are ready.',
-        invalidEmail:'Enter a valid email address.',
-        usdKrwLoading:'Loading USD/KRW', usdKrwFailed:'USD/KRW unavailable',
-      },
-    };
-
-    let state = { data:null, selectedPair:null, selectedAsset:null, selectedWindow:'7D', priceCandleWindow:'4H', chart:null, priceChart:null, countdownTimer:null, liveRefreshTimer:null, sortMode:'symbol', favorites:[], liveLatestByPair:{}, auth:null, authMode:'login', draggedFavorite:null, lang:localStorage.getItem('fundingDashboardLanguage') || 'ko' };
-    let variationalStatsCache = { time:0, promise:null };
-    let orbsPerpsFundingCache = { time:0, promise:null };
-    const fmtPct = v => `${(v * 100).toFixed(4)}%`;
-    const fmtSignedPct = v => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(4)}%`;
-    const fmtAbsPct = v => `${Math.abs(v * 100).toFixed(4)}%`;
-    const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
-    const fmtAbsAnnual = v => `${Math.abs(v).toFixed(2)}%`;
-    const COMPARISON_INTERVAL_HOURS = 8;
-    const STANDARD_USDT_DISPLAY_ASSETS = new Set(['BTC','ETH','SOL','BNB']);
-    const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
-    const fmtFx = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
-    const ASSET_NAME_OVERRIDES = {
-      SAMSUNG: { ko:'삼성전자', en:'Samsung Electronics' },
-      SKHYNIX: { ko:'SK하이닉스', en:'SK hynix' },
-    };
-    function toKST(ms){
-      if(state.lang === 'en'){
-        return new Date(ms).toLocaleString('en-US', { timeZone:'Asia/Seoul', year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
-      }
-      return new Date(ms).toLocaleString('ko-KR', { timeZone:'Asia/Seoul', hour12:false });
-    }
-    function toKSTCompact(ms){
-      const parts = new Intl.DateTimeFormat('en-US', { timeZone:'Asia/Seoul', month:'numeric', day:'numeric', hour:'numeric', minute:'numeric', hour12:false }).formatToParts(new Date(ms)).reduce((acc, part) => {
-        acc[part.type] = part.value;
-        return acc;
-      }, {});
-      if(state.lang === 'en') return `${parts.month}/${parts.day} ${parts.hour}:${String(parts.minute).padStart(2,'0')}`;
-      return `${Number(parts.month)}. ${Number(parts.day)}. ${Number(parts.hour)}시 ${Number(parts.minute)}분`;
-    }
-    function toKSTChartLabel(ms){
-      const parts = new Intl.DateTimeFormat('en-US', { timeZone:'Asia/Seoul', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false }).formatToParts(new Date(ms)).reduce((acc, part) => {
-        acc[part.type] = part.value;
-        return acc;
-      }, {});
-      return `${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
-    }
-    const toUTC = ms => new Date(ms).toISOString().replace('T',' ').slice(0,19) + ' UTC';
-    function t(key){ return (I18N[state.lang] && I18N[state.lang][key]) || I18N.ko[key] || key; }
+import {
+  ANALYTICS_BACKEND_CONFIGURED,
+  ASSET_LOGO_DOMAINS,
+  ASSET_NAME_OVERRIDES,
+  AUTH_BACKEND_CONFIGURED,
+  COMPARISON_INTERVAL_HOURS,
+  FX_LATEST_URL,
+  FX_REFERENCE_URL,
+  LIVE_REFRESH_MS,
+  PRICE_CANDLE_WINDOWS,
+  STANDARD_USDT_DISPLAY_ASSETS,
+  SUPABASE_ANON_KEY,
+  SUPABASE_FUNCTIONS_BASE_URL,
+} from './config.js';
+import { fetchLiveLatest, loadDashboardData } from './api.js';
+import { I18N, t } from './i18n.js';
+import {
+  fmtAbsAnnual,
+  fmtAbsPct,
+  fmtAnnual,
+  fmtFx,
+  fmtNumber,
+  fmtPct,
+  fmtSignedPct,
+  toKST,
+  toKSTChartLabel,
+  toKSTCompact,
+  toUTC,
+} from './formatters.js';
+import { state } from './state.js';
     function selectedWindowDays(){
       const days = state.data && state.data.meta && state.data.meta.windows
         ? Number(state.data.meta.windows[state.selectedWindow])
@@ -294,18 +174,6 @@
     function exchangeSortWeight(exchange){
       return ['Hyperliquid','Binance','Bybit','Aster','OKX','Orbs Perps Hub','Variational'].indexOf(exchange);
     }
-    async function getVariationalListings(){
-      const now = Date.now();
-      if(variationalStatsCache.promise && now - variationalStatsCache.time < LIVE_REFRESH_MS){
-        return variationalStatsCache.promise;
-      }
-      variationalStatsCache.time = now;
-      variationalStatsCache.promise = fetch(VARIATIONAL_STATS_URL).then(res=>{
-        if(!res.ok) throw new Error('variational stats fetch failed');
-        return res.json();
-      }).then(json=>json.listings || []);
-      return variationalStatsCache.promise;
-    }
     function intervalHoursFor(pair, latest={}){
       if(latest.fundingIntervalHours) return Number(latest.fundingIntervalHours);
       if(pair.fundingIntervalHours) return Number(pair.fundingIntervalHours);
@@ -338,18 +206,6 @@
     }
     function comparisonShortAnnualized(pair, latest){
       return annualizedFromFee(pair, shortFundingFeeValue(latest), latest);
-    }
-    async function getOrbsPerpsFundingData(){
-      const now = Date.now();
-      if(orbsPerpsFundingCache.promise && now - orbsPerpsFundingCache.time < LIVE_REFRESH_MS){
-        return orbsPerpsFundingCache.promise;
-      }
-      orbsPerpsFundingCache.time = now;
-      orbsPerpsFundingCache.promise = fetch(ORBS_PERPS_AGGREGATED_FUNDING_URL, { cache:'no-store' }).then(res=>{
-        if(!res.ok) throw new Error('orbs perps aggregated funding fetch failed');
-        return res.json();
-      }).then(json=>json.PERPS_HUB || {});
-      return orbsPerpsFundingCache.promise;
     }
     function trackLocalVisit(){
       const today = new Date().toISOString().slice(0,10);
@@ -1245,144 +1101,6 @@
       renderChart(rows);
     }
 
-    async function fetchLiveLatest(pairKey, pair){
-      if(pair.exchange === 'Binance'){
-        const res = await fetch(`${BINANCE_PREMIUM_INDEX_URL}?symbol=${pair.symbol}`);
-        if(!res.ok) throw new Error(`premiumIndex fetch failed: ${pairKey}`);
-        const row = await res.json();
-        state.liveLatestByPair[pairKey] = {
-          markPrice: Number(row.markPrice),
-          indexPrice: Number(row.indexPrice),
-          lastFundingRate: Number(row.lastFundingRate),
-          nextFundingTime: Number(row.nextFundingTime),
-          time: Number(row.time),
-          available: true,
-        };
-        return;
-      }
-      if(pair.exchange === 'Bybit'){
-        const res = await fetch(`${BYBIT_TICKERS_URL}?category=linear&symbol=${pair.symbol}`);
-        if(!res.ok) throw new Error(`bybit ticker fetch failed: ${pairKey}`);
-        const json = await res.json();
-        const row = json.result.list[0];
-        state.liveLatestByPair[pairKey] = {
-          markPrice: Number(row.markPrice),
-          indexPrice: Number(row.indexPrice),
-          lastFundingRate: Number(row.fundingRate),
-          nextFundingTime: Number(row.nextFundingTime),
-          time: Number(json.time),
-          available: true,
-        };
-        return;
-      }
-      if(pair.exchange === 'Hyperliquid'){
-        const payload = { type: 'metaAndAssetCtxs' };
-        if(pair.dex) payload.dex = pair.dex;
-        const res = await fetch(HYPERLIQUID_INFO_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        if(!res.ok) throw new Error(`hyperliquid info fetch failed: ${pairKey}`);
-        const [meta, ctxs] = await res.json();
-        const idx = meta.universe.findIndex(asset => asset.name === pair.symbol);
-        if(idx < 0) throw new Error(`hyperliquid asset not found: ${pair.symbol}`);
-        const row = ctxs[idx];
-        const now = Date.now();
-        state.liveLatestByPair[pairKey] = {
-          markPrice: Number(row.markPx),
-          indexPrice: Number(row.oraclePx),
-          lastFundingRate: Number(row.funding),
-          premium: Number(row.premium),
-          nextFundingTime: (Math.floor(now / 3600000) + 1) * 3600000,
-          time: now,
-          openInterest: Number(row.openInterest),
-          dayNtlVlm: Number(row.dayNtlVlm),
-          available: true,
-        };
-        return;
-      }
-      if(pair.exchange === 'Aster'){
-        const res = await fetch(`${ASTER_PREMIUM_INDEX_URL}?symbol=${pair.symbol}`);
-        if(!res.ok) throw new Error(`aster premiumIndex fetch failed: ${pairKey}`);
-        const row = await res.json();
-        state.liveLatestByPair[pairKey] = {
-          markPrice: Number(row.markPrice),
-          indexPrice: Number(row.indexPrice),
-          lastFundingRate: Number(row.lastFundingRate),
-          nextFundingTime: Number(row.nextFundingTime),
-          fundingIntervalHours: pair.fundingIntervalHours || 4,
-          time: Number(row.time) || Date.now(),
-          available: true,
-        };
-        return;
-      }
-      if(pair.exchange === 'OKX'){
-        const [fundingRes, markRes, indexRes] = await Promise.all([
-          fetch(`${OKX_FUNDING_RATE_URL}?instId=${encodeURIComponent(pair.symbol)}`),
-          fetch(`${OKX_MARK_PRICE_URL}?instType=SWAP&instId=${encodeURIComponent(pair.symbol)}`),
-          fetch(`${OKX_INDEX_TICKER_URL}?instId=${encodeURIComponent(pair.symbol.replace('-SWAP',''))}`),
-        ]);
-        if(!fundingRes.ok || !markRes.ok || !indexRes.ok) throw new Error(`okx funding fetch failed: ${pairKey}`);
-        const fundingJson = await fundingRes.json();
-        const markJson = await markRes.json();
-        const indexJson = await indexRes.json();
-        const funding = fundingJson.data && fundingJson.data[0] ? fundingJson.data[0] : {};
-        const mark = markJson.data && markJson.data[0] ? markJson.data[0] : {};
-        const index = indexJson.data && indexJson.data[0] ? indexJson.data[0] : {};
-        state.liveLatestByPair[pairKey] = {
-          markPrice: Number(mark.markPx || funding.markPx),
-          indexPrice: Number(index.idxPx),
-          lastFundingRate: Number(funding.fundingRate),
-          nextFundingTime: Number(funding.nextFundingTime || funding.nextFundingTimeMs),
-          fundingIntervalHours: pair.fundingIntervalHours || 8,
-          time: Number(funding.ts) || Date.now(),
-          available: true,
-        };
-        return;
-      }
-      if(pair.exchange === 'Variational'){
-        const listings = await getVariationalListings();
-        const row = listings.find(item => String(item.ticker).toUpperCase() === pair.displaySymbol.toUpperCase());
-        if(!row) throw new Error(`variational listing not found: ${pair.displaySymbol}`);
-        const intervalHours = Number(row.funding_interval_s || 28800) / 3600;
-        const paymentsPerYear = (24 / intervalHours) * 365;
-        const updatedAt = row.quotes && row.quotes.updated_at ? Date.parse(row.quotes.updated_at) : Date.now();
-        state.liveLatestByPair[pairKey] = {
-          markPrice: Number(row.mark_price),
-          indexPrice: Number(row.mark_price),
-          lastFundingRate: Number(row.funding_rate) / paymentsPerYear,
-          nextFundingTime: updatedAt + intervalHours * 3600000,
-          fundingIntervalHours: intervalHours,
-          time: updatedAt,
-          available: true,
-        };
-        return;
-      }
-      if(pair.exchange === 'Orbs Perps Hub'){
-        const [res, aggregated] = await Promise.all([
-          fetch(`${ORBS_PERPS_PREMIUM_INDEX_URL}?symbol=${pair.symbol}`),
-          getOrbsPerpsFundingData(),
-        ]);
-        if(!res.ok) throw new Error(`orbs perps premiumIndex fetch failed: ${pairKey}`);
-        const row = await res.json();
-        const funding = aggregated[pair.symbol] || {};
-        state.liveLatestByPair[pairKey] = {
-          markPrice: Number(row.markPrice),
-          indexPrice: Number(row.indexPrice),
-          rawFundingRate: Number(row.lastFundingRate),
-          lastFundingRate: Number(row.lastFundingRate),
-          longFundingFee: funding.next_funding_rate_long == null ? -Number(row.lastFundingRate) : Number(funding.next_funding_rate_long),
-          shortFundingFee: funding.next_funding_rate_short == null ? Number(row.lastFundingRate) : Number(funding.next_funding_rate_short),
-          nextFundingTime: Number(funding.next_funding_time || row.nextFundingTime),
-          time: Number(row.time) || Date.now(),
-          available: true,
-        };
-        return;
-      }
-      throw new Error(`Unsupported exchange: ${pair.exchange}`);
-    }
-
     async function refreshLiveAll(){
       const selected = state.data.pairs[state.selectedPair];
       const pairKeys = selected
@@ -1399,8 +1117,7 @@
     }
 
     async function init(){
-      const res=await fetch(`./funding_data.json?ts=${Date.now()}`, { cache: 'no-store' });
-      const data=await res.json();
+      const data=await loadDashboardData();
       state.data=data;
       state.selectedPair=Object.keys(data.pairs)[0];
       state.selectedAsset=assetId(data.pairs[state.selectedPair]);
