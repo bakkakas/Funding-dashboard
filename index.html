@@ -633,6 +633,7 @@
     }
     function pairDisplayName(pair){
       if(pair.exchange === 'Hyperliquid') return pair.symbol;
+      if(pair.exchange === 'OKX' && pair.symbol.endsWith('-USDT-SWAP')) return `${pair.symbol.replace('-USDT-SWAP', '')}:USDT`;
       if(pair.symbol.endsWith('USDT')) return `${pair.symbol.slice(0, -4)}:USDT`;
       return pair.symbol;
     }
