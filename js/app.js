@@ -14,7 +14,9 @@ import {
 } from './config.js';
 import { fetchLiveLatest, loadDashboardData } from './api.js';
 import { I18N, t } from './i18n.js';
+import { renderAssetSummary as renderAssetSummaryView } from './render/asset-summary.js';
 import { renderChart, renderPriceChart } from './render/charts.js';
+import { renderComparisons as renderComparisonsView, renderExchangeTabs as renderExchangeTabsView } from './render/comparisons.js';
 import { renderFundingBars } from './render/funding-bars.js';
 import { renderSpreadInsights } from './render/spread-insights.js';
 import {
@@ -477,64 +479,25 @@ import { state } from './state.js';
         tabs.appendChild(btn);
       });
     }
-    function renderComparisons(){
-      const body=document.getElementById('comparisonBody'); body.innerHTML='';
-      const selected=state.data.pairs[state.selectedPair];
-      document.getElementById('supportTitle').textContent=t('supportExchange');
-      const sameSymbolPairs=getPairsForAsset(assetId(selected));
-      sameSymbolPairs.forEach(([pairKey,pair])=>{
-        const tr=document.createElement('tr');
-        const isSelected=pairKey===state.selectedPair;
-        const exchangeCell=document.createElement('td');
-        const exchangeBtn=document.createElement('button');
-        exchangeBtn.type='button';
-        exchangeBtn.className='chip' + (isSelected ? ' active' : '');
-        const exchangeLabel=document.createElement('span');
-        exchangeLabel.className='exchange-label';
-        const exchangeLogo=document.createElement('img');
-        exchangeLogo.className='exchange-logo';
-        exchangeLogo.alt='';
-        setLogoImage(exchangeLogo, exchangeLogoUrl(pair.exchange), exchangeLogoFallbackUrl(pair.exchange));
-        const exchangeName=document.createElement('span');
-        exchangeName.textContent=pair.exchange;
-        exchangeLabel.appendChild(exchangeLogo);
-        exchangeLabel.appendChild(exchangeName);
-        exchangeBtn.appendChild(exchangeLabel);
-        exchangeBtn.onclick=()=>selectPair(pairKey);
-        exchangeCell.appendChild(exchangeBtn);
-
-        const pairCell=document.createElement('td');
-        const pairLink=document.createElement('a');
-        pairLink.className='pair-link';
-        pairLink.href=pairTradeUrl(pair);
-        pairLink.target='_blank';
-        pairLink.rel='noopener noreferrer';
-        pairLink.textContent=pairDisplayName(pair);
-        pairCell.appendChild(pairLink);
-
-        const feeCell=document.createElement('td');
-        const latest=getLatestForPair(pairKey, pair);
-        const fee=fundingFeeValue(latest);
-        const feeEl=document.createElement('span');
-        feeEl.className='fee-value ' + feeTone(fee);
-        const intervalText=fmtIntervalHours(intervalHoursFor(pair, latest));
-        feeEl.textContent=fee == null || Number.isNaN(fee) ? '-' : `${fmtSignedPct(fee)}(${intervalText})`;
-        feeCell.appendChild(feeEl);
-
-        const annualCell=document.createElement('td');
-        const annualized=comparisonAnnualized(pairKey, pair, latest);
-        const annualEl=document.createElement('span');
-        annualEl.className='fee-value ' + feeTone(annualized == null ? null : annualized);
-        annualEl.textContent=annualized == null || Number.isNaN(annualized) ? '-' : fmtAnnual(annualized);
-        annualCell.appendChild(annualEl);
-
-        tr.appendChild(exchangeCell);
-        tr.appendChild(pairCell);
-        tr.appendChild(feeCell);
-        tr.appendChild(annualCell);
-        body.appendChild(tr);
-      });
+    function comparisonRenderDeps(){
+      return {
+        assetId,
+        comparisonAnnualized,
+        exchangeLogoFallbackUrl,
+        exchangeLogoUrl,
+        feeTone,
+        fmtIntervalHours,
+        fundingFeeValue,
+        getLatestForPair,
+        getPairsForAsset,
+        intervalHoursFor,
+        pairDisplayName,
+        pairTradeUrl,
+        selectPair,
+        setLogoImage,
+      };
     }
+    function renderComparisons(){ renderComparisonsView(comparisonRenderDeps()); }
     function getFilteredRows(pair){ const days=state.data.meta.windows[state.selectedWindow]; const minTs=Date.now()-days*24*3600*1000; return pair.rows.filter(r=>r.fundingTime>=minTs); }
 
     function formatCountdown(nextFundingTime){
@@ -647,27 +610,7 @@ import { state } from './state.js';
       }).filter(Boolean);
     }
 
-    function renderExchangeTabs(){
-      const tabs=document.getElementById('exchangeTabs');
-      tabs.innerHTML='';
-      getPairsForAsset(state.selectedAsset).forEach(([pairKey, pair])=>{
-        const btn=document.createElement('button');
-        btn.type='button';
-        btn.className='chip' + (pairKey===state.selectedPair ? ' active' : '');
-        const label=document.createElement('span');
-        label.className='exchange-label';
-        const logo=document.createElement('img');
-        logo.className='exchange-logo';
-        logo.alt='';
-        setLogoImage(logo, exchangeLogoUrl(pair.exchange), exchangeLogoFallbackUrl(pair.exchange));
-        const name=document.createElement('span');
-        name.textContent=pair.exchange;
-        label.append(logo, name);
-        btn.appendChild(label);
-        btn.onclick=()=>selectPair(pairKey);
-        tabs.appendChild(btn);
-      });
-    }
+    function renderExchangeTabs(){ renderExchangeTabsView(comparisonRenderDeps()); }
 
     function renderPeriodBestWorst(){
       const wrap=document.getElementById('periodBestWorst');
@@ -772,28 +715,17 @@ import { state } from './state.js';
       document.getElementById('shortToLongCount').textContent=shortToLong.toLocaleString('en-US');
     }
 
-    function currentPricePairForAsset(selected){
-      const pairs=getPairsForAsset(assetId(selected));
-      return pairs.find(([_, pair])=>pair.exchange === 'Binance')
-        || pairs.find(([_, pair])=>pair.exchange === 'Orbs Perps Hub')
-        || pairs[0];
-    }
-
     function renderAssetSummary(selected){
-      const pricePair=currentPricePairForAsset(selected);
-      const [pricePairKey, pairForPrice]=pricePair || [state.selectedPair, selected];
-      const latest=getLatestForPair(pricePairKey, pairForPrice);
-      const symbol=assetId(selected);
-      const logo=document.getElementById('assetLogo');
-      const logoUrl=assetLogoUrl(symbol);
-      setLogoImage(logo, logoUrl, assetLogoFallbackUrl(symbol));
-      document.getElementById('assetLogoMark').textContent=symbol.slice(0,2).toUpperCase();
-      document.getElementById('assetHeaderSymbol').textContent=displaySymbol(selected);
-      document.getElementById('assetHeaderName').textContent=assetName(selected);
-      document.getElementById('assetHeaderPrice').textContent=latest.markPrice == null ? '-' : fmtNumber(latest.markPrice);
-      document.getElementById('assetHeaderPriceMeta').textContent=latest.markPrice == null
-        ? '-'
-        : `${pairForPrice.exchange} ${t('mark')}`;
+      renderAssetSummaryView(selected, {
+        assetId,
+        assetLogoFallbackUrl,
+        assetLogoUrl,
+        assetName,
+        displaySymbol,
+        getLatestForPair,
+        getPairsForAsset,
+        setLogoImage,
+      });
     }
 
     function render(options={}){
