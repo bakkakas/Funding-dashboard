@@ -507,8 +507,8 @@
         priceChart:'Price Chart', fundingRateChart:'Funding Rate Chart',
         fundingHistory:'회차별 Funding History', direction:'Direction',
         noSearchResults:'검색 결과 없음', rank:'순위', longFavored:'Long 유리', shortFavored:'Short 유리',
-        fundingSpread:'Funding Spread', spreadAlert:'Spread Alert', currentFundingComparison:'현재 Funding Fee 비교',
-        selectedPeriodFundingComparison:'선택 기간 Funding Fee 비교',
+        fundingSpread:'Funding Spread', spreadAlert:'Spread Alert', currentFundingComparison:'현재 Funding Fee 비교 (8H 환산)',
+        selectedPeriodFundingComparison:'선택 기간 Funding Fee 비교 (8H 환산)',
         noAlert:'정상', alertNarrow:'차이 적음', alertWide:'차이 큼', spreadThreshold:'20%p 이상', periodBestWorst:'기간별 Best / Worst',
         bestLong:'Long 유리', bestShort:'Short 유리', noData:'데이터 없음',
         mark:'Mark', index:'Index', currentPrice:'현재 가격', updated:'Updated',
@@ -536,8 +536,8 @@
         priceChart:'Price Chart', fundingRateChart:'Funding Rate Chart',
         fundingHistory:'Funding History By Round', direction:'Direction',
         noSearchResults:'No results', rank:'Rank', longFavored:'Long favored', shortFavored:'Short favored',
-        fundingSpread:'Funding Spread', spreadAlert:'Spread Alert', currentFundingComparison:'Current funding fee comparison',
-        selectedPeriodFundingComparison:'Selected-period funding fee comparison',
+        fundingSpread:'Funding Spread', spreadAlert:'Spread Alert', currentFundingComparison:'Current funding fee comparison (8H eq.)',
+        selectedPeriodFundingComparison:'Selected-period funding fee comparison (8H eq.)',
         noAlert:'Normal', alertNarrow:'Small spread', alertWide:'Wide spread', spreadThreshold:'20pp or more', periodBestWorst:'Period Best / Worst',
         bestLong:'Best long', bestShort:'Best short', noData:'No data',
         mark:'Mark', index:'Index', currentPrice:'Current price', updated:'Updated',
@@ -557,6 +557,7 @@
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
     const fmtSignedPct = v => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(4)}%`;
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
+    const COMPARISON_INTERVAL_HOURS = 8;
     const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const fmtFx = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const ASSET_NAME_OVERRIDES = {
@@ -744,6 +745,11 @@
     function annualizedFromFee(pair, fee, latest={}){
       if(fee == null || Number.isNaN(fee)) return null;
       return fee * (24 / intervalHoursFor(pair, latest)) * 365 * 100;
+    }
+    function comparableFeeFromAnnualized(annualizedPct){
+      const value=Number(annualizedPct);
+      if(!Number.isFinite(value)) return null;
+      return value / 100 / (24 / COMPARISON_INTERVAL_HOURS * 365);
     }
     function periodFundingFee(summary){
       if(!summary || summary.avgFundingRate == null || Number.isNaN(summary.avgFundingRate)) return null;
@@ -1334,16 +1340,22 @@
       const selected=state.data.pairs[state.selectedPair];
       return getPairsForAsset(assetId(selected)).map(([pairKey, pair])=>{
         const latest=getLatestForPair(pairKey, pair);
-        const fee=fundingFeeValue(latest);
-        const shortFee=shortFundingFeeValue(latest);
+        const rawFee=fundingFeeValue(latest);
+        const rawShortFee=shortFundingFeeValue(latest);
+        const annualized=comparisonAnnualized(pairKey, pair, latest);
+        const shortAnnualized=comparisonShortAnnualized(pair, latest);
+        const fee=comparableFeeFromAnnualized(annualized);
+        const shortFee=comparableFeeFromAnnualized(shortAnnualized);
         return {
           pairKey,
           pair,
           latest,
           fee,
           shortFee,
-          annualized:comparisonAnnualized(pairKey, pair, latest),
-          shortAnnualized:comparisonShortAnnualized(pair, latest),
+          rawFee,
+          rawShortFee,
+          annualized,
+          shortAnnualized,
         };
       }).filter(item=>item.fee != null && !Number.isNaN(item.fee) && item.shortFee != null && !Number.isNaN(item.shortFee));
     }
@@ -1353,14 +1365,16 @@
       return getPairsForAsset(assetId(selected)).map(([pairKey, pair])=>{
         const summary=pair.windows && pair.windows[windowKey];
         if(!summary || !summary.count) return null;
-        const longFee=periodFundingFee(summary);
-        if(longFee == null || Number.isNaN(longFee)) return null;
         const longAnnualized=summary.annualizedPct;
+        const longFee=comparableFeeFromAnnualized(longAnnualized);
+        if(longFee == null || Number.isNaN(longFee)) return null;
         return {
           pairKey,
           pair,
           fee:longFee,
-          shortFee:-longFee,
+          shortFee:comparableFeeFromAnnualized(-longAnnualized),
+          rawFee:periodFundingFee(summary),
+          rawShortFee:-periodFundingFee(summary),
           annualized:longAnnualized,
           shortAnnualized:longAnnualized == null || Number.isNaN(longAnnualized) ? null : -longAnnualized,
           count:summary.count || 0,
@@ -1581,8 +1595,8 @@
       const periodStats=periodComparisonStats(state.selectedWindow);
       const periodBarsTitle=document.getElementById('periodFundingBarsTitle');
       periodBarsTitle.textContent=state.lang === 'ko'
-        ? `${selectedWindowLabel()} Funding Fee 비교`
-        : `${selectedWindowLabel()} funding fee comparison`;
+        ? `${selectedWindowLabel()} Funding Fee 비교 (8H 환산)`
+        : `${selectedWindowLabel()} funding fee comparison (8H eq.)`;
       renderFundingBars('periodFundingBars', periodStats);
       renderPaymentCounts(rows);
       const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedAsset)?'★':'☆')+' '+t('favorite');
