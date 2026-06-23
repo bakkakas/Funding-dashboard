@@ -389,6 +389,117 @@
     const VARIATIONAL_STATS_URL = 'https://omni-client-api.prod.ap-northeast-1.variational.io/metadata/stats';
     const ORBS_PERPS_PREMIUM_INDEX_URL = 'https://perps.thena.fi/api/proxy/fapi/premiumIndex';
     const ORBS_PERPS_AGGREGATED_FUNDING_URL = 'https://perps.thena.fi/api/solver/aggregatedFundingData?chainId=0';
+    const EXTRA_EXCHANGE_PAIRS = {
+      GOOGL: [
+        { exchange:'Aster', symbol:'GOOGLUSDT', displaySymbol:'GOOGL', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'GOOGL-USDT-SWAP', displaySymbol:'GOOGL', fundingIntervalHours:8 },
+      ],
+      SAMSUNG: [
+        { exchange:'Aster', symbol:'SAMSUNGUSDT', displaySymbol:'SAMSUNG', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'SAMSUNG-USDT-SWAP', displaySymbol:'SAMSUNG', fundingIntervalHours:8 },
+      ],
+      SKHYNIX: [
+        { exchange:'Aster', symbol:'SKHYNIXUSDT', displaySymbol:'SKHYNIX', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'SKHYNIX-USDT-SWAP', displaySymbol:'SKHYNIX', fundingIntervalHours:8 },
+      ],
+      SNDK: [
+        { exchange:'Aster', symbol:'SNDKUSDT', displaySymbol:'SNDK', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'SNDK-USDT-SWAP', displaySymbol:'SNDK', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'SNDK', displaySymbol:'SNDK', fundingIntervalHours:8 },
+      ],
+      MU: [
+        { exchange:'Aster', symbol:'MUUSDT', displaySymbol:'MU', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'MU-USDT-SWAP', displaySymbol:'MU', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'MU', displaySymbol:'MU', fundingIntervalHours:8 },
+      ],
+      GOLD: [
+        { exchange:'Aster', symbol:'XAUUSDT', displaySymbol:'XAU', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'XAU-USDT-SWAP', displaySymbol:'XAU', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'XAU', displaySymbol:'XAU', fundingIntervalHours:8 },
+      ],
+      AMZN: [
+        { exchange:'Aster', symbol:'AMZNUSDT', displaySymbol:'AMZN', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'AMZN-USDT-SWAP', displaySymbol:'AMZN', fundingIntervalHours:8 },
+      ],
+      AAPL: [
+        { exchange:'Aster', symbol:'AAPLUSDT', displaySymbol:'AAPL', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'AAPL-USDT-SWAP', displaySymbol:'AAPL', fundingIntervalHours:8 },
+      ],
+      TSLA: [
+        { exchange:'Aster', symbol:'TSLAUSDT', displaySymbol:'TSLA', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'TSLA-USDT-SWAP', displaySymbol:'TSLA', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'TSLA', displaySymbol:'TSLA', fundingIntervalHours:8 },
+      ],
+      NVDA: [
+        { exchange:'Aster', symbol:'NVDAUSDT', displaySymbol:'NVDA', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'NVDA-USDT-SWAP', displaySymbol:'NVDA', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'NVDA', displaySymbol:'NVDA', fundingIntervalHours:8 },
+      ],
+      META: [
+        { exchange:'Aster', symbol:'METAUSDT', displaySymbol:'META', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'META-USDT-SWAP', displaySymbol:'META', fundingIntervalHours:8 },
+      ],
+      MSFT: [
+        { exchange:'Aster', symbol:'MSFTUSDT', displaySymbol:'MSFT', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'MSFT-USDT-SWAP', displaySymbol:'MSFT', fundingIntervalHours:8 },
+      ],
+      MSTR: [
+        { exchange:'Aster', symbol:'MSTRUSDT', displaySymbol:'MSTR', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'MSTR-USDT-SWAP', displaySymbol:'MSTR', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'MSTR', displaySymbol:'MSTR', fundingIntervalHours:8 },
+      ],
+      COIN: [
+        { exchange:'Aster', symbol:'COINUSDT', displaySymbol:'COIN', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'COIN-USDT-SWAP', displaySymbol:'COIN', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'COIN', displaySymbol:'COIN', fundingIntervalHours:8 },
+      ],
+      TSM: [
+        { exchange:'Aster', symbol:'TSMUSDT', displaySymbol:'TSM', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'TSM-USDT-SWAP', displaySymbol:'TSM', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'TSM', displaySymbol:'TSM', fundingIntervalHours:8 },
+      ],
+      PLTR: [
+        { exchange:'Aster', symbol:'PLTRUSDT', displaySymbol:'PLTR', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'PLTR-USDT-SWAP', displaySymbol:'PLTR', fundingIntervalHours:8 },
+      ],
+      BABA: [
+        { exchange:'Aster', symbol:'BABAUSDT', displaySymbol:'BABA', fundingIntervalHours:4 },
+      ],
+      QQQ: [
+        { exchange:'Aster', symbol:'QQQUSDT', displaySymbol:'QQQ', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'QQQ-USDT-SWAP', displaySymbol:'QQQ', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'QQQ', displaySymbol:'QQQ', fundingIntervalHours:8 },
+      ],
+      SPY: [
+        { exchange:'Aster', symbol:'SPYUSDT', displaySymbol:'SPY', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'SPY-USDT-SWAP', displaySymbol:'SPY', fundingIntervalHours:8 },
+      ],
+      BTC: [
+        { exchange:'Aster', symbol:'BTCUSDT', displaySymbol:'BTC', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'BTC-USDT-SWAP', displaySymbol:'BTC', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'BTC', displaySymbol:'BTC', fundingIntervalHours:8 },
+      ],
+      ETH: [
+        { exchange:'Aster', symbol:'ETHUSDT', displaySymbol:'ETH', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'ETH-USDT-SWAP', displaySymbol:'ETH', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'ETH', displaySymbol:'ETH', fundingIntervalHours:8 },
+      ],
+      SOL: [
+        { exchange:'Aster', symbol:'SOLUSDT', displaySymbol:'SOL', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'SOL-USDT-SWAP', displaySymbol:'SOL', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'SOL', displaySymbol:'SOL', fundingIntervalHours:8 },
+      ],
+      BNB: [
+        { exchange:'Aster', symbol:'BNBUSDT', displaySymbol:'BNB', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'BNB-USDT-SWAP', displaySymbol:'BNB', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'BNB', displaySymbol:'BNB', fundingIntervalHours:8 },
+      ],
+      HYPE: [
+        { exchange:'Aster', symbol:'HYPEUSDT', displaySymbol:'HYPE', fundingIntervalHours:4 },
+        { exchange:'OKX', symbol:'HYPE-USDT-SWAP', displaySymbol:'HYPE', fundingIntervalHours:8 },
+        { exchange:'Variational', symbol:'HYPE', displaySymbol:'HYPE', fundingIntervalHours:8 },
+      ],
+    };
     const ASSET_LOGO_DOMAINS = {
       AAPL:'apple.com',
       AMZN:'amazon.com',
@@ -936,6 +1047,40 @@
       return;
     }
 
+    function ensureExtraExchangePairs(){
+      Object.entries(EXTRA_EXCHANGE_PAIRS).forEach(([asset, extras])=>{
+        const basePair = Object.values(state.data.pairs).find(pair=>assetId(pair) === asset);
+        if(!basePair) return;
+        extras.forEach(extra=>{
+          const key = `${extra.exchange}:${extra.symbol}`;
+          if(state.data.pairs[key]) return;
+          const windows = {};
+          Object.keys(state.data.meta.windows).forEach(windowKey=>{
+            windows[windowKey] = {
+              count: 0,
+              avgFundingRate: 0,
+              sumFundingRate: 0,
+              annualizedPct: 0,
+              firstFundingTime: null,
+              lastFundingTime: null,
+            };
+          });
+          state.data.pairs[key] = {
+            symbol: extra.symbol,
+            displaySymbol: extra.displaySymbol || basePair.displaySymbol || asset,
+            assetId: asset,
+            assetName: basePair.assetName || asset,
+            exchange: extra.exchange,
+            fundingIntervalHours: extra.fundingIntervalHours,
+            rows: [],
+            latest: {},
+            windows,
+            liveOnly: true,
+          };
+        });
+      });
+    }
+
     function selectAssetFromSearch(value){
       const normalized=value.trim().toLocaleLowerCase('ko');
       if(!normalized) return;
@@ -954,9 +1099,8 @@
         if(first) state.selectedPair=first[0];
       }
       renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render();
-      refreshLiveAll().catch(console.error);
     }
-    function selectPair(pairKey){ state.selectedPair=pairKey; state.selectedAsset=assetId(state.data.pairs[pairKey]); renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render(); refreshLiveAll().catch(console.error); }
+    function selectPair(pairKey){ state.selectedPair=pairKey; state.selectedAsset=assetId(state.data.pairs[pairKey]); renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render(); }
     function reorderFavorite(fromId, toId){
       if(!fromId || !toId || fromId === toId) return;
       const next = state.favorites.slice();
@@ -1776,10 +1920,7 @@
     }
 
     async function refreshLiveAll(){
-      const selected = state.data.pairs[state.selectedPair];
-      const pairKeys = selected
-        ? getPairsForAsset(assetId(selected)).map(([pairKey]) => pairKey)
-        : Object.keys(state.data.pairs);
+      const pairKeys = Object.keys(state.data.pairs);
       await Promise.all(pairKeys.map(async (pairKey) => {
         try {
           await fetchLiveLatest(pairKey, state.data.pairs[pairKey]);
@@ -1794,6 +1935,7 @@
       const res=await fetch(`./funding_data.json?ts=${Date.now()}`, { cache: 'no-store' });
       const data=await res.json();
       state.data=data;
+      ensureExtraExchangePairs();
       state.selectedPair=Object.keys(data.pairs)[0];
       state.selectedAsset=assetId(data.pairs[state.selectedPair]);
       trackLocalVisit();
