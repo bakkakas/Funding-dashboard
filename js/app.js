@@ -14,16 +14,16 @@ import {
 } from './config.js';
 import { fetchLiveLatest, loadDashboardData } from './api.js';
 import { I18N, t } from './i18n.js';
+import { renderChart, renderPriceChart } from './render/charts.js';
+import { renderFundingBars } from './render/funding-bars.js';
+import { renderSpreadInsights } from './render/spread-insights.js';
 import {
-  fmtAbsAnnual,
-  fmtAbsPct,
   fmtAnnual,
   fmtFx,
   fmtNumber,
   fmtPct,
   fmtSignedPct,
   toKST,
-  toKSTChartLabel,
   toKSTCompact,
   toUTC,
 } from './formatters.js';
@@ -159,13 +159,6 @@ import { state } from './state.js';
     function feeTone(value){
       if(value == null || Number.isNaN(value)) return 'warn';
       return value >= 0 ? 'good' : 'bad';
-    }
-    function spreadAlertLevel(annualSpread){
-      const absSpread=Math.abs(Number(annualSpread));
-      if(!Number.isFinite(absSpread)) return { label:'-', tone:'warn' };
-      if(absSpread >= 20) return { label:t('alertWide'), tone:'bad' };
-      if(absSpread >= 5) return { label:t('alertNarrow'), tone:'warn' };
-      return { label:t('noAlert'), tone:'info' };
     }
     function feeDirection(value){
       if(value == null || Number.isNaN(value)) return '-';
@@ -544,158 +537,6 @@ import { state } from './state.js';
     }
     function getFilteredRows(pair){ const days=state.data.meta.windows[state.selectedWindow]; const minTs=Date.now()-days*24*3600*1000; return pair.rows.filter(r=>r.fundingTime>=minTs); }
 
-    function applyChartRange(chart, start, end){
-      chart.$zoomStart = Math.max(0, start);
-      chart.$zoomEnd = Math.min(chart.$fullLabels.length - 1, end);
-      chart.data.labels = chart.$fullLabels.slice(chart.$zoomStart, chart.$zoomEnd + 1);
-      chart.data.datasets[0].data = chart.$fullData.slice(chart.$zoomStart, chart.$zoomEnd + 1);
-      if(chart.$fullOhlcData) chart.$ohlcData = chart.$fullOhlcData.slice(chart.$zoomStart, chart.$zoomEnd + 1);
-      chart.update('none');
-    }
-    function enableWheelZoom(chart, canvas){
-      if(canvas.$wheelZoomHandler) canvas.removeEventListener('wheel', canvas.$wheelZoomHandler);
-      if(canvas.$panHandlers){
-        canvas.removeEventListener('pointerdown', canvas.$panHandlers.down);
-        canvas.removeEventListener('pointermove', canvas.$panHandlers.move);
-        canvas.removeEventListener('pointerup', canvas.$panHandlers.up);
-        canvas.removeEventListener('pointercancel', canvas.$panHandlers.up);
-      }
-      canvas.$wheelZoomHandler = event => {
-        const total = chart.$fullLabels.length;
-        if(total <= 2) return;
-        event.preventDefault();
-        const visible = chart.$zoomEnd - chart.$zoomStart + 1;
-        const scale = event.deltaY < 0 ? 0.78 : 1.28;
-        const nextVisible = Math.max(8, Math.min(total, Math.round(visible * scale)));
-        const rect = canvas.getBoundingClientRect();
-        const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-        const center = chart.$zoomStart + Math.round((visible - 1) * ratio);
-        let start = Math.round(center - (nextVisible - 1) * ratio);
-        let end = start + nextVisible - 1;
-        if(start < 0){ end -= start; start = 0; }
-        if(end >= total){ start -= end - total + 1; end = total - 1; }
-        applyChartRange(chart, Math.max(0, start), Math.min(total - 1, end));
-      };
-      canvas.addEventListener('wheel', canvas.$wheelZoomHandler, { passive:false });
-      const panState = { active:false, pointerId:null, startX:0, startStart:0, startEnd:0 };
-      const finishPan = event => {
-        if(!panState.active) return;
-        panState.active=false;
-        canvas.style.cursor='grab';
-        if(event && event.pointerId === panState.pointerId) {
-          try { canvas.releasePointerCapture(event.pointerId); } catch(e) {}
-        }
-      };
-      canvas.$panHandlers = {
-        down: event => {
-          if(event.button !== 0 || chart.$fullLabels.length <= 2) return;
-          panState.active=true;
-          panState.pointerId=event.pointerId;
-          panState.startX=event.clientX;
-          panState.startStart=chart.$zoomStart;
-          panState.startEnd=chart.$zoomEnd;
-          canvas.style.cursor='grabbing';
-          canvas.setPointerCapture(event.pointerId);
-        },
-        move: event => {
-          if(!panState.active || event.pointerId !== panState.pointerId) return;
-          event.preventDefault();
-          const total = chart.$fullLabels.length;
-          const visible = panState.startEnd - panState.startStart + 1;
-          if(visible >= total) return;
-          const rect = canvas.getBoundingClientRect();
-          const shift = Math.round((panState.startX - event.clientX) / rect.width * visible);
-          let start = panState.startStart + shift;
-          let end = panState.startEnd + shift;
-          if(start < 0){ end -= start; start = 0; }
-          if(end >= total){ start -= end - total + 1; end = total - 1; }
-          applyChartRange(chart, Math.max(0, start), Math.min(total - 1, end));
-        },
-        up: finishPan,
-      };
-      canvas.addEventListener('pointerdown', canvas.$panHandlers.down);
-      canvas.addEventListener('pointermove', canvas.$panHandlers.move);
-      canvas.addEventListener('pointerup', canvas.$panHandlers.up);
-      canvas.addEventListener('pointercancel', canvas.$panHandlers.up);
-    }
-    const candleOverlayPlugin = {
-      id:'candleOverlay',
-      afterDatasetsDraw(chart){
-        if(!chart.$isCandleChart || !chart.$ohlcData) return;
-        const { ctx, chartArea, scales } = chart;
-        const xScale = scales.x;
-        const yScale = scales.y;
-        const width = Math.max(3, Math.min(13, chartArea.width / Math.max(chart.$ohlcData.length, 1) * 0.56));
-        ctx.save();
-        chart.$ohlcData.forEach((candle, index)=>{
-          const x = xScale.getPixelForValue(index);
-          const openY = yScale.getPixelForValue(candle.open);
-          const closeY = yScale.getPixelForValue(candle.close);
-          const highY = yScale.getPixelForValue(candle.high);
-          const lowY = yScale.getPixelForValue(candle.low);
-          const up = candle.close >= candle.open;
-          const color = up ? '#00c076' : '#f08a8a';
-          ctx.strokeStyle = color;
-          ctx.fillStyle = up ? 'rgba(0,192,118,0.82)' : 'rgba(240,138,138,0.82)';
-          ctx.lineWidth = 1.2;
-          ctx.beginPath();
-          ctx.moveTo(x, highY);
-          ctx.lineTo(x, lowY);
-          ctx.stroke();
-          const bodyTop = Math.min(openY, closeY);
-          const bodyHeight = Math.max(2, Math.abs(closeY - openY));
-          ctx.fillRect(x - width / 2, bodyTop, width, bodyHeight);
-        });
-        ctx.restore();
-      }
-    };
-    Chart.register(candleOverlayPlugin);
-    function selectedPriceCandleWindow(){
-      return PRICE_CANDLE_WINDOWS.find(item=>item.key===state.priceCandleWindow) || PRICE_CANDLE_WINDOWS[0];
-    }
-    function aggregatePriceCandles(rows){
-      const bucketMs = selectedPriceCandleWindow().hours * 3600000;
-      const grouped = new Map();
-      rows.forEach(row=>{
-        const price = Number(row.markPrice);
-        const time = Number(row.fundingTime);
-        if(!Number.isFinite(price) || !Number.isFinite(time)) return;
-        const bucket = Math.floor(time / bucketMs) * bucketMs;
-        if(!grouped.has(bucket)){
-          grouped.set(bucket, { time:bucket, open:price, high:price, low:price, close:price });
-          return;
-        }
-        const candle = grouped.get(bucket);
-        candle.high = Math.max(candle.high, price);
-        candle.low = Math.min(candle.low, price);
-        candle.close = price;
-      });
-      return Array.from(grouped.values()).sort((a,b)=>a.time-b.time).map(candle=>{
-        const pad = Math.max(Math.abs(candle.close - candle.open) * 0.25, Math.abs(candle.close || candle.open || 1) * 0.00015);
-        return {
-          ...candle,
-          high:Math.max(candle.high, candle.open, candle.close) + pad,
-          low:Math.min(candle.low, candle.open, candle.close) - pad,
-        };
-      });
-    }
-    function renderPriceChart(rows){
-      const ctx=document.getElementById('priceChart');
-      const candles=aggregatePriceCandles(rows);
-      const labels=candles.map(candle=>toKSTChartLabel(candle.time));
-      const values=candles.map(candle=>candle.close);
-      if(state.priceChart) state.priceChart.destroy();
-      state.priceChart=new Chart(ctx,{ type:'line', data:{ labels, datasets:[{ label:'Mark Price', data:values, borderColor:'rgba(0,192,118,0)', backgroundColor:'rgba(0,192,118,0)', borderWidth:0, pointRadius:0, pointHoverRadius:0, tension:0 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98' }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ display:false }, tooltip:{ mode:'index', intersect:false, callbacks:{ label:context=>{ const candle=state.priceChart.$ohlcData && state.priceChart.$ohlcData[context.dataIndex]; return candle ? `O ${fmtNumber(candle.open)}  H ${fmtNumber(candle.high)}  L ${fmtNumber(candle.low)}  C ${fmtNumber(candle.close)}` : `Mark ${fmtNumber(context.parsed.y)}`; } } } }, interaction:{ mode:'index', intersect:false } } });
-      state.priceChart.$isCandleChart=true;
-      state.priceChart.$fullLabels=labels;
-      state.priceChart.$fullData=values;
-      state.priceChart.$fullOhlcData=candles;
-      state.priceChart.$ohlcData=candles;
-      state.priceChart.$zoomStart=0;
-      state.priceChart.$zoomEnd=Math.max(0, labels.length - 1);
-      enableWheelZoom(state.priceChart, ctx);
-    }
-
     function formatCountdown(nextFundingTime){
       if (!nextFundingTime) return t('fetchFailed');
       const diff = nextFundingTime - Date.now();
@@ -714,19 +555,6 @@ import { state } from './state.js';
       };
       renderCountdown();
       state.countdownTimer=setInterval(renderCountdown,1000);
-    }
-
-    function renderChart(rows){
-      const ctx=document.getElementById('fundingChart');
-      const labels=rows.map(r=>toKSTChartLabel(r.fundingTime));
-      const values=rows.map(r=>r.fundingRate*100);
-      if(state.chart) state.chart.destroy();
-      state.chart=new Chart(ctx,{ type:'line', data:{ labels, datasets:[{ label:'Funding Rate', data:values, borderColor:'#23e7a5', backgroundColor:'rgba(35,231,165,0.13)', borderWidth:2, fill:true, pointRadius:0, pointHoverRadius:4, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98', callback:v=>`${v.toFixed(3)}%` }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ labels:{ color:'#dce3ea' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } });
-      state.chart.$fullLabels=labels;
-      state.chart.$fullData=values;
-      state.chart.$zoomStart=0;
-      state.chart.$zoomEnd=Math.max(0, labels.length - 1);
-      enableWheelZoom(state.chart, ctx);
     }
 
     function getLatestForPair(pairKey, pair){
@@ -819,38 +647,6 @@ import { state } from './state.js';
       }).filter(Boolean);
     }
 
-    function renderFundingBars(containerId, stats){
-      const bars=document.getElementById(containerId);
-      bars.innerHTML='';
-      const sorted=stats.slice().sort((a,b)=>b.fee-a.fee);
-      if(!sorted.length){
-        const empty=document.createElement('div');
-        empty.className='mini';
-        empty.textContent=t('noData');
-        bars.appendChild(empty);
-        return;
-      }
-      const maxAbs=Math.max(...sorted.map(item=>Math.abs(item.fee)), 0.000001);
-      sorted.forEach(item=>{
-        const row=document.createElement('div');
-        row.className='funding-bar-row';
-        const name=document.createElement('div');
-        name.className='funding-bar-name';
-        name.textContent=item.pair.exchange;
-        const track=document.createElement('div');
-        track.className='funding-bar-track';
-        const fill=document.createElement('div');
-        fill.className='funding-bar-fill ' + feeTone(item.fee);
-        fill.style.width=`${Math.max(3, Math.min(50, Math.abs(item.fee) / maxAbs * 50))}%`;
-        track.appendChild(fill);
-        const value=document.createElement('div');
-        value.className='funding-bar-value ' + feeTone(item.fee);
-        value.textContent=fmtSignedPct(item.fee);
-        row.append(name, track, value);
-        bars.appendChild(row);
-      });
-    }
-
     function renderExchangeTabs(){
       const tabs=document.getElementById('exchangeTabs');
       tabs.innerHTML='';
@@ -871,51 +667,6 @@ import { state } from './state.js';
         btn.onclick=()=>selectPair(pairKey);
         tabs.appendChild(btn);
       });
-    }
-
-    function renderSpreadInsights(stats, ids={
-      spreadValue:'fundingSpreadValue',
-      spreadMeta:'fundingSpreadMeta',
-      alertValue:'spreadAlertValue',
-      alertMeta:'spreadAlertMeta',
-    }){
-      const spreadValue=document.getElementById(ids.spreadValue);
-      const spreadMeta=document.getElementById(ids.spreadMeta);
-      const alertValue=document.getElementById(ids.alertValue);
-      const alertMeta=document.getElementById(ids.alertMeta);
-      if(!stats.length){
-        spreadValue.textContent='-';
-        spreadValue.className='value warn';
-        spreadMeta.textContent='-';
-        alertValue.textContent='-';
-        alertValue.className='value warn';
-        alertMeta.textContent='-';
-        alertMeta.className='mini warn';
-        return;
-      }
-      const sorted=stats.slice().sort((a,b)=>b.fee-a.fee);
-      const high=sorted[0];
-      const low=sorted[sorted.length-1];
-      const spread=high.fee-low.fee;
-      const annualSpread = high.annualized != null && low.annualized != null
-        ? high.annualized - low.annualized
-        : null;
-      spreadValue.textContent=annualSpread == null || Number.isNaN(annualSpread)
-        ? fmtAbsPct(spread)
-        : `${fmtAbsPct(spread)} / ${fmtAbsAnnual(annualSpread)}`;
-      spreadValue.className='value warn';
-      spreadMeta.textContent=`${high.pair.exchange} - ${low.pair.exchange}`;
-      const alert=spreadAlertLevel(annualSpread);
-      alertValue.innerHTML='';
-      alertValue.className='value with-alert ' + alert.tone;
-      const alertNumber=document.createElement('span');
-      alertNumber.textContent=annualSpread == null || Number.isNaN(annualSpread) ? '-' : fmtAbsAnnual(annualSpread);
-      const alertLabel=document.createElement('span');
-      alertLabel.className='alert-inline';
-      alertLabel.textContent=alert.label;
-      alertValue.append(alertNumber, alertLabel);
-      alertMeta.textContent=stats.length ? `${stats.length}${state.lang === 'ko' ? '개 거래소 비교' : ' exchanges compared'}` : '-';
-      alertMeta.className='mini ' + alert.tone;
     }
 
     function renderPeriodBestWorst(){
@@ -1011,7 +762,7 @@ import { state } from './state.js';
       renderSpreadInsights(stats);
       renderPeriodBestWorst();
 
-      renderFundingBars('fundingBars', longSorted);
+      renderFundingBars('fundingBars', longSorted, feeTone);
     }
 
     function renderPaymentCounts(rows){
@@ -1066,7 +817,7 @@ import { state } from './state.js';
         alertValue:'periodSpreadAlertValue',
         alertMeta:'periodSpreadAlertMeta',
       });
-      renderFundingBars('periodFundingBars', periodStats);
+      renderFundingBars('periodFundingBars', periodStats, feeTone);
       renderPaymentCounts(rows);
       const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedAsset)?'★':'☆')+' '+t('favorite');
       const periodFee = periodFundingFee(windowSummary);
