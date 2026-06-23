@@ -3,7 +3,6 @@ import {
   ASSET_LOGO_DOMAINS,
   ASSET_NAME_OVERRIDES,
   AUTH_BACKEND_CONFIGURED,
-  COMPARISON_INTERVAL_HOURS,
   FX_LATEST_URL,
   FX_REFERENCE_URL,
   LIVE_REFRESH_MS,
@@ -15,6 +14,17 @@ import {
 import { fetchLiveLatest, loadDashboardData } from './api.js';
 import { bindUiEvents } from './events.js?v=8';
 import { I18N, t } from './i18n.js';
+import {
+  comparisonAnnualized as buildComparisonAnnualized,
+  currentComparisonStats as buildCurrentComparisonStats,
+  feeDirection,
+  feeTone,
+  fmtIntervalHours,
+  fundingFeeValue,
+  intervalHoursFor,
+  periodComparisonStats as buildPeriodComparisonStats,
+  periodFundingFee,
+} from './metrics.js?v=9';
 import { renderAssetSummary as renderAssetSummaryView } from './render/asset-summary.js';
 import { renderChart, renderPriceChart } from './render/charts.js';
 import { renderComparisons as renderComparisonsView, renderExchangeTabs as renderExchangeTabsView } from './render/comparisons.js';
@@ -150,57 +160,11 @@ import { state } from './state.js';
         img.removeAttribute('src');
       }
     }
-    function fundingFeeValue(latest){
-      if(latest.longFundingFee != null) return Number(latest.longFundingFee);
-      return latest.lastFundingRate == null ? null : -Number(latest.lastFundingRate);
-    }
-    function shortFundingFeeValue(latest){
-      if(latest.shortFundingFee != null) return Number(latest.shortFundingFee);
-      return latest.lastFundingRate == null ? null : Number(latest.lastFundingRate);
-    }
-    function feeTone(value){
-      if(value == null || Number.isNaN(value)) return 'warn';
-      return value >= 0 ? 'good' : 'bad';
-    }
-    function feeDirection(value){
-      if(value == null || Number.isNaN(value)) return '-';
-      return value >= 0 ? 'Short -> Long' : 'Long -> Short';
-    }
     function exchangeSortWeight(exchange){
       return ['Hyperliquid','Binance','Bybit','Aster','OKX','Orbs Perps Hub','Variational'].indexOf(exchange);
     }
-    function intervalHoursFor(pair, latest={}){
-      if(latest.fundingIntervalHours) return Number(latest.fundingIntervalHours);
-      if(pair.fundingIntervalHours) return Number(pair.fundingIntervalHours);
-      return pair.exchange === 'Hyperliquid' ? 1 : 8;
-    }
-    function fmtIntervalHours(hours){
-      const value = Number(hours);
-      if(!Number.isFinite(value)) return '-';
-      return `${Number.isInteger(value) ? value : value.toFixed(1).replace(/\.0$/,'')}H`;
-    }
-    function annualizedFromFee(pair, fee, latest={}){
-      if(fee == null || Number.isNaN(fee)) return null;
-      return fee * (24 / intervalHoursFor(pair, latest)) * 365 * 100;
-    }
-    function comparableFeeFromAnnualized(annualizedPct){
-      const value=Number(annualizedPct);
-      if(!Number.isFinite(value)) return null;
-      return value / 100 / (24 / COMPARISON_INTERVAL_HOURS * 365);
-    }
-    function periodFundingFee(summary){
-      if(!summary || summary.avgFundingRate == null || Number.isNaN(summary.avgFundingRate)) return null;
-      return -Number(summary.avgFundingRate);
-    }
     function comparisonAnnualized(pairKey, pair, latest){
-      const fee = fundingFeeValue(latest);
-      const annualized = annualizedFromFee(pair, fee, latest);
-      if(annualized != null && !Number.isNaN(annualized)) return annualized;
-      const summary = pair.windows && pair.windows[state.selectedWindow];
-      return summary ? summary.annualizedPct : null;
-    }
-    function comparisonShortAnnualized(pair, latest){
-      return annualizedFromFee(pair, shortFundingFeeValue(latest), latest);
+      return buildComparisonAnnualized(pair, latest, state.selectedWindow);
     }
     function trackLocalVisit(){
       const today = new Date().toISOString().slice(0,10);
@@ -524,90 +488,27 @@ import { state } from './state.js';
       return state.liveLatestByPair[pairKey] || pair.latest || {};
     }
 
-    function metricEntryToComparisonItem(entry){
-      const pair=state.data.pairs[entry.pairKey];
-      if(!pair) return null;
-      return {
-        pairKey:entry.pairKey,
-        pair,
-        latest:getLatestForPair(entry.pairKey, pair),
-        fee:entry.longFundingFee8h,
-        shortFee:entry.shortFundingFee8h,
-        rawFee:entry.rawLongFundingFee,
-        rawShortFee:entry.rawShortFundingFee,
-        annualized:entry.annualizedPct,
-        shortAnnualized:entry.shortAnnualizedPct,
-        reliabilityStatus:entry.reliabilityStatus,
-      };
-    }
-
-    function serverAssetMetrics(asset=state.selectedAsset){
-      return state.data && state.data.assetMetrics ? state.data.assetMetrics[asset] : null;
-    }
-
-    function serverPeriodComparisonStats(windowKey){
-      const metrics=serverAssetMetrics();
-      const entries=metrics && metrics.windows && metrics.windows[windowKey] ? metrics.windows[windowKey].exchanges : null;
-      if(!entries || !entries.length) return null;
-      return entries.map(metricEntryToComparisonItem).filter(Boolean);
-    }
-
-    function serverCurrentComparisonStats(){
-      const metrics=serverAssetMetrics();
-      const entries=metrics && metrics.current ? metrics.current.exchanges : null;
-      if(!entries || !entries.length) return null;
-      return entries.map(metricEntryToComparisonItem).filter(Boolean);
-    }
-
     function getComparisonStats(){
-      const selected=state.data.pairs[state.selectedPair];
-      const hasLiveForAsset=getPairsForAsset(assetId(selected)).some(([pairKey])=>state.liveLatestByPair[pairKey]);
-      const serverStats=hasLiveForAsset ? null : serverCurrentComparisonStats();
-      if(serverStats) return serverStats;
-      return getPairsForAsset(assetId(selected)).map(([pairKey, pair])=>{
-        const latest=getLatestForPair(pairKey, pair);
-        const rawFee=fundingFeeValue(latest);
-        const rawShortFee=shortFundingFeeValue(latest);
-        const annualized=comparisonAnnualized(pairKey, pair, latest);
-        const shortAnnualized=comparisonShortAnnualized(pair, latest);
-        const fee=comparableFeeFromAnnualized(annualized);
-        const shortFee=comparableFeeFromAnnualized(shortAnnualized);
-        return {
-          pairKey,
-          pair,
-          latest,
-          fee,
-          shortFee,
-          rawFee,
-          rawShortFee,
-          annualized,
-          shortAnnualized,
-        };
-      }).filter(item=>item.fee != null && !Number.isNaN(item.fee) && item.shortFee != null && !Number.isNaN(item.shortFee));
+      return buildCurrentComparisonStats({
+        data:state.data,
+        selectedPair:state.selectedPair,
+        selectedAsset:state.selectedAsset,
+        selectedWindow:state.selectedWindow,
+        liveLatestByPair:state.liveLatestByPair,
+        getPairsForAsset,
+        getLatestForPair,
+      });
     }
 
     function periodComparisonStats(windowKey){
-      const serverStats=serverPeriodComparisonStats(windowKey);
-      if(serverStats) return serverStats;
-      const selected=state.data.pairs[state.selectedPair];
-      return getPairsForAsset(assetId(selected)).map(([pairKey, pair])=>{
-        const summary=pair.windows && pair.windows[windowKey];
-        if(!summary || !summary.count) return null;
-        const longAnnualized=summary.annualizedPct;
-        const longFee=comparableFeeFromAnnualized(longAnnualized);
-        if(longFee == null || Number.isNaN(longFee)) return null;
-        return {
-          pairKey,
-          pair,
-          fee:longFee,
-          shortFee:comparableFeeFromAnnualized(-longAnnualized),
-          rawFee:periodFundingFee(summary),
-          rawShortFee:-periodFundingFee(summary),
-          annualized:longAnnualized,
-          shortAnnualized:longAnnualized == null || Number.isNaN(longAnnualized) ? null : -longAnnualized,
-          count:summary.count || 0,
-        };
-      }).filter(Boolean);
+      return buildPeriodComparisonStats({
+        data:state.data,
+        selectedPair:state.selectedPair,
+        selectedAsset:state.selectedAsset,
+        windowKey,
+        getPairsForAsset,
+        getLatestForPair,
+      });
     }
 
     function renderExchangeTabs(){ renderExchangeTabsView(comparisonRenderDeps()); }
