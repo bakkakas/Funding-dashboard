@@ -94,6 +94,9 @@
     .support-insight-box .label { font-size:12px; }
     .support-insight-box .value { margin-top:7px; font-size:22px; line-height:1; font-weight:850; font-variant-numeric:tabular-nums; }
     .support-insight-box .mini { margin-top:7px; font-size:12px; }
+    .support-insight-box .mini.good { color:var(--good); }
+    .support-insight-box .mini.bad { color:var(--bad); }
+    .support-insight-box .mini.warn { color:var(--warn); }
     .period-summary-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:14px; }
     .period-summary-box { border:1px solid var(--line); border-radius:8px; padding:10px; background:rgba(16,32,25,0.55); }
     .period-summary-title { color:var(--accent); font-size:13px; font-weight:900; margin-bottom:8px; }
@@ -303,6 +306,11 @@
             </div>
           </div>
         </div>
+        <div class="funding-bars-block">
+          <div class="compact-title" id="periodFundingBarsTitle" data-i18n="selectedPeriodFundingComparison">선택 기간 Funding Fee 비교</div>
+          <div class="funding-bars" id="periodFundingBars"></div>
+          <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend">양수 = Short -> Long</span><span class="legend-bad" data-i18n="negativeLegend">음수 = Long -> Short</span></div>
+        </div>
         <div class="period-summary-grid" id="periodBestWorst"></div>
       </div>
     </div>
@@ -496,7 +504,8 @@
         fundingHistory:'회차별 Funding History', direction:'Direction',
         noSearchResults:'검색 결과 없음', rank:'순위', longFavored:'Long 유리', shortFavored:'Short 유리',
         fundingSpread:'Funding Spread', spreadAlert:'Spread Alert', currentFundingComparison:'현재 Funding Fee 비교',
-        noAlert:'정상', alertWide:'차이 큼', spreadThreshold:'20%p 이상', periodBestWorst:'기간별 Best / Worst',
+        selectedPeriodFundingComparison:'선택 기간 Funding Fee 비교',
+        noAlert:'정상', alertNarrow:'차이 적음', alertWide:'차이 큼', spreadThreshold:'20%p 이상', periodBestWorst:'기간별 Best / Worst',
         bestLong:'Long 유리', bestShort:'Short 유리', noData:'데이터 없음',
         mark:'Mark', index:'Index', currentPrice:'현재 가격', updated:'Updated',
         authSynced:'계정과 즐겨찾기가 클라우드에 동기화돼.',
@@ -524,7 +533,8 @@
         fundingHistory:'Funding History By Round', direction:'Direction',
         noSearchResults:'No results', rank:'Rank', longFavored:'Long favored', shortFavored:'Short favored',
         fundingSpread:'Funding Spread', spreadAlert:'Spread Alert', currentFundingComparison:'Current funding fee comparison',
-        noAlert:'Normal', alertWide:'Wide spread', spreadThreshold:'20pp or more', periodBestWorst:'Period Best / Worst',
+        selectedPeriodFundingComparison:'Selected-period funding fee comparison',
+        noAlert:'Normal', alertNarrow:'Small spread', alertWide:'Wide spread', spreadThreshold:'20pp or more', periodBestWorst:'Period Best / Worst',
         bestLong:'Best long', bestShort:'Best short', noData:'No data',
         mark:'Mark', index:'Index', currentPrice:'Current price', updated:'Updated',
         authSynced:'Account and favorites are synced to the cloud.',
@@ -690,6 +700,13 @@
     function feeTone(value){
       if(value == null || Number.isNaN(value)) return 'warn';
       return value >= 0 ? 'good' : 'bad';
+    }
+    function spreadAlertLevel(annualSpread){
+      const absSpread=Math.abs(Number(annualSpread));
+      if(!Number.isFinite(absSpread)) return { label:'-', tone:'warn' };
+      if(absSpread >= 20) return { label:t('alertWide'), tone:'bad' };
+      if(absSpread >= 5) return { label:t('alertNarrow'), tone:'warn' };
+      return { label:t('noAlert'), tone:'good' };
     }
     function feeDirection(value){
       if(value == null || Number.isNaN(value)) return '-';
@@ -1347,6 +1364,38 @@
       }).filter(Boolean);
     }
 
+    function renderFundingBars(containerId, stats){
+      const bars=document.getElementById(containerId);
+      bars.innerHTML='';
+      const sorted=stats.slice().sort((a,b)=>b.fee-a.fee);
+      if(!sorted.length){
+        const empty=document.createElement('div');
+        empty.className='mini';
+        empty.textContent=t('noData');
+        bars.appendChild(empty);
+        return;
+      }
+      const maxAbs=Math.max(...sorted.map(item=>Math.abs(item.fee)), 0.000001);
+      sorted.forEach(item=>{
+        const row=document.createElement('div');
+        row.className='funding-bar-row';
+        const name=document.createElement('div');
+        name.className='funding-bar-name';
+        name.textContent=item.pair.exchange;
+        const track=document.createElement('div');
+        track.className='funding-bar-track';
+        const fill=document.createElement('div');
+        fill.className='funding-bar-fill ' + feeTone(item.fee);
+        fill.style.width=`${Math.max(3, Math.min(50, Math.abs(item.fee) / maxAbs * 50))}%`;
+        track.appendChild(fill);
+        const value=document.createElement('div');
+        value.className='funding-bar-value ' + feeTone(item.fee);
+        value.textContent=fmtSignedPct(item.fee);
+        row.append(name, track, value);
+        bars.appendChild(row);
+      });
+    }
+
     function renderExchangeTabs(){
       const tabs=document.getElementById('exchangeTabs');
       tabs.innerHTML='';
@@ -1372,6 +1421,7 @@
         alertValue.textContent='-';
         alertValue.className='value warn';
         alertMeta.textContent='-';
+        alertMeta.className='mini warn';
         return;
       }
       const sorted=stats.slice().sort((a,b)=>b.fee-a.fee);
@@ -1381,17 +1431,16 @@
       const annualSpread = high.annualized != null && low.annualized != null
         ? high.annualized - low.annualized
         : null;
-      spreadValue.textContent=fmtSignedPct(spread);
+      spreadValue.textContent=annualSpread == null || Number.isNaN(annualSpread)
+        ? fmtSignedPct(spread)
+        : `${fmtSignedPct(spread)} / ${fmtAnnual(annualSpread)}`;
       spreadValue.className='value ' + feeTone(spread);
-      spreadMeta.textContent=annualSpread == null || Number.isNaN(annualSpread)
-        ? `${high.pair.exchange} - ${low.pair.exchange}`
-        : `${fmtAnnual(annualSpread)} Annualized / ${high.pair.exchange} - ${low.pair.exchange}`;
-      const isWide=annualSpread != null && Math.abs(annualSpread) >= 20;
-      alertValue.textContent=isWide ? t('alertWide') : t('noAlert');
-      alertValue.className='value ' + (isWide ? 'warn' : 'good');
-      alertMeta.textContent=isWide
-        ? `${t('spreadThreshold')} / ${fmtAnnual(annualSpread)}`
-        : `${stats.length}${state.lang === 'ko' ? '개 거래소 비교 중' : ' exchanges compared'}`;
+      spreadMeta.textContent=`${high.pair.exchange} - ${low.pair.exchange}`;
+      const alert=spreadAlertLevel(annualSpread);
+      alertValue.textContent=annualSpread == null || Number.isNaN(annualSpread) ? '-' : fmtAnnual(annualSpread);
+      alertValue.className='value ' + alert.tone;
+      alertMeta.textContent=alert.label;
+      alertMeta.className='mini ' + alert.tone;
     }
 
     function renderPeriodBestWorst(){
@@ -1481,27 +1530,7 @@
       renderSpreadInsights(stats);
       renderPeriodBestWorst();
 
-      const bars=document.getElementById('fundingBars');
-      bars.innerHTML='';
-      const maxAbs=Math.max(...longSorted.map(item=>Math.abs(item.fee)), 0.000001);
-      longSorted.forEach(item=>{
-        const row=document.createElement('div');
-        row.className='funding-bar-row';
-        const name=document.createElement('div');
-        name.className='funding-bar-name';
-        name.textContent=item.pair.exchange;
-        const track=document.createElement('div');
-        track.className='funding-bar-track';
-        const fill=document.createElement('div');
-        fill.className='funding-bar-fill ' + feeTone(item.fee);
-        fill.style.width=`${Math.max(3, Math.min(50, Math.abs(item.fee) / maxAbs * 50))}%`;
-        track.appendChild(fill);
-        const value=document.createElement('div');
-        value.className='funding-bar-value ' + feeTone(item.fee);
-        value.textContent=fmtSignedPct(item.fee);
-        row.append(name, track, value);
-        bars.appendChild(row);
-      });
+      renderFundingBars('fundingBars', longSorted);
     }
 
     function renderPaymentCounts(rows){
@@ -1545,6 +1574,12 @@
       const comparisonStats=getComparisonStats();
       renderExchangeTabs();
       renderFundingInsights(comparisonStats, state.selectedPair, latest);
+      const periodStats=periodComparisonStats(state.selectedWindow);
+      const periodBarsTitle=document.getElementById('periodFundingBarsTitle');
+      periodBarsTitle.textContent=state.lang === 'ko'
+        ? `${selectedWindowLabel()} Funding Fee 비교`
+        : `${selectedWindowLabel()} funding fee comparison`;
+      renderFundingBars('periodFundingBars', periodStats);
       renderPaymentCounts(rows);
       const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedAsset)?'★':'☆')+' '+t('favorite');
       const periodFee = periodFundingFee(windowSummary);
