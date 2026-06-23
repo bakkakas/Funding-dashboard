@@ -582,6 +582,7 @@
     const fmtSignedPct = v => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(4)}%`;
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
     const COMPARISON_INTERVAL_HOURS = 8;
+    const STANDARD_USDT_DISPLAY_ASSETS = new Set(['BTC','ETH','SOL','BNB']);
     const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const fmtFx = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
     const ASSET_NAME_OVERRIDES = {
@@ -656,6 +657,7 @@
       return override || pair.assetName || displaySymbol(pair);
     }
     function pairDisplayName(pair){
+      if(STANDARD_USDT_DISPLAY_ASSETS.has(assetId(pair))) return `${displaySymbol(pair)}:USDT`;
       if(pair.exchange === 'Hyperliquid') return pair.symbol;
       if(pair.exchange === 'OKX' && pair.symbol.endsWith('-USDT-SWAP')) return `${pair.symbol.replace('-USDT-SWAP', '')}:USDT`;
       if(pair.symbol.endsWith('USDT')) return `${pair.symbol.slice(0, -4)}:USDT`;
