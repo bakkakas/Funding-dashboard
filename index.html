@@ -123,6 +123,9 @@
     .asset-title-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     .asset-window-tabs { margin:0 0 0 8px; gap:6px; }
     .asset-window-tabs .chip { padding:7px 10px; }
+    .asset-exchange-tabs { margin:10px 0 0; gap:6px; }
+    .asset-exchange-tabs .chip { padding:7px 10px; }
+    .asset-exchange-tabs .exchange-logo { width:18px; height:18px; flex-basis:18px; }
     .asset-symbol { font-size:22px; font-weight:850; color:#f3fff8; }
     .asset-badge { border:1px solid rgba(220,232,223,0.18); border-radius:6px; padding:2px 6px; color:var(--muted); font-size:11px; font-weight:850; }
     .asset-name { margin-top:4px; color:var(--muted); font-size:13px; font-weight:700; }
@@ -239,6 +242,7 @@
             <div class="toolbar2 asset-window-tabs" id="windowTabs"></div>
           </div>
           <div class="asset-name" id="assetHeaderName">-</div>
+          <div class="exchange-tabs asset-exchange-tabs" id="exchangeTabs"></div>
         </div>
       </div>
       <div class="asset-metrics">
@@ -300,7 +304,6 @@
       </div>
       <div class="card top-panel insight-panel">
         <h3 class="section-title" id="coreTitle">선택 기간 Funding Fee 방향 : -</h3>
-        <div class="exchange-tabs" id="exchangeTabs"></div>
         <div class="rate-combo">
           <div class="rate-item"><div class="label" data-i18n="selectedAvgFundingFee">선택 기간 평균 Funding Fee</div><div class="value" id="latestFunding">-</div></div>
           <div class="rate-item"><div class="label" data-i18n="avgAnnualized">평균 Annualized</div><div class="value" id="annualized">-</div></div>
@@ -1516,7 +1519,16 @@
         const btn=document.createElement('button');
         btn.type='button';
         btn.className='chip' + (pairKey===state.selectedPair ? ' active' : '');
-        btn.textContent=pair.exchange;
+        const label=document.createElement('span');
+        label.className='exchange-label';
+        const logo=document.createElement('img');
+        logo.className='exchange-logo';
+        logo.alt='';
+        setLogoImage(logo, exchangeLogoUrl(pair.exchange), exchangeLogoFallbackUrl(pair.exchange));
+        const name=document.createElement('span');
+        name.textContent=pair.exchange;
+        label.append(logo, name);
+        btn.appendChild(label);
         btn.onclick=()=>selectPair(pairKey);
         tabs.appendChild(btn);
       });
