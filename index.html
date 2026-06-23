@@ -95,7 +95,9 @@
     .support-insight-box { border:1px solid var(--line); border-radius:8px; padding:10px; background:rgba(16,32,25,0.55); min-height:76px; }
     .support-insight-box .label { font-size:12px; }
     .support-insight-box .value { margin-top:7px; font-size:22px; line-height:1; font-weight:850; font-variant-numeric:tabular-nums; }
+    .support-insight-box .value.with-alert { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
     .support-insight-box .value.info { color:var(--calm-good); }
+    .alert-inline { font-size:inherit; font-weight:850; }
     .support-insight-box .mini { margin-top:7px; font-size:12px; }
     .support-insight-box .mini.info { color:var(--calm-good); }
     .support-insight-box .mini.good { color:var(--good); }
@@ -119,6 +121,8 @@
     .asset-logo-fallback { position:absolute; inset:0; display:grid; place-items:center; color:#b21d2b; font-size:12px; font-weight:900; }
     .asset-logo.loaded + .asset-logo-fallback { display:none; }
     .asset-title-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .asset-window-tabs { margin:0 0 0 8px; gap:6px; }
+    .asset-window-tabs .chip { padding:7px 10px; }
     .asset-symbol { font-size:22px; font-weight:850; color:#f3fff8; }
     .asset-badge { border:1px solid rgba(220,232,223,0.18); border-radius:6px; padding:2px 6px; color:var(--muted); font-size:11px; font-weight:850; }
     .asset-name { margin-top:4px; color:var(--muted); font-size:13px; font-weight:700; }
@@ -126,6 +130,7 @@
     .asset-metric { min-width:0; text-align:right; }
     .asset-metric-label { color:var(--muted); font-size:12px; font-weight:800; }
     .asset-price,.asset-metric-value { margin-top:6px; font-size:clamp(18px, 1.7vw, 27px); line-height:1; font-weight:850; font-variant-numeric:tabular-nums; }
+    .asset-direction-pill { background:transparent; padding:0; font-size:inherit; }
     .asset-price { color:var(--good); }
     .asset-metric-value.good { color:var(--good); }
     .asset-metric-value.bad { color:var(--bad); }
@@ -221,7 +226,6 @@
 
     <div class="toolbar"><div class="asset-search-wrap"><input id="assetSearch" class="field pair-select" data-i18n-placeholder="assetSearchPlaceholder" placeholder="종목명 검색" autocomplete="off" /><div id="assetDropdown" class="asset-dropdown"></div></div><select id="sortMode" class="field"><option value="symbol" data-i18n="sortName">이름순</option><option value="annualized_desc" data-i18n="sortAnnualHigh">Annualized 높은순</option><option value="annualized_asc" data-i18n="sortAnnualLow">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
     <div class="toolbar" id="favoriteTabs"></div>
-    <div class="toolbar2" id="windowTabs"></div>
     <div class="card asset-summary-card">
       <div class="asset-identity">
         <div class="asset-logo-wrap">
@@ -232,6 +236,7 @@
           <div class="asset-title-row">
             <span class="asset-symbol" id="assetHeaderSymbol">-</span>
             <span class="asset-badge">Perp</span>
+            <div class="toolbar2 asset-window-tabs" id="windowTabs"></div>
           </div>
           <div class="asset-name" id="assetHeaderName">-</div>
         </div>
@@ -255,12 +260,12 @@
         <div class="asset-metric">
           <div class="asset-metric-label" data-i18n="sumFunding">누적 funding 합계</div>
           <div class="asset-metric-value" id="sumFunding">-</div>
-          <div class="asset-metric-meta" id="sumFundingMeta">-</div>
+          <div class="asset-metric-meta" id="sumFundingMeta"></div>
         </div>
         <div class="asset-metric">
           <div class="asset-metric-label" data-i18n="interpretation">해석</div>
           <div class="asset-metric-value" id="interpretation">-</div>
-          <div class="asset-metric-meta" data-i18n="selectedWindow">선택 기간</div>
+          <div class="asset-metric-meta" id="interpretationMeta"></div>
         </div>
       </div>
     </div>
@@ -299,6 +304,18 @@
         <div class="rate-combo">
           <div class="rate-item"><div class="label" data-i18n="selectedAvgFundingFee">선택 기간 평균 Funding Fee</div><div class="value" id="latestFunding">-</div></div>
           <div class="rate-item"><div class="label" data-i18n="avgAnnualized">평균 Annualized</div><div class="value" id="annualized">-</div></div>
+        </div>
+        <div class="support-insights">
+          <div class="support-insight-box">
+            <div class="label" data-i18n="fundingSpread">Funding Spread</div>
+            <div class="value" id="periodFundingSpreadValue">-</div>
+            <div class="mini" id="periodFundingSpreadMeta">-</div>
+          </div>
+          <div class="support-insight-box">
+            <div class="label" data-i18n="spreadAlert">Spread Alert</div>
+            <div class="value" id="periodSpreadAlertValue">-</div>
+            <div class="mini" id="periodSpreadAlertMeta">-</div>
+          </div>
         </div>
         <div class="funding-detail-grid">
           <div class="detail-box"><div class="label" data-i18n="markIndexGap">Mark / Index 차이</div><div class="detail-value" id="markIndexGap">-</div></div>
@@ -527,7 +544,7 @@
         nextFunding:'다음 Funding', nextFundingMini:'다음 정산까지 남은 시간', settlementTime:'정산 시각',
         settlementTimeFailed:'정산 시각 조회 실패', fetchFailed:'조회 실패', settling:'정산 중 / 갱신 대기',
         avgFundingPerRound:'평균 Funding Fee / 회', recentWindowAvg:'최근 선택 구간 평균',
-        summary:'요약', firstRound:'첫 회차', lastRound:'마지막 회차', sumFunding:'누적 funding 합계', interpretation:'해석', selectedWindow:'선택 기간',
+        summary:'요약', firstRound:'첫 회차', lastRound:'마지막 회차', sumFunding:'누적 funding 합계', interpretation:'지급방향', selectedWindow:'선택 기간',
         priceChart:'Price Chart', fundingRateChart:'Funding Rate Chart',
         fundingHistory:'회차별 Funding History', direction:'Direction',
         noSearchResults:'검색 결과 없음', rank:'순위', longFavored:'Long 유리', shortFavored:'Short 유리',
@@ -556,7 +573,7 @@
         nextFunding:'Next funding', nextFundingMini:'Time left until next settlement', settlementTime:'Settlement time',
         settlementTimeFailed:'Settlement time unavailable', fetchFailed:'Unavailable', settling:'Settling / waiting for update',
         avgFundingPerRound:'Average funding fee / round', recentWindowAvg:'Average over selected window',
-        summary:'Summary', firstRound:'First round', lastRound:'Last round', sumFunding:'Cumulative funding sum', interpretation:'Interpretation', selectedWindow:'Selected window',
+        summary:'Summary', firstRound:'First round', lastRound:'Last round', sumFunding:'Cumulative funding sum', interpretation:'Payment direction', selectedWindow:'Selected window',
         priceChart:'Price Chart', fundingRateChart:'Funding Rate Chart',
         fundingHistory:'Funding History By Round', direction:'Direction',
         noSearchResults:'No results', rank:'Rank', longFavored:'Long favored', shortFavored:'Short favored',
@@ -580,7 +597,9 @@
     let orbsPerpsFundingCache = { time:0, promise:null };
     const fmtPct = v => `${(v * 100).toFixed(4)}%`;
     const fmtSignedPct = v => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(4)}%`;
+    const fmtAbsPct = v => `${Math.abs(v * 100).toFixed(4)}%`;
     const fmtAnnual = v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
+    const fmtAbsAnnual = v => `${Math.abs(v).toFixed(2)}%`;
     const COMPARISON_INTERVAL_HOURS = 8;
     const STANDARD_USDT_DISPLAY_ASSETS = new Set(['BTC','ETH','SOL','BNB']);
     const fmtNumber = v => Number(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
@@ -1503,11 +1522,16 @@
       });
     }
 
-    function renderSpreadInsights(stats){
-      const spreadValue=document.getElementById('fundingSpreadValue');
-      const spreadMeta=document.getElementById('fundingSpreadMeta');
-      const alertValue=document.getElementById('spreadAlertValue');
-      const alertMeta=document.getElementById('spreadAlertMeta');
+    function renderSpreadInsights(stats, ids={
+      spreadValue:'fundingSpreadValue',
+      spreadMeta:'fundingSpreadMeta',
+      alertValue:'spreadAlertValue',
+      alertMeta:'spreadAlertMeta',
+    }){
+      const spreadValue=document.getElementById(ids.spreadValue);
+      const spreadMeta=document.getElementById(ids.spreadMeta);
+      const alertValue=document.getElementById(ids.alertValue);
+      const alertMeta=document.getElementById(ids.alertMeta);
       if(!stats.length){
         spreadValue.textContent='-';
         spreadValue.className='value warn';
@@ -1526,14 +1550,20 @@
         ? high.annualized - low.annualized
         : null;
       spreadValue.textContent=annualSpread == null || Number.isNaN(annualSpread)
-        ? fmtSignedPct(spread)
-        : `${fmtSignedPct(spread)} / ${fmtAnnual(annualSpread)}`;
-      spreadValue.className='value ' + feeTone(spread);
+        ? fmtAbsPct(spread)
+        : `${fmtAbsPct(spread)} / ${fmtAbsAnnual(annualSpread)}`;
+      spreadValue.className='value warn';
       spreadMeta.textContent=`${high.pair.exchange} - ${low.pair.exchange}`;
       const alert=spreadAlertLevel(annualSpread);
-      alertValue.textContent=annualSpread == null || Number.isNaN(annualSpread) ? '-' : fmtAnnual(annualSpread);
-      alertValue.className='value ' + alert.tone;
-      alertMeta.textContent=alert.label;
+      alertValue.innerHTML='';
+      alertValue.className='value with-alert ' + alert.tone;
+      const alertNumber=document.createElement('span');
+      alertNumber.textContent=annualSpread == null || Number.isNaN(annualSpread) ? '-' : fmtAbsAnnual(annualSpread);
+      const alertLabel=document.createElement('span');
+      alertLabel.className='alert-inline';
+      alertLabel.textContent=alert.label;
+      alertValue.append(alertNumber, alertLabel);
+      alertMeta.textContent=stats.length ? `${stats.length}${state.lang === 'ko' ? '개 거래소 비교' : ' exchanges compared'}` : '-';
       alertMeta.className='mini ' + alert.tone;
     }
 
@@ -1673,6 +1703,12 @@
       periodBarsTitle.textContent=state.lang === 'ko'
         ? `${selectedWindowLabel()} Funding Fee 비교 (8H 환산)`
         : `${selectedWindowLabel()} funding fee comparison (8H eq.)`;
+      renderSpreadInsights(periodStats, {
+        spreadValue:'periodFundingSpreadValue',
+        spreadMeta:'periodFundingSpreadMeta',
+        alertValue:'periodSpreadAlertValue',
+        alertMeta:'periodSpreadAlertMeta',
+      });
       renderFundingBars('periodFundingBars', periodStats);
       renderPaymentCounts(rows);
       const favBtn=document.getElementById('favoriteToggle'); favBtn.textContent=(state.favorites.includes(state.selectedAsset)?'★':'☆')+' '+t('favorite');
@@ -1686,8 +1722,8 @@
       const sumFundingTone = windowSummary.sumFundingRate < 0 ? 'good' : 'bad';
       document.getElementById('sumFunding').textContent=fmtPct(windowSummary.sumFundingRate);
       document.getElementById('sumFunding').className='asset-metric-value '+sumFundingTone;
-      document.getElementById('sumFundingMeta').textContent=state.selectedWindow;
-      document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate < 0 ? '<span class="pill good">Short → Long</span>' : '<span class="pill bad">Long → Short</span>';
+      document.getElementById('sumFundingMeta').textContent='';
+      document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate < 0 ? '<span class="pill good asset-direction-pill">Short → Long</span>' : '<span class="pill bad asset-direction-pill">Long → Short</span>';
       document.getElementById('interpretation').className='asset-metric-value';
 
       const coreTitle = document.getElementById('coreTitle');
