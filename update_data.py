@@ -182,6 +182,7 @@ PAIRS.extend([
     {"symbol": "HYPEUSDT", "displaySymbol": "HYPE", "assetId": "HYPE", "assetName": "Hyperliquid", "exchange": "Orbs Perps Hub", "enabled": True},
 ])
 WINDOWS = {"1D": 1, "7D": 7, "30D": 30, "90D": 90}
+COMPARISON_INTERVAL_HOURS = 8
 DATA_PATH = Path("funding_data.json")
 MAX_RETRIES = 4
 RETRY_BASE_DELAY = 1.5
@@ -890,6 +891,165 @@ def summarize(rows, periods_per_day):
         "lastFundingTime": rows[-1]["fundingTime"],
     }
 
+def latest_long_fee(latest):
+    if latest.get("longFundingFee") is not None:
+        return float(latest["longFundingFee"])
+    if latest.get("lastFundingRate") is None:
+        return None
+    return -float(latest["lastFundingRate"])
+
+
+def latest_short_fee(latest):
+    if latest.get("shortFundingFee") is not None:
+        return float(latest["shortFundingFee"])
+    if latest.get("lastFundingRate") is None:
+        return None
+    return float(latest["lastFundingRate"])
+
+
+def annualized_from_fee(fee, interval_hours):
+    if fee is None:
+        return None
+    return fee * (24 / interval_hours) * 365 * 100
+
+
+def comparable_fee_from_annualized(annualized_pct):
+    if annualized_pct is None:
+        return None
+    return annualized_pct / 100 / (24 / COMPARISON_INTERVAL_HOURS * 365)
+
+
+def spread_alert_level(annualized_spread):
+    if annualized_spread is None:
+        return "unknown"
+    abs_spread = abs(annualized_spread)
+    if abs_spread >= 20:
+        return "wide"
+    if abs_spread >= 5:
+        return "narrow"
+    return "normal"
+
+
+def asset_reliability(pair, now_ms):
+    rows = pair.get("rows") or []
+    latest = pair.get("latest") or {}
+    interval = float(pair.get("fundingIntervalHours") or 8)
+    expected_90d = max(1, int(WINDOWS["90D"] * 24 / interval))
+    last_funding_time = rows[-1]["fundingTime"] if rows else None
+    freshness_time = latest.get("time") or latest.get("nextFundingTime") or last_funding_time
+    latest_age_hours = None
+    if freshness_time:
+        latest_age_hours = max(0, (now_ms - int(freshness_time)) / 3600000)
+    coverage = min(1, len(rows) / expected_90d)
+    latest_available = bool(latest.get("available", True)) and latest_long_fee(latest) is not None
+    if not pair.get("available") or not latest_available:
+        status = "unavailable"
+    elif coverage < 0.5:
+        status = "limited"
+    elif latest_age_hours is not None and latest_age_hours > max(24, interval * 4):
+        status = "stale"
+    else:
+        status = "ok"
+    return {
+        "status": status,
+        "historyRows": len(rows),
+        "historyCoveragePct": round(coverage * 100, 2),
+        "latestAgeHours": None if latest_age_hours is None else round(latest_age_hours, 2),
+    }
+
+
+def summarize_metric_entries(entries):
+    if not entries:
+        return {
+            "exchanges": [],
+            "spread": None,
+            "alertLevel": "unknown",
+            "longFavored": None,
+            "shortFavored": None,
+        }
+    long_sorted = sorted(entries, key=lambda item: item["longFundingFee8h"], reverse=True)
+    short_sorted = sorted(entries, key=lambda item: item["shortFundingFee8h"], reverse=True)
+    high = long_sorted[0]
+    low = long_sorted[-1]
+    annualized_spread = None
+    if high.get("annualizedPct") is not None and low.get("annualizedPct") is not None:
+        annualized_spread = high["annualizedPct"] - low["annualizedPct"]
+    spread_8h = high["longFundingFee8h"] - low["longFundingFee8h"]
+    return {
+        "exchanges": entries,
+        "spread": {
+            "highPairKey": high["pairKey"],
+            "lowPairKey": low["pairKey"],
+            "longFundingFee8h": spread_8h,
+            "annualizedPct": annualized_spread,
+        },
+        "alertLevel": spread_alert_level(annualized_spread),
+        "longFavored": long_sorted[0]["pairKey"],
+        "shortFavored": short_sorted[0]["pairKey"],
+    }
+
+
+def build_asset_metrics(data):
+    now_ms = data["updatedAt"]
+    grouped = {}
+    for key, pair in data["pairs"].items():
+        grouped.setdefault(pair.get("assetId", pair.get("displaySymbol", pair["symbol"])), []).append((key, pair))
+
+    metrics = {}
+    for asset_id, pairs in grouped.items():
+        current_entries = []
+        windows = {label: [] for label in WINDOWS}
+        reliability = {}
+        for key, pair in pairs:
+            interval = float(pair.get("fundingIntervalHours") or 8)
+            latest = pair.get("latest") or {}
+            long_fee = latest_long_fee(latest)
+            short_fee = latest_short_fee(latest)
+            long_annualized = annualized_from_fee(long_fee, interval)
+            short_annualized = annualized_from_fee(short_fee, interval)
+            reliability[key] = asset_reliability(pair, now_ms)
+            if long_annualized is not None and short_annualized is not None:
+                current_entries.append({
+                    "pairKey": key,
+                    "exchange": pair["exchange"],
+                    "symbol": pair["symbol"],
+                    "intervalHours": interval,
+                    "rawLongFundingFee": long_fee,
+                    "rawShortFundingFee": short_fee,
+                    "longFundingFee8h": comparable_fee_from_annualized(long_annualized),
+                    "shortFundingFee8h": comparable_fee_from_annualized(short_annualized),
+                    "annualizedPct": long_annualized,
+                    "shortAnnualizedPct": short_annualized,
+                    "reliabilityStatus": reliability[key]["status"],
+                })
+            for label, summary in (pair.get("windows") or {}).items():
+                if not summary or not summary.get("count"):
+                    continue
+                long_annualized = summary.get("annualizedPct")
+                if long_annualized is None:
+                    continue
+                windows[label].append({
+                    "pairKey": key,
+                    "exchange": pair["exchange"],
+                    "symbol": pair["symbol"],
+                    "intervalHours": interval,
+                    "rawLongFundingFee": -float(summary.get("avgFundingRate", 0)),
+                    "rawShortFundingFee": float(summary.get("avgFundingRate", 0)),
+                    "longFundingFee8h": comparable_fee_from_annualized(long_annualized),
+                    "shortFundingFee8h": comparable_fee_from_annualized(-long_annualized),
+                    "annualizedPct": long_annualized,
+                    "shortAnnualizedPct": -long_annualized,
+                    "count": summary.get("count", 0),
+                    "reliabilityStatus": reliability[key]["status"],
+                })
+        metrics[asset_id] = {
+            "comparisonIntervalHours": COMPARISON_INTERVAL_HOURS,
+            "current": summarize_metric_entries(current_entries),
+            "windows": {label: summarize_metric_entries(entries) for label, entries in windows.items()},
+            "reliability": reliability,
+        }
+    return metrics
+
 def main():
     previous = {}
     if DATA_PATH.exists():
@@ -902,6 +1062,7 @@ def main():
         "updatedAt": int(time.time() * 1000),
         "meta": {
             "windows": WINDOWS,
+            "comparisonIntervalHours": COMPARISON_INTERVAL_HOURS,
             "partialFailure": False,
             "errors": [],
             "notes": {
@@ -980,6 +1141,7 @@ def main():
                 pair_out["lastErrorAt"] = int(time.time() * 1000)
                 data["pairs"][key] = pair_out
 
+    data["assetMetrics"] = build_asset_metrics(data)
     DATA_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
 
 if __name__ == '__main__':

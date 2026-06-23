@@ -1372,8 +1372,46 @@
       return state.liveLatestByPair[pairKey] || pair.latest || {};
     }
 
+    function metricEntryToComparisonItem(entry){
+      const pair=state.data.pairs[entry.pairKey];
+      if(!pair) return null;
+      return {
+        pairKey:entry.pairKey,
+        pair,
+        latest:getLatestForPair(entry.pairKey, pair),
+        fee:entry.longFundingFee8h,
+        shortFee:entry.shortFundingFee8h,
+        rawFee:entry.rawLongFundingFee,
+        rawShortFee:entry.rawShortFundingFee,
+        annualized:entry.annualizedPct,
+        shortAnnualized:entry.shortAnnualizedPct,
+        reliabilityStatus:entry.reliabilityStatus,
+      };
+    }
+
+    function serverAssetMetrics(asset=state.selectedAsset){
+      return state.data && state.data.assetMetrics ? state.data.assetMetrics[asset] : null;
+    }
+
+    function serverPeriodComparisonStats(windowKey){
+      const metrics=serverAssetMetrics();
+      const entries=metrics && metrics.windows && metrics.windows[windowKey] ? metrics.windows[windowKey].exchanges : null;
+      if(!entries || !entries.length) return null;
+      return entries.map(metricEntryToComparisonItem).filter(Boolean);
+    }
+
+    function serverCurrentComparisonStats(){
+      const metrics=serverAssetMetrics();
+      const entries=metrics && metrics.current ? metrics.current.exchanges : null;
+      if(!entries || !entries.length) return null;
+      return entries.map(metricEntryToComparisonItem).filter(Boolean);
+    }
+
     function getComparisonStats(){
       const selected=state.data.pairs[state.selectedPair];
+      const hasLiveForAsset=getPairsForAsset(assetId(selected)).some(([pairKey])=>state.liveLatestByPair[pairKey]);
+      const serverStats=hasLiveForAsset ? null : serverCurrentComparisonStats();
+      if(serverStats) return serverStats;
       return getPairsForAsset(assetId(selected)).map(([pairKey, pair])=>{
         const latest=getLatestForPair(pairKey, pair);
         const rawFee=fundingFeeValue(latest);
@@ -1397,6 +1435,8 @@
     }
 
     function periodComparisonStats(windowKey){
+      const serverStats=serverPeriodComparisonStats(windowKey);
+      if(serverStats) return serverStats;
       const selected=state.data.pairs[state.selectedPair];
       return getPairsForAsset(assetId(selected)).map(([pairKey, pair])=>{
         const summary=pair.windows && pair.windows[windowKey];
