@@ -90,6 +90,23 @@
 python3 update_data.py
 ```
 
+## 텔레그램 알림 MVP
+`update_data.py` 실행 후 생성되는 `alerts.json`을 기준으로 high alert를 보낼 수 있습니다.
+
+미리보기:
+```bash
+python3 send_telegram_alerts.py --dry-run --limit 3
+```
+
+실제 발송:
+```bash
+TELEGRAM_BOT_TOKEN=... TELEGRAM_CHAT_ID=... python3 send_telegram_alerts.py
+```
+
+- 기본값은 `high` 알림만 최대 10개 발송합니다.
+- `alert_state.json`에 발송 이력을 저장해서 같은 alert 중복 발송을 막습니다.
+- GitHub Actions에서는 `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` secrets가 설정된 경우에만 발송합니다.
+
 ## GitHub Pages 배포
 이 저장소는 GitHub Pages root 배포를 기준으로 동작합니다.
 
