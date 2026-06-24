@@ -9,6 +9,7 @@ from funding_dashboard.metrics import (
     spread_alert_level,
     summarize,
 )
+from update_data import funding_interval_hours
 
 
 class FundingMetricTests(unittest.TestCase):
@@ -36,6 +37,10 @@ class FundingMetricTests(unittest.TestCase):
         four_hour_fee = 0.0001
         annualized = annualized_from_fee(four_hour_fee, 4)
         self.assertAlmostEqual(comparable_fee_from_annualized(annualized, 8), four_hour_fee * 2)
+
+    def test_aster_default_interval_is_8h(self):
+        pair = {"exchange": "Aster", "symbol": "BTCUSDT"}
+        self.assertEqual(funding_interval_hours(pair), 8)
 
     def test_summarize_uses_long_perspective_for_annualized(self):
         rows = [

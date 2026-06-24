@@ -86,8 +86,6 @@ def funding_interval_hours(pair):
         return float(pair["fundingIntervalHours"])
     if pair["exchange"] == "Hyperliquid":
         return 1
-    if pair["exchange"] == "Aster":
-        return 4
     return 8
 
 
@@ -461,7 +459,7 @@ def fetch_aster_latest(symbol):
             "indexPrice": float(row["indexPrice"]),
             "lastFundingRate": float(row["lastFundingRate"]),
             "nextFundingTime": int(row["nextFundingTime"]),
-            "fundingIntervalHours": 4,
+            "fundingIntervalHours": 8,
             "time": int(row.get("time") or time.time() * 1000),
             "available": True
         }
@@ -471,7 +469,7 @@ def fetch_aster_latest(symbol):
             "indexPrice": None,
             "lastFundingRate": None,
             "nextFundingTime": None,
-            "fundingIntervalHours": 4,
+            "fundingIntervalHours": 8,
             "time": None,
             "available": False,
             "error": str(e)

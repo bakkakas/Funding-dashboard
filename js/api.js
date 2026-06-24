@@ -105,7 +105,7 @@ export async function fetchLiveLatest(pairKey, pair){
       indexPrice: Number(row.indexPrice),
       lastFundingRate: Number(row.lastFundingRate),
       nextFundingTime: Number(row.nextFundingTime),
-      fundingIntervalHours: pair.fundingIntervalHours || 4,
+      fundingIntervalHours: pair.fundingIntervalHours || 8,
       time: Number(row.time) || Date.now(),
       available: true,
     };

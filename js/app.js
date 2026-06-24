@@ -11,7 +11,7 @@ import {
   SUPABASE_ANON_KEY,
   SUPABASE_FUNCTIONS_BASE_URL,
 } from './config.js';
-import { fetchLiveLatest, loadDashboardData } from './api.js';
+import { fetchLiveLatest, loadDashboardData } from './api.js?v=2';
 import { bindUiEvents } from './events.js?v=8';
 import { I18N, t } from './i18n.js';
 import {
@@ -108,7 +108,7 @@ import { state } from './state.js';
       if(pair.exchange === 'Binance') return `https://www.binance.com/en/futures/${pair.symbol}`;
       if(pair.exchange === 'Bybit') return `https://www.bybit.com/trade/usdt/${pair.symbol}`;
       if(pair.exchange === 'Hyperliquid') return `https://app.hyperliquid.xyz/trade/${pair.symbol}`;
-      if(pair.exchange === 'Aster') return `https://www.asterdex.com/en/futures/${pair.symbol}`;
+      if(pair.exchange === 'Aster') return `https://www.asterdex.com/en/trade/pro/futures/${pair.symbol}`;
       if(pair.exchange === 'OKX') return `https://www.okx.com/trade-swap/${pair.symbol.toLowerCase()}`;
       if(pair.exchange === 'Variational') return `https://omni.variational.io/perpetual/${encodeURIComponent(pair.symbol)}`;
       if(pair.exchange === 'Orbs Perps Hub') return `https://perps.thena.fi/trade/${pair.symbol}`;
