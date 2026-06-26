@@ -29,10 +29,33 @@ export function renderComparisons(deps){
   body.innerHTML='';
   const selected=state.data.pairs[state.selectedPair];
   document.getElementById('supportTitle').textContent=t('supportExchange');
-  const sameSymbolPairs=deps.getPairsForAsset(deps.assetId(selected));
+  const sortButton=document.getElementById('supportSortFavored');
+  if(sortButton){
+    sortButton.textContent=state.supportSortFavored ? t('sortFavoredOn') : t('sortFavored');
+    sortButton.classList.toggle('active', state.supportSortFavored);
+    sortButton.setAttribute('aria-pressed', String(state.supportSortFavored));
+  }
+  const stats=deps.currentComparisonStats ? deps.currentComparisonStats() : [];
+  const longFavored=stats.slice().sort((a,b)=>b.fee-a.fee)[0]?.pairKey;
+  const shortFavored=stats.slice().sort((a,b)=>b.shortFee-a.shortFee)[0]?.pairKey;
+  const favoredRank=(pairKey)=>{
+    if(pairKey === longFavored) return 0;
+    if(pairKey === shortFavored) return 1;
+    return 2;
+  };
+  const sameSymbolPairs=deps.getPairsForAsset(deps.assetId(selected)).slice();
+  if(state.supportSortFavored){
+    sameSymbolPairs.sort((a,b)=>
+      favoredRank(a[0]) - favoredRank(b[0])
+      || a[1].exchange.localeCompare(b[1].exchange)
+      || deps.pairDisplayName(a[1]).localeCompare(deps.pairDisplayName(b[1]))
+    );
+  }
   sameSymbolPairs.forEach(([pairKey,pair])=>{
     const tr=document.createElement('tr');
     const isSelected=pairKey===state.selectedPair;
+    tr.classList.toggle('favored-long-row', pairKey === longFavored);
+    tr.classList.toggle('favored-short-row', pairKey === shortFavored);
     const exchangeCell=document.createElement('td');
     const exchangeBtn=document.createElement('button');
     exchangeBtn.type='button';

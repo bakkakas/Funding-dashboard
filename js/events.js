@@ -69,6 +69,10 @@ export function bindUiEvents({
     renderFavoriteTabs();
     render();
   });
+  document.getElementById('supportSortFavored').addEventListener('click', ()=>{
+    state.supportSortFavored=!state.supportSortFavored;
+    render();
+  });
 
   document.getElementById('loginButton').addEventListener('click', ()=>openAuthModal('login'));
   document.getElementById('signupButton').addEventListener('click', ()=>{

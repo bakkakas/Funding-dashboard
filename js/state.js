@@ -3,6 +3,7 @@ export const state = {
   selectedPair:null,
   selectedAsset:null,
   selectedWindow:'7D',
+  supportSortFavored:false,
   priceCandleWindow:'4H',
   chart:null,
   priceChart:null,

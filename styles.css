@@ -45,6 +45,11 @@
     .comparison-table th:nth-child(2),.comparison-table td:nth-child(2) { width:24%; }
     .comparison-table th:nth-child(3),.comparison-table td:nth-child(3) { width:23%; }
     .comparison-table th:nth-child(4),.comparison-table td:nth-child(4) { width:22%; }
+    .section-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; }
+    .section-head .section-title { margin:0; }
+    .support-sort-button { flex:0 0 auto; border-radius:8px; padding:7px 10px; font-size:12px; }
+    .comparison-table tr.favored-long-row td { background:rgba(134,168,255,0.08); }
+    .comparison-table tr.favored-short-row td { background:rgba(215,169,111,0.08); }
     .rate-combo { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
     .rate-item { min-width:0; }
     .rate-item .value { font-size:36px; }
