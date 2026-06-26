@@ -12,7 +12,7 @@ import {
   SUPABASE_FUNCTIONS_BASE_URL,
 } from './config.js';
 import { fetchLiveLatest, loadDashboardData } from './api.js?v=2';
-import { bindUiEvents } from './events.js?v=9';
+import { bindUiEvents } from './events.js?v=10';
 import { I18N, t } from './i18n.js';
 import {
   comparisonAnnualized as buildComparisonAnnualized,
@@ -27,7 +27,7 @@ import {
 } from './metrics.js?v=9';
 import { renderAssetSummary as renderAssetSummaryView } from './render/asset-summary.js';
 import { renderChart, renderPriceChart } from './render/charts.js';
-import { renderComparisons as renderComparisonsView, renderExchangeTabs as renderExchangeTabsView } from './render/comparisons.js?v=2';
+import { renderComparisons as renderComparisonsView, renderExchangeTabs as renderExchangeTabsView } from './render/comparisons.js?v=3';
 import {
   renderCurrentFundingInsights,
   renderPeriodFundingInsights,

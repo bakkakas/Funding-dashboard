@@ -31,25 +31,27 @@ export function renderComparisons(deps){
   document.getElementById('supportTitle').textContent=t('supportExchange');
   const sortButton=document.getElementById('supportSortFavored');
   if(sortButton){
-    sortButton.textContent=state.supportSortFavored ? t('sortFavoredOn') : t('sortFavored');
-    sortButton.classList.toggle('active', state.supportSortFavored);
-    sortButton.setAttribute('aria-pressed', String(state.supportSortFavored));
+    sortButton.textContent=state.supportSortSide === 'short' ? t('sortShortFavored') : t('sortLongFavored');
+    sortButton.classList.toggle('active', state.supportSortSide !== 'default');
+    sortButton.setAttribute('aria-pressed', String(state.supportSortSide !== 'default'));
   }
   const stats=deps.currentComparisonStats ? deps.currentComparisonStats() : [];
+  const statsByPair=new Map(stats.map(item=>[item.pairKey, item]));
   const longFavored=stats.slice().sort((a,b)=>b.fee-a.fee)[0]?.pairKey;
   const shortFavored=stats.slice().sort((a,b)=>b.shortFee-a.shortFee)[0]?.pairKey;
-  const favoredRank=(pairKey)=>{
-    if(pairKey === longFavored) return 0;
-    if(pairKey === shortFavored) return 1;
-    return 2;
-  };
   const sameSymbolPairs=deps.getPairsForAsset(deps.assetId(selected)).slice();
-  if(state.supportSortFavored){
-    sameSymbolPairs.sort((a,b)=>
-      favoredRank(a[0]) - favoredRank(b[0])
-      || a[1].exchange.localeCompare(b[1].exchange)
-      || deps.pairDisplayName(a[1]).localeCompare(deps.pairDisplayName(b[1]))
-    );
+  if(state.supportSortSide !== 'default'){
+    const metricKey=state.supportSortSide === 'short' ? 'shortFee' : 'fee';
+    sameSymbolPairs.sort((a,b)=>{
+      const av=statsByPair.get(a[0])?.[metricKey];
+      const bv=statsByPair.get(b[0])?.[metricKey];
+      const aMissing=av == null || Number.isNaN(av);
+      const bMissing=bv == null || Number.isNaN(bv);
+      if(aMissing || bMissing) return Number(aMissing) - Number(bMissing);
+      return bv - av
+        || a[1].exchange.localeCompare(b[1].exchange)
+        || deps.pairDisplayName(a[1]).localeCompare(deps.pairDisplayName(b[1]));
+    });
   }
   sameSymbolPairs.forEach(([pairKey,pair])=>{
     const tr=document.createElement('tr');

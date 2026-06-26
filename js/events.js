@@ -70,7 +70,7 @@ export function bindUiEvents({
     render();
   });
   document.getElementById('supportSortFavored').addEventListener('click', ()=>{
-    state.supportSortFavored=!state.supportSortFavored;
+    state.supportSortSide=state.supportSortSide === 'long' ? 'short' : 'long';
     render();
   });
 
