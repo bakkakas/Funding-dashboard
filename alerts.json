@@ -1,5 +1,5 @@
 {
-  "updatedAt": 1783050206368,
+  "updatedAt": 1783063604711,
   "alerts": [
     {
       "id": "AAPL:Binance:AAPLUSDT:reliability:unavailable",
@@ -11,7 +11,7 @@
       "status": "unavailable",
       "historyRows": 292,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.43
     },
     {
       "id": "AAPL:Bybit:AAPLUSDT:reliability:unavailable",
@@ -21,9 +21,9 @@
       "pairKey": "Bybit:AAPLUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 197,
-      "historyCoveragePct": 72.96,
-      "latestAgeHours": 4.7
+      "historyRows": 198,
+      "historyCoveragePct": 73.33,
+      "latestAgeHours": 0.43
     },
     {
       "id": "AAPL:Orbs Perps Hub:AAPLUSDT:reliability:unavailable",
@@ -35,7 +35,21 @@
       "status": "unavailable",
       "historyRows": 292,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.69
+      "latestAgeHours": 0.4
+    },
+    {
+      "id": "AAPL:current:funding-spread:wide",
+      "type": "funding_spread",
+      "severity": "high",
+      "assetId": "AAPL",
+      "scope": "current",
+      "level": "wide",
+      "annualizedSpreadPct": 67.3633488,
+      "fundingSpread8h": 0.0006151904,
+      "highPairKey": "Binance:AAPLUSDT",
+      "lowPairKey": "Hyperliquid:xyz:AAPL",
+      "highExchange": "Binance",
+      "lowExchange": "Hyperliquid"
     },
     {
       "id": "AMZN:Binance:AMZNUSDT:reliability:unavailable",
@@ -47,7 +61,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.43
     },
     {
       "id": "AMZN:Bybit:AMZNUSDT:reliability:unavailable",
@@ -57,9 +71,9 @@
       "pairKey": "Bybit:AMZNUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 197,
-      "historyCoveragePct": 72.96,
-      "latestAgeHours": 4.7
+      "historyRows": 198,
+      "historyCoveragePct": 73.33,
+      "latestAgeHours": 0.43
     },
     {
       "id": "AMZN:Orbs Perps Hub:AMZNUSDT:reliability:unavailable",
@@ -71,7 +85,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.69
+      "latestAgeHours": 0.4
     },
     {
       "id": "AMZN:current:funding-spread:wide",
@@ -80,26 +94,12 @@
       "assetId": "AMZN",
       "scope": "current",
       "level": "wide",
-      "annualizedSpreadPct": 49.11513,
-      "fundingSpread8h": 0.00044854,
+      "annualizedSpreadPct": 43.8693792,
+      "fundingSpread8h": 0.0004006336,
       "highPairKey": "Hyperliquid:xyz:AMZN",
       "lowPairKey": "Orbs Perps Hub:AMZNUSDT",
       "highExchange": "Hyperliquid",
       "lowExchange": "Orbs Perps Hub"
-    },
-    {
-      "id": "AMZN:1D:funding-spread:wide",
-      "type": "funding_spread",
-      "severity": "high",
-      "assetId": "AMZN",
-      "scope": "1D",
-      "level": "wide",
-      "annualizedSpreadPct": 21.821676275257403,
-      "fundingSpread8h": 0.00019928471484253332,
-      "highPairKey": "Bybit:AMZNUSDT",
-      "lowPairKey": "OKX:AMZN-USDT-SWAP",
-      "highExchange": "Bybit",
-      "lowExchange": "OKX"
     },
     {
       "id": "BABA:Binance:BABAUSDT:reliability:unavailable",
@@ -109,9 +109,9 @@
       "pairKey": "Binance:BABAUSDT",
       "exchange": "Binance",
       "status": "unavailable",
-      "historyRows": 239,
-      "historyCoveragePct": 88.52,
-      "latestAgeHours": 4.7
+      "historyRows": 240,
+      "historyCoveragePct": 88.89,
+      "latestAgeHours": 0.42
     },
     {
       "id": "BABA:Bybit:BABAUSDT:reliability:unavailable",
@@ -121,9 +121,9 @@
       "pairKey": "Bybit:BABAUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 152,
-      "historyCoveragePct": 56.3,
-      "latestAgeHours": 4.7
+      "historyRows": 153,
+      "historyCoveragePct": 56.67,
+      "latestAgeHours": 0.42
     },
     {
       "id": "BABA:Orbs Perps Hub:BABAUSDT:reliability:unavailable",
@@ -133,23 +133,9 @@
       "pairKey": "Orbs Perps Hub:BABAUSDT",
       "exchange": "Orbs Perps Hub",
       "status": "unavailable",
-      "historyRows": 239,
-      "historyCoveragePct": 88.52,
-      "latestAgeHours": 4.68
-    },
-    {
-      "id": "BABA:current:funding-spread:wide",
-      "type": "funding_spread",
-      "severity": "high",
-      "assetId": "BABA",
-      "scope": "current",
-      "level": "wide",
-      "annualizedSpreadPct": 56.293074,
-      "fundingSpread8h": 0.000514092,
-      "highPairKey": "Bybit:BABAUSDT",
-      "lowPairKey": "Orbs Perps Hub:BABAUSDT",
-      "highExchange": "Bybit",
-      "lowExchange": "Orbs Perps Hub"
+      "historyRows": 240,
+      "historyCoveragePct": 88.89,
+      "latestAgeHours": 0.4
     },
     {
       "id": "BABA:1D:funding-spread:wide",
@@ -158,11 +144,11 @@
       "assetId": "BABA",
       "scope": "1D",
       "level": "wide",
-      "annualizedSpreadPct": 34.70920414999999,
-      "fundingSpread8h": 0.0003169790333333332,
-      "highPairKey": "Aster:BABAUSDT",
+      "annualizedSpreadPct": 32.656049949999996,
+      "fundingSpread8h": 0.00029822876666666667,
+      "highPairKey": "Bybit:BABAUSDT",
       "lowPairKey": "Hyperliquid:xyz:BABA",
-      "highExchange": "Aster",
+      "highExchange": "Bybit",
       "lowExchange": "Hyperliquid"
     },
     {
@@ -172,8 +158,8 @@
       "assetId": "BABA",
       "scope": "7D",
       "level": "wide",
-      "annualizedSpreadPct": 24.859635349999998,
-      "fundingSpread8h": 0.00022702863333333328,
+      "annualizedSpreadPct": 24.581092378571423,
+      "fundingSpread8h": 0.00022448486190476184,
       "highPairKey": "Bybit:BABAUSDT",
       "lowPairKey": "Hyperliquid:xyz:BABA",
       "highExchange": "Bybit",
@@ -189,7 +175,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "BNB:Bybit:BNBUSDT:reliability:unavailable",
@@ -201,7 +187,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "BNB:Orbs Perps Hub:BNBUSDT:reliability:unavailable",
@@ -213,7 +199,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.68
+      "latestAgeHours": 0.4
     },
     {
       "id": "BTC:Binance:BTCUSDT:reliability:unavailable",
@@ -225,7 +211,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "BTC:Bybit:BTCUSDT:reliability:unavailable",
@@ -237,7 +223,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "BTC:Orbs Perps Hub:BTCUSDT:reliability:unavailable",
@@ -249,7 +235,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.68
+      "latestAgeHours": 0.4
     },
     {
       "id": "COIN:Binance:COINUSDT:reliability:unavailable",
@@ -261,7 +247,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "COIN:Bybit:COINUSDT:reliability:unavailable",
@@ -271,9 +257,9 @@
       "pairKey": "Bybit:COINUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 194,
-      "historyCoveragePct": 71.85,
-      "latestAgeHours": 4.7
+      "historyRows": 195,
+      "historyCoveragePct": 72.22,
+      "latestAgeHours": 0.42
     },
     {
       "id": "COIN:Orbs Perps Hub:COINUSDT:reliability:unavailable",
@@ -285,7 +271,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.68
+      "latestAgeHours": 0.4
     },
     {
       "id": "COIN:current:funding-spread:wide",
@@ -294,8 +280,8 @@
       "assetId": "COIN",
       "scope": "current",
       "level": "wide",
-      "annualizedSpreadPct": 59.07875399999999,
-      "fundingSpread8h": 0.0005395319999999999,
+      "annualizedSpreadPct": 37.3345944,
+      "fundingSpread8h": 0.0003409552,
       "highPairKey": "Hyperliquid:xyz:COIN",
       "lowPairKey": "Orbs Perps Hub:COINUSDT",
       "highExchange": "Hyperliquid",
@@ -311,7 +297,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "ETH:Bybit:ETHUSDT:reliability:unavailable",
@@ -323,7 +309,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "ETH:Orbs Perps Hub:ETHUSDT:reliability:unavailable",
@@ -335,7 +321,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.68
+      "latestAgeHours": 0.4
     },
     {
       "id": "GOLD:Binance:XAUUSDT:reliability:unavailable",
@@ -347,7 +333,7 @@
       "status": "unavailable",
       "historyRows": 539,
       "historyCoveragePct": 99.81,
-      "latestAgeHours": 4.71
+      "latestAgeHours": 0.43
     },
     {
       "id": "GOLD:Bybit:XAUTUSDT:reliability:unavailable",
@@ -359,7 +345,7 @@
       "status": "unavailable",
       "historyRows": 540,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.43
     },
     {
       "id": "GOLD:Orbs Perps Hub:XAUUSDT:reliability:unavailable",
@@ -371,7 +357,7 @@
       "status": "unavailable",
       "historyRows": 539,
       "historyCoveragePct": 99.81,
-      "latestAgeHours": 4.69
+      "latestAgeHours": 0.4
     },
     {
       "id": "GOOGL:Binance:GOOGLUSDT:reliability:unavailable",
@@ -383,7 +369,7 @@
       "status": "unavailable",
       "historyRows": 279,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.71
+      "latestAgeHours": 0.43
     },
     {
       "id": "GOOGL:Bybit:GOOGLUSDT:reliability:unavailable",
@@ -393,9 +379,9 @@
       "pairKey": "Bybit:GOOGLUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 200,
-      "historyCoveragePct": 74.07,
-      "latestAgeHours": 4.71
+      "historyRows": 201,
+      "historyCoveragePct": 74.44,
+      "latestAgeHours": 0.43
     },
     {
       "id": "GOOGL:Orbs Perps Hub:GOOGLUSDT:reliability:unavailable",
@@ -407,21 +393,7 @@
       "status": "unavailable",
       "historyRows": 279,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.69
-    },
-    {
-      "id": "GOOGL:current:funding-spread:wide",
-      "type": "funding_spread",
-      "severity": "high",
-      "assetId": "GOOGL",
-      "scope": "current",
-      "level": "wide",
-      "annualizedSpreadPct": 29.341970399999994,
-      "fundingSpread8h": 0.00026796319999999993,
-      "highPairKey": "Aster:GOOGLUSDT",
-      "lowPairKey": "Hyperliquid:xyz:GOOGL",
-      "highExchange": "Aster",
-      "lowExchange": "Hyperliquid"
+      "latestAgeHours": 0.41
     },
     {
       "id": "GOOGL:90D:funding-spread:wide",
@@ -430,8 +402,8 @@
       "assetId": "GOOGL",
       "scope": "90D",
       "level": "wide",
-      "annualizedSpreadPct": 20.365743585971213,
-      "fundingSpread8h": 0.00018598852589928044,
+      "annualizedSpreadPct": 20.359783244926437,
+      "fundingSpread8h": 0.00018593409356097202,
       "highPairKey": "Aster:GOOGLUSDT",
       "lowPairKey": "Bybit:GOOGLUSDT",
       "highExchange": "Aster",
@@ -447,7 +419,7 @@
       "status": "unavailable",
       "historyRows": 539,
       "historyCoveragePct": 99.81,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "HYPE:Bybit:HYPEUSDT:reliability:unavailable",
@@ -459,7 +431,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "HYPE:Orbs Perps Hub:HYPEUSDT:reliability:unavailable",
@@ -471,7 +443,7 @@
       "status": "unavailable",
       "historyRows": 539,
       "historyCoveragePct": 99.81,
-      "latestAgeHours": 4.68
+      "latestAgeHours": 0.4
     },
     {
       "id": "META:Binance:METAUSDT:reliability:unavailable",
@@ -483,7 +455,7 @@
       "status": "unavailable",
       "historyRows": 279,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.43
     },
     {
       "id": "META:Bybit:METAUSDT:reliability:unavailable",
@@ -493,9 +465,9 @@
       "pairKey": "Bybit:METAUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 200,
-      "historyCoveragePct": 74.07,
-      "latestAgeHours": 4.7
+      "historyRows": 201,
+      "historyCoveragePct": 74.44,
+      "latestAgeHours": 0.42
     },
     {
       "id": "META:Orbs Perps Hub:METAUSDT:reliability:unavailable",
@@ -507,7 +479,7 @@
       "status": "unavailable",
       "historyRows": 279,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.68
+      "latestAgeHours": 0.4
     },
     {
       "id": "META:current:funding-spread:wide",
@@ -516,8 +488,8 @@
       "assetId": "META",
       "scope": "current",
       "level": "wide",
-      "annualizedSpreadPct": 63.154431599999995,
-      "fundingSpread8h": 0.0005767528,
+      "annualizedSpreadPct": 29.1043116,
+      "fundingSpread8h": 0.0002657928,
       "highPairKey": "Binance:METAUSDT",
       "lowPairKey": "Hyperliquid:xyz:META",
       "highExchange": "Binance",
@@ -531,9 +503,9 @@
       "pairKey": "Binance:MSFTUSDT",
       "exchange": "Binance",
       "status": "unavailable",
-      "historyRows": 252,
-      "historyCoveragePct": 93.33,
-      "latestAgeHours": 4.7
+      "historyRows": 253,
+      "historyCoveragePct": 93.7,
+      "latestAgeHours": 0.42
     },
     {
       "id": "MSFT:Bybit:MSFTUSDT:reliability:unavailable",
@@ -543,9 +515,9 @@
       "pairKey": "Bybit:MSFTUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 200,
-      "historyCoveragePct": 74.07,
-      "latestAgeHours": 4.7
+      "historyRows": 201,
+      "historyCoveragePct": 74.44,
+      "latestAgeHours": 0.42
     },
     {
       "id": "MSFT:Orbs Perps Hub:MSFTUSDT:reliability:unavailable",
@@ -555,9 +527,9 @@
       "pairKey": "Orbs Perps Hub:MSFTUSDT",
       "exchange": "Orbs Perps Hub",
       "status": "unavailable",
-      "historyRows": 252,
-      "historyCoveragePct": 93.33,
-      "latestAgeHours": 4.68
+      "historyRows": 253,
+      "historyCoveragePct": 93.7,
+      "latestAgeHours": 0.4
     },
     {
       "id": "MSTR:Binance:MSTRUSDT:reliability:unavailable",
@@ -569,7 +541,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "MSTR:Bybit:MSTRUSDT:reliability:unavailable",
@@ -579,9 +551,9 @@
       "pairKey": "Bybit:MSTRUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 194,
-      "historyCoveragePct": 71.85,
-      "latestAgeHours": 4.7
+      "historyRows": 195,
+      "historyCoveragePct": 72.22,
+      "latestAgeHours": 0.42
     },
     {
       "id": "MSTR:Orbs Perps Hub:MSTRUSDT:reliability:unavailable",
@@ -593,7 +565,21 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.68
+      "latestAgeHours": 0.4
+    },
+    {
+      "id": "MSTR:current:funding-spread:wide",
+      "type": "funding_spread",
+      "severity": "high",
+      "assetId": "MSTR",
+      "scope": "current",
+      "level": "wide",
+      "annualizedSpreadPct": 48.61452924432045,
+      "fundingSpread8h": 0.0004439683036011,
+      "highPairKey": "Hyperliquid:xyz:MSTR",
+      "lowPairKey": "OKX:MSTR-USDT-SWAP",
+      "highExchange": "Hyperliquid",
+      "lowExchange": "OKX"
     },
     {
       "id": "MSTR:90D:funding-spread:wide",
@@ -602,8 +588,8 @@
       "assetId": "MSTR",
       "scope": "90D",
       "level": "wide",
-      "annualizedSpreadPct": 23.876258257731955,
-      "fundingSpread8h": 0.00021804802061855668,
+      "annualizedSpreadPct": 23.765660999999994,
+      "fundingSpread8h": 0.00021703799999999994,
       "highPairKey": "Aster:MSTRUSDT",
       "lowPairKey": "Bybit:MSTRUSDT",
       "highExchange": "Aster",
@@ -617,9 +603,9 @@
       "pairKey": "Binance:MUUSDT",
       "exchange": "Binance",
       "status": "unavailable",
-      "historyRows": 260,
-      "historyCoveragePct": 96.3,
-      "latestAgeHours": 4.71
+      "historyRows": 261,
+      "historyCoveragePct": 96.67,
+      "latestAgeHours": 0.43
     },
     {
       "id": "MU:Bybit:MUUSDT:reliability:unavailable",
@@ -629,9 +615,9 @@
       "pairKey": "Bybit:MUUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 170,
-      "historyCoveragePct": 62.96,
-      "latestAgeHours": 4.71
+      "historyRows": 171,
+      "historyCoveragePct": 63.33,
+      "latestAgeHours": 0.43
     },
     {
       "id": "MU:Orbs Perps Hub:MUUSDT:reliability:unavailable",
@@ -641,9 +627,9 @@
       "pairKey": "Orbs Perps Hub:MUUSDT",
       "exchange": "Orbs Perps Hub",
       "status": "unavailable",
-      "historyRows": 260,
-      "historyCoveragePct": 96.3,
-      "latestAgeHours": 4.69
+      "historyRows": 261,
+      "historyCoveragePct": 96.67,
+      "latestAgeHours": 0.4
     },
     {
       "id": "MU:current:funding-spread:wide",
@@ -652,12 +638,12 @@
       "assetId": "MU",
       "scope": "current",
       "level": "wide",
-      "annualizedSpreadPct": 144.353362,
-      "fundingSpread8h": 0.0013182955433789954,
+      "annualizedSpreadPct": 178.3438764,
+      "fundingSpread8h": 0.0016287112,
       "highPairKey": "Hyperliquid:xyz:MU",
-      "lowPairKey": "Variational:MU",
+      "lowPairKey": "Orbs Perps Hub:MUUSDT",
       "highExchange": "Hyperliquid",
-      "lowExchange": "Variational"
+      "lowExchange": "Orbs Perps Hub"
     },
     {
       "id": "MU:1D:funding-spread:wide",
@@ -666,8 +652,8 @@
       "assetId": "MU",
       "scope": "1D",
       "level": "wide",
-      "annualizedSpreadPct": 34.8118823,
-      "fundingSpread8h": 0.0003179167333333333,
+      "annualizedSpreadPct": 46.72535090000002,
+      "fundingSpread8h": 0.0004267155333333335,
       "highPairKey": "Aster:MUUSDT",
       "lowPairKey": "Hyperliquid:xyz:MU",
       "highExchange": "Aster",
@@ -683,7 +669,7 @@
       "status": "unavailable",
       "historyRows": 279,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.43
     },
     {
       "id": "NVDA:Bybit:NVDAUSDT:reliability:unavailable",
@@ -693,9 +679,9 @@
       "pairKey": "Bybit:NVDAUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 173,
-      "historyCoveragePct": 64.07,
-      "latestAgeHours": 4.7
+      "historyRows": 174,
+      "historyCoveragePct": 64.44,
+      "latestAgeHours": 0.43
     },
     {
       "id": "NVDA:Orbs Perps Hub:NVDAUSDT:reliability:unavailable",
@@ -707,7 +693,21 @@
       "status": "unavailable",
       "historyRows": 279,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.69
+      "latestAgeHours": 0.4
+    },
+    {
+      "id": "NVDA:1D:funding-spread:wide",
+      "type": "funding_spread",
+      "severity": "high",
+      "assetId": "NVDA",
+      "scope": "1D",
+      "level": "wide",
+      "annualizedSpreadPct": 21.601054050000002,
+      "fundingSpread8h": 0.0001972699,
+      "highPairKey": "Binance:NVDAUSDT",
+      "lowPairKey": "Hyperliquid:xyz:NVDA",
+      "highExchange": "Binance",
+      "lowExchange": "Hyperliquid"
     },
     {
       "id": "PLTR:Binance:PLTRUSDT:reliability:unavailable",
@@ -719,7 +719,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "PLTR:Bybit:PLTRUSDT:reliability:unavailable",
@@ -729,9 +729,9 @@
       "pairKey": "Bybit:PLTRUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 194,
-      "historyCoveragePct": 71.85,
-      "latestAgeHours": 4.7
+      "historyRows": 195,
+      "historyCoveragePct": 72.22,
+      "latestAgeHours": 0.42
     },
     {
       "id": "PLTR:Orbs Perps Hub:PLTRUSDT:reliability:unavailable",
@@ -743,7 +743,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.68
+      "latestAgeHours": 0.4
     },
     {
       "id": "QQQ:Binance:QQQUSDT:reliability:unavailable",
@@ -755,7 +755,7 @@
       "status": "unavailable",
       "historyRows": 279,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "QQQ:Bybit:QQQUSDT:reliability:unavailable",
@@ -765,9 +765,9 @@
       "pairKey": "Bybit:QQQUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 170,
-      "historyCoveragePct": 62.96,
-      "latestAgeHours": 4.7
+      "historyRows": 171,
+      "historyCoveragePct": 63.33,
+      "latestAgeHours": 0.42
     },
     {
       "id": "QQQ:Orbs Perps Hub:QQQUSDT:reliability:unavailable",
@@ -779,7 +779,7 @@
       "status": "unavailable",
       "historyRows": 279,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.68
+      "latestAgeHours": 0.4
     },
     {
       "id": "SAMSUNG:Binance:SAMSUNGUSDT:reliability:unavailable",
@@ -789,9 +789,9 @@
       "pairKey": "Binance:SAMSUNGUSDT",
       "exchange": "Binance",
       "status": "unavailable",
-      "historyRows": 98,
-      "historyCoveragePct": 36.3,
-      "latestAgeHours": 4.71
+      "historyRows": 99,
+      "historyCoveragePct": 36.67,
+      "latestAgeHours": 0.43
     },
     {
       "id": "SAMSUNG:Bybit:SAMSUNGUSDT:reliability:unavailable",
@@ -801,9 +801,9 @@
       "pairKey": "Bybit:SAMSUNGUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 87,
-      "historyCoveragePct": 32.22,
-      "latestAgeHours": 4.71
+      "historyRows": 88,
+      "historyCoveragePct": 32.59,
+      "latestAgeHours": 0.43
     },
     {
       "id": "SAMSUNG:Orbs Perps Hub:SAMSUNGUSDT:reliability:unavailable",
@@ -813,9 +813,9 @@
       "pairKey": "Orbs Perps Hub:SAMSUNGUSDT",
       "exchange": "Orbs Perps Hub",
       "status": "unavailable",
-      "historyRows": 98,
-      "historyCoveragePct": 36.3,
-      "latestAgeHours": 4.69
+      "historyRows": 99,
+      "historyCoveragePct": 36.67,
+      "latestAgeHours": 0.41
     },
     {
       "id": "SAMSUNG:current:funding-spread:wide",
@@ -824,12 +824,12 @@
       "assetId": "SAMSUNG",
       "scope": "current",
       "level": "wide",
-      "annualizedSpreadPct": 357.31383,
-      "fundingSpread8h": 0.00326314,
-      "highPairKey": "Binance:SAMSUNGUSDT",
-      "lowPairKey": "Aster:SAMSUNGUSDT",
-      "highExchange": "Binance",
-      "lowExchange": "Aster"
+      "annualizedSpreadPct": 278.65726440000003,
+      "fundingSpread8h": 0.0025448152000000007,
+      "highPairKey": "Hyperliquid:xyz:SMSN",
+      "lowPairKey": "Orbs Perps Hub:SAMSUNGUSDT",
+      "highExchange": "Hyperliquid",
+      "lowExchange": "Orbs Perps Hub"
     },
     {
       "id": "SAMSUNG:1D:funding-spread:wide",
@@ -838,11 +838,11 @@
       "assetId": "SAMSUNG",
       "scope": "1D",
       "level": "wide",
-      "annualizedSpreadPct": 191.512215,
-      "fundingSpread8h": 0.00174897,
-      "highPairKey": "Binance:SAMSUNGUSDT",
+      "annualizedSpreadPct": 218.22428375,
+      "fundingSpread8h": 0.0019929158333333334,
+      "highPairKey": "Hyperliquid:xyz:SMSN",
       "lowPairKey": "Aster:SAMSUNGUSDT",
-      "highExchange": "Binance",
+      "highExchange": "Hyperliquid",
       "lowExchange": "Aster"
     },
     {
@@ -852,11 +852,11 @@
       "assetId": "SAMSUNG",
       "scope": "7D",
       "level": "wide",
-      "annualizedSpreadPct": 48.173167841110036,
-      "fundingSpread8h": 0.00043993760585488617,
-      "highPairKey": "Binance:SAMSUNGUSDT",
+      "annualizedSpreadPct": 44.7158299046021,
+      "fundingSpread8h": 0.00040836374342102376,
+      "highPairKey": "Bybit:SAMSUNGUSDT",
       "lowPairKey": "OKX:SAMSUNG-USDT-SWAP",
-      "highExchange": "Binance",
+      "highExchange": "Bybit",
       "lowExchange": "OKX"
     },
     {
@@ -866,8 +866,8 @@
       "assetId": "SAMSUNG",
       "scope": "30D",
       "level": "wide",
-      "annualizedSpreadPct": 43.60860845112746,
-      "fundingSpread8h": 0.00039825213197376675,
+      "annualizedSpreadPct": 41.327324232377464,
+      "fundingSpread8h": 0.00037741848614043343,
       "highPairKey": "Binance:SAMSUNGUSDT",
       "lowPairKey": "OKX:SAMSUNG-USDT-SWAP",
       "highExchange": "Binance",
@@ -895,9 +895,9 @@
       "pairKey": "Binance:SKHYNIXUSDT",
       "exchange": "Binance",
       "status": "unavailable",
-      "historyRows": 92,
-      "historyCoveragePct": 34.07,
-      "latestAgeHours": 4.71
+      "historyRows": 93,
+      "historyCoveragePct": 34.44,
+      "latestAgeHours": 0.43
     },
     {
       "id": "SKHYNIX:Bybit:SKHYNIXUSDT:reliability:unavailable",
@@ -907,9 +907,9 @@
       "pairKey": "Bybit:SKHYNIXUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 87,
-      "historyCoveragePct": 32.22,
-      "latestAgeHours": 4.71
+      "historyRows": 88,
+      "historyCoveragePct": 32.59,
+      "latestAgeHours": 0.43
     },
     {
       "id": "SKHYNIX:Orbs Perps Hub:SKHYNIXUSDT:reliability:unavailable",
@@ -919,9 +919,9 @@
       "pairKey": "Orbs Perps Hub:SKHYNIXUSDT",
       "exchange": "Orbs Perps Hub",
       "status": "unavailable",
-      "historyRows": 92,
-      "historyCoveragePct": 34.07,
-      "latestAgeHours": 4.69
+      "historyRows": 93,
+      "historyCoveragePct": 34.44,
+      "latestAgeHours": 0.41
     },
     {
       "id": "SKHYNIX:current:funding-spread:wide",
@@ -930,12 +930,12 @@
       "assetId": "SKHYNIX",
       "scope": "current",
       "level": "wide",
-      "annualizedSpreadPct": 644.803014,
-      "fundingSpread8h": 0.0058886120000000005,
-      "highPairKey": "Orbs Perps Hub:SKHYNIXUSDT",
-      "lowPairKey": "Aster:SKHYNIXUSDT",
-      "highExchange": "Orbs Perps Hub",
-      "lowExchange": "Aster"
+      "annualizedSpreadPct": 250.0759797833445,
+      "fundingSpread8h": 0.002283798902131,
+      "highPairKey": "OKX:SKHYNIX-USDT-SWAP",
+      "lowPairKey": "Orbs Perps Hub:SKHYNIXUSDT",
+      "highExchange": "OKX",
+      "lowExchange": "Orbs Perps Hub"
     },
     {
       "id": "SKHYNIX:1D:funding-spread:wide",
@@ -944,11 +944,11 @@
       "assetId": "SKHYNIX",
       "scope": "1D",
       "level": "wide",
-      "annualizedSpreadPct": 209.21229766408982,
-      "fundingSpread8h": 0.0019106145905396332,
-      "highPairKey": "Binance:SKHYNIXUSDT",
+      "annualizedSpreadPct": 249.73562696408982,
+      "fundingSpread8h": 0.0022806906572063,
+      "highPairKey": "Hyperliquid:xyz:SKHX",
       "lowPairKey": "OKX:SKHYNIX-USDT-SWAP",
-      "highExchange": "Binance",
+      "highExchange": "Hyperliquid",
       "lowExchange": "OKX"
     },
     {
@@ -958,8 +958,8 @@
       "assetId": "SKHYNIX",
       "scope": "7D",
       "level": "wide",
-      "annualizedSpreadPct": 76.75427995780345,
-      "fundingSpread8h": 0.0007009523283817668,
+      "annualizedSpreadPct": 70.94228067208917,
+      "fundingSpread8h": 0.0006478747093341477,
       "highPairKey": "Binance:SKHYNIXUSDT",
       "lowPairKey": "OKX:SKHYNIX-USDT-SWAP",
       "highExchange": "Binance",
@@ -972,8 +972,8 @@
       "assetId": "SKHYNIX",
       "scope": "30D",
       "level": "wide",
-      "annualizedSpreadPct": 76.59283209190237,
-      "fundingSpread8h": 0.0006994779186475103,
+      "annualizedSpreadPct": 75.68079442523569,
+      "fundingSpread8h": 0.000691148807536399,
       "highPairKey": "Binance:SKHYNIXUSDT",
       "lowPairKey": "OKX:SKHYNIX-USDT-SWAP",
       "highExchange": "Binance",
@@ -1001,9 +1001,9 @@
       "pairKey": "Binance:SNDKUSDT",
       "exchange": "Binance",
       "status": "unavailable",
-      "historyRows": 260,
-      "historyCoveragePct": 96.3,
-      "latestAgeHours": 4.71
+      "historyRows": 261,
+      "historyCoveragePct": 96.67,
+      "latestAgeHours": 0.43
     },
     {
       "id": "SNDK:Bybit:SNDKUSDT:reliability:unavailable",
@@ -1013,9 +1013,9 @@
       "pairKey": "Bybit:SNDKUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 197,
-      "historyCoveragePct": 72.96,
-      "latestAgeHours": 4.71
+      "historyRows": 198,
+      "historyCoveragePct": 73.33,
+      "latestAgeHours": 0.43
     },
     {
       "id": "SNDK:Orbs Perps Hub:SNDKUSDT:reliability:unavailable",
@@ -1025,9 +1025,9 @@
       "pairKey": "Orbs Perps Hub:SNDKUSDT",
       "exchange": "Orbs Perps Hub",
       "status": "unavailable",
-      "historyRows": 260,
-      "historyCoveragePct": 96.3,
-      "latestAgeHours": 4.69
+      "historyRows": 261,
+      "historyCoveragePct": 96.67,
+      "latestAgeHours": 0.4
     },
     {
       "id": "SNDK:current:funding-spread:wide",
@@ -1036,12 +1036,12 @@
       "assetId": "SNDK",
       "scope": "current",
       "level": "wide",
-      "annualizedSpreadPct": 75.633819051555,
-      "fundingSpread8h": 0.0006907198086900001,
-      "highPairKey": "Bybit:SNDKUSDT",
-      "lowPairKey": "OKX:SNDK-USDT-SWAP",
-      "highExchange": "Bybit",
-      "lowExchange": "OKX"
+      "annualizedSpreadPct": 199.2250008,
+      "fundingSpread8h": 0.0018194064,
+      "highPairKey": "Hyperliquid:xyz:SNDK",
+      "lowPairKey": "Orbs Perps Hub:SNDKUSDT",
+      "highExchange": "Hyperliquid",
+      "lowExchange": "Orbs Perps Hub"
     },
     {
       "id": "SNDK:1D:funding-spread:wide",
@@ -1050,12 +1050,12 @@
       "assetId": "SNDK",
       "scope": "1D",
       "level": "wide",
-      "annualizedSpreadPct": 24.66797107898934,
-      "fundingSpread8h": 0.00022527827469396655,
+      "annualizedSpreadPct": 23.96708666666666,
+      "fundingSpread8h": 0.00021887750380517496,
       "highPairKey": "Bybit:SNDKUSDT",
-      "lowPairKey": "OKX:SNDK-USDT-SWAP",
+      "lowPairKey": "Variational:SNDK",
       "highExchange": "Bybit",
-      "lowExchange": "OKX"
+      "lowExchange": "Variational"
     },
     {
       "id": "SNDK:30D:funding-spread:wide",
@@ -1064,8 +1064,8 @@
       "assetId": "SNDK",
       "scope": "30D",
       "level": "wide",
-      "annualizedSpreadPct": 23.05591924774775,
-      "fundingSpread8h": 0.0002105563401620799,
+      "annualizedSpreadPct": 24.44440057669617,
+      "fundingSpread8h": 0.00022323653494699702,
       "highPairKey": "Bybit:SNDKUSDT",
       "lowPairKey": "Variational:SNDK",
       "highExchange": "Bybit",
@@ -1078,8 +1078,8 @@
       "assetId": "SNDK",
       "scope": "90D",
       "level": "wide",
-      "annualizedSpreadPct": 26.393657327192187,
-      "fundingSpread8h": 0.00024103796645837615,
+      "annualizedSpreadPct": 27.820802132807277,
+      "fundingSpread8h": 0.0002540712523544044,
       "highPairKey": "Hyperliquid:xyz:SNDK",
       "lowPairKey": "Variational:SNDK",
       "highExchange": "Hyperliquid",
@@ -1095,7 +1095,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "SOL:Bybit:SOLUSDT:reliability:unavailable",
@@ -1107,7 +1107,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "SOL:Orbs Perps Hub:SOLUSDT:reliability:unavailable",
@@ -1119,7 +1119,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.68
+      "latestAgeHours": 0.4
     },
     {
       "id": "SPY:Binance:SPYUSDT:reliability:unavailable",
@@ -1131,7 +1131,7 @@
       "status": "unavailable",
       "historyRows": 279,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "SPY:Bybit:SPYUSDT:reliability:unavailable",
@@ -1141,9 +1141,9 @@
       "pairKey": "Bybit:SPYUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 149,
-      "historyCoveragePct": 55.19,
-      "latestAgeHours": 4.7
+      "historyRows": 150,
+      "historyCoveragePct": 55.56,
+      "latestAgeHours": 0.42
     },
     {
       "id": "SPY:Orbs Perps Hub:SPYUSDT:reliability:unavailable",
@@ -1155,7 +1155,7 @@
       "status": "unavailable",
       "historyRows": 279,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.68
+      "latestAgeHours": 0.4
     },
     {
       "id": "TSLA:Binance:TSLAUSDT:reliability:unavailable",
@@ -1167,7 +1167,7 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.43
     },
     {
       "id": "TSLA:Bybit:TSLAUSDT:reliability:unavailable",
@@ -1177,9 +1177,9 @@
       "pairKey": "Bybit:TSLAUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 218,
-      "historyCoveragePct": 80.74,
-      "latestAgeHours": 4.7
+      "historyRows": 219,
+      "historyCoveragePct": 81.11,
+      "latestAgeHours": 0.43
     },
     {
       "id": "TSLA:Orbs Perps Hub:TSLAUSDT:reliability:unavailable",
@@ -1191,7 +1191,21 @@
       "status": "unavailable",
       "historyRows": 270,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.69
+      "latestAgeHours": 0.4
+    },
+    {
+      "id": "TSLA:current:funding-spread:wide",
+      "type": "funding_spread",
+      "severity": "high",
+      "assetId": "TSLA",
+      "scope": "current",
+      "level": "wide",
+      "annualizedSpreadPct": 91.62740999999998,
+      "fundingSpread8h": 0.0008367799999999999,
+      "highPairKey": "Binance:TSLAUSDT",
+      "lowPairKey": "Hyperliquid:xyz:TSLA",
+      "highExchange": "Binance",
+      "lowExchange": "Hyperliquid"
     },
     {
       "id": "TSM:Binance:TSMUSDT:reliability:unavailable",
@@ -1203,7 +1217,7 @@
       "status": "unavailable",
       "historyRows": 279,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.7
+      "latestAgeHours": 0.42
     },
     {
       "id": "TSM:Bybit:TSMUSDT:reliability:unavailable",
@@ -1213,9 +1227,9 @@
       "pairKey": "Bybit:TSMUSDT",
       "exchange": "Bybit",
       "status": "unavailable",
-      "historyRows": 215,
-      "historyCoveragePct": 79.63,
-      "latestAgeHours": 4.7
+      "historyRows": 216,
+      "historyCoveragePct": 80.0,
+      "latestAgeHours": 0.42
     },
     {
       "id": "TSM:Orbs Perps Hub:TSMUSDT:reliability:unavailable",
@@ -1227,7 +1241,7 @@
       "status": "unavailable",
       "historyRows": 279,
       "historyCoveragePct": 100,
-      "latestAgeHours": 4.68
+      "latestAgeHours": 0.4
     },
     {
       "id": "TSM:current:funding-spread:wide",
@@ -1236,12 +1250,26 @@
       "assetId": "TSM",
       "scope": "current",
       "level": "wide",
-      "annualizedSpreadPct": 68.81760603233175,
-      "fundingSpread8h": 0.0006284712879665001,
-      "highPairKey": "Binance:TSMUSDT",
-      "lowPairKey": "OKX:TSM-USDT-SWAP",
-      "highExchange": "Binance",
-      "lowExchange": "OKX"
+      "annualizedSpreadPct": 35.721002399999996,
+      "fundingSpread8h": 0.00032621919999999995,
+      "highPairKey": "Hyperliquid:xyz:TSM",
+      "lowPairKey": "Bybit:TSMUSDT",
+      "highExchange": "Hyperliquid",
+      "lowExchange": "Bybit"
+    },
+    {
+      "id": "TSM:1D:funding-spread:wide",
+      "type": "funding_spread",
+      "severity": "high",
+      "assetId": "TSM",
+      "scope": "1D",
+      "level": "wide",
+      "annualizedSpreadPct": 22.715702,
+      "fundingSpread8h": 0.00020744933333333333,
+      "highPairKey": "Aster:TSMUSDT",
+      "lowPairKey": "Hyperliquid:xyz:TSM",
+      "highExchange": "Aster",
+      "lowExchange": "Hyperliquid"
     },
     {
       "id": "AAPL:1D:funding-spread:narrow",
@@ -1250,8 +1278,8 @@
       "assetId": "AAPL",
       "scope": "1D",
       "level": "narrow",
-      "annualizedSpreadPct": 9.016474550000002,
-      "fundingSpread8h": 8.234223333333335e-05,
+      "annualizedSpreadPct": 6.952384950000003,
+      "fundingSpread8h": 6.349210000000003e-05,
       "highPairKey": "Hyperliquid:xyz:AAPL",
       "lowPairKey": "Orbs Perps Hub:AAPLUSDT",
       "highExchange": "Hyperliquid",
@@ -1264,10 +1292,24 @@
       "assetId": "AAPL",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 6.239018688459134,
-      "fundingSpread8h": 5.6977339620631355e-05,
+      "annualizedSpreadPct": 6.262986372903577,
+      "fundingSpread8h": 5.719622258359431e-05,
       "highPairKey": "Hyperliquid:xyz:AAPL",
       "lowPairKey": "OKX:AAPL-USDT-SWAP",
+      "highExchange": "Hyperliquid",
+      "lowExchange": "OKX"
+    },
+    {
+      "id": "AMZN:1D:funding-spread:narrow",
+      "type": "funding_spread",
+      "severity": "medium",
+      "assetId": "AMZN",
+      "scope": "1D",
+      "level": "narrow",
+      "annualizedSpreadPct": 12.9915962752574,
+      "fundingSpread8h": 0.00011864471484253331,
+      "highPairKey": "Hyperliquid:xyz:AMZN",
+      "lowPairKey": "OKX:AMZN-USDT-SWAP",
       "highExchange": "Hyperliquid",
       "lowExchange": "OKX"
     },
@@ -1278,8 +1320,8 @@
       "assetId": "AMZN",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 8.28737714285714,
-      "fundingSpread8h": 7.568380952380952e-05,
+      "annualizedSpreadPct": 7.695920714285715,
+      "fundingSpread8h": 7.028238095238096e-05,
       "highPairKey": "Bybit:AMZNUSDT",
       "lowPairKey": "Orbs Perps Hub:AMZNUSDT",
       "highExchange": "Bybit",
@@ -1292,8 +1334,8 @@
       "assetId": "AMZN",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 9.676705286666683,
-      "fundingSpread8h": 8.837173777777794e-05,
+      "annualizedSpreadPct": 9.135801810000023,
+      "fundingSpread8h": 8.343198000000021e-05,
       "highPairKey": "Bybit:AMZNUSDT",
       "lowPairKey": "Hyperliquid:xyz:AMZN",
       "highExchange": "Bybit",
@@ -1306,10 +1348,24 @@
       "assetId": "AMZN",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 10.885764907222116,
-      "fundingSpread8h": 9.94133781481472e-05,
+      "annualizedSpreadPct": 10.283242982222118,
+      "fundingSpread8h": 9.391089481481385e-05,
       "highPairKey": "Binance:AMZNUSDT",
       "lowPairKey": "Hyperliquid:xyz:AMZN",
+      "highExchange": "Binance",
+      "lowExchange": "Hyperliquid"
+    },
+    {
+      "id": "BABA:current:funding-spread:narrow",
+      "type": "funding_spread",
+      "severity": "medium",
+      "assetId": "BABA",
+      "scope": "current",
+      "level": "narrow",
+      "annualizedSpreadPct": 8.2196832,
+      "fundingSpread8h": 7.50656e-05,
+      "highPairKey": "Binance:BABAUSDT",
+      "lowPairKey": "Hyperliquid:xyz:BABA",
       "highExchange": "Binance",
       "lowExchange": "Hyperliquid"
     },
@@ -1320,8 +1376,8 @@
       "assetId": "BABA",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 16.264793149242436,
-      "fundingSpread8h": 0.00014853692373737384,
+      "annualizedSpreadPct": 15.786192717121223,
+      "fundingSpread8h": 0.00014416614353535362,
       "highPairKey": "Binance:BABAUSDT",
       "lowPairKey": "Hyperliquid:xyz:BABA",
       "highExchange": "Binance",
@@ -1334,8 +1390,8 @@
       "assetId": "BABA",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 11.121242735512714,
-      "fundingSpread8h": 0.00010156386059828963,
+      "annualizedSpreadPct": 11.239901802179382,
+      "fundingSpread8h": 0.00010264750504273408,
       "highPairKey": "Aster:BABAUSDT",
       "lowPairKey": "Hyperliquid:xyz:BABA",
       "highExchange": "Aster",
@@ -1349,8 +1405,8 @@
       "pairKey": "Variational:BNB",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 104,
-      "historyCoveragePct": 38.52,
+      "historyRows": 106,
+      "historyCoveragePct": 39.26,
       "latestAgeHours": 0
     },
     {
@@ -1360,12 +1416,12 @@
       "assetId": "BNB",
       "scope": "current",
       "level": "narrow",
-      "annualizedSpreadPct": 11.7406338,
-      "fundingSpread8h": 0.0001072204,
+      "annualizedSpreadPct": 18.818670000000004,
+      "fundingSpread8h": 0.00017186000000000002,
       "highPairKey": "Bybit:BNBUSDT",
-      "lowPairKey": "Hyperliquid:BNB",
+      "lowPairKey": "OKX:BNB-USDT-SWAP",
       "highExchange": "Bybit",
-      "lowExchange": "Hyperliquid"
+      "lowExchange": "OKX"
     },
     {
       "id": "BNB:1D:funding-spread:narrow",
@@ -1374,11 +1430,11 @@
       "assetId": "BNB",
       "scope": "1D",
       "level": "narrow",
-      "annualizedSpreadPct": 6.968739947466453,
-      "fundingSpread8h": 6.364146070745618e-05,
-      "highPairKey": "OKX:BNB-USDT-SWAP",
+      "annualizedSpreadPct": 9.411166666666668,
+      "fundingSpread8h": 8.594672754946728e-05,
+      "highPairKey": "Bybit:BNBUSDT",
       "lowPairKey": "Variational:BNB",
-      "highExchange": "OKX",
+      "highExchange": "Bybit",
       "lowExchange": "Variational"
     },
     {
@@ -1388,8 +1444,8 @@
       "assetId": "BNB",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 6.403103692152925,
-      "fundingSpread8h": 5.8475832805049537e-05,
+      "annualizedSpreadPct": 6.041947655935617,
+      "fundingSpread8h": 5.517760416379559e-05,
       "highPairKey": "Binance:BNBUSDT",
       "lowPairKey": "Variational:BNB",
       "highExchange": "Binance",
@@ -1402,8 +1458,8 @@
       "assetId": "BNB",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 5.53094365384616,
-      "fundingSpread8h": 5.051090094836676e-05,
+      "annualizedSpreadPct": 5.496362179245289,
+      "fundingSpread8h": 5.019508839493415e-05,
       "highPairKey": "Binance:BNBUSDT",
       "lowPairKey": "Variational:BNB",
       "highExchange": "Binance",
@@ -1417,8 +1473,8 @@
       "pairKey": "Variational:BTC",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 104,
-      "historyCoveragePct": 38.52,
+      "historyRows": 106,
+      "historyCoveragePct": 39.26,
       "latestAgeHours": 0
     },
     {
@@ -1428,26 +1484,12 @@
       "assetId": "BTC",
       "scope": "current",
       "level": "narrow",
-      "annualizedSpreadPct": 7.337595000000002,
-      "fundingSpread8h": 6.701000000000002e-05,
+      "annualizedSpreadPct": 8.419586400000002,
+      "fundingSpread8h": 7.689120000000003e-05,
       "highPairKey": "Bybit:BTCUSDT",
-      "lowPairKey": "Orbs Perps Hub:BTCUSDT",
+      "lowPairKey": "Hyperliquid:BTC",
       "highExchange": "Bybit",
-      "lowExchange": "Orbs Perps Hub"
-    },
-    {
-      "id": "BTC:7D:funding-spread:narrow",
-      "type": "funding_spread",
-      "severity": "medium",
-      "assetId": "BTC",
-      "scope": "7D",
-      "level": "narrow",
-      "annualizedSpreadPct": 5.048940714285717,
-      "fundingSpread8h": 4.6109047619047637e-05,
-      "highPairKey": "Bybit:BTCUSDT",
-      "lowPairKey": "Aster:BTCUSDT",
-      "highExchange": "Bybit",
-      "lowExchange": "Aster"
+      "lowExchange": "Hyperliquid"
     },
     {
       "id": "COIN:Aster:COINUSDT:reliability:limited",
@@ -1469,8 +1511,8 @@
       "pairKey": "Variational:COIN",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 116,
-      "historyCoveragePct": 42.96,
+      "historyRows": 118,
+      "historyCoveragePct": 43.7,
       "latestAgeHours": 0
     },
     {
@@ -1494,8 +1536,8 @@
       "assetId": "COIN",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 8.202056989252773,
-      "fundingSpread8h": 7.490463003883812e-05,
+      "annualizedSpreadPct": 7.610391989252771,
+      "fundingSpread8h": 6.950129670550475e-05,
       "highPairKey": "OKX:COIN-USDT-SWAP",
       "lowPairKey": "Orbs Perps Hub:COINUSDT",
       "highExchange": "OKX",
@@ -1508,8 +1550,8 @@
       "assetId": "COIN",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 6.140020510000033,
-      "fundingSpread8h": 5.607324666666697e-05,
+      "annualizedSpreadPct": 6.232818596666698,
+      "fundingSpread8h": 5.692071777777807e-05,
       "highPairKey": "Aster:COINUSDT",
       "lowPairKey": "Hyperliquid:xyz:COIN",
       "highExchange": "Aster",
@@ -1522,8 +1564,8 @@
       "assetId": "COIN",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 15.967898876861405,
-      "fundingSpread8h": 0.00014582556051928223,
+      "annualizedSpreadPct": 15.885490068376074,
+      "fundingSpread8h": 0.0001450729686609687,
       "highPairKey": "Binance:COINUSDT",
       "lowPairKey": "Bybit:COINUSDT",
       "highExchange": "Binance",
@@ -1537,23 +1579,9 @@
       "pairKey": "Variational:ETH",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 104,
-      "historyCoveragePct": 38.52,
+      "historyRows": 106,
+      "historyCoveragePct": 39.26,
       "latestAgeHours": 0
-    },
-    {
-      "id": "ETH:current:funding-spread:narrow",
-      "type": "funding_spread",
-      "severity": "medium",
-      "assetId": "ETH",
-      "scope": "current",
-      "level": "narrow",
-      "annualizedSpreadPct": 11.29602,
-      "fundingSpread8h": 0.00010316000000000002,
-      "highPairKey": "Bybit:ETHUSDT",
-      "lowPairKey": "Hyperliquid:ETH",
-      "highExchange": "Bybit",
-      "lowExchange": "Hyperliquid"
     },
     {
       "id": "ETH:1D:funding-spread:narrow",
@@ -1562,11 +1590,11 @@
       "assetId": "ETH",
       "scope": "1D",
       "level": "narrow",
-      "annualizedSpreadPct": 5.86937854871805,
-      "fundingSpread8h": 5.3601630581899994e-05,
-      "highPairKey": "OKX:ETH-USDT-SWAP",
+      "annualizedSpreadPct": 5.984539999999999,
+      "fundingSpread8h": 5.465333333333333e-05,
+      "highPairKey": "Bybit:ETHUSDT",
       "lowPairKey": "Hyperliquid:ETH",
-      "highExchange": "OKX",
+      "highExchange": "Bybit",
       "lowExchange": "Hyperliquid"
     },
     {
@@ -1577,8 +1605,8 @@
       "pairKey": "Variational:XAU",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 116,
-      "historyCoveragePct": 21.48,
+      "historyRows": 118,
+      "historyCoveragePct": 21.85,
       "latestAgeHours": 0
     },
     {
@@ -1588,11 +1616,11 @@
       "assetId": "GOLD",
       "scope": "current",
       "level": "narrow",
-      "annualizedSpreadPct": 15.2615844,
-      "fundingSpread8h": 0.0001393752,
-      "highPairKey": "Bybit:XAUTUSDT",
+      "annualizedSpreadPct": 17.954671199999996,
+      "fundingSpread8h": 0.00016396959999999996,
+      "highPairKey": "Binance:XAUUSDT",
       "lowPairKey": "Hyperliquid:xyz:GOLD",
-      "highExchange": "Bybit",
+      "highExchange": "Binance",
       "lowExchange": "Hyperliquid"
     },
     {
@@ -1602,8 +1630,8 @@
       "assetId": "GOLD",
       "scope": "1D",
       "level": "narrow",
-      "annualizedSpreadPct": 13.0433261,
-      "fundingSpread8h": 0.00011911713333333332,
+      "annualizedSpreadPct": 13.57326595,
+      "fundingSpread8h": 0.00012395676666666667,
       "highPairKey": "OKX:XAU-USDT-SWAP",
       "lowPairKey": "Hyperliquid:xyz:GOLD",
       "highExchange": "OKX",
@@ -1616,8 +1644,8 @@
       "assetId": "GOLD",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 10.077289171428573,
-      "fundingSpread8h": 9.20300380952381e-05,
+      "annualizedSpreadPct": 10.178555292857144,
+      "fundingSpread8h": 9.295484285714288e-05,
       "highPairKey": "Bybit:XAUTUSDT",
       "lowPairKey": "Hyperliquid:xyz:GOLD",
       "highExchange": "Bybit",
@@ -1630,8 +1658,8 @@
       "assetId": "GOLD",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 6.961033672413791,
-      "fundingSpread8h": 6.3571083766336e-05,
+      "annualizedSpreadPct": 6.842599884180789,
+      "fundingSpread8h": 6.248949665918529e-05,
       "highPairKey": "Bybit:XAUTUSDT",
       "lowPairKey": "Variational:XAU",
       "highExchange": "Bybit",
@@ -1644,12 +1672,26 @@
       "assetId": "GOLD",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 11.459636366858238,
-      "fundingSpread8h": 0.00010465421339596564,
+      "annualizedSpreadPct": 11.248936661958568,
+      "fundingSpread8h": 0.00010273001517770382,
       "highPairKey": "Aster:XAUUSDT",
       "lowPairKey": "Variational:XAU",
       "highExchange": "Aster",
       "lowExchange": "Variational"
+    },
+    {
+      "id": "GOOGL:current:funding-spread:narrow",
+      "type": "funding_spread",
+      "severity": "medium",
+      "assetId": "GOOGL",
+      "scope": "current",
+      "level": "narrow",
+      "annualizedSpreadPct": 5.4750000000000005,
+      "fundingSpread8h": 5.000000000000001e-05,
+      "highPairKey": "Binance:GOOGLUSDT",
+      "lowPairKey": "Hyperliquid:xyz:GOOGL",
+      "highExchange": "Binance",
+      "lowExchange": "Hyperliquid"
     },
     {
       "id": "GOOGL:1D:funding-spread:narrow",
@@ -1658,12 +1700,12 @@
       "assetId": "GOOGL",
       "scope": "1D",
       "level": "narrow",
-      "annualizedSpreadPct": 13.73499960375915,
-      "fundingSpread8h": 0.0001254337863357,
+      "annualizedSpreadPct": 5.68195715375915,
+      "fundingSpread8h": 5.189001966903333e-05,
       "highPairKey": "OKX:GOOGL-USDT-SWAP",
-      "lowPairKey": "Orbs Perps Hub:GOOGLUSDT",
+      "lowPairKey": "Hyperliquid:xyz:GOOGL",
       "highExchange": "OKX",
-      "lowExchange": "Orbs Perps Hub"
+      "lowExchange": "Hyperliquid"
     },
     {
       "id": "GOOGL:7D:funding-spread:narrow",
@@ -1672,11 +1714,11 @@
       "assetId": "GOOGL",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 5.799988178571423,
-      "fundingSpread8h": 5.296792857142852e-05,
-      "highPairKey": "Bybit:GOOGLUSDT",
+      "annualizedSpreadPct": 5.618734392857139,
+      "fundingSpread8h": 5.131264285714281e-05,
+      "highPairKey": "Aster:GOOGLUSDT",
       "lowPairKey": "Hyperliquid:xyz:GOOGL",
-      "highExchange": "Bybit",
+      "highExchange": "Aster",
       "lowExchange": "Hyperliquid"
     },
     {
@@ -1686,8 +1728,8 @@
       "assetId": "GOOGL",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 9.56984710948976,
-      "fundingSpread8h": 8.739586401360513e-05,
+      "annualizedSpreadPct": 9.482815049489766,
+      "fundingSpread8h": 8.660105068027182e-05,
       "highPairKey": "Aster:GOOGLUSDT",
       "lowPairKey": "Hyperliquid:xyz:GOOGL",
       "highExchange": "Aster",
@@ -1701,8 +1743,8 @@
       "pairKey": "Variational:HYPE",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 116,
-      "historyCoveragePct": 42.96,
+      "historyRows": 118,
+      "historyCoveragePct": 43.7,
       "latestAgeHours": 0
     },
     {
@@ -1712,11 +1754,11 @@
       "assetId": "HYPE",
       "scope": "current",
       "level": "narrow",
-      "annualizedSpreadPct": 11.861214919121553,
-      "fundingSpread8h": 0.00010832159743490002,
-      "highPairKey": "OKX:HYPE-USDT-SWAP",
+      "annualizedSpreadPct": 7.665000000000002,
+      "fundingSpread8h": 7.000000000000001e-05,
+      "highPairKey": "Aster:HYPEUSDT",
       "lowPairKey": "Orbs Perps Hub:HYPEUSDT",
-      "highExchange": "OKX",
+      "highExchange": "Aster",
       "lowExchange": "Orbs Perps Hub"
     },
     {
@@ -1726,11 +1768,11 @@
       "assetId": "HYPE",
       "scope": "1D",
       "level": "narrow",
-      "annualizedSpreadPct": 13.3353626,
-      "fundingSpread8h": 0.00012178413333333332,
-      "highPairKey": "Binance:HYPEUSDT",
+      "annualizedSpreadPct": 6.66326598212915,
+      "fundingSpread8h": 6.085174412903332e-05,
+      "highPairKey": "OKX:HYPE-USDT-SWAP",
       "lowPairKey": "Hyperliquid:HYPE",
-      "highExchange": "Binance",
+      "highExchange": "OKX",
       "lowExchange": "Hyperliquid"
     },
     {
@@ -1740,8 +1782,8 @@
       "assetId": "HYPE",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 7.756800628571403,
-      "fundingSpread8h": 7.083836190476168e-05,
+      "annualizedSpreadPct": 7.71341777142855,
+      "fundingSpread8h": 7.044217142857124e-05,
       "highPairKey": "Aster:HYPEUSDT",
       "lowPairKey": "Hyperliquid:HYPE",
       "highExchange": "Aster",
@@ -1754,8 +1796,8 @@
       "assetId": "HYPE",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 10.09484826387551,
-      "fundingSpread8h": 9.219039510388594e-05,
+      "annualizedSpreadPct": 10.030562273875509,
+      "fundingSpread8h": 9.160330843721924e-05,
       "highPairKey": "OKX:HYPE-USDT-SWAP",
       "lowPairKey": "Hyperliquid:HYPE",
       "highExchange": "OKX",
@@ -1768,11 +1810,25 @@
       "assetId": "HYPE",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 9.00068659666655,
-      "fundingSpread8h": 8.219805111111006e-05,
+      "annualizedSpreadPct": 9.014366026110993,
+      "fundingSpread8h": 8.232297740740634e-05,
       "highPairKey": "Aster:HYPEUSDT",
       "lowPairKey": "Hyperliquid:HYPE",
       "highExchange": "Aster",
+      "lowExchange": "Hyperliquid"
+    },
+    {
+      "id": "META:1D:funding-spread:narrow",
+      "type": "funding_spread",
+      "severity": "medium",
+      "assetId": "META",
+      "scope": "1D",
+      "level": "narrow",
+      "annualizedSpreadPct": 7.050690400000001,
+      "fundingSpread8h": 6.438986666666668e-05,
+      "highPairKey": "Binance:METAUSDT",
+      "lowPairKey": "Hyperliquid:xyz:META",
+      "highExchange": "Binance",
       "lowExchange": "Hyperliquid"
     },
     {
@@ -1782,8 +1838,8 @@
       "assetId": "META",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 9.481806792857135,
-      "fundingSpread8h": 8.659184285714279e-05,
+      "annualizedSpreadPct": 9.26340278571428,
+      "fundingSpread8h": 8.459728571428568e-05,
       "highPairKey": "Bybit:METAUSDT",
       "lowPairKey": "Hyperliquid:xyz:META",
       "highExchange": "Bybit",
@@ -1796,8 +1852,8 @@
       "assetId": "META",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 10.056653131666671,
-      "fundingSpread8h": 9.184158111111115e-05,
+      "annualizedSpreadPct": 10.070479575000004,
+      "fundingSpread8h": 9.196785000000004e-05,
       "highPairKey": "Bybit:METAUSDT",
       "lowPairKey": "Hyperliquid:xyz:META",
       "highExchange": "Bybit",
@@ -1810,12 +1866,26 @@
       "assetId": "META",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 8.16697748009582,
-      "fundingSpread8h": 7.458426922461937e-05,
+      "annualizedSpreadPct": 8.245789375095821,
+      "fundingSpread8h": 7.53040125579527e-05,
       "highPairKey": "Aster:METAUSDT",
       "lowPairKey": "Hyperliquid:xyz:META",
       "highExchange": "Aster",
       "lowExchange": "Hyperliquid"
+    },
+    {
+      "id": "MSFT:current:funding-spread:narrow",
+      "type": "funding_spread",
+      "severity": "medium",
+      "assetId": "MSFT",
+      "scope": "current",
+      "level": "narrow",
+      "annualizedSpreadPct": 13.833792,
+      "fundingSpread8h": 0.000126336,
+      "highPairKey": "Hyperliquid:xyz:MSFT",
+      "lowPairKey": "Orbs Perps Hub:MSFTUSDT",
+      "highExchange": "Hyperliquid",
+      "lowExchange": "Orbs Perps Hub"
     },
     {
       "id": "MSFT:1D:funding-spread:narrow",
@@ -1824,12 +1894,12 @@
       "assetId": "MSFT",
       "scope": "1D",
       "level": "narrow",
-      "annualizedSpreadPct": 7.62412,
-      "fundingSpread8h": 6.962666666666667e-05,
-      "highPairKey": "Aster:MSFTUSDT",
-      "lowPairKey": "Bybit:MSFTUSDT",
-      "highExchange": "Aster",
-      "lowExchange": "Bybit"
+      "annualizedSpreadPct": 8.035843649999999,
+      "fundingSpread8h": 7.338669999999999e-05,
+      "highPairKey": "Binance:MSFTUSDT",
+      "lowPairKey": "Hyperliquid:xyz:MSFT",
+      "highExchange": "Binance",
+      "lowExchange": "Hyperliquid"
     },
     {
       "id": "MSFT:7D:funding-spread:narrow",
@@ -1838,8 +1908,8 @@
       "assetId": "MSFT",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 14.360278428571435,
-      "fundingSpread8h": 0.0001311440952380953,
+      "annualizedSpreadPct": 13.615036028571433,
+      "fundingSpread8h": 0.00012433822857142862,
       "highPairKey": "Aster:MSFTUSDT",
       "lowPairKey": "Hyperliquid:xyz:MSFT",
       "highExchange": "Aster",
@@ -1852,8 +1922,8 @@
       "assetId": "MSFT",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 10.887951216666629,
-      "fundingSpread8h": 9.943334444444411e-05,
+      "annualizedSpreadPct": 10.927811406666624,
+      "fundingSpread8h": 9.979736444444407e-05,
       "highPairKey": "Aster:MSFTUSDT",
       "lowPairKey": "Hyperliquid:xyz:MSFT",
       "highExchange": "Aster",
@@ -1866,8 +1936,8 @@
       "assetId": "MSFT",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 18.702241396907212,
-      "fundingSpread8h": 0.0001707967250859106,
+      "annualizedSpreadPct": 18.600669523772883,
+      "fundingSpread8h": 0.00016986912807098522,
       "highPairKey": "Aster:MSFTUSDT",
       "lowPairKey": "Bybit:MSFTUSDT",
       "highExchange": "Aster",
@@ -1881,23 +1951,9 @@
       "pairKey": "Variational:MSTR",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 116,
-      "historyCoveragePct": 42.96,
+      "historyRows": 118,
+      "historyCoveragePct": 43.7,
       "latestAgeHours": 0
-    },
-    {
-      "id": "MSTR:current:funding-spread:narrow",
-      "type": "funding_spread",
-      "severity": "medium",
-      "assetId": "MSTR",
-      "scope": "current",
-      "level": "narrow",
-      "annualizedSpreadPct": 17.5456668,
-      "fundingSpread8h": 0.00016023439999999998,
-      "highPairKey": "Hyperliquid:xyz:MSTR",
-      "lowPairKey": "Orbs Perps Hub:MSTRUSDT",
-      "highExchange": "Hyperliquid",
-      "lowExchange": "Orbs Perps Hub"
     },
     {
       "id": "MSTR:1D:funding-spread:narrow",
@@ -1906,8 +1962,8 @@
       "assetId": "MSTR",
       "scope": "1D",
       "level": "narrow",
-      "annualizedSpreadPct": 7.890106449999999,
-      "fundingSpread8h": 7.205576666666666e-05,
+      "annualizedSpreadPct": 13.916756500000002,
+      "fundingSpread8h": 0.0001270936666666667,
       "highPairKey": "Bybit:MSTRUSDT",
       "lowPairKey": "Hyperliquid:xyz:MSTR",
       "highExchange": "Bybit",
@@ -1920,11 +1976,11 @@
       "assetId": "MSTR",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 11.434584224322652,
-      "fundingSpread8h": 0.00010442542670614294,
-      "highPairKey": "Hyperliquid:xyz:MSTR",
+      "annualizedSpreadPct": 9.068791973618419,
+      "fundingSpread8h": 8.28200180239125e-05,
+      "highPairKey": "Variational:MSTR",
       "lowPairKey": "OKX:MSTR-USDT-SWAP",
-      "highExchange": "Hyperliquid",
+      "highExchange": "Variational",
       "lowExchange": "OKX"
     },
     {
@@ -1934,8 +1990,8 @@
       "assetId": "MSTR",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 13.548190084999991,
-      "fundingSpread8h": 0.00012372776333333325,
+      "annualizedSpreadPct": 13.330052579999991,
+      "fundingSpread8h": 0.00012173563999999991,
       "highPairKey": "Hyperliquid:xyz:MSTR",
       "lowPairKey": "Orbs Perps Hub:MSTRUSDT",
       "highExchange": "Hyperliquid",
@@ -1949,8 +2005,8 @@
       "pairKey": "Variational:MU",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 111,
-      "historyCoveragePct": 41.11,
+      "historyRows": 113,
+      "historyCoveragePct": 41.85,
       "latestAgeHours": 0
     },
     {
@@ -1974,12 +2030,12 @@
       "assetId": "MU",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 13.520605250503312,
-      "fundingSpread8h": 0.00012347584703655988,
+      "annualizedSpreadPct": 14.408600858407077,
+      "fundingSpread8h": 0.00013158539596718792,
       "highPairKey": "Bybit:MUUSDT",
-      "lowPairKey": "OKX:MU-USDT-SWAP",
+      "lowPairKey": "Variational:MU",
       "highExchange": "Bybit",
-      "lowExchange": "OKX"
+      "lowExchange": "Variational"
     },
     {
       "id": "MU:90D:funding-spread:narrow",
@@ -1988,8 +2044,8 @@
       "assetId": "MU",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 18.52835443464669,
-      "fundingSpread8h": 0.0001692087162981433,
+      "annualizedSpreadPct": 18.269383974091138,
+      "fundingSpread8h": 0.0001668436892611063,
       "highPairKey": "Hyperliquid:xyz:MU",
       "lowPairKey": "OKX:MU-USDT-SWAP",
       "highExchange": "Hyperliquid",
@@ -2003,8 +2059,8 @@
       "pairKey": "Variational:NVDA",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 116,
-      "historyCoveragePct": 42.96,
+      "historyRows": 118,
+      "historyCoveragePct": 43.7,
       "latestAgeHours": 0
     },
     {
@@ -2014,26 +2070,12 @@
       "assetId": "NVDA",
       "scope": "current",
       "level": "narrow",
-      "annualizedSpreadPct": 8.8525932,
-      "fundingSpread8h": 8.084559999999999e-05,
+      "annualizedSpreadPct": 7.011284999999999,
+      "fundingSpread8h": 6.403e-05,
       "highPairKey": "Binance:NVDAUSDT",
-      "lowPairKey": "Hyperliquid:xyz:NVDA",
+      "lowPairKey": "Bybit:NVDAUSDT",
       "highExchange": "Binance",
-      "lowExchange": "Hyperliquid"
-    },
-    {
-      "id": "NVDA:1D:funding-spread:narrow",
-      "type": "funding_spread",
-      "severity": "medium",
-      "assetId": "NVDA",
-      "scope": "1D",
-      "level": "narrow",
-      "annualizedSpreadPct": 18.74347635,
-      "fundingSpread8h": 0.00017117330000000002,
-      "highPairKey": "Aster:NVDAUSDT",
-      "lowPairKey": "Hyperliquid:xyz:NVDA",
-      "highExchange": "Aster",
-      "lowExchange": "Hyperliquid"
+      "lowExchange": "Bybit"
     },
     {
       "id": "NVDA:7D:funding-spread:narrow",
@@ -2042,8 +2084,8 @@
       "assetId": "NVDA",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 11.477220078571413,
-      "fundingSpread8h": 0.00010481479523809512,
+      "annualizedSpreadPct": 11.640165985714269,
+      "fundingSpread8h": 0.00010630288571428558,
       "highPairKey": "Aster:NVDAUSDT",
       "lowPairKey": "Hyperliquid:xyz:NVDA",
       "highExchange": "Aster",
@@ -2056,8 +2098,8 @@
       "assetId": "NVDA",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 8.201149193828817,
-      "fundingSpread8h": 7.489633966966956e-05,
+      "annualizedSpreadPct": 8.185334473828812,
+      "fundingSpread8h": 7.475191300300286e-05,
       "highPairKey": "Aster:NVDAUSDT",
       "lowPairKey": "Hyperliquid:xyz:NVDA",
       "highExchange": "Aster",
@@ -2070,8 +2112,8 @@
       "assetId": "NVDA",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 13.042421518428736,
-      "fundingSpread8h": 0.00011910887231441769,
+      "annualizedSpreadPct": 12.582964933259174,
+      "fundingSpread8h": 0.00011491292176492397,
       "highPairKey": "Binance:NVDAUSDT",
       "lowPairKey": "Bybit:NVDAUSDT",
       "highExchange": "Binance",
@@ -2096,12 +2138,12 @@
       "assetId": "PLTR",
       "scope": "current",
       "level": "narrow",
-      "annualizedSpreadPct": 5.4750000000000005,
-      "fundingSpread8h": 5.000000000000001e-05,
-      "highPairKey": "Binance:PLTRUSDT",
-      "lowPairKey": "Hyperliquid:xyz:PLTR",
-      "highExchange": "Binance",
-      "lowExchange": "Hyperliquid"
+      "annualizedSpreadPct": 10.004533200000001,
+      "fundingSpread8h": 9.136560000000002e-05,
+      "highPairKey": "Hyperliquid:xyz:PLTR",
+      "lowPairKey": "Orbs Perps Hub:PLTRUSDT",
+      "highExchange": "Hyperliquid",
+      "lowExchange": "Orbs Perps Hub"
     },
     {
       "id": "PLTR:1D:funding-spread:narrow",
@@ -2110,8 +2152,8 @@
       "assetId": "PLTR",
       "scope": "1D",
       "level": "narrow",
-      "annualizedSpreadPct": 12.024450499999999,
-      "fundingSpread8h": 0.00010981233333333332,
+      "annualizedSpreadPct": 9.753978950000002,
+      "fundingSpread8h": 8.907743333333336e-05,
       "highPairKey": "Binance:PLTRUSDT",
       "lowPairKey": "Hyperliquid:xyz:PLTR",
       "highExchange": "Binance",
@@ -2124,8 +2166,8 @@
       "assetId": "PLTR",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 8.156901346778191,
-      "fundingSpread8h": 7.449224974226658e-05,
+      "annualizedSpreadPct": 7.935023582492477,
+      "fundingSpread8h": 7.246596878988563e-05,
       "highPairKey": "OKX:PLTR-USDT-SWAP",
       "lowPairKey": "Hyperliquid:xyz:PLTR",
       "highExchange": "OKX",
@@ -2152,8 +2194,8 @@
       "assetId": "PLTR",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 18.352559941008018,
-      "fundingSpread8h": 0.0001676032871324933,
+      "annualizedSpreadPct": 17.771791974358973,
+      "fundingSpread8h": 0.00016229947008547003,
       "highPairKey": "Binance:PLTRUSDT",
       "lowPairKey": "Bybit:PLTRUSDT",
       "highExchange": "Binance",
@@ -2167,8 +2209,8 @@
       "pairKey": "Variational:QQQ",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 116,
-      "historyCoveragePct": 42.96,
+      "historyRows": 118,
+      "historyCoveragePct": 43.7,
       "latestAgeHours": 0
     },
     {
@@ -2178,12 +2220,12 @@
       "assetId": "QQQ",
       "scope": "current",
       "level": "narrow",
-      "annualizedSpreadPct": 17.4734,
-      "fundingSpread8h": 0.00015957442922374433,
-      "highPairKey": "OKX:QQQ-USDT-SWAP",
-      "lowPairKey": "Variational:QQQ",
-      "highExchange": "OKX",
-      "lowExchange": "Variational"
+      "annualizedSpreadPct": 7.948605000000001,
+      "fundingSpread8h": 7.259000000000001e-05,
+      "highPairKey": "Aster:QQQUSDT",
+      "lowPairKey": "Bybit:QQQUSDT",
+      "highExchange": "Aster",
+      "lowExchange": "Bybit"
     },
     {
       "id": "QQQ:30D:funding-spread:narrow",
@@ -2192,8 +2234,8 @@
       "assetId": "QQQ",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 8.418695948979591,
-      "fundingSpread8h": 7.688306802721087e-05,
+      "annualizedSpreadPct": 8.361062448979592,
+      "fundingSpread8h": 7.635673469387754e-05,
       "highPairKey": "Bybit:QQQUSDT",
       "lowPairKey": "Aster:QQQUSDT",
       "highExchange": "Bybit",
@@ -2206,8 +2248,8 @@
       "assetId": "QQQ",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 11.53552183166481,
-      "fundingSpread8h": 0.00010534723133940466,
+      "annualizedSpreadPct": 11.33205967377437,
+      "fundingSpread8h": 0.00010348912944086184,
       "highPairKey": "Binance:QQQUSDT",
       "lowPairKey": "Variational:QQQ",
       "highExchange": "Binance",
@@ -2245,8 +2287,8 @@
       "pairKey": "Variational:SNDK",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 111,
-      "historyCoveragePct": 41.11,
+      "historyRows": 113,
+      "historyCoveragePct": 41.85,
       "latestAgeHours": 0
     },
     {
@@ -2256,8 +2298,8 @@
       "assetId": "SNDK",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 16.408650718047078,
-      "fundingSpread8h": 0.00014985069148901436,
+      "annualizedSpreadPct": 12.19936643233279,
+      "fundingSpread8h": 0.000111409739108062,
       "highPairKey": "Bybit:SNDKUSDT",
       "lowPairKey": "OKX:SNDK-USDT-SWAP",
       "highExchange": "Bybit",
@@ -2271,8 +2313,8 @@
       "pairKey": "Variational:SOL",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 104,
-      "historyCoveragePct": 38.52,
+      "historyRows": 106,
+      "historyCoveragePct": 39.26,
       "latestAgeHours": 0
     },
     {
@@ -2282,11 +2324,11 @@
       "assetId": "SOL",
       "scope": "current",
       "level": "narrow",
-      "annualizedSpreadPct": 17.376555000000003,
-      "fundingSpread8h": 0.00015869000000000001,
-      "highPairKey": "Bybit:SOLUSDT",
+      "annualizedSpreadPct": 10.8503,
+      "fundingSpread8h": 9.9089497716895e-05,
+      "highPairKey": "Variational:SOL",
       "lowPairKey": "Hyperliquid:SOL",
-      "highExchange": "Bybit",
+      "highExchange": "Variational",
       "lowExchange": "Hyperliquid"
     },
     {
@@ -2296,11 +2338,11 @@
       "assetId": "SOL",
       "scope": "1D",
       "level": "narrow",
-      "annualizedSpreadPct": 9.746092566666666,
-      "fundingSpread8h": 8.900541156773212e-05,
-      "highPairKey": "Variational:SOL",
+      "annualizedSpreadPct": 11.166320899999999,
+      "fundingSpread8h": 0.00010197553333333333,
+      "highPairKey": "Bybit:SOLUSDT",
       "lowPairKey": "Hyperliquid:SOL",
-      "highExchange": "Variational",
+      "highExchange": "Bybit",
       "lowExchange": "Hyperliquid"
     },
     {
@@ -2310,8 +2352,8 @@
       "assetId": "SPY",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 13.704691188494268,
-      "fundingSpread8h": 0.0001251569971551988,
+      "annualizedSpreadPct": 13.717752750239235,
+      "fundingSpread8h": 0.0001252762808241026,
       "highPairKey": "OKX:SPY-USDT-SWAP",
       "lowPairKey": "Bybit:SPYUSDT",
       "highExchange": "OKX",
@@ -2325,23 +2367,9 @@
       "pairKey": "Variational:TSLA",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 116,
-      "historyCoveragePct": 42.96,
+      "historyRows": 118,
+      "historyCoveragePct": 43.7,
       "latestAgeHours": 0
-    },
-    {
-      "id": "TSLA:current:funding-spread:narrow",
-      "type": "funding_spread",
-      "severity": "medium",
-      "assetId": "TSLA",
-      "scope": "current",
-      "level": "narrow",
-      "annualizedSpreadPct": 13.619609999999998,
-      "fundingSpread8h": 0.00012438,
-      "highPairKey": "Aster:TSLAUSDT",
-      "lowPairKey": "Orbs Perps Hub:TSLAUSDT",
-      "highExchange": "Aster",
-      "lowExchange": "Orbs Perps Hub"
     },
     {
       "id": "TSLA:1D:funding-spread:narrow",
@@ -2350,11 +2378,11 @@
       "assetId": "TSLA",
       "scope": "1D",
       "level": "narrow",
-      "annualizedSpreadPct": 19.98698025,
-      "fundingSpread8h": 0.00018252949999999997,
-      "highPairKey": "Bybit:TSLAUSDT",
+      "annualizedSpreadPct": 19.91747638389594,
+      "fundingSpread8h": 0.0001818947614967666,
+      "highPairKey": "OKX:TSLA-USDT-SWAP",
       "lowPairKey": "Hyperliquid:xyz:TSLA",
-      "highExchange": "Bybit",
+      "highExchange": "OKX",
       "lowExchange": "Hyperliquid"
     },
     {
@@ -2364,8 +2392,8 @@
       "assetId": "TSLA",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 6.6628000139080505,
-      "fundingSpread8h": 6.084748871148905e-05,
+      "annualizedSpreadPct": 6.506175990169498,
+      "fundingSpread8h": 5.9417132330315045e-05,
       "highPairKey": "Hyperliquid:xyz:TSLA",
       "lowPairKey": "Variational:TSLA",
       "highExchange": "Hyperliquid",
@@ -2393,23 +2421,9 @@
       "pairKey": "Variational:TSM",
       "exchange": "Variational",
       "status": "limited",
-      "historyRows": 116,
-      "historyCoveragePct": 42.96,
+      "historyRows": 118,
+      "historyCoveragePct": 43.7,
       "latestAgeHours": 0
-    },
-    {
-      "id": "TSM:1D:funding-spread:narrow",
-      "type": "funding_spread",
-      "severity": "medium",
-      "assetId": "TSM",
-      "scope": "1D",
-      "level": "narrow",
-      "annualizedSpreadPct": 19.65883795,
-      "fundingSpread8h": 0.00017953276666666664,
-      "highPairKey": "Aster:TSMUSDT",
-      "lowPairKey": "Hyperliquid:xyz:TSM",
-      "highExchange": "Aster",
-      "lowExchange": "Hyperliquid"
     },
     {
       "id": "TSM:7D:funding-spread:narrow",
@@ -2418,8 +2432,8 @@
       "assetId": "TSM",
       "scope": "7D",
       "level": "narrow",
-      "annualizedSpreadPct": 12.078352657142862,
-      "fundingSpread8h": 0.00011030459047619052,
+      "annualizedSpreadPct": 12.524514578571427,
+      "fundingSpread8h": 0.00011437912857142857,
       "highPairKey": "Aster:TSMUSDT",
       "lowPairKey": "Hyperliquid:xyz:TSM",
       "highExchange": "Aster",
@@ -2432,8 +2446,8 @@
       "assetId": "TSM",
       "scope": "30D",
       "level": "narrow",
-      "annualizedSpreadPct": 8.678944812517033,
-      "fundingSpread8h": 7.92597699773245e-05,
+      "annualizedSpreadPct": 8.672261175850359,
+      "fundingSpread8h": 7.919873219954666e-05,
       "highPairKey": "Aster:TSMUSDT",
       "lowPairKey": "Hyperliquid:xyz:TSM",
       "highExchange": "Aster",
@@ -2446,8 +2460,8 @@
       "assetId": "TSM",
       "scope": "90D",
       "level": "narrow",
-      "annualizedSpreadPct": 14.801876893389073,
-      "fundingSpread8h": 0.0001351769579304938,
+      "annualizedSpreadPct": 14.805385750624213,
+      "fundingSpread8h": 0.0001352090022888056,
       "highPairKey": "Aster:TSMUSDT",
       "lowPairKey": "Bybit:TSMUSDT",
       "highExchange": "Aster",
@@ -2455,9 +2469,9 @@
     }
   ],
   "summary": {
-    "total": 188,
-    "high": 99,
-    "medium": 89,
+    "total": 189,
+    "high": 101,
+    "medium": 88,
     "info": 0
   }
 }
