@@ -1,4 +1,4 @@
-import json, time, urllib.error, urllib.parse, urllib.request, datetime
+import argparse, json, time, urllib.error, urllib.parse, urllib.request, datetime
 from pathlib import Path
 
 from funding_dashboard.alerts import build_alerts
@@ -726,7 +726,7 @@ def fetch_latest(pair):
         return fetch_orbs_perps_latest(pair["symbol"])
     raise ValueError(f"Unsupported exchange: {pair['exchange']}")
 
-def main():
+def main(asset_id=None):
     previous = {}
     if DATA_PATH.exists():
         try:
@@ -763,7 +763,12 @@ def main():
         }
     }
 
+    if asset_id:
+        data["pairs"] = dict(previous.get("pairs", {}))
+
     for pair in PAIRS:
+        if asset_id and pair.get("assetId") != asset_id:
+            continue
         symbol = pair["symbol"]
         key = pair_key(pair)
         pair_out = {
@@ -822,4 +827,7 @@ def main():
     ALERTS_PATH.write_text(json.dumps(build_alerts(data), ensure_ascii=False, indent=2) + "\n")
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--asset", help="Update one asset while preserving all other pair data")
+    args = parser.parse_args()
+    main(args.asset)

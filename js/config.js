@@ -16,6 +16,7 @@ export const ASSET_LOGO_DOMAINS = {
   BNB:'bnbchain.org',
   BTC:'bitcoin.org',
   COIN:'coinbase.com',
+  CRCL:'circle.com',
   ETH:'ethereum.org',
   GOLD:'gold.org',
   GOOGL:'google.com',

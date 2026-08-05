@@ -27,6 +27,7 @@
 - `xyz:TSM`
 - `xyz:PLTR`
 - `xyz:BABA`
+- `xyz:CRCL`
 - `HYPE`
 - 1일 / 7일 / 30일 / 90일 기준 annualized 계산
 - 회차별 hourly funding history 테이블
@@ -50,6 +51,7 @@
 - TSMUSDT
 - PLTRUSDT
 - BABAUSDT
+- CRCLUSDT
 - QQQUSDT
 - SPYUSDT
 - HYPEUSDT
@@ -75,6 +77,7 @@
 - TSMUSDT
 - PLTRUSDT
 - BABAUSDT
+- CRCLUSDT
 - QQQUSDT
 - SPYUSDT
 - HYPEUSDT
