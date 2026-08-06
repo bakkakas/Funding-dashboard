@@ -30,6 +30,13 @@
     #foreignRows td.good { color:var(--good); font-weight:800; } #foreignRows td.bad { color:var(--bad); font-weight:800; }
     .chart-head { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:12px; }
     .chart-head .section-title { margin-bottom:4px; }
+    #flowSummary,#tableSummary { display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-top:8px; color:var(--text); font-size:13px; font-weight:750; }
+    .summary-item { display:inline-flex; align-items:baseline; gap:5px; padding:5px 8px; border:1px solid rgba(220,232,223,.1); border-radius:7px; background:rgba(255,255,255,.035); }
+    .summary-item strong { font-size:14px; font-weight:900; font-variant-numeric:tabular-nums; }
+    .summary-buy,.summary-net.good { color:var(--good); }
+    .summary-sell,.summary-net.bad { color:var(--bad); }
+    .summary-net.warn { color:var(--warn); }
+    .summary-divider { color:var(--muted); }
     .period-tabs { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:6px; }
     .period-tabs .chip { padding:7px 10px; font-size:12px; }
     .field { background:#07140f; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:11px 13px; outline:none; }
