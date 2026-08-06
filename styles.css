@@ -21,6 +21,13 @@
     .alt-link { color:var(--accent); text-decoration:none; font-size:13px; font-weight:800; }
     .alt-link:hover { text-decoration:underline; }
     .toolbar,.toolbar2 { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+    .dashboard-nav { display:flex; gap:6px; margin:-6px 0 18px; padding:4px; width:max-content; max-width:100%; border:1px solid var(--line); border-radius:10px; background:#07140f; }
+    .dashboard-nav-link { color:var(--muted); text-decoration:none; padding:9px 14px; border-radius:7px; font-size:13px; font-weight:850; }
+    .dashboard-nav-link.active { color:var(--accent); background:rgba(35,231,165,.14); }
+    .foreign-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:16px; }
+    .foreign-metrics .value { font-size:clamp(21px,2.2vw,32px); font-variant-numeric:tabular-nums; }
+    #foreignRows td:nth-child(n+2),#foreignRows th:nth-child(n+2) { text-align:right; font-variant-numeric:tabular-nums; }
+    #foreignRows td.good { color:var(--good); font-weight:800; } #foreignRows td.bad { color:var(--bad); font-weight:800; }
     .field { background:#07140f; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:11px 13px; outline:none; }
     .field:focus { border-color:rgba(35,231,165,0.75); box-shadow:0 0 0 2px rgba(35,231,165,0.12); }
     .asset-search-wrap { position:relative; flex:2 1 420px; min-width:280px; }
@@ -188,8 +195,9 @@
     .auth-status { color:var(--muted); font-size:13px; line-height:1.55; }
     .auth-status strong { color:var(--text); }
     @media (max-width:1100px){ .top-panel,.metric,.half,.wide { grid-column:span 12; } .header { flex-direction:column; align-items:flex-start; } .header-side { align-items:flex-start; } .header-market-row,.header-actions { justify-content:flex-start; } }
-    @media (max-width:900px){ .asset-summary-card { align-items:stretch; flex-direction:column; } .asset-summary-main { width:100%; flex-direction:column; align-items:flex-start; } .asset-exchange-tabs { width:100%; } .asset-metrics { width:100%; max-width:none; grid-template-columns:1fr; } .asset-metric { text-align:left; } }
+    @media (max-width:900px){ .asset-summary-card { align-items:stretch; flex-direction:column; } .asset-summary-main { width:100%; flex-direction:column; align-items:flex-start; } .asset-exchange-tabs { width:100%; } .asset-metrics { width:100%; max-width:none; grid-template-columns:1fr; } .asset-metric { text-align:left; } .foreign-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
     @media (max-width:700px){
+      .foreign-metrics { grid-template-columns:1fr; }
       .rate-combo,.favored-grid,.support-insights,.period-summary-grid { grid-template-columns:1fr; }
       .comparison-table th,.comparison-table td { padding:8px 5px; font-size:12px; }
       .comparison-table th:nth-child(1),.comparison-table td:nth-child(1) { width:34%; }
