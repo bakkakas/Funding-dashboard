@@ -28,6 +28,10 @@
     .foreign-metrics .value { font-size:clamp(21px,2.2vw,32px); font-variant-numeric:tabular-nums; }
     #foreignRows td:nth-child(n+2),#foreignRows th:nth-child(n+2) { text-align:right; font-variant-numeric:tabular-nums; }
     #foreignRows td.good { color:var(--good); font-weight:800; } #foreignRows td.bad { color:var(--bad); font-weight:800; }
+    .chart-head { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:12px; }
+    .chart-head .section-title { margin-bottom:4px; }
+    .period-tabs { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:6px; }
+    .period-tabs .chip { padding:7px 10px; font-size:12px; }
     .field { background:#07140f; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:11px 13px; outline:none; }
     .field:focus { border-color:rgba(35,231,165,0.75); box-shadow:0 0 0 2px rgba(35,231,165,0.12); }
     .asset-search-wrap { position:relative; flex:2 1 420px; min-width:280px; }
@@ -198,6 +202,8 @@
     @media (max-width:900px){ .asset-summary-card { align-items:stretch; flex-direction:column; } .asset-summary-main { width:100%; flex-direction:column; align-items:flex-start; } .asset-exchange-tabs { width:100%; } .asset-metrics { width:100%; max-width:none; grid-template-columns:1fr; } .asset-metric { text-align:left; } .foreign-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
     @media (max-width:700px){
       .foreign-metrics { grid-template-columns:1fr; }
+      .chart-head { flex-direction:column; }
+      .period-tabs { justify-content:flex-start; }
       .rate-combo,.favored-grid,.support-insights,.period-summary-grid { grid-template-columns:1fr; }
       .comparison-table th,.comparison-table td { padding:8px 5px; font-size:12px; }
       .comparison-table th:nth-child(1),.comparison-table td:nth-child(1) { width:34%; }
