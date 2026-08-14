@@ -96,7 +96,7 @@ function renderOwnership(stock, rows) {
 }
 
 function renderIntraday() {
-  tabs('marketTabs', market, [['KOSPI', null, '코스피'], ['KOSDAQ', null, '코스닥']], key => { market = key; renderIntraday(); }, 'market');
+  tabs('marketTabs', market, [['KOSPI', null, '코스피'], ['KOSDAQ', null, '코스닥']], key => { market = key; renderIntraday(); renderTopMetrics(); }, 'market');
   const rows = data.marketIntraday?.[market] || [];
   intradayChart?.destroy();
   const summary = document.getElementById('intradaySummary');
@@ -124,23 +124,46 @@ function renderIntraday() {
   });
 }
 
-function render() {
+function renderTopMetrics() {
   const stock = data.stocks[selected];
   const rows = stock.records;
   const latest = rows.at(-1);
   const previous = rows.at(-2) || latest;
+  const liveOwnership = stock.liveSnapshot?.foreignOwnershipPct ?? latest.foreignOwnershipPct;
+  const intraday = data.marketIntraday?.[market] || [];
+  const latestMarket = intraday.at(-1);
+  const flowRows = filtered(rows, flowPeriod);
+  const marketName = market === 'KOSPI' ? '코스피' : '코스닥';
+
+  metric('ownership', `${liveOwnership.toFixed(2)}%`);
+  const ownershipDelta = liveOwnership - previous.foreignOwnershipPct;
+  document.getElementById('ownershipChange').textContent = `전 거래일 대비 ${ownershipDelta >= 0 ? '+' : ''}${ownershipDelta.toFixed(2)}%p · 최신`;
+  document.getElementById('dailyIndividualLabel').textContent = `${marketName} 당일 개인 순매수`;
+  document.getElementById('dailyNetLabel').textContent = `${marketName} 당일 외국인 순매수`;
+  if (latestMarket) {
+    metric('dailyIndividualNet', `${signed(latestMarket.individual)}억`, tone(latestMarket.individual));
+    metric('dailyNet', `${signed(latestMarket.foreign)}억`, tone(latestMarket.foreign));
+    const asOf = `${latestMarket.date} ${latestMarket.sourceTime || latestMarket.time} 기준`;
+    document.getElementById('dailyIndividualDate').textContent = asOf;
+    document.getElementById('dailyNetDate').textContent = asOf;
+  } else {
+    metric('dailyIndividualNet', '-', 'warn');
+    metric('dailyNet', '-', 'warn');
+    document.getElementById('dailyIndividualDate').textContent = '수집된 장중 데이터 없음';
+    document.getElementById('dailyNetDate').textContent = '수집된 장중 데이터 없음';
+  }
+  const flowTotals = totals(flowRows);
+  metric('rollingNet', signed(flowTotals.net), tone(flowTotals.net));
+  document.getElementById('rollingPeriod').textContent = `${flowPeriod} 종목 확정치 순합계`;
+}
+
+function render() {
+  const stock = data.stocks[selected];
+  const rows = stock.records;
+  const latest = rows.at(-1);
   const flowRows = filtered(rows, flowPeriod);
   const tableRows = filtered(rows, tablePeriod);
-  const flowTotals = totals(flowRows);
-
-  metric('ownership', `${latest.foreignOwnershipPct.toFixed(2)}%`);
-  metric('dailyIndividualNet', signed(individualNet(latest)), tone(individualNet(latest)));
-  metric('dailyNet', signed(latest.foreignNetShares), tone(latest.foreignNetShares));
-  metric('rollingNet', signed(flowTotals.net), tone(flowTotals.net));
-  document.getElementById('rollingPeriod').textContent = `${flowPeriod} 순합계`;
-  const ownershipDelta = latest.foreignOwnershipPct - previous.foreignOwnershipPct;
-  document.getElementById('ownershipChange').textContent = `전 거래일 대비 ${ownershipDelta >= 0 ? '+' : ''}${ownershipDelta.toFixed(2)}%p`;
-  document.getElementById('dailyNetDate').textContent = latest.date;
+  renderTopMetrics();
   document.querySelectorAll('#stockTabs button').forEach(button => button.classList.toggle('active', button.dataset.code === selected));
 
   tabs('ownershipPeriods', ownershipPeriod, [['ALL'], ...PERIODS], key => { ownershipPeriod = key; render(); });

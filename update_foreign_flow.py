@@ -53,6 +53,13 @@ def fetch(code,page):
     with urlopen(req,timeout=20) as res: html=res.read().decode('euc-kr',errors='replace')
     parser=Parser(); parser.feed(html); return parser.rows
 
+def fetch_live_snapshot(code):
+    req=Request(f'https://m.stock.naver.com/api/stock/{code}/integration',headers={'User-Agent':'Mozilla/5.0 FundingDashboard/1.0','Referer':'https://m.stock.naver.com/'})
+    with urlopen(req,timeout=20) as res: payload=json.load(res)
+    infos={item.get('code'):item.get('value') for item in payload.get('totalInfos',[])}
+    ownership=num(infos.get('foreignRate',''),True)
+    return {'foreignOwnershipPct':ownership,'fetchedAt':datetime.now(timezone.utc).isoformat()}
+
 def collect(code, existing=None):
     records={r['date']:r for r in (existing or [])}
     fully_backfilled=bool(records) and min(records)<=START_DATE.isoformat()
@@ -110,7 +117,11 @@ def main():
         try: previous_intraday=json.loads(OUTPUT.read_text(encoding='utf-8')).get('marketIntraday',{})
         except (OSError,json.JSONDecodeError): pass
     data={'updatedAt':datetime.now(timezone.utc).isoformat(),'startDate':START_DATE.isoformat(),'source':'Naver Finance (KRX-based daily and intraday data)','stocks':{}}
-    for code,name in STOCKS.items(): data['stocks'][code]={'code':code,'name':name,'records':collect(code,previous.get(code,{}).get('records',[]))}
+    for code,name in STOCKS.items():
+        stock={'code':code,'name':name,'records':collect(code,previous.get(code,{}).get('records',[]))}
+        try: stock['liveSnapshot']=fetch_live_snapshot(code)
+        except Exception as exc: print(f'live snapshot unavailable for {code}: {exc}')
+        data['stocks'][code]=stock
     data['marketIntraday']=collect_intraday(previous_intraday)
     OUTPUT.write_text(json.dumps(data,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
     print(', '.join(f"{v['name']} {len(v['records'])}" for v in data['stocks'].values()))
