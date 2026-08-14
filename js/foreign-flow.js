@@ -115,9 +115,9 @@ function renderIntraday() {
     data: {
       labels: rows.map(row => `${row.date.slice(5)} ${row.time}`),
       datasets: [
-        { label: '외국인', data: rows.map(row => row.foreign), borderColor: '#23e7a5', backgroundColor: 'rgba(35,231,165,.08)', pointRadius: 1.5, borderWidth: 2, tension: .15 },
-        { label: '개인', data: rows.map(row => row.individual), borderColor: '#8ea2ff', backgroundColor: 'transparent', pointRadius: 1.5, borderWidth: 1.7, tension: .15 },
-        { label: '기관', data: rows.map(row => row.institution), borderColor: '#f5c451', backgroundColor: 'transparent', pointRadius: 1.5, borderWidth: 1.7, tension: .15 }
+        { label: '외국인', data: rows.map(row => row.foreign), borderColor: '#23e7a5', backgroundColor: 'rgba(35,231,165,.08)', pointRadius: 4, pointHoverRadius: 7, pointBackgroundColor: '#23e7a5', pointBorderColor: '#07110c', pointBorderWidth: 1.5, borderWidth: 2, tension: .15 },
+        { label: '개인', data: rows.map(row => row.individual), borderColor: '#8ea2ff', backgroundColor: 'transparent', pointRadius: 4, pointHoverRadius: 7, pointBackgroundColor: '#8ea2ff', pointBorderColor: '#07110c', pointBorderWidth: 1.5, borderWidth: 1.7, tension: .15 },
+        { label: '기관', data: rows.map(row => row.institution), borderColor: '#f5c451', backgroundColor: 'transparent', pointRadius: 4, pointHoverRadius: 7, pointBackgroundColor: '#f5c451', pointBorderColor: '#07110c', pointBorderWidth: 1.5, borderWidth: 1.7, tension: .15 }
       ]
     },
     options

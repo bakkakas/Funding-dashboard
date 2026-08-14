@@ -80,13 +80,22 @@ def collect_intraday(previous):
     bizdate=now_kst.strftime('%Y%m%d')
     result={}
     for market,sosok in {'KOSPI':'','KOSDAQ':'02'}.items():
-        req=Request(f'https://finance.naver.com/sise/investorDealTrendTime.naver?bizdate={bizdate}&sosok={sosok}',headers={'User-Agent':'Mozilla/5.0 FundingDashboard/1.0'})
-        with urlopen(req,timeout=20) as res: html=res.read().decode('euc-kr',errors='replace')
-        parser=IntradayParser(); parser.feed(html)
-        records={(r['date'],r['time']):r for r in previous.get(market,[]) if r.get('date') and r.get('time')}
-        if parser.rows:
-            row=parser.rows[0]
-            records[(now_kst.date().isoformat(),row[0])]={'date':now_kst.date().isoformat(),'time':row[0],'individual':num(row[1]),'foreign':num(row[2]),'institution':num(row[3])}
+        records={(r['date'],r['time']):r for r in previous.get(market,[]) if r.get('date') and r.get('time') and int(r['time'].split(':')[1])%15==0}
+        candidates={}
+        for page in range(1,21):
+            req=Request(f'https://finance.naver.com/sise/investorDealTrendTime.naver?bizdate={bizdate}&sosok={sosok}&page={page}',headers={'User-Agent':'Mozilla/5.0 FundingDashboard/1.0'})
+            with urlopen(req,timeout=20) as res: html=res.read().decode('euc-kr',errors='replace')
+            parser=IntradayParser(); parser.feed(html)
+            if not parser.rows: break
+            for row in parser.rows:
+                hour,minute=map(int,row[0].split(':'))
+                quarter=round((hour*60+minute)/15)*15
+                bucket=f'{quarter//60:02d}:{quarter%60:02d}'
+                distance=abs(hour*60+minute-quarter)
+                if bucket not in candidates or distance<candidates[bucket][0]: candidates[bucket]=(distance,row)
+        today=now_kst.date().isoformat()
+        for bucket,(_,row) in candidates.items():
+            records[(today,bucket)]={'date':today,'time':bucket,'sourceTime':row[0],'individual':num(row[1]),'foreign':num(row[2]),'institution':num(row[3])}
         cutoff=(now_kst.date()-timedelta(days=10)).isoformat()
         result[market]=[records[key] for key in sorted(records) if key[0]>=cutoff]
     return result
