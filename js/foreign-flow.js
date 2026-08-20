@@ -1,3 +1,5 @@
+import { setupForeignHeader } from './foreign-header.js?v=1';
+
 const nf = new Intl.NumberFormat('ko-KR');
 const PERIODS = [['7D', 7], ['30D', 30], ['90D', 90], ['180D', 180], ['1Y', 365], ['3Y', 1095], ['5Y', 1825], ['10Y', 3650]];
 let data;
@@ -200,6 +202,7 @@ function render() {
 }
 
 async function init() {
+  setupForeignHeader();
   const response = await fetch('./foreign_flow_data.json', { cache: 'no-store' });
   if (!response.ok) throw Error(response.status);
   data = await response.json();
