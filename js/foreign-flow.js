@@ -108,7 +108,7 @@ function renderIntraday() {
     return;
   }
   const latest = rows.at(-1);
-  summary.innerHTML = `${latest.date} ${latest.time} 기준 · 외국인 <strong class="${tone(latest.foreign)}">${signed(latest.foreign)}억원</strong> · 개인 <strong class="${tone(latest.individual)}">${signed(latest.individual)}억원</strong>`;
+  summary.innerHTML = `${latest.date} ${latest.time} 기준 · <span class="intraday-metric intraday-foreign">외국인 <strong>${signed(latest.foreign)}억원</strong></span> · <span class="intraday-metric intraday-individual">개인 <strong>${signed(latest.individual)}억원</strong></span> · <span class="intraday-metric intraday-institution">기관 <strong>${signed(latest.institution)}억원</strong></span>`;
   const options = baseOptions(false);
   options.scales.y.ticks.callback = value => `${nf.format(value)}억`;
   options.scales.y.title = { display: true, text: '누적 순매수금액(억원)', color: '#82958b' };
