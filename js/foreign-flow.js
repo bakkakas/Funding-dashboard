@@ -97,7 +97,9 @@ function renderOwnership(stock, rows) {
 
 function renderIntraday() {
   tabs('marketTabs', market, [['KOSPI', null, '코스피'], ['KOSDAQ', null, '코스닥']], key => { market = key; renderIntraday(); renderTopMetrics(); }, 'market');
-  const rows = data.marketIntraday?.[market] || [];
+  const allRows = data.marketIntraday?.[market] || [];
+  const latestDate = allRows.reduce((latest, row) => row.date > latest ? row.date : latest, '');
+  const rows = allRows.filter(row => row.date === latestDate);
   intradayChart?.destroy();
   const summary = document.getElementById('intradaySummary');
   if (!rows.length) {
