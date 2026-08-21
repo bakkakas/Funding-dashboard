@@ -1,7 +1,7 @@
 import { authClient as db, signInWithGoogle } from './auth.js?v=1';
 import { setupHeaderWidgets } from './header-widgets.js?v=1';
 const $=id=>document.getElementById(id);
-const CLASSES={stock:'주식',crypto:'크립토',commodity:'원자재',cash:'현금'};
+const CLASSES={stock:'주식',crypto:'크립토',commodity:'원자재',cash:'Cash'};
 const COLORS={stock:'#23e7a5',crypto:'#8ea2ff',commodity:'#f5c451',cash:'#86a8ff'};
 const CATALOG=[
   ['BTC','비트코인','crypto','CG:bitcoin','USD'],['ETH','이더리움','crypto','CG:ethereum','USD'],['SOL','솔라나','crypto','CG:solana','USD'],['BNB','BNB','crypto','CG:binancecoin','USD'],['ORBS','Orbs','crypto','CG:orbs','USD'],
@@ -88,14 +88,25 @@ function renderSummary(){
   headerWidgets?.setUpdatedAt(new Date());
   const allGroups=Object.keys(CLASSES).map(key=>({key,value:assets.filter(a=>a.asset_class===key).reduce((s,a)=>s+valueKrw(a),0)}));
   $('classBreakdown').innerHTML=allGroups.map(group=>`<div class="asset-class-item"><span class="asset-class-dot" style="background:${COLORS[group.key]}"></span><span class="asset-class-name">${CLASSES[group.key]}</span><span class="asset-class-values"><span class="asset-class-value">${won.format(group.value)}</span><span class="asset-class-ratio">${total?(group.value/total*100).toFixed(1):'0.0'}%</span></span></div>`).join('');
+  const stableTotal=assets.reduce((sum,asset)=>sum+(Number(asset.stable_amount_krw)||0),0);
+  $('stableSummary').innerHTML=`<div class="asset-class-item"><span class="asset-class-dot" style="background:var(--accent)"></span><span class="asset-class-name">Stable</span><span class="asset-class-values"><span class="asset-class-value">${won.format(stableTotal)}</span><span class="asset-class-ratio">${total?(stableTotal/total*100).toFixed(1):'0.0'}%</span></span></div>`;
   const groups=allGroups.filter(x=>x.value>0);
-  classChart?.destroy();classChart=new Chart($('classChart'),{type:'doughnut',data:{labels:groups.map(x=>CLASSES[x.key]),datasets:[{data:groups.map(x=>x.value),backgroundColor:groups.map(x=>COLORS[x.key]),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#dce8df'}}},cutout:'67%'}});
+  const percentLabels={id:'percentLabels',afterDatasetsDraw(chart){const data=chart.data.datasets[0].data.map(Number),sum=data.reduce((a,b)=>a+b,0),meta=chart.getDatasetMeta(0),ctx=chart.ctx;if(!sum)return;ctx.save();ctx.fillStyle='#07110c';ctx.font='800 12px Inter, Pretendard, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';meta.data.forEach((arc,index)=>{const ratio=data[index]/sum;if(ratio<.035)return;const point=arc.tooltipPosition();ctx.fillText(`${(ratio*100).toFixed(1)}%`,point.x,point.y)});ctx.restore()}};
+  classChart?.destroy();classChart=new Chart($('classChart'),{type:'doughnut',data:{labels:groups.map(x=>CLASSES[x.key]),datasets:[{data:groups.map(x=>x.value),backgroundColor:groups.map(x=>COLORS[x.key]),borderWidth:0}]},plugins:[percentLabels],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#dce8df',generateLabels(chart){const labels=Chart.defaults.plugins.legend.labels.generateLabels(chart),data=chart.data.datasets[0].data.map(Number),sum=data.reduce((a,b)=>a+b,0);return labels.map((label,index)=>({...label,text:`${label.text} ${sum?(data[index]/sum*100).toFixed(1):'0.0'}%`}))}}}},cutout:'67%'}});
 }
 function renderAssets(){
   const list=filter==='all'?assets:assets.filter(a=>a.asset_class===filter),total=assets.reduce((s,a)=>s+valueKrw(a),0);
-  $('assetRows').innerHTML=list.length?list.map(a=>{const p=prices[a.id],failed=priceErrors.has(a.id),v=valueKrw(a),nickname=String(a.nickname||'').trim();return `<tr><td><div class="asset-main">${escapeHtml(a.name)}${nickname?`<span class="asset-nickname">${escapeHtml(nickname)}</span>`:''}</div><div class="asset-sub">${escapeHtml(a.symbol)}</div></td><td><span class="pill">${CLASSES[a.asset_class]}</span></td><td>${num.format(a.quantity)}</td><td class="${p==null?'price-loading':failed?'price-error':''}">${p==null?'조회 중':failed?'조회 실패':(a.currency==='USD'?'$':'₩')+num.format(p)}</td><td class="asset-value">${won.format(v)}</td><td>${total?num.format(v/total*100):0}%</td><td><div class="asset-actions"><button class="asset-edit" data-edit="${a.id}">수정</button><button class="asset-delete" data-delete="${a.id}">삭제</button></div></td></tr>`}).join(''):'<tr><td colspan="7" class="empty-assets">등록된 자산이 없어. 자산 추가 버튼으로 시작해.</td></tr>';
+  $('assetRows').innerHTML=list.length?list.map(a=>{const p=prices[a.id],failed=priceErrors.has(a.id),v=valueKrw(a),nickname=String(a.nickname||'').trim(),stable=Number(a.stable_amount_krw)||0;return `<tr><td><div class="asset-main">${escapeHtml(a.name)}${nickname?`<span class="asset-nickname">${escapeHtml(nickname)}</span>`:''}</div><div class="asset-sub">${escapeHtml(a.symbol)}</div></td><td><span class="pill">${CLASSES[a.asset_class]}</span></td><td>${num.format(a.quantity)}</td><td class="${p==null?'price-loading':failed?'price-error':''}">${p==null?'조회 중':failed?'조회 실패':(a.currency==='USD'?'$':'₩')+num.format(p)}</td><td class="asset-value">${won.format(v)}</td><td>${total?num.format(v/total*100):0}%</td><td><input class="field stable-input" data-stable="${a.id}" type="number" min="0" step="1" inputmode="decimal" aria-label="${escapeHtml(a.name)} Stable 금액" value="${stable||''}" placeholder="0"></td><td><div class="asset-actions"><button class="asset-edit" data-edit="${a.id}">수정</button><button class="asset-delete" data-delete="${a.id}">삭제</button></div></td></tr>`}).join(''):'<tr><td colspan="8" class="empty-assets">등록된 자산이 없어. 자산 추가 버튼으로 시작해.</td></tr>';
   document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openAssetModal(assets.find(a=>String(a.id)===b.dataset.edit)));
   document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>deleteAsset(b.dataset.delete));
+  document.querySelectorAll('[data-stable]').forEach(input=>{input.onchange=()=>saveStableAmount(input);input.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();input.blur()}}});
+}
+async function saveStableAmount(input){
+  const asset=assets.find(item=>String(item.id)===input.dataset.stable),amount=Number(input.value||0);if(!asset||!Number.isFinite(amount)||amount<0){input.classList.add('save-error');return}
+  const previous=Number(asset.stable_amount_krw)||0;input.disabled=true;input.classList.remove('save-error','saved');input.classList.add('saving');
+  const {error}=await db.from('portfolio_assets').update({stable_amount_krw:amount}).eq('id',asset.id);input.disabled=false;input.classList.remove('saving');
+  if(error){input.value=previous||'';input.classList.add('save-error');input.title=error.message;return}
+  asset.stable_amount_krw=amount;input.classList.add('saved');input.title='저장 완료';renderSummary();await saveSnapshot();setTimeout(()=>input.classList.remove('saved'),900);
 }
 async function renderSearch(){
   const raw=$('assetQuery').value.trim(),q=raw.toLowerCase();selectedSearchAsset=null;$('selectedAsset').value='';
@@ -133,7 +144,7 @@ async function saveAsset(){
   modal('assetModal',false);await loadPortfolio();
 }
 async function deleteAsset(id){if(!confirm('이 자산을 삭제할까?'))return;await db.from('portfolio_assets').delete().eq('id',id);await loadPortfolio()}
-async function saveSnapshot(){if(!session||!assets.length)return;const class_values={};Object.keys(CLASSES).forEach(k=>class_values[k]=assets.filter(a=>a.asset_class===k).reduce((s,a)=>s+valueKrw(a),0));const total_value_krw=Object.values(class_values).reduce((a,b)=>a+b,0);const snapshot_date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());await db.from('portfolio_snapshots').upsert({user_id:session.user.id,snapshot_date,total_value_krw,class_values})}
+async function saveSnapshot(){if(!session||!assets.length)return;const class_values={};Object.keys(CLASSES).forEach(k=>class_values[k]=assets.filter(a=>a.asset_class===k).reduce((s,a)=>s+valueKrw(a),0));const total_value_krw=Object.values(class_values).reduce((a,b)=>a+b,0);class_values.stable=assets.reduce((sum,asset)=>sum+(Number(asset.stable_amount_krw)||0),0);const snapshot_date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());await db.from('portfolio_snapshots').upsert({user_id:session.user.id,snapshot_date,total_value_krw,class_values})}
 async function loadSnapshots(){const {data}=await db.from('portfolio_snapshots').select('*').order('snapshot_date');window.portfolioSnapshots=data||[];renderHistory(document.querySelector('#historyTabs .active')?.dataset.period||'day')}
 function renderHistory(period){
   let rows=[...(window.portfolioSnapshots||[])];if(period!=='day'){const keyed=new Map();rows.forEach(r=>{const d=new Date(r.snapshot_date+'T00:00:00');const key=period==='month'?r.snapshot_date.slice(0,7):`${d.getFullYear()}-${Math.ceil((((d-new Date(d.getFullYear(),0,1))/86400000)+new Date(d.getFullYear(),0,1).getDay()+1)/7)}`;keyed.set(key,r)});rows=[...keyed.values()]}
