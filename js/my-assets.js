@@ -82,6 +82,9 @@ async function quote(a){
   throw Error('unsupported quote source');
 }
 function valueKrw(a){const p=prices[a.id]??(Number(a.manual_price)||0);return Number(a.quantity)*p*(a.currency==='USD'?fx:1)}
+function stableCurrency(a){return a.stable_currency==='USD'?'USD':'KRW'}
+function stableValueKrw(a){return (Number(a.stable_amount_krw)||0)*(stableCurrency(a)==='USD'?fx:1)}
+function normalizeStableAmount(value,currency){return Number(Number(value).toFixed(currency==='USD'?8:0))}
 function includedAssets(){return assets.filter(asset=>!asset.excluded_from_total)}
 function render(){renderAssets();renderSummary()}
 function renderSummary(){
@@ -89,7 +92,7 @@ function renderSummary(){
   headerWidgets?.setUpdatedAt(new Date());
   const allGroups=Object.keys(CLASSES).map(key=>({key,value:assets.filter(a=>a.asset_class===key).reduce((s,a)=>s+valueKrw(a),0)})),classificationTotal=allGroups.reduce((sum,group)=>sum+group.value,0);
   $('classBreakdown').innerHTML=allGroups.map(group=>`<div class="asset-class-item"><span class="asset-class-dot" style="background:${COLORS[group.key]}"></span><span class="asset-class-name">${CLASSES[group.key]}</span><span class="asset-class-values"><span class="asset-class-value">${won.format(group.value)}</span><span class="asset-class-ratio">${classificationTotal?(group.value/classificationTotal*100).toFixed(1):'0.0'}%</span></span></div>`).join('');
-  const stableTotal=assets.reduce((sum,asset)=>sum+(Number(asset.stable_amount_krw)||0),0);
+  const stableTotal=assets.reduce((sum,asset)=>sum+stableValueKrw(asset),0);
   $('stableSummary').innerHTML=`<div class="asset-class-item"><span class="asset-class-dot" style="background:var(--accent)"></span><span class="asset-class-name">Stable</span><span class="asset-class-values"><span class="asset-class-value">${won.format(stableTotal)}</span><span class="asset-class-ratio">${total?(stableTotal/total*100).toFixed(1):'0.0'}%</span></span></div>`;
   const groups=allGroups.filter(x=>x.value>0);
   const percentLabels={id:'percentLabels',afterDatasetsDraw(chart){const data=chart.data.datasets[0].data.map(Number),sum=data.reduce((a,b)=>a+b,0),meta=chart.getDatasetMeta(0),ctx=chart.ctx;if(!sum)return;ctx.save();ctx.fillStyle='#07110c';ctx.font='800 12px Inter, Pretendard, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';meta.data.forEach((arc,index)=>{const ratio=data[index]/sum;if(ratio<.035)return;const point=arc.tooltipPosition();ctx.fillText(`${(ratio*100).toFixed(1)}%`,point.x,point.y)});ctx.restore()}};
@@ -97,10 +100,12 @@ function renderSummary(){
 }
 function renderAssets(){
   const list=filter==='all'?assets:assets.filter(a=>a.asset_class===filter),classificationTotal=assets.reduce((s,a)=>s+valueKrw(a),0);
-  $('assetRows').innerHTML=list.length?list.map(a=>{const p=prices[a.id],failed=priceErrors.has(a.id),v=valueKrw(a),nickname=String(a.nickname||'').trim(),stable=Number(a.stable_amount_krw)||0,excluded=Boolean(a.excluded_from_total);return `<tr class="${excluded?'asset-row-excluded':''}"><td><div class="asset-main">${escapeHtml(a.name)}${nickname?`<span class="asset-nickname">${escapeHtml(nickname)}</span>`:''}</div><div class="asset-sub">${escapeHtml(a.symbol)}</div></td><td><span class="pill">${CLASSES[a.asset_class]}</span></td><td>${num.format(a.quantity)}</td><td class="${p==null?'price-loading':failed?'price-error':''}">${p==null?'조회 중':failed?'조회 실패':(a.currency==='USD'?'$':'₩')+num.format(p)}</td><td class="asset-value">${won.format(v)}</td><td>${classificationTotal?num.format(v/classificationTotal*100):0}%${excluded?'<div class="excluded-label">총액만 제외</div>':''}</td><td><label class="exclude-toggle" title="체크하면 총자산에서만 제외하고 자산군 분류에는 포함"><input class="exclude-checkbox" data-excluded="${a.id}" type="checkbox" aria-label="${escapeHtml(a.name)} 총자산만 제외" ${excluded?'checked':''}></label></td><td><input class="field stable-input" data-stable="${a.id}" type="number" min="0" step="1" inputmode="decimal" aria-label="${escapeHtml(a.name)} Stable 금액" value="${stable||''}" placeholder="0"></td><td><div class="asset-actions"><button class="asset-edit" data-edit="${a.id}">수정</button><button class="asset-delete" data-delete="${a.id}">삭제</button></div></td></tr>`}).join(''):'<tr><td colspan="9" class="empty-assets">등록된 자산이 없어. 자산 추가 버튼으로 시작해.</td></tr>';
+  $('assetRows').innerHTML=list.length?list.map(a=>{const p=prices[a.id],failed=priceErrors.has(a.id),v=valueKrw(a),nickname=String(a.nickname||'').trim(),stable=Number(a.stable_amount_krw)||0,stableUnit=stableCurrency(a),excluded=Boolean(a.excluded_from_total);return `<tr class="${excluded?'asset-row-excluded':''}"><td><div class="asset-main">${escapeHtml(a.name)}${nickname?`<span class="asset-nickname">${escapeHtml(nickname)}</span>`:''}</div><div class="asset-sub">${escapeHtml(a.symbol)}</div></td><td><span class="pill">${CLASSES[a.asset_class]}</span></td><td>${num.format(a.quantity)}</td><td class="${p==null?'price-loading':failed?'price-error':''}">${p==null?'조회 중':failed?'조회 실패':(a.currency==='USD'?'$':'₩')+num.format(p)}</td><td class="asset-value">${won.format(v)}</td><td>${classificationTotal?num.format(v/classificationTotal*100):0}%${excluded?'<div class="excluded-label">총액만 제외</div>':''}</td><td><label class="exclude-toggle" title="체크하면 총자산에서만 제외하고 자산군 분류에는 포함"><input class="exclude-checkbox" data-excluded="${a.id}" type="checkbox" aria-label="${escapeHtml(a.name)} 총자산만 제외" ${excluded?'checked':''}></label></td><td><div class="stable-control"><select class="field stable-currency" data-stable-currency="${a.id}" aria-label="${escapeHtml(a.name)} Stable 입력 통화"><option value="KRW" ${stableUnit==='KRW'?'selected':''}>KRW</option><option value="USD" ${stableUnit==='USD'?'selected':''}>USD</option></select><input class="field stable-input" data-stable="${a.id}" type="number" min="0" step="any" inputmode="decimal" aria-label="${escapeHtml(a.name)} Stable 금액" value="${stable||''}" placeholder="0"><button class="chip stable-full" data-stable-full="${a.id}" type="button">전액</button></div></td><td><div class="asset-actions"><button class="asset-edit" data-edit="${a.id}">수정</button><button class="asset-delete" data-delete="${a.id}">삭제</button></div></td></tr>`}).join(''):'<tr><td colspan="9" class="empty-assets">등록된 자산이 없어. 자산 추가 버튼으로 시작해.</td></tr>';
   document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openAssetModal(assets.find(a=>String(a.id)===b.dataset.edit)));
   document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>deleteAsset(b.dataset.delete));
   document.querySelectorAll('[data-stable]').forEach(input=>{input.onchange=()=>saveStableAmount(input);input.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();input.blur()}}});
+  document.querySelectorAll('[data-stable-currency]').forEach(select=>select.onchange=()=>saveStableCurrency(select));
+  document.querySelectorAll('[data-stable-full]').forEach(button=>button.onclick=()=>saveStableFull(button));
   document.querySelectorAll('[data-excluded]').forEach(input=>input.onchange=()=>saveTotalExclusion(input));
 }
 async function saveTotalExclusion(input){
@@ -116,6 +121,19 @@ async function saveStableAmount(input){
   const {error}=await db.from('portfolio_assets').update({stable_amount_krw:amount}).eq('id',asset.id);input.disabled=false;input.classList.remove('saving');
   if(error){input.value=previous||'';input.classList.add('save-error');input.title=error.message;return}
   asset.stable_amount_krw=amount;input.classList.add('saved');input.title='저장 완료';renderSummary();await saveSnapshot();setTimeout(()=>input.classList.remove('saved'),900);
+}
+async function saveStableCurrency(select){
+  const asset=assets.find(item=>String(item.id)===select.dataset.stableCurrency);if(!asset)return;
+  const previousCurrency=stableCurrency(asset),nextCurrency=select.value==='USD'?'USD':'KRW';if(previousCurrency===nextCurrency)return;
+  const previousAmount=Number(asset.stable_amount_krw)||0,converted=normalizeStableAmount(stableValueKrw(asset)/(nextCurrency==='USD'?fx:1),nextCurrency);select.disabled=true;
+  const {error}=await db.from('portfolio_assets').update({stable_currency:nextCurrency,stable_amount_krw:converted}).eq('id',asset.id);
+  if(error){select.value=previousCurrency;select.disabled=false;select.title=error.message;return}
+  asset.stable_currency=nextCurrency;asset.stable_amount_krw=converted;render();await saveSnapshot();
+}
+async function saveStableFull(button){
+  const asset=assets.find(item=>String(item.id)===button.dataset.stableFull);if(!asset)return;
+  const currency=stableCurrency(asset),amount=normalizeStableAmount(valueKrw(asset)/(currency==='USD'?fx:1),currency),input=document.querySelector(`[data-stable="${asset.id}"]`);if(!input)return;
+  button.disabled=true;input.value=amount||'';await saveStableAmount(input);button.disabled=false;
 }
 async function renderSearch(){
   const raw=$('assetQuery').value.trim(),q=raw.toLowerCase();selectedSearchAsset=null;$('selectedAsset').value='';
@@ -153,7 +171,7 @@ async function saveAsset(){
   modal('assetModal',false);await loadPortfolio();
 }
 async function deleteAsset(id){if(!confirm('이 자산을 삭제할까?'))return;await db.from('portfolio_assets').delete().eq('id',id);await loadPortfolio()}
-async function saveSnapshot(){if(!session||!assets.length)return;const countedAssets=includedAssets(),class_values={};Object.keys(CLASSES).forEach(k=>class_values[k]=assets.filter(a=>a.asset_class===k).reduce((s,a)=>s+valueKrw(a),0));const total_value_krw=countedAssets.reduce((sum,asset)=>sum+valueKrw(asset),0);class_values.stable=assets.reduce((sum,asset)=>sum+(Number(asset.stable_amount_krw)||0),0);const snapshot_date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());await db.from('portfolio_snapshots').upsert({user_id:session.user.id,snapshot_date,total_value_krw,class_values})}
+async function saveSnapshot(){if(!session||!assets.length)return;const countedAssets=includedAssets(),class_values={};Object.keys(CLASSES).forEach(k=>class_values[k]=assets.filter(a=>a.asset_class===k).reduce((s,a)=>s+valueKrw(a),0));const total_value_krw=countedAssets.reduce((sum,asset)=>sum+valueKrw(asset),0);class_values.stable=assets.reduce((sum,asset)=>sum+stableValueKrw(asset),0);const snapshot_date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());await db.from('portfolio_snapshots').upsert({user_id:session.user.id,snapshot_date,total_value_krw,class_values})}
 async function loadSnapshots(){const {data}=await db.from('portfolio_snapshots').select('*').order('snapshot_date');window.portfolioSnapshots=data||[];renderHistory(document.querySelector('#historyTabs .active')?.dataset.period||'day')}
 function renderHistory(period){
   let rows=[...(window.portfolioSnapshots||[])];if(period!=='day'){const keyed=new Map();rows.forEach(r=>{const d=new Date(r.snapshot_date+'T00:00:00');const key=period==='month'?r.snapshot_date.slice(0,7):`${d.getFullYear()}-${Math.ceil((((d-new Date(d.getFullYear(),0,1))/86400000)+new Date(d.getFullYear(),0,1).getDay()+1)/7)}`;keyed.set(key,r)});rows=[...keyed.values()]}
