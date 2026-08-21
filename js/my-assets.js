@@ -1,4 +1,5 @@
 import { authClient as db, signInWithGoogle } from './auth.js?v=1';
+import { setupHeaderWidgets } from './header-widgets.js?v=1';
 const $=id=>document.getElementById(id);
 const CLASSES={stock:'주식',crypto:'크립토',commodity:'원자재',cash:'현금'};
 const COLORS={stock:'#23e7a5',crypto:'#8ea2ff',commodity:'#f5c451',cash:'#86a8ff'};
@@ -8,6 +9,7 @@ const CATALOG=[
 ].map(([symbol,name,asset_class,quote_symbol,currency])=>({symbol,name,asset_class,quote_symbol,currency}));
 let session=null,assets=[],prices={},priceErrors=new Set(),fx=1380,filter='all',classChart,historyChart;
 let searchTimer=null,searchResults=[],selectedSearchAsset=null,editingAssetId=null;
+let lang=localStorage.getItem('fundingDashboardLanguage')==='en'?'en':'ko',headerWidgets=null;
 const won=new Intl.NumberFormat('ko-KR',{style:'currency',currency:'KRW',maximumFractionDigits:0});
 const num=new Intl.NumberFormat('ko-KR',{maximumFractionDigits:4});
 const modal=(id,on)=>{$(id).classList.toggle('open',on)};
@@ -15,12 +17,13 @@ const status=(id,msg,error=false)=>{const el=$(id);el.textContent=msg;el.style.c
 
 async function init(){
   bind();
+  headerWidgets=setupHeaderWidgets({onLanguageChange:next=>{lang=next;renderSession()}});
   ({data:{session}}=await db.auth.getSession());
   db.auth.onAuthStateChange((_event,next)=>{session=next;renderSession();if(session)loadPortfolio()});
   renderSession(); if(session) await loadPortfolio();
 }
 function bind(){
-  $('portfolioAuth').onclick=()=>session?logout():modal('portfolioAuthModal',true); $('gateLogin').onclick=()=>modal('portfolioAuthModal',true);
+  $('loginButton').onclick=()=>modal('portfolioAuthModal',true); $('signupButton').onclick=()=>session?logout():modal('portfolioAuthModal',true); $('gateLogin').onclick=()=>modal('portfolioAuthModal',true);
   document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>modal(b.dataset.close,false));
   $('portfolioAuthForm').onsubmit=e=>{e.preventDefault();authenticate(false)}; $('portfolioSignupSubmit').onclick=()=>authenticate(true); $('portfolioGoogleAuth').onclick=authenticateWithGoogle;
   $('addAsset').onclick=()=>openAssetModal();
@@ -45,7 +48,8 @@ async function authenticateWithGoogle(){
 async function logout(){await db.auth.signOut();assets=[];prices={};renderSession()}
 function renderSession(){
   const logged=Boolean(session);$('portfolioGate').hidden=logged;$('portfolioApp').hidden=!logged;$('addAsset').disabled=!logged;
-  $('portfolioAuth').textContent=logged?`${session.user.email} · 로그아웃`:'로그인';
+  $('loginButton').textContent=logged?session.user.email:(lang==='en'?'Login':'로그인');
+  $('signupButton').textContent=logged?(lang==='en'?'Log out':'로그아웃'):(lang==='en'?'Sign up':'회원가입');
 }
 async function loadPortfolio(){
   const {data,error}=await db.from('portfolio_assets').select('*').order('created_at');
@@ -81,7 +85,10 @@ function valueKrw(a){const p=prices[a.id]??(Number(a.manual_price)||0);return Nu
 function render(){renderAssets();renderSummary()}
 function renderSummary(){
   const values=assets.map(a=>valueKrw(a)),total=values.reduce((a,b)=>a+b,0);$('totalValue').textContent=won.format(total);$('totalMeta').textContent=`USD/KRW ${num.format(fx)} · ${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})} 기준${priceErrors.size?` · ${priceErrors.size}개 가격 조회 실패`:''}`;
-  const groups=Object.keys(CLASSES).map(key=>({key,value:assets.filter(a=>a.asset_class===key).reduce((s,a)=>s+valueKrw(a),0)})).filter(x=>x.value>0);
+  headerWidgets?.setUpdatedAt(new Date());
+  const allGroups=Object.keys(CLASSES).map(key=>({key,value:assets.filter(a=>a.asset_class===key).reduce((s,a)=>s+valueKrw(a),0)}));
+  $('classBreakdown').innerHTML=allGroups.map(group=>`<div class="asset-class-item"><span class="asset-class-dot" style="background:${COLORS[group.key]}"></span><span class="asset-class-name">${CLASSES[group.key]}</span><span class="asset-class-values"><span class="asset-class-value">${won.format(group.value)}</span><span class="asset-class-ratio">${total?(group.value/total*100).toFixed(1):'0.0'}%</span></span></div>`).join('');
+  const groups=allGroups.filter(x=>x.value>0);
   classChart?.destroy();classChart=new Chart($('classChart'),{type:'doughnut',data:{labels:groups.map(x=>CLASSES[x.key]),datasets:[{data:groups.map(x=>x.value),backgroundColor:groups.map(x=>COLORS[x.key]),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#dce8df'}}},cutout:'67%'}});
 }
 function renderAssets(){

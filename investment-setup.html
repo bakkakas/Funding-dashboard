@@ -7,15 +7,26 @@
   <link rel="icon" href="data:,">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=3">
+  <link rel="stylesheet" href="./styles.css?v=4">
 </head>
 <body>
   <div class="wrap">
     <div class="header">
       <div><h1>투자 셋업</h1></div>
-      <div class="header-actions">
-        <button class="chip subtle" id="loginButton" type="button">로그인</button>
-        <button class="chip subtle" id="signupButton" type="button">회원가입</button>
+      <div class="header-side">
+        <div class="header-market-row">
+          <div class="header-actions">
+            <div class="language-toggle" aria-label="Language">
+              <button class="chip subtle active" id="langKoButton" type="button" aria-label="한국어" title="한국어"><img class="flag-icon" alt="" src="https://flagcdn.com/w40/kr.png"><span class="language-code">KR</span></button>
+              <button class="chip subtle" id="langEnButton" type="button" aria-label="English" title="English"><img class="flag-icon" alt="" src="https://flagcdn.com/w40/us.png"><span class="language-code">EN</span></button>
+            </div>
+            <button class="chip subtle" id="loginButton" type="button">로그인</button>
+            <button class="chip subtle" id="signupButton" type="button">회원가입</button>
+            <a class="chip subtle" id="adminLink" href="./admin.html" style="text-decoration:none">관리자</a>
+          </div>
+          <div class="fx-ticker warn" id="usdKrwTicker">USD/KRW 조회 중</div>
+          <div class="stamp" id="updatedAt">Updated: -</div>
+        </div>
       </div>
     </div>
     <nav class="dashboard-nav">
@@ -46,6 +57,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=1"></script>
+  <script type="module" src="./js/investment-setup.js?v=2"></script>
 </body>
 </html>

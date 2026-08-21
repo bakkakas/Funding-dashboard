@@ -1,8 +1,10 @@
 import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1';
+import { setupHeaderWidgets } from './header-widgets.js?v=1';
 
 const $ = id => document.getElementById(id);
 let account = null;
 let mode = 'login';
+let language = localStorage.getItem('fundingDashboardLanguage') === 'en' ? 'en' : 'ko';
 
 function openAuth(nextMode) {
   mode = nextMode;
@@ -18,12 +20,14 @@ function closeAuth() {
 }
 
 function render() {
-  $('loginButton').textContent = account?.email || '로그인';
-  $('signupButton').textContent = account ? '로그아웃' : '회원가입';
+  $('loginButton').textContent = account?.email || (language === 'en' ? 'Login' : '로그인');
+  $('signupButton').textContent = account ? (language === 'en' ? 'Log out' : '로그아웃') : (language === 'en' ? 'Sign up' : '회원가입');
   $('accountNotice').textContent = account
     ? `${account.email} 계정으로 연결됨`
     : '로그인하면 다른 메뉴와 같은 계정으로 투자 셋업이 저장될 예정이야.';
 }
+
+setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); } });
 
 async function submitAuth(event) {
   event.preventDefault();
