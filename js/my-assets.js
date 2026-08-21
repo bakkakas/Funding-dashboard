@@ -23,7 +23,7 @@ async function init(){
 function bind(){
   $('portfolioAuth').onclick=()=>session?logout():modal('portfolioAuthModal',true); $('gateLogin').onclick=()=>modal('portfolioAuthModal',true);
   document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>modal(b.dataset.close,false));
-  $('portfolioAuthForm').onsubmit=e=>{e.preventDefault();authenticate(false)}; $('portfolioSignupSubmit').onclick=()=>authenticate(true);
+  $('portfolioAuthForm').onsubmit=e=>{e.preventDefault();authenticate(false)}; $('portfolioSignupSubmit').onclick=()=>authenticate(true); $('portfolioGoogleAuth').onclick=authenticateWithGoogle;
   $('addAsset').onclick=()=>{resetAssetForm();modal('assetModal',true)};
   $('assetQuery').oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(renderSearch,250)};
   $('saveAsset').onclick=saveAsset; $('refreshPortfolio').onclick=refresh;
@@ -36,6 +36,12 @@ async function authenticate(signup){
   const {error}=signup?await db.auth.signUp({email,password}):await db.auth.signInWithPassword({email,password});
   if(error)return status('portfolioAuthStatus',error.message,true);
   status('portfolioAuthStatus',signup?'확인 메일을 보냈어. 메일 인증 후 로그인해.':'로그인 완료'); if(!signup)modal('portfolioAuthModal',false);
+}
+async function authenticateWithGoogle(){
+  status('portfolioAuthStatus','Google 로그인으로 이동 중…');
+  const redirectTo=new URL('./my-assets.html',window.location.href).href;
+  const {error}=await db.auth.signInWithOAuth({provider:'google',options:{redirectTo}});
+  if(error)status('portfolioAuthStatus',error.message,true);
 }
 async function logout(){await db.auth.signOut();assets=[];prices={};renderSession()}
 function renderSession(){
