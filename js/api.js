@@ -12,6 +12,16 @@ import {
   VARIATIONAL_STATS_URL,
 } from './config.js';
 import { orbsPerpsFundingCache, state, variationalStatsCache } from './state.js';
+import { fundingIntervalHoursBetween } from './funding-catalog.js?v=2';
+
+function applyFundingInterval(pair, latest, hours){
+  const interval=Number(hours);
+  if(!Number.isFinite(interval) || interval <= 0) return latest;
+  pair.fundingIntervalHours=interval;
+  pair.fundingPeriodsPerDay=24 / interval;
+  latest.fundingIntervalHours=interval;
+  return latest;
+}
 
 async function getVariationalListings(){
   const now = Date.now();
@@ -44,14 +54,14 @@ export async function fetchLiveLatest(pairKey, pair){
     const res = await fetch(`${BINANCE_PREMIUM_INDEX_URL}?symbol=${pair.symbol}`);
     if(!res.ok) throw new Error(`premiumIndex fetch failed: ${pairKey}`);
     const row = await res.json();
-    state.liveLatestByPair[pairKey] = {
+    state.liveLatestByPair[pairKey] = applyFundingInterval(pair, {
       markPrice: Number(row.markPrice),
       indexPrice: Number(row.indexPrice),
       lastFundingRate: Number(row.lastFundingRate),
       nextFundingTime: Number(row.nextFundingTime),
       time: Number(row.time),
       available: true,
-    };
+    }, pair.fundingIntervalHours || 8);
     return;
   }
   if(pair.exchange === 'Bybit'){
@@ -59,14 +69,14 @@ export async function fetchLiveLatest(pairKey, pair){
     if(!res.ok) throw new Error(`bybit ticker fetch failed: ${pairKey}`);
     const json = await res.json();
     const row = json.result.list[0];
-    state.liveLatestByPair[pairKey] = {
+    state.liveLatestByPair[pairKey] = applyFundingInterval(pair, {
       markPrice: Number(row.markPrice),
       indexPrice: Number(row.indexPrice),
       lastFundingRate: Number(row.fundingRate),
       nextFundingTime: Number(row.nextFundingTime),
       time: Number(json.time),
       available: true,
-    };
+    }, pair.fundingIntervalHours || 8);
     return;
   }
   if(pair.exchange === 'Hyperliquid'){
@@ -83,7 +93,7 @@ export async function fetchLiveLatest(pairKey, pair){
     if(idx < 0) throw new Error(`hyperliquid asset not found: ${pair.symbol}`);
     const row = ctxs[idx];
     const now = Date.now();
-    state.liveLatestByPair[pairKey] = {
+    state.liveLatestByPair[pairKey] = applyFundingInterval(pair, {
       markPrice: Number(row.markPx),
       indexPrice: Number(row.oraclePx),
       lastFundingRate: Number(row.funding),
@@ -93,22 +103,21 @@ export async function fetchLiveLatest(pairKey, pair){
       openInterest: Number(row.openInterest),
       dayNtlVlm: Number(row.dayNtlVlm),
       available: true,
-    };
+    }, 1);
     return;
   }
   if(pair.exchange === 'Aster'){
     const res = await fetch(`${ASTER_PREMIUM_INDEX_URL}?symbol=${pair.symbol}`);
     if(!res.ok) throw new Error(`aster premiumIndex fetch failed: ${pairKey}`);
     const row = await res.json();
-    state.liveLatestByPair[pairKey] = {
+    state.liveLatestByPair[pairKey] = applyFundingInterval(pair, {
       markPrice: Number(row.markPrice),
       indexPrice: Number(row.indexPrice),
       lastFundingRate: Number(row.lastFundingRate),
       nextFundingTime: Number(row.nextFundingTime),
-      fundingIntervalHours: pair.fundingIntervalHours || 8,
       time: Number(row.time) || Date.now(),
       available: true,
-    };
+    }, pair.fundingIntervalHours || 8);
     return;
   }
   if(pair.exchange === 'OKX'){
@@ -124,15 +133,17 @@ export async function fetchLiveLatest(pairKey, pair){
     const funding = fundingJson.data && fundingJson.data[0] ? fundingJson.data[0] : {};
     const mark = markJson.data && markJson.data[0] ? markJson.data[0] : {};
     const index = indexJson.data && indexJson.data[0] ? indexJson.data[0] : {};
-    state.liveLatestByPair[pairKey] = {
+    const fundingTime=Number(funding.fundingTime);
+    const nextFundingTime=Number(funding.nextFundingTime || funding.nextFundingTimeMs);
+    const intervalHours=fundingIntervalHoursBetween(fundingTime, nextFundingTime, pair.fundingIntervalHours || 8);
+    state.liveLatestByPair[pairKey] = applyFundingInterval(pair, {
       markPrice: Number(mark.markPx || funding.markPx),
       indexPrice: Number(index.idxPx),
       lastFundingRate: Number(funding.fundingRate),
-      nextFundingTime: Number(funding.nextFundingTime || funding.nextFundingTimeMs),
-      fundingIntervalHours: pair.fundingIntervalHours || 8,
+      nextFundingTime,
       time: Number(funding.ts) || Date.now(),
       available: true,
-    };
+    }, intervalHours);
     return;
   }
   if(pair.exchange === 'Variational'){

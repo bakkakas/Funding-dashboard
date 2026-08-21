@@ -4,6 +4,7 @@ const MARKET_SOURCES = [
   {
     exchange:'Binance',
     url:'https://fapi.binance.com/fapi/v1/exchangeInfo',
+    fundingInfoUrl:'https://fapi.binance.com/fapi/v1/fundingInfo',
     rows:json=>json.symbols || [],
     parse:row=>row.status === 'TRADING' && row.contractType === 'PERPETUAL' && row.quoteAsset === 'USDT'
       ? { symbol:row.symbol, base:row.baseAsset, fundingIntervalHours:8 }
@@ -20,6 +21,7 @@ const MARKET_SOURCES = [
   {
     exchange:'Aster',
     url:'https://fapi.asterdex.com/fapi/v1/exchangeInfo',
+    fundingInfoUrl:'https://fapi.asterdex.com/fapi/v1/fundingInfo',
     rows:json=>json.symbols || [],
     parse:row=>row.status === 'TRADING' && row.contractType === 'PERPETUAL' && row.quoteAsset === 'USDT'
       ? { symbol:row.symbol, base:row.baseAsset, fundingIntervalHours:8 }
@@ -67,16 +69,42 @@ async function loadMarketCatalog(){
   if(marketCatalogPromise) return marketCatalogPromise;
   marketCatalogPromise=Promise.allSettled([
     ...MARKET_SOURCES.map(async source=>{
-      const json=await fetchJson(source.url);
+      const [json, fundingInfo]=await Promise.all([
+        fetchJson(source.url),
+        source.fundingInfoUrl ? fetchJson(source.fundingInfoUrl).catch(()=>[]) : Promise.resolve([]),
+      ]);
+      const intervalBySymbol=new Map((Array.isArray(fundingInfo) ? fundingInfo : [])
+        .map(row=>[row.symbol, Number(row.fundingIntervalHours)])
+        .filter(([,hours])=>Number.isFinite(hours) && hours > 0));
       return source.rows(json).map(source.parse).filter(Boolean).map(row=>({
         ...row,
         exchange:source.exchange,
+        fundingIntervalHours:intervalBySymbol.get(row.symbol) || row.fundingIntervalHours,
         normalizedBase:normalizedBase(row.base),
       }));
     }),
     loadHyperliquidMarkets(),
   ]).then(results=>results.flatMap(result=>result.status === 'fulfilled' ? result.value : []));
   return marketCatalogPromise;
+}
+
+export function fundingIntervalHoursBetween(fundingTime, nextFundingTime, fallback=8){
+  const current=Number(fundingTime);
+  const next=Number(nextFundingTime);
+  const hours=(next-current) / 3600000;
+  return Number.isFinite(hours) && hours > 0 && hours <= 24 ? hours : fallback;
+}
+
+export async function refreshFundingAssetDefinition(result){
+  const markets=await loadMarketCatalog();
+  const byPair=new Map(markets.map(market=>[`${market.exchange}:${market.symbol}`, market]));
+  return {
+    ...result,
+    pairs:(result.pairs || []).map(pair=>{
+      const current=byPair.get(`${pair.exchange}:${pair.symbol}`);
+      return current ? { ...pair, fundingIntervalHours:current.fundingIntervalHours } : pair;
+    }),
+  };
 }
 
 function pairDefinitionsForCoin(coin, markets){

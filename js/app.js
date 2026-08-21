@@ -11,12 +11,13 @@ import {
   SUPABASE_FUNCTIONS_BASE_URL,
 } from './config.js';
 import { accountFromSession, authClient } from './auth.js?v=1';
-import { fetchLiveLatest, loadDashboardData } from './api.js?v=2';
+import { fetchLiveLatest, loadDashboardData } from './api.js?v=3';
 import {
   addDynamicFundingAsset,
   hydrateDynamicFundingHistory,
+  refreshFundingAssetDefinition,
   searchFundingAssets,
-} from './funding-catalog.js?v=1';
+} from './funding-catalog.js?v=2';
 import { bindUiEvents } from './events.js?v=12';
 import { I18N, t } from './i18n.js?v=2';
 import {
@@ -243,7 +244,10 @@ import { state } from './state.js';
       localStorage.setItem(favoriteDefinitionsStorageKey(), JSON.stringify(definitions));
     }
     async function restoreFavoriteAssets(items){
-      loadFavoriteDefinitions().forEach(definition=>addDynamicFundingAsset(state.data, definition));
+      for(const definition of loadFavoriteDefinitions()){
+        const refreshed=await refreshFundingAssetDefinition(definition).catch(()=>definition);
+        addDynamicFundingAsset(state.data, refreshed);
+      }
       const existing=new Set(getAssetGroups().map(group=>group.id));
       const missing=[...new Set(items)].filter(id=>!existing.has(id));
       await Promise.allSettled(missing.map(async id=>{
@@ -469,7 +473,8 @@ import { state } from './state.js';
         if(first) state.selectedPair=first[0];
       }
       renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render();
-      refreshLiveAll().catch(console.error);
+      const pairKeys=getPairsForAsset(selectedAsset).map(([pairKey])=>pairKey);
+      refreshLiveAll().then(()=>hydrateDynamicPairs(pairKeys)).catch(console.error);
     }
     async function hydrateDynamicPairs(pairKeys){
       await Promise.allSettled(pairKeys.map(async pairKey=>{
