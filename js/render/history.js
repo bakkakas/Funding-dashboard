@@ -13,7 +13,7 @@ export function renderHistoryRows(rows){
   rows.slice().reverse().forEach((row,idx)=>{
     const positive=row.fundingRate>=0;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${rows.length-idx}</td><td>${toUTC(row.fundingTime)}</td><td style="color:${positive?'var(--bad)':'var(--good)'}; font-weight:700;">${fmtPct(row.fundingRate)}</td><td>${row.markPrice == null ? '-' : fmtNumber(row.markPrice)}</td><td>${positive?'<span class="pill bad">Long → Short</span>':'<span class="pill good">Short → Long</span>'}</td>`;
+    tr.innerHTML=`<td>${rows.length-idx}</td><td>${toUTC(row.fundingTime)}</td><td style="color:${positive?'var(--good)':'var(--bad)'}; font-weight:700;">${fmtPct(row.fundingRate)}</td><td>${row.markPrice == null ? '-' : fmtNumber(row.markPrice)}</td><td>${positive?'<span class="pill good">Long → Short</span>':'<span class="pill bad">Short → Long</span>'}</td>`;
     body.appendChild(tr);
   });
 }

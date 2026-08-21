@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./styles.css?v=2" />
 </head>
 <body>
   <div class="wrap">
@@ -112,7 +112,7 @@
         <div class="funding-bars-block">
           <div class="compact-title" data-i18n="currentFundingComparison">현재 Funding Fee 비교</div>
           <div class="funding-bars" id="fundingBars"></div>
-          <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend">양수 = Short -> Long</span><span class="legend-bad" data-i18n="negativeLegend">음수 = Long -> Short</span></div>
+          <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend">양수 = Long -> Short</span><span class="legend-bad" data-i18n="negativeLegend">음수 = Short -> Long</span></div>
         </div>
       </div>
       <div class="card top-panel insight-panel">
@@ -138,8 +138,8 @@
           <div class="detail-box">
             <div class="label" data-i18n="paymentCounts">지급 횟수</div>
             <div class="payment-counts">
-              <div class="payment-count-row"><span>Long → Short</span><span class="bad" id="longToShortCount">-</span></div>
-              <div class="payment-count-row"><span>Short → Long</span><span class="good" id="shortToLongCount">-</span></div>
+              <div class="payment-count-row"><span>Long → Short</span><span class="good" id="longToShortCount">-</span></div>
+              <div class="payment-count-row"><span>Short → Long</span><span class="bad" id="shortToLongCount">-</span></div>
             </div>
           </div>
         </div>
@@ -147,7 +147,7 @@
         <div class="funding-bars-block">
           <div class="compact-title" id="periodFundingBarsTitle" data-i18n="selectedPeriodFundingComparison">선택 기간 Funding Fee 비교</div>
           <div class="funding-bars" id="periodFundingBars"></div>
-          <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend">양수 = Short -> Long</span><span class="legend-bad" data-i18n="negativeLegend">음수 = Long -> Short</span></div>
+          <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend">양수 = Long -> Short</span><span class="legend-bad" data-i18n="negativeLegend">음수 = Short -> Long</span></div>
         </div>
       </div>
     </div>
@@ -185,6 +185,6 @@
     </div>
   </div>
 
-  <script type="module" src="./js/app.js?v=16"></script>
+  <script type="module" src="./js/app.js?v=17"></script>
 </body>
 </html>

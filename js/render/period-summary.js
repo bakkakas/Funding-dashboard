@@ -21,16 +21,16 @@ export function renderPeriodBestWorst({ periodComparisonStats, feeTone }){
       wrap.appendChild(box);
       return;
     }
-    const longBest=stats.slice().sort((a,b)=>b.fee-a.fee)[0];
-    const shortBest=stats.slice().sort((a,b)=>b.shortFee-a.shortFee)[0];
+    const longBest=stats.slice().sort((a,b)=>a.fee-b.fee)[0];
+    const shortBest=stats.slice().sort((a,b)=>b.fee-a.fee)[0];
     const makeRow=(label, item, side)=>{
       const row=document.createElement('div');
       row.className='period-summary-row';
       const labelEl=document.createElement('span');
       labelEl.textContent=label;
       const valueEl=document.createElement('span');
-      const fee=side === 'short' ? item.shortFee : item.fee;
-      const annual=side === 'short' ? item.shortAnnualized : item.annualized;
+      const fee=item.fee;
+      const annual=item.annualized;
       valueEl.className='period-summary-value';
       const exchangeEl=document.createElement('span');
       exchangeEl.className='period-summary-exchange';

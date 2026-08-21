@@ -4,7 +4,7 @@ import { renderFundingBars } from './funding-bars.js';
 import { renderPeriodBestWorst } from './period-summary.js';
 import { renderSpreadInsights } from './spread-insights.js';
 
-function renderFavoredExchange({ box, el, label, item, side, deps }){
+function renderFavoredExchange({ box, el, label, item, deps, feeTone }){
   if(!item){
     box.removeAttribute('href');
     box.classList.add('disabled');
@@ -13,8 +13,8 @@ function renderFavoredExchange({ box, el, label, item, side, deps }){
   }
   box.href=deps.pairTradeUrl(item.pair);
   box.classList.remove('disabled');
-  const value = side === 'short' ? item.shortFee : item.fee;
-  const annualizedValue = side === 'short' ? item.shortAnnualized : item.annualized;
+  const value = item.fee;
+  const annualizedValue = item.annualized;
   const annualized = annualizedValue == null || Number.isNaN(annualizedValue) ? '-' : fmtAnnual(annualizedValue);
   el.innerHTML = '';
   const main=document.createElement('span');
@@ -30,15 +30,15 @@ function renderFavoredExchange({ box, el, label, item, side, deps }){
   name.className='favored-exchange-name';
   name.textContent=item.pair.exchange;
   const sub=document.createElement('span');
-  sub.className='detail-sub';
+  sub.className='detail-sub ' + feeTone(value);
   sub.textContent=`${fmtSignedPct(value)} / ${annualized} Annualized`;
   main.append(labelEl, logo, name);
   el.append(main, sub);
 }
 
 export function renderCurrentFundingInsights({ stats, latest, feeTone, periodComparisonStats, deps }){
-  const longSorted=stats.slice().sort((a,b)=>b.fee-a.fee);
-  const shortSorted=stats.slice().sort((a,b)=>b.shortFee-a.shortFee);
+  const longSorted=stats.slice().sort((a,b)=>a.fee-b.fee);
+  const shortSorted=stats.slice().sort((a,b)=>b.fee-a.fee);
   const mark=Number(latest.markPrice);
   const index=Number(latest.indexPrice);
   const gap = Number.isFinite(mark) && Number.isFinite(index) && index !== 0 ? (mark - index) / index : null;
@@ -51,21 +51,21 @@ export function renderCurrentFundingInsights({ stats, latest, feeTone, periodCom
     el:document.getElementById('longFavoredExchange'),
     label:t('longFavored'),
     item:longSorted[0],
-    side:'long',
     deps,
+    feeTone,
   });
   renderFavoredExchange({
     box:document.getElementById('shortFavoredBox'),
     el:document.getElementById('shortFavoredExchange'),
     label:t('shortFavored'),
     item:shortSorted[0],
-    side:'short',
     deps,
+    feeTone,
   });
 
   renderSpreadInsights(stats);
   renderPeriodBestWorst({ periodComparisonStats, feeTone });
-  renderFundingBars('fundingBars', longSorted, feeTone);
+  renderFundingBars('fundingBars', stats, feeTone);
 }
 
 export function renderPeriodFundingInsights({ stats, windowLabel, lang, feeTone }){
@@ -91,13 +91,13 @@ export function renderSelectedPairFundingMetrics({ windowSummary, periodFee, per
   annual.textContent=fmtAnnual(displayedAnnualized);
   annual.className='value '+(displayedAnnualized>=0?'good':'bad');
 
-  const sumFundingTone = windowSummary.sumFundingRate < 0 ? 'good' : 'bad';
+  const sumFundingTone = windowSummary.sumFundingRate >= 0 ? 'good' : 'bad';
   document.getElementById('sumFunding').textContent=fmtPct(windowSummary.sumFundingRate);
   document.getElementById('sumFunding').className='asset-metric-value '+sumFundingTone;
   document.getElementById('sumFundingMeta').textContent='';
-  document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate < 0
-    ? '<span class="pill good asset-direction-pill">Short → Long</span>'
-    : '<span class="pill bad asset-direction-pill">Long → Short</span>';
+  document.getElementById('interpretation').innerHTML=windowSummary.sumFundingRate >= 0
+    ? '<span class="pill good asset-direction-pill">Long → Short</span>'
+    : '<span class="pill bad asset-direction-pill">Short → Long</span>';
   document.getElementById('interpretation').className='asset-metric-value';
 
   const coreTitle = document.getElementById('coreTitle');

@@ -37,18 +37,18 @@ export function renderComparisons(deps){
   }
   const stats=deps.currentComparisonStats ? deps.currentComparisonStats() : [];
   const statsByPair=new Map(stats.map(item=>[item.pairKey, item]));
-  const longFavored=stats.slice().sort((a,b)=>b.fee-a.fee)[0]?.pairKey;
-  const shortFavored=stats.slice().sort((a,b)=>b.shortFee-a.shortFee)[0]?.pairKey;
+  const longFavored=stats.slice().sort((a,b)=>a.fee-b.fee)[0]?.pairKey;
+  const shortFavored=stats.slice().sort((a,b)=>b.fee-a.fee)[0]?.pairKey;
   const sameSymbolPairs=deps.getPairsForAsset(deps.assetId(selected)).slice();
   if(state.supportSortSide !== 'default'){
-    const metricKey=state.supportSortSide === 'short' ? 'shortFee' : 'fee';
     sameSymbolPairs.sort((a,b)=>{
-      const av=statsByPair.get(a[0])?.[metricKey];
-      const bv=statsByPair.get(b[0])?.[metricKey];
+      const av=statsByPair.get(a[0])?.fee;
+      const bv=statsByPair.get(b[0])?.fee;
       const aMissing=av == null || Number.isNaN(av);
       const bMissing=bv == null || Number.isNaN(bv);
       if(aMissing || bMissing) return Number(aMissing) - Number(bMissing);
-      return bv - av
+      const direction=state.supportSortSide === 'short' ? -1 : 1;
+      return (av - bv) * direction
         || a[1].exchange.localeCompare(b[1].exchange)
         || deps.pairDisplayName(a[1]).localeCompare(deps.pairDisplayName(b[1]));
     });

@@ -1,12 +1,7 @@
 import { COMPARISON_INTERVAL_HOURS } from './config.js';
 
 export function fundingFeeValue(latest){
-  if(latest.longFundingFee != null) return Number(latest.longFundingFee);
-  return latest.lastFundingRate == null ? null : -Number(latest.lastFundingRate);
-}
-
-export function shortFundingFeeValue(latest){
-  if(latest.shortFundingFee != null) return Number(latest.shortFundingFee);
+  if(latest.rawFundingRate != null) return Number(latest.rawFundingRate);
   return latest.lastFundingRate == null ? null : Number(latest.lastFundingRate);
 }
 
@@ -17,7 +12,7 @@ export function feeTone(value){
 
 export function feeDirection(value){
   if(value == null || Number.isNaN(value)) return '-';
-  return value >= 0 ? 'Short -> Long' : 'Long -> Short';
+  return value >= 0 ? 'Long -> Short' : 'Short -> Long';
 }
 
 export function intervalHoursFor(pair, latest={}){
@@ -45,7 +40,7 @@ export function comparableFeeFromAnnualized(annualizedPct){
 
 export function periodFundingFee(summary){
   if(!summary || summary.avgFundingRate == null || Number.isNaN(summary.avgFundingRate)) return null;
-  return -Number(summary.avgFundingRate);
+  return Number(summary.avgFundingRate);
 }
 
 export function comparisonAnnualized(pair, latest, selectedWindow){
@@ -54,10 +49,6 @@ export function comparisonAnnualized(pair, latest, selectedWindow){
   if(annualized != null && !Number.isNaN(annualized)) return annualized;
   const summary = pair.windows && pair.windows[selectedWindow];
   return summary ? summary.annualizedPct : null;
-}
-
-export function comparisonShortAnnualized(pair, latest){
-  return annualizedFromFee(pair, shortFundingFeeValue(latest), latest);
 }
 
 export function metricEntryToComparisonItem({ entry, data, getLatestForPair }){
@@ -102,23 +93,20 @@ export function currentComparisonStats({ data, selectedPair, selectedAsset, sele
   return getPairsForAsset(selectedAsset).map(([pairKey, pair])=>{
     const latest=getLatestForPair(pairKey, pair);
     const rawFee=fundingFeeValue(latest);
-    const rawShortFee=shortFundingFeeValue(latest);
     const annualized=comparisonAnnualized(pair, latest, selectedWindow);
-    const shortAnnualized=comparisonShortAnnualized(pair, latest);
     const fee=comparableFeeFromAnnualized(annualized);
-    const shortFee=comparableFeeFromAnnualized(shortAnnualized);
     return {
       pairKey,
       pair,
       latest,
       fee,
-      shortFee,
+      shortFee:fee,
       rawFee,
-      rawShortFee,
+      rawShortFee:rawFee,
       annualized,
-      shortAnnualized,
+      shortAnnualized:annualized,
     };
-  }).filter(item=>item.fee != null && !Number.isNaN(item.fee) && item.shortFee != null && !Number.isNaN(item.shortFee));
+  }).filter(item=>item.fee != null && !Number.isNaN(item.fee));
 }
 
 export function periodComparisonStats({ data, selectedPair, selectedAsset, windowKey, getPairsForAsset, getLatestForPair }){
@@ -135,11 +123,11 @@ export function periodComparisonStats({ data, selectedPair, selectedAsset, windo
       pairKey,
       pair,
       fee:longFee,
-      shortFee:comparableFeeFromAnnualized(-longAnnualized),
+      shortFee:longFee,
       rawFee,
-      rawShortFee:rawFee == null ? null : -rawFee,
+      rawShortFee:rawFee,
       annualized:longAnnualized,
-      shortAnnualized:longAnnualized == null || Number.isNaN(longAnnualized) ? null : -longAnnualized,
+      shortAnnualized:longAnnualized,
       count:summary.count || 0,
     };
   }).filter(Boolean);

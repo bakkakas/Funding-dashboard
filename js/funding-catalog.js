@@ -178,7 +178,7 @@ function summarize(rows, intervalHours){
   return {
     count:rates.length,
     avgFundingRate:avg,
-    annualizedPct:-avg * (24 / intervalHours) * 365 * 100,
+    annualizedPct:avg * (24 / intervalHours) * 365 * 100,
     sumFundingRate:rates.reduce((sum,value)=>sum+value,0),
     firstFundingTime:rows[0].fundingTime,
     lastFundingTime:rows.at(-1).fundingTime,

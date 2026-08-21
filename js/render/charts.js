@@ -164,7 +164,7 @@ export function renderChart(rows){
   const labels=rows.map(r=>toKSTChartLabel(r.fundingTime));
   const values=rows.map(r=>r.fundingRate*100);
   if(state.chart) state.chart.destroy();
-  state.chart=new Chart(ctx,{ type:'line', data:{ labels, datasets:[{ label:'Funding Rate', data:values, borderColor:'#23e7a5', backgroundColor:'rgba(35,231,165,0.13)', borderWidth:2, fill:true, pointRadius:0, pointHoverRadius:4, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98', callback:v=>`${v.toFixed(3)}%` }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ labels:{ color:'#dce3ea' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } });
+  state.chart=new Chart(ctx,{ type:'line', data:{ labels, datasets:[{ label:'Funding Rate', data:values, borderColor:'#23e7a5', backgroundColor:{ target:'origin', above:'rgba(35,231,165,0.13)', below:'rgba(255,91,105,0.13)' }, segment:{ borderColor:context=>context.p1.parsed.y >= 0 ? '#23e7a5' : '#ff5b69' }, borderWidth:2, fill:true, pointRadius:0, pointHoverRadius:4, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ ticks:{ color:'#7d8a98', callback:v=>`${v.toFixed(3)}%` }, grid:{ color:'rgba(255,255,255,0.045)' } }, x:{ ticks:{ color:'#7d8a98', maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.025)' } } }, plugins:{ legend:{ labels:{ color:'#dce3ea' } }, tooltip:{ mode:'index', intersect:false } }, interaction:{ mode:'index', intersect:false } } });
   state.chart.$fullLabels=labels;
   state.chart.$fullData=values;
   state.chart.$zoomStart=0;

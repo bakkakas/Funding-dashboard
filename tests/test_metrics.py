@@ -13,20 +13,20 @@ from update_data import funding_interval_hours
 
 
 class FundingMetricTests(unittest.TestCase):
-    def test_raw_positive_funding_is_negative_for_long(self):
+    def test_raw_positive_funding_uses_standard_sign(self):
         latest = {"lastFundingRate": 0.001}
-        self.assertEqual(latest_long_fee(latest), -0.001)
+        self.assertEqual(latest_long_fee(latest), 0.001)
         self.assertEqual(latest_short_fee(latest), 0.001)
 
-    def test_raw_negative_funding_is_positive_for_long(self):
+    def test_raw_negative_funding_uses_standard_sign(self):
         latest = {"lastFundingRate": -0.001}
-        self.assertEqual(latest_long_fee(latest), 0.001)
+        self.assertEqual(latest_long_fee(latest), -0.001)
         self.assertEqual(latest_short_fee(latest), -0.001)
 
-    def test_explicit_long_short_fees_are_preserved(self):
-        latest = {"lastFundingRate": 0.001, "longFundingFee": -0.0012, "shortFundingFee": 0.0008}
-        self.assertEqual(latest_long_fee(latest), -0.0012)
-        self.assertEqual(latest_short_fee(latest), 0.0008)
+    def test_raw_exchange_rate_takes_priority_over_cashflow_fields(self):
+        latest = {"rawFundingRate": 0.0011, "lastFundingRate": 0.001, "longFundingFee": -0.0012, "shortFundingFee": 0.0008}
+        self.assertEqual(latest_long_fee(latest), 0.0011)
+        self.assertEqual(latest_short_fee(latest), 0.0011)
 
     def test_interval_annualization_and_8h_equivalent(self):
         one_hour_fee = 0.0001
@@ -42,7 +42,7 @@ class FundingMetricTests(unittest.TestCase):
         pair = {"exchange": "Aster", "symbol": "BTCUSDT"}
         self.assertEqual(funding_interval_hours(pair), 8)
 
-    def test_summarize_uses_long_perspective_for_annualized(self):
+    def test_summarize_preserves_standard_funding_sign_for_annualized(self):
         rows = [
             {"fundingTime": 1, "fundingRate": 0.001},
             {"fundingTime": 2, "fundingRate": -0.0005},
@@ -50,7 +50,7 @@ class FundingMetricTests(unittest.TestCase):
         summary = summarize(rows, periods_per_day=3)
         self.assertEqual(summary["count"], 2)
         self.assertAlmostEqual(summary["avgFundingRate"], 0.00025)
-        self.assertAlmostEqual(summary["annualizedPct"], -27.375)
+        self.assertAlmostEqual(summary["annualizedPct"], 27.375)
 
     def test_spread_alert_thresholds(self):
         self.assertEqual(spread_alert_level(4.99), "normal")

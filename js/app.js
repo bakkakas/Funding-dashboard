@@ -11,15 +11,15 @@ import {
   SUPABASE_FUNCTIONS_BASE_URL,
 } from './config.js';
 import { accountFromSession, authClient } from './auth.js?v=1';
-import { fetchLiveLatest, loadDashboardData } from './api.js?v=3';
+import { fetchLiveLatest, loadDashboardData } from './api.js?v=4';
 import {
   addDynamicFundingAsset,
   hydrateDynamicFundingHistory,
   refreshFundingAssetDefinition,
   searchFundingAssets,
-} from './funding-catalog.js?v=2';
-import { bindUiEvents } from './events.js?v=12';
-import { I18N, t } from './i18n.js?v=2';
+} from './funding-catalog.js?v=3';
+import { bindUiEvents } from './events.js?v=13';
+import { I18N, t } from './i18n.js?v=3';
 import {
   comparisonAnnualized as buildComparisonAnnualized,
   currentComparisonStats as buildCurrentComparisonStats,
@@ -30,16 +30,16 @@ import {
   intervalHoursFor,
   periodComparisonStats as buildPeriodComparisonStats,
   periodFundingFee,
-} from './metrics.js?v=9';
+} from './metrics.js?v=10';
 import { renderAssetSummary as renderAssetSummaryView } from './render/asset-summary.js';
-import { renderChart, renderPriceChart } from './render/charts.js';
-import { renderComparisons as renderComparisonsView, renderExchangeTabs as renderExchangeTabsView } from './render/comparisons.js?v=3';
+import { renderChart, renderPriceChart } from './render/charts.js?v=2';
+import { renderComparisons as renderComparisonsView, renderExchangeTabs as renderExchangeTabsView } from './render/comparisons.js?v=4';
 import {
   renderCurrentFundingInsights,
   renderPeriodFundingInsights,
   renderSelectedPairFundingMetrics,
-} from './render/funding-insights.js?v=7';
-import { renderHistoryRows, renderPaymentCounts } from './render/history.js';
+} from './render/funding-insights.js?v=8';
+import { renderHistoryRows, renderPaymentCounts } from './render/history.js?v=2';
 import {
   fmtFx,
   toKST,

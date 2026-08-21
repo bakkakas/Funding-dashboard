@@ -13,7 +13,7 @@ def summarize(rows, periods_per_day):
     return {
         "count": len(rows),
         "avgFundingRate": avg,
-        "annualizedPct": -avg * periods_per_day * 365 * 100,
+        "annualizedPct": avg * periods_per_day * 365 * 100,
         "sumFundingRate": sum(rates),
         "firstFundingTime": rows[0]["fundingTime"],
         "lastFundingTime": rows[-1]["fundingTime"],
@@ -21,19 +21,15 @@ def summarize(rows, periods_per_day):
 
 
 def latest_long_fee(latest):
-    if latest.get("longFundingFee") is not None:
-        return float(latest["longFundingFee"])
-    if latest.get("lastFundingRate") is None:
-        return None
-    return -float(latest["lastFundingRate"])
-
-
-def latest_short_fee(latest):
-    if latest.get("shortFundingFee") is not None:
-        return float(latest["shortFundingFee"])
+    if latest.get("rawFundingRate") is not None:
+        return float(latest["rawFundingRate"])
     if latest.get("lastFundingRate") is None:
         return None
     return float(latest["lastFundingRate"])
+
+
+def latest_short_fee(latest):
+    return latest_long_fee(latest)
 
 
 def annualized_from_fee(fee, interval_hours):
@@ -96,10 +92,9 @@ def summarize_metric_entries(entries, comparison_interval_hours):
             "longFavored": None,
             "shortFavored": None,
         }
-    long_sorted = sorted(entries, key=lambda item: item["longFundingFee8h"], reverse=True)
-    short_sorted = sorted(entries, key=lambda item: item["shortFundingFee8h"], reverse=True)
-    high = long_sorted[0]
-    low = long_sorted[-1]
+    standard_sorted = sorted(entries, key=lambda item: item["longFundingFee8h"])
+    low = standard_sorted[0]
+    high = standard_sorted[-1]
     annualized_spread = None
     if high.get("annualizedPct") is not None and low.get("annualizedPct") is not None:
         annualized_spread = high["annualizedPct"] - low["annualizedPct"]
@@ -113,8 +108,8 @@ def summarize_metric_entries(entries, comparison_interval_hours):
             "annualizedPct": annualized_spread,
         },
         "alertLevel": spread_alert_level(annualized_spread),
-        "longFavored": long_sorted[0]["pairKey"],
-        "shortFavored": short_sorted[0]["pairKey"],
+        "longFavored": low["pairKey"],
+        "shortFavored": high["pairKey"],
     }
 
 
@@ -133,42 +128,42 @@ def build_asset_metrics(data, windows, comparison_interval_hours):
         for key, pair in pairs:
             interval = float(pair.get("fundingIntervalHours") or 8)
             latest = pair.get("latest") or {}
-            long_fee = latest_long_fee(latest)
-            short_fee = latest_short_fee(latest)
-            long_annualized = annualized_from_fee(long_fee, interval)
-            short_annualized = annualized_from_fee(short_fee, interval)
+            funding_rate = latest_long_fee(latest)
+            annualized = annualized_from_fee(funding_rate, interval)
             reliability[key] = asset_reliability(pair, now_ms, windows)
-            if long_annualized is not None and short_annualized is not None:
+            if annualized is not None:
                 current_entries.append({
                     "pairKey": key,
                     "exchange": pair["exchange"],
                     "symbol": pair["symbol"],
                     "intervalHours": interval,
-                    "rawLongFundingFee": long_fee,
-                    "rawShortFundingFee": short_fee,
-                    "longFundingFee8h": comparable_fee_from_annualized(long_annualized, comparison_interval_hours),
-                    "shortFundingFee8h": comparable_fee_from_annualized(short_annualized, comparison_interval_hours),
-                    "annualizedPct": long_annualized,
-                    "shortAnnualizedPct": short_annualized,
+                    "rawLongFundingFee": funding_rate,
+                    "rawShortFundingFee": funding_rate,
+                    "longFundingFee8h": comparable_fee_from_annualized(annualized, comparison_interval_hours),
+                    "shortFundingFee8h": comparable_fee_from_annualized(annualized, comparison_interval_hours),
+                    "annualizedPct": annualized,
+                    "shortAnnualizedPct": annualized,
                     "reliabilityStatus": reliability[key]["status"],
                 })
             for label, summary in (pair.get("windows") or {}).items():
                 if not summary or not summary.get("count"):
                     continue
-                long_annualized = summary.get("annualizedPct")
-                if long_annualized is None:
+                annualized = summary.get("annualizedPct")
+                if annualized is None:
                     continue
+                avg_funding_rate = float(summary.get("avgFundingRate", 0))
+                comparable_rate = comparable_fee_from_annualized(annualized, comparison_interval_hours)
                 window_entries[label].append({
                     "pairKey": key,
                     "exchange": pair["exchange"],
                     "symbol": pair["symbol"],
                     "intervalHours": interval,
-                    "rawLongFundingFee": -float(summary.get("avgFundingRate", 0)),
-                    "rawShortFundingFee": float(summary.get("avgFundingRate", 0)),
-                    "longFundingFee8h": comparable_fee_from_annualized(long_annualized, comparison_interval_hours),
-                    "shortFundingFee8h": comparable_fee_from_annualized(-long_annualized, comparison_interval_hours),
-                    "annualizedPct": long_annualized,
-                    "shortAnnualizedPct": -long_annualized,
+                    "rawLongFundingFee": avg_funding_rate,
+                    "rawShortFundingFee": avg_funding_rate,
+                    "longFundingFee8h": comparable_rate,
+                    "shortFundingFee8h": comparable_rate,
+                    "annualizedPct": annualized,
+                    "shortAnnualizedPct": annualized,
                     "count": summary.get("count", 0),
                     "reliabilityStatus": reliability[key]["status"],
                 })

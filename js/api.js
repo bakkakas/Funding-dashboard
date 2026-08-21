@@ -12,7 +12,7 @@ import {
   VARIATIONAL_STATS_URL,
 } from './config.js';
 import { orbsPerpsFundingCache, state, variationalStatsCache } from './state.js';
-import { fundingIntervalHoursBetween } from './funding-catalog.js?v=2';
+import { fundingIntervalHoursBetween } from './funding-catalog.js?v=3';
 
 function applyFundingInterval(pair, latest, hours){
   const interval=Number(hours);
@@ -177,8 +177,8 @@ export async function fetchLiveLatest(pairKey, pair){
       indexPrice: Number(row.indexPrice),
       rawFundingRate: Number(row.lastFundingRate),
       lastFundingRate: Number(row.lastFundingRate),
-      longFundingFee: funding.next_funding_rate_long == null ? -Number(row.lastFundingRate) : Number(funding.next_funding_rate_long),
-      shortFundingFee: funding.next_funding_rate_short == null ? Number(row.lastFundingRate) : Number(funding.next_funding_rate_short),
+      longFundingFee: Number(row.lastFundingRate),
+      shortFundingFee: Number(row.lastFundingRate),
       nextFundingTime: Number(funding.next_funding_time || row.nextFundingTime),
       time: Number(row.time) || Date.now(),
       available: true,
