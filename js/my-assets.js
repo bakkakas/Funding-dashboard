@@ -55,7 +55,8 @@ async function refresh(){
   $('totalMeta').textContent='현재 가격 갱신 중…';
   try{const f=await fetch('https://open.er-api.com/v6/latest/USD').then(r=>r.json());fx=Number(f.rates?.KRW)||fx}catch{}
   priceErrors=new Set();
-  await Promise.all(assets.map(async a=>{try{prices[a.id]=await quote(a)}catch{priceErrors.add(a.id);prices[a.id]=Number(a.manual_price)||0}}));
+  const quoteTasks=new Map();
+  await Promise.all(assets.map(async a=>{const key=`${a.asset_class}:${a.quote_symbol}:${a.currency}:${a.manual_price??''}`;if(!quoteTasks.has(key))quoteTasks.set(key,quote(a));try{prices[a.id]=await quoteTasks.get(key)}catch{priceErrors.add(a.id);prices[a.id]=Number(a.manual_price)||0}}));
   render();await saveSnapshot();await loadSnapshots();
 }
 async function quote(a){
@@ -84,7 +85,7 @@ function renderSummary(){
 }
 function renderAssets(){
   const list=filter==='all'?assets:assets.filter(a=>a.asset_class===filter),total=assets.reduce((s,a)=>s+valueKrw(a),0);
-  $('assetRows').innerHTML=list.length?list.map(a=>{const p=prices[a.id],failed=priceErrors.has(a.id),v=valueKrw(a);return `<tr><td><div class="asset-main">${escapeHtml(a.name)}</div><div class="asset-sub">${escapeHtml(a.symbol)}</div></td><td><span class="pill">${CLASSES[a.asset_class]}</span></td><td>${num.format(a.quantity)}</td><td class="${p==null?'price-loading':failed?'price-error':''}">${p==null?'조회 중':failed?'조회 실패':(a.currency==='USD'?'$':'₩')+num.format(p)}</td><td class="asset-value">${won.format(v)}</td><td>${total?num.format(v/total*100):0}%</td><td><div class="asset-actions"><button class="asset-edit" data-edit="${a.id}">수정</button><button class="asset-delete" data-delete="${a.id}">삭제</button></div></td></tr>`}).join(''):'<tr><td colspan="7" class="empty-assets">등록된 자산이 없어. 자산 추가 버튼으로 시작해.</td></tr>';
+  $('assetRows').innerHTML=list.length?list.map(a=>{const p=prices[a.id],failed=priceErrors.has(a.id),v=valueKrw(a),nickname=String(a.nickname||'').trim();return `<tr><td><div class="asset-main">${escapeHtml(a.name)}${nickname?`<span class="asset-nickname">${escapeHtml(nickname)}</span>`:''}</div><div class="asset-sub">${escapeHtml(a.symbol)}</div></td><td><span class="pill">${CLASSES[a.asset_class]}</span></td><td>${num.format(a.quantity)}</td><td class="${p==null?'price-loading':failed?'price-error':''}">${p==null?'조회 중':failed?'조회 실패':(a.currency==='USD'?'$':'₩')+num.format(p)}</td><td class="asset-value">${won.format(v)}</td><td>${total?num.format(v/total*100):0}%</td><td><div class="asset-actions"><button class="asset-edit" data-edit="${a.id}">수정</button><button class="asset-delete" data-delete="${a.id}">삭제</button></div></td></tr>`}).join(''):'<tr><td colspan="7" class="empty-assets">등록된 자산이 없어. 자산 추가 버튼으로 시작해.</td></tr>';
   document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openAssetModal(assets.find(a=>String(a.id)===b.dataset.edit)));
   document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>deleteAsset(b.dataset.delete));
 }
@@ -104,23 +105,23 @@ async function renderSearch(){
   status('assetStatus',searchResults.length?'검색 결과에서 자산을 선택해.':'검색 결과가 없어.',!searchResults.length);
 }
 function selectAsset(a,b){selectedSearchAsset=a;$('selectedAsset').value=a.symbol;document.querySelectorAll('.asset-result').forEach(x=>x.classList.toggle('active',x===b));status('assetStatus',`${a.name} 선택됨`);const manual=a.asset_class==='cash';document.querySelectorAll('.manual-price').forEach(x=>x.hidden=!manual);$('assetManualPrice').value=a.symbol==='USD'?'1':a.symbol==='KRW'?'1':''}
-function resetAssetForm(){clearTimeout(searchTimer);searchResults=[];selectedSearchAsset=null;editingAssetId=null;$('assetModalTitle').textContent='자산 추가';$('saveAsset').textContent='저장';$('assetQuery').disabled=false;$('assetQuery').value='';$('selectedAsset').value='';$('assetQuantity').value='';$('assetManualPrice').value='';$('assetResults').innerHTML='';document.querySelectorAll('.manual-price').forEach(x=>x.hidden=true);status('assetStatus','검색 결과에서 자산을 선택해.')}
+function resetAssetForm(){clearTimeout(searchTimer);searchResults=[];selectedSearchAsset=null;editingAssetId=null;$('assetModalTitle').textContent='자산 추가';$('saveAsset').textContent='저장';$('assetQuery').disabled=false;$('assetQuery').value='';$('selectedAsset').value='';$('assetNickname').value='';$('assetQuantity').value='';$('assetManualPrice').value='';$('assetResults').innerHTML='';document.querySelectorAll('.manual-price').forEach(x=>x.hidden=true);status('assetStatus','검색 결과에서 자산을 선택해.')}
 function openAssetModal(asset=null){
   resetAssetForm();
   if(asset){
     editingAssetId=asset.id;selectedSearchAsset={symbol:asset.symbol,name:asset.name,asset_class:asset.asset_class,quote_symbol:asset.quote_symbol,currency:asset.currency};
-    $('assetModalTitle').textContent='자산 수정';$('saveAsset').textContent='수정 저장';$('assetQuery').value=`${asset.name} (${asset.symbol})`;$('assetQuery').disabled=true;$('selectedAsset').value=asset.symbol;$('assetQuantity').value=asset.quantity;
-    const manual=asset.asset_class==='cash';document.querySelectorAll('.manual-price').forEach(x=>x.hidden=!manual);$('assetManualPrice').value=manual?(Number(asset.manual_price)||1):'';status('assetStatus','수량을 수정하고 저장해.');
+    $('assetModalTitle').textContent='자산 수정';$('saveAsset').textContent='수정 저장';$('assetQuery').value=`${asset.name} (${asset.symbol})`;$('assetQuery').disabled=true;$('selectedAsset').value=asset.symbol;$('assetNickname').value=asset.nickname||'';$('assetQuantity').value=asset.quantity;
+    const manual=asset.asset_class==='cash';document.querySelectorAll('.manual-price').forEach(x=>x.hidden=!manual);$('assetManualPrice').value=manual?(Number(asset.manual_price)||1):'';status('assetStatus','닉네임과 수량을 수정할 수 있어.');
   }
   modal('assetModal',true);setTimeout(()=>$(asset?'assetQuantity':'assetQuery').focus(),0);
 }
 async function saveAsset(){
   const a=selectedSearchAsset,quantity=Number($('assetQuantity').value);if(!a||!Number.isFinite(quantity)||quantity<=0)return status('assetStatus','자산과 0보다 큰 수량을 입력해.',true);
-  const manual=a.asset_class==='cash'?Number($('assetManualPrice').value)||1:null;
+  const manual=a.asset_class==='cash'?Number($('assetManualPrice').value)||1:null,nickname=$('assetNickname').value.trim();
   let error;
-  if(editingAssetId)({error}=await db.from('portfolio_assets').update({quantity,manual_price:manual}).eq('id',editingAssetId));
-  else{const payload={user_id:session.user.id,symbol:a.symbol,name:a.name,asset_class:a.asset_class,quote_symbol:a.quote_symbol,currency:a.currency,quantity,manual_price:manual};({error}=await db.from('portfolio_assets').upsert(payload,{onConflict:'user_id,symbol,asset_class'}))}
-  if(error)return status('assetStatus',error.message,true);
+  if(editingAssetId)({error}=await db.from('portfolio_assets').update({nickname,quantity,manual_price:manual}).eq('id',editingAssetId));
+  else{const payload={user_id:session.user.id,symbol:a.symbol,name:a.name,nickname,asset_class:a.asset_class,quote_symbol:a.quote_symbol,currency:a.currency,quantity,manual_price:manual};({error}=await db.from('portfolio_assets').upsert(payload,{onConflict:'user_id,symbol,asset_class,nickname'}))}
+  if(error)return status('assetStatus',error.code==='23505'?'같은 종목에 동일한 닉네임이 이미 있어. 다른 닉네임을 입력해.':error.message,true);
   modal('assetModal',false);await loadPortfolio();
 }
 async function deleteAsset(id){if(!confirm('이 자산을 삭제할까?'))return;await db.from('portfolio_assets').delete().eq('id',id);await loadPortfolio()}
