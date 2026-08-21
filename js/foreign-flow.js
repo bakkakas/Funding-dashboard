@@ -1,4 +1,4 @@
-import { setupForeignHeader } from './foreign-header.js?v=1';
+import { setupForeignHeader } from './foreign-header.js?v=2';
 
 const nf = new Intl.NumberFormat('ko-KR');
 const PERIODS = [['7D', 7], ['30D', 30], ['90D', 90], ['180D', 180], ['1Y', 365], ['3Y', 1095], ['5Y', 1825], ['10Y', 3650]];

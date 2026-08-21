@@ -2,7 +2,6 @@ import {
   ANALYTICS_BACKEND_CONFIGURED,
   ASSET_LOGO_DOMAINS,
   ASSET_NAME_OVERRIDES,
-  AUTH_BACKEND_CONFIGURED,
   FX_LATEST_URL,
   FX_REFERENCE_URL,
   LIVE_REFRESH_MS,
@@ -11,8 +10,9 @@ import {
   SUPABASE_ANON_KEY,
   SUPABASE_FUNCTIONS_BASE_URL,
 } from './config.js';
+import { accountFromSession, authClient } from './auth.js?v=1';
 import { fetchLiveLatest, loadDashboardData } from './api.js?v=2';
-import { bindUiEvents } from './events.js?v=10';
+import { bindUiEvents } from './events.js?v=11';
 import { I18N, t } from './i18n.js';
 import {
   comparisonAnnualized as buildComparisonAnnualized,
@@ -201,21 +201,22 @@ import { state } from './state.js';
         }),
       }).catch(console.error);
     }
-    function authStorageKey(){ return 'fundingDashboardAuthUser'; }
     function favoriteStorageKey(){
       return state.auth && state.auth.email ? `favoritePairs:${state.auth.email.toLowerCase()}` : 'favoritePairs';
     }
-    function loadAuth(){
-      try { state.auth = JSON.parse(localStorage.getItem(authStorageKey()) || 'null'); } catch(e) { state.auth = null; }
-    }
-    function saveAuth(email){
-      state.auth = { email, provider:'email', synced:AUTH_BACKEND_CONFIGURED };
-      localStorage.setItem(authStorageKey(), JSON.stringify(state.auth));
+    function applyAuthSession(session){
+      state.auth = accountFromSession(session);
       state.favorites = normalizeFavorites(loadFavorites());
       saveFavorites();
       renderAuth();
       renderFavoriteTabs();
       render();
+    }
+    async function loadAuth(){
+      const { data, error } = await authClient.auth.getSession();
+      if(error) console.error(error);
+      state.auth = accountFromSession(data?.session);
+      authClient.auth.onAuthStateChange((_event, session) => applyAuthSession(session));
     }
     function loadFavorites(){
       try { return JSON.parse(localStorage.getItem(favoriteStorageKey()) || '[]'); } catch(e) { return []; }
@@ -246,9 +247,7 @@ import { state } from './state.js';
       const modal=document.getElementById('authModal');
       document.getElementById('authModalTitle').textContent=mode === 'signup' ? t('signup') : t('login');
       document.getElementById('authSubmitButton').textContent=mode === 'signup' ? t('signupSave') : t('loginSave');
-      document.getElementById('authStatus').innerHTML=AUTH_BACKEND_CONFIGURED
-        ? t('authSynced')
-        : t('authLocal');
+      document.getElementById('authStatus').innerHTML=t('authSynced');
       modal.classList.add('open');
       modal.setAttribute('aria-hidden','false');
       document.getElementById('authEmail').focus();
@@ -593,11 +592,10 @@ import { state } from './state.js';
       state.selectedPair=Object.keys(data.pairs)[0];
       state.selectedAsset=assetId(data.pairs[state.selectedPair]);
       trackLocalVisit();
-      loadAuth();
+      await loadAuth();
       state.favorites = normalizeFavorites(loadFavorites());
       saveFavorites();
       bindUiEvents({
-        authStorageKey,
         closeAssetDropdown,
         closeAuthModal,
         loadFavorites,
@@ -610,7 +608,6 @@ import { state } from './state.js';
         renderAuth,
         renderExchangePicker,
         renderFavoriteTabs,
-        saveAuth,
         saveFavorites,
         selectAssetFromSearch,
         setLanguage,

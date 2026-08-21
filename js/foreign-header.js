@@ -1,16 +1,18 @@
+import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1';
+
 const FX_LATEST_URL = 'https://open.er-api.com/v6/latest/USD';
 const FX_REFERENCE_URL = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
 
 export function setupForeignHeader() {
   let lang = localStorage.getItem('fundingDashboardLanguage') === 'en' ? 'en' : 'ko';
-  let auth;
-  try { auth = JSON.parse(localStorage.getItem('fundingDashboardAuthUser') || 'null'); } catch { auth = null; }
+  let auth = null;
 
   const copy = {
     ko: { login: '로그인', signup: '회원가입', logout: '로그아웃', admin: '관리자', close: '닫기', save: '저장', loading: 'USD/KRW 조회 중', failed: 'USD/KRW 조회 실패' },
     en: { login: 'Login', signup: 'Sign up', logout: 'Log out', admin: 'Admin', close: 'Close', save: 'Save', loading: 'Loading USD/KRW', failed: 'USD/KRW unavailable' }
   };
   const modal = document.getElementById('authModal');
+  const authStatus = document.getElementById('authStatus');
 
   function render() {
     const text = copy[lang];
@@ -46,26 +48,54 @@ export function setupForeignHeader() {
   document.getElementById('langKoButton').onclick = () => setLanguage('ko');
   document.getElementById('langEnButton').onclick = () => setLanguage('en');
   document.getElementById('loginButton').onclick = () => openModal('login');
-  document.getElementById('signupButton').onclick = () => {
+  document.getElementById('signupButton').onclick = async () => {
     if (auth) {
-      localStorage.removeItem('fundingDashboardAuthUser');
-      auth = null;
-      render();
+      const { error } = await authClient.auth.signOut();
+      if (error) authStatus.textContent = error.message;
     } else openModal('signup');
+  };
+  document.getElementById('authGoogleButton').onclick = async () => {
+    authStatus.textContent = lang === 'en' ? 'Opening Google sign-in…' : 'Google 로그인으로 이동 중…';
+    const { error } = await signInWithGoogle('/Funding-dashboard/foreign-flow.html');
+    if (error) authStatus.textContent = error.message;
   };
   document.getElementById('authCloseButton').onclick = closeModal;
   modal.onclick = event => { if (event.target === modal) closeModal(); };
-  document.getElementById('authForm').onsubmit = event => {
+  document.getElementById('authForm').onsubmit = async event => {
     event.preventDefault();
     const email = document.getElementById('authEmail').value.trim();
-    if (!email || !email.includes('@')) return;
-    auth = { email, provider: 'email', synced: false };
-    localStorage.setItem('fundingDashboardAuthUser', JSON.stringify(auth));
-    closeModal();
-    render();
+    const password = document.getElementById('authPassword').value;
+    if (!email || !email.includes('@')) {
+      authStatus.textContent = lang === 'en' ? 'Enter a valid email.' : '이메일 형식으로 입력해줘.';
+      return;
+    }
+    if (password.length < 6) {
+      authStatus.textContent = lang === 'en' ? 'Use at least 6 characters for the password.' : '비밀번호는 6자 이상 입력해줘.';
+      return;
+    }
+    const result = modal.dataset.mode === 'signup'
+      ? await authClient.auth.signUp({ email, password })
+      : await authClient.auth.signInWithPassword({ email, password });
+    if (result.error) {
+      authStatus.textContent = result.error.message;
+      return;
+    }
+    authStatus.textContent = modal.dataset.mode === 'signup'
+      ? (lang === 'en' ? 'Check your email if confirmation is required.' : '확인 메일이 오면 인증을 완료해줘.')
+      : (lang === 'en' ? 'Signed in.' : '로그인 완료');
+    if (modal.dataset.mode !== 'signup' || result.data.session) closeModal();
   };
 
   render();
+  authClient.auth.getSession().then(({ data, error }) => {
+    if (error) authStatus.textContent = error.message;
+    auth = accountFromSession(data?.session);
+    render();
+  });
+  authClient.auth.onAuthStateChange((_event, session) => {
+    auth = accountFromSession(session);
+    render();
+  });
   Promise.all([fetch(FX_LATEST_URL, { cache: 'no-store' }), fetch(FX_REFERENCE_URL, { cache: 'no-store' })])
     .then(async ([latestResponse, referenceResponse]) => [await latestResponse.json(), await referenceResponse.json()])
     .then(([latestJson, referenceJson]) => {

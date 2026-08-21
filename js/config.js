@@ -45,7 +45,6 @@ export const PRICE_CANDLE_WINDOWS = [
 ];
 export const FX_LATEST_URL = 'https://open.er-api.com/v6/latest/USD';
 export const FX_REFERENCE_URL = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
-export const AUTH_BACKEND_CONFIGURED = false;
 export const SUPABASE_CONFIG = window.FUNDING_SUPABASE || {};
 export const SUPABASE_URL = SUPABASE_CONFIG.url || '';
 export const SUPABASE_ANON_KEY = SUPABASE_CONFIG.anonKey || '';

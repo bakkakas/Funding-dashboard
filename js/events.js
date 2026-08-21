@@ -1,8 +1,8 @@
 import { t } from './i18n.js';
 import { state } from './state.js';
+import { authClient, signInWithGoogle } from './auth.js?v=1';
 
 export function bindUiEvents({
-  authStorageKey,
   closeAssetDropdown,
   closeAuthModal,
   loadFavorites,
@@ -15,7 +15,6 @@ export function bindUiEvents({
   renderAuth,
   renderExchangePicker,
   renderFavoriteTabs,
-  saveAuth,
   saveFavorites,
   selectAssetFromSearch,
   setLanguage,
@@ -75,33 +74,45 @@ export function bindUiEvents({
   });
 
   document.getElementById('loginButton').addEventListener('click', ()=>openAuthModal('login'));
-  document.getElementById('signupButton').addEventListener('click', ()=>{
+  document.getElementById('signupButton').addEventListener('click', async ()=>{
     if(state.auth){
-      localStorage.removeItem(authStorageKey());
-      state.auth=null;
-      state.favorites=normalizeFavorites(loadFavorites());
-      renderAuth();
-      renderFavoriteTabs();
-      render();
+      const { error } = await authClient.auth.signOut();
+      if(error) document.getElementById('authStatus').textContent=error.message;
       return;
     }
     openAuthModal('signup');
   });
-  document.getElementById('authGoogleButton').addEventListener('click', ()=>{
-    document.getElementById('authStatus').innerHTML=t('googlePending');
+  document.getElementById('authGoogleButton').addEventListener('click', async ()=>{
+    document.getElementById('authStatus').textContent=state.lang === 'en' ? 'Opening Google sign-in…' : 'Google 로그인으로 이동 중…';
+    const { error } = await signInWithGoogle(window.location.pathname);
+    if(error) document.getElementById('authStatus').textContent=error.message;
   });
   document.getElementById('authCloseButton').addEventListener('click', closeAuthModal);
   document.getElementById('authModal').addEventListener('click', e=>{
     if(e.target.id === 'authModal') closeAuthModal();
   });
-  document.getElementById('authSubmitButton').addEventListener('click', ()=>{
+  document.getElementById('authSubmitButton').addEventListener('click', async ()=>{
     const email=document.getElementById('authEmail').value.trim();
+    const password=document.getElementById('authPassword').value;
     if(!email || !email.includes('@')){
       document.getElementById('authStatus').textContent=t('invalidEmail');
       return;
     }
-    saveAuth(email);
-    closeAuthModal();
+    if(password.length < 6){
+      document.getElementById('authStatus').textContent=state.lang === 'en' ? 'Use at least 6 characters for the password.' : '비밀번호는 6자 이상 입력해줘.';
+      return;
+    }
+    const result = state.authMode === 'signup'
+      ? await authClient.auth.signUp({ email, password })
+      : await authClient.auth.signInWithPassword({ email, password });
+    if(result.error){
+      document.getElementById('authStatus').textContent=result.error.message;
+      return;
+    }
+    document.getElementById('authStatus').textContent=state.authMode === 'signup'
+      ? (state.lang === 'en' ? 'Check your email if confirmation is required.' : '확인 메일이 오면 인증을 완료해줘.')
+      : (state.lang === 'en' ? 'Signed in.' : '로그인 완료');
+    if(state.authMode !== 'signup' || result.data.session) closeAuthModal();
   });
   document.getElementById('authForm').addEventListener('submit', e=>{
     e.preventDefault();

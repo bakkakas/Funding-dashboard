@@ -1,5 +1,4 @@
-const config=window.FUNDING_SUPABASE||{};
-const db=window.supabase.createClient(config.url,config.anonKey);
+import { authClient as db, signInWithGoogle } from './auth.js?v=1';
 const $=id=>document.getElementById(id);
 const CLASSES={stock:'주식',crypto:'크립토',commodity:'원자재',cash:'현금'};
 const COLORS={stock:'#23e7a5',crypto:'#8ea2ff',commodity:'#f5c451',cash:'#86a8ff'};
@@ -39,8 +38,7 @@ async function authenticate(signup){
 }
 async function authenticateWithGoogle(){
   status('portfolioAuthStatus','Google 로그인으로 이동 중…');
-  const redirectTo=new URL('./my-assets.html',window.location.href).href;
-  const {error}=await db.auth.signInWithOAuth({provider:'google',options:{redirectTo}});
+  const {error}=await signInWithGoogle('/Funding-dashboard/my-assets.html');
   if(error)status('portfolioAuthStatus',error.message,true);
 }
 async function logout(){await db.auth.signOut();assets=[];prices={};renderSession()}
