@@ -16,6 +16,7 @@ export function bindUiEvents({
   renderExchangePicker,
   renderFavoriteTabs,
   saveFavorites,
+  searchRemoteAssets,
   selectAssetFromSearch,
   setLanguage,
 }){
@@ -26,6 +27,7 @@ export function bindUiEvents({
   assetSearch.addEventListener('input', e=>{
     renderAssetDropdown(e.target.value);
     openAssetDropdown();
+    searchRemoteAssets(e.target.value).catch(console.error);
   });
   assetSearch.addEventListener('keydown', e=>{
     if(e.key==='Enter'){

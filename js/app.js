@@ -12,6 +12,11 @@ import {
 } from './config.js';
 import { accountFromSession, authClient } from './auth.js?v=1';
 import { fetchLiveLatest, loadDashboardData } from './api.js?v=2';
+import {
+  addDynamicFundingAsset,
+  hydrateDynamicFundingHistory,
+  searchFundingAssets,
+} from './funding-catalog.js?v=1';
 import { bindUiEvents } from './events.js?v=11';
 import { I18N, t } from './i18n.js';
 import {
@@ -131,6 +136,8 @@ import { state } from './state.js';
       return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
     }
     function assetLogoUrl(symbol){
+      const dynamicPair=state.data ? getPairsForAsset(symbol).map(([,pair])=>pair).find(pair=>pair.logoUrl) : null;
+      if(dynamicPair) return dynamicPair.logoUrl;
       return assetLogoFallbackUrl(symbol);
     }
     function assetLogoFallbackUrl(symbol){
@@ -312,15 +319,20 @@ import { state } from './state.js';
     function renderAssetDropdown(filter=''){
       const dropdown=document.getElementById('assetDropdown');
       const normalized=filter.trim().toLocaleLowerCase('ko');
-      const groups=getAssetGroups().filter(group=>{
+      const localGroups=getAssetGroups().filter(group=>{
         if(!normalized) return true;
         return group.name.toLocaleLowerCase('ko').includes(normalized) || group.id.toLocaleLowerCase('ko').includes(normalized);
       });
+      const localIds=new Set(localGroups.map(group=>group.id));
+      const remoteGroups=(normalized ? state.remoteAssetResults : []).filter(group=>!localIds.has(group.id));
+      const groups=[...localGroups, ...remoteGroups];
       dropdown.innerHTML='';
       if(!groups.length){
         const empty=document.createElement('div');
         empty.className='asset-empty';
-        empty.textContent=t('noSearchResults');
+        empty.textContent=state.remoteSearchLoading
+          ? (state.lang === 'en' ? 'Searching supported perpetual markets…' : '지원되는 무기한 선물 종목 검색 중…')
+          : t('noSearchResults');
         dropdown.appendChild(empty);
         return;
       }
@@ -333,15 +345,51 @@ import { state } from './state.js';
         name.textContent=group.name;
         const symbol=document.createElement('span');
         symbol.className='asset-option-symbol';
-        symbol.textContent=group.id;
+        symbol.textContent=group.remote
+          ? `${group.id} · ${group.pairs.length}${state.lang === 'en' ? ' exchanges' : '개 거래소'}`
+          : group.id;
         option.append(name, symbol);
         option.addEventListener('mousedown', e=>e.preventDefault());
-        option.addEventListener('click', ()=>{
-          selectAsset(group.id);
+        option.addEventListener('click', async ()=>{
+          if(group.remote) await selectRemoteAsset(group);
+          else selectAsset(group.id);
           closeAssetDropdown();
         });
         dropdown.appendChild(option);
       });
+      if(state.remoteSearchLoading && normalized){
+        const loading=document.createElement('div');
+        loading.className='asset-empty';
+        loading.textContent=state.lang === 'en' ? 'Searching more crypto markets…' : '추가 크립토 마켓 검색 중…';
+        dropdown.appendChild(loading);
+      }
+    }
+
+    async function searchRemoteAssets(filter){
+      const query=String(filter || '').trim();
+      const token=++state.remoteSearchToken;
+      if(query.length < 2){
+        state.remoteAssetResults=[];
+        state.remoteSearchLoading=false;
+        return;
+      }
+      state.remoteAssetResults=[];
+      state.remoteSearchLoading=true;
+      renderAssetDropdown(query);
+      try{
+        const results=await searchFundingAssets(query);
+        if(token !== state.remoteSearchToken) return;
+        state.remoteAssetResults=results;
+      } catch(error){
+        console.error(error);
+        if(token !== state.remoteSearchToken) return;
+        state.remoteAssetResults=[];
+      } finally {
+        if(token !== state.remoteSearchToken) return;
+        state.remoteSearchLoading=false;
+        const input=document.getElementById('assetSearch');
+        if(input.value.trim() === query) renderAssetDropdown(query);
+      }
     }
 
     function openAssetDropdown(){
@@ -378,7 +426,33 @@ import { state } from './state.js';
       renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render();
       refreshLiveAll().catch(console.error);
     }
-    function selectPair(pairKey){ state.selectedPair=pairKey; state.selectedAsset=assetId(state.data.pairs[pairKey]); renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render(); refreshLiveAll().catch(console.error); }
+    async function hydrateDynamicPairs(pairKeys){
+      await Promise.allSettled(pairKeys.map(async pairKey=>{
+        const pair=state.data.pairs[pairKey];
+        await hydrateDynamicFundingHistory(pair, state.data.meta.windows);
+        if(state.selectedAsset === assetId(pair)) render();
+      }));
+    }
+    async function selectRemoteAsset(group){
+      const pairKeys=addDynamicFundingAsset(state.data, group);
+      if(!pairKeys.length) return;
+      state.selectedAsset=group.id;
+      state.selectedPair=pairKeys[0];
+      state.remoteAssetResults=[];
+      renderFavoriteTabs();
+      renderAssetPicker();
+      renderComparisons();
+      render();
+      await refreshLiveAll();
+      hydrateDynamicPairs(pairKeys).catch(console.error);
+    }
+    function selectPair(pairKey){
+      state.selectedPair=pairKey;
+      state.selectedAsset=assetId(state.data.pairs[pairKey]);
+      renderFavoriteTabs(); renderAssetPicker(); renderExchangePicker(); renderComparisons(); render();
+      refreshLiveAll().catch(console.error);
+      hydrateDynamicPairs([pairKey]).catch(console.error);
+    }
     function reorderFavorite(fromId, toId){
       if(!fromId || !toId || fromId === toId) return;
       const next = state.favorites.slice();
@@ -609,6 +683,7 @@ import { state } from './state.js';
         renderExchangePicker,
         renderFavoriteTabs,
         saveFavorites,
+        searchRemoteAssets,
         selectAssetFromSearch,
         setLanguage,
       });

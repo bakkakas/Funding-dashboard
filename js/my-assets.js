@@ -95,8 +95,18 @@ function renderSummary(){
   const stableTotal=assets.reduce((sum,asset)=>sum+stableValueKrw(asset),0);
   $('stableSummary').innerHTML=`<div class="asset-class-item"><span class="asset-class-dot" style="background:var(--accent)"></span><span class="asset-class-name">Stable</span><span class="asset-class-values"><span class="asset-class-value">${won.format(stableTotal)}</span><span class="asset-class-ratio">${total?(stableTotal/total*100).toFixed(1):'0.0'}%</span></span></div>`;
   const groups=allGroups.filter(x=>x.value>0);
-  const percentLabels={id:'percentLabels',afterDatasetsDraw(chart){const data=chart.data.datasets[0].data.map(Number),sum=data.reduce((a,b)=>a+b,0),meta=chart.getDatasetMeta(0),ctx=chart.ctx;if(!sum)return;ctx.save();ctx.fillStyle='#07110c';ctx.font='800 12px Inter, Pretendard, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';meta.data.forEach((arc,index)=>{const ratio=data[index]/sum;if(ratio<.035)return;const point=arc.tooltipPosition();ctx.fillText(`${(ratio*100).toFixed(1)}%`,point.x,point.y)});ctx.restore()}};
-  classChart?.destroy();classChart=new Chart($('classChart'),{type:'doughnut',data:{labels:groups.map(x=>CLASSES[x.key]),datasets:[{data:groups.map(x=>x.value),backgroundColor:groups.map(x=>COLORS[x.key]),borderWidth:0}]},plugins:[percentLabels],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#dce8df',generateLabels(chart){const data=chart.data.datasets[0].data.map(Number),sum=data.reduce((a,b)=>a+b,0),meta=chart.getDatasetMeta(0);return chart.data.labels.map((text,index)=>{const style=meta.controller.getStyle(index);return{text:`${text} ${sum?(data[index]/sum*100).toFixed(1):'0.0'}%`,fillStyle:style.backgroundColor,strokeStyle:style.borderColor,lineWidth:style.borderWidth,hidden:!chart.getDataVisibility(index),index}})}}}},cutout:'67%'}});
+  const percentLabels={id:'percentLabels',afterDatasetsDraw(chart){
+    const data=chart.data.datasets[0].data.map(Number),sum=data.reduce((a,b)=>a+b,0),meta=chart.getDatasetMeta(0),ctx=chart.ctx;if(!sum)return;
+    ctx.save();ctx.fillStyle='#f4fff9';ctx.strokeStyle='rgba(4,15,10,.82)';ctx.lineWidth=3;ctx.lineJoin='round';ctx.textAlign='center';ctx.textBaseline='middle';
+    meta.data.forEach((arc,index)=>{
+      const ratio=data[index]/sum;if(ratio<.035)return;
+      const point=arc.tooltipPosition(),name=chart.data.labels[index],percent=`${(ratio*100).toFixed(1)}%`;
+      ctx.font='700 11px Inter, Pretendard, sans-serif';ctx.strokeText(name,point.x,point.y-7);ctx.fillText(name,point.x,point.y-7);
+      ctx.font='800 12px Inter, Pretendard, sans-serif';ctx.strokeText(percent,point.x,point.y+7);ctx.fillText(percent,point.x,point.y+7);
+    });
+    ctx.restore();
+  }};
+  classChart?.destroy();classChart=new Chart($('classChart'),{type:'doughnut',data:{labels:groups.map(x=>CLASSES[x.key]),datasets:[{data:groups.map(x=>x.value),backgroundColor:groups.map(x=>COLORS[x.key]),borderWidth:0}]},plugins:[percentLabels],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#dce8df',font:{size:12,weight:'700'},generateLabels(chart){const data=chart.data.datasets[0].data.map(Number),sum=data.reduce((a,b)=>a+b,0),meta=chart.getDatasetMeta(0);return chart.data.labels.map((text,index)=>{const style=meta.controller.getStyle(index);return{text:`${text} ${sum?(data[index]/sum*100).toFixed(1):'0.0'}%`,fillStyle:style.backgroundColor,strokeStyle:style.borderColor,lineWidth:style.borderWidth,fontColor:'#dce8df',color:'#dce8df',hidden:!chart.getDataVisibility(index),index}})}}}},cutout:'67%'}});
 }
 function renderAssets(){
   const list=filter==='all'?assets:assets.filter(a=>a.asset_class===filter),classificationTotal=assets.reduce((s,a)=>s+valueKrw(a),0);

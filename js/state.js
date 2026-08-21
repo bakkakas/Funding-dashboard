@@ -15,6 +15,9 @@ export const state = {
   auth:null,
   authMode:'login',
   draggedFavorite:null,
+  remoteAssetResults:[],
+  remoteSearchLoading:false,
+  remoteSearchToken:0,
   lang:localStorage.getItem('fundingDashboardLanguage') || 'ko',
 };
 
