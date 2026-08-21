@@ -1,4 +1,4 @@
-import { t } from './i18n.js';
+import { t } from './i18n.js?v=2';
 import { state } from './state.js';
 import { authClient, signInWithGoogle } from './auth.js?v=1';
 

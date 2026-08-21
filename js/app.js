@@ -17,8 +17,8 @@ import {
   hydrateDynamicFundingHistory,
   searchFundingAssets,
 } from './funding-catalog.js?v=1';
-import { bindUiEvents } from './events.js?v=11';
-import { I18N, t } from './i18n.js';
+import { bindUiEvents } from './events.js?v=12';
+import { I18N, t } from './i18n.js?v=2';
 import {
   comparisonAnnualized as buildComparisonAnnualized,
   currentComparisonStats as buildCurrentComparisonStats,
@@ -211,9 +211,53 @@ import { state } from './state.js';
     function favoriteStorageKey(){
       return state.auth && state.auth.email ? `favoritePairs:${state.auth.email.toLowerCase()}` : 'favoritePairs';
     }
-    function applyAuthSession(session){
+    function favoriteDefinitionsStorageKey(){
+      return `${favoriteStorageKey()}:dynamicAssets`;
+    }
+    function removeDynamicFundingAssets(){
+      if(!state.data?.pairs) return;
+      Object.keys(state.data.pairs).forEach(pairKey=>{
+        if(state.data.pairs[pairKey]?.dynamic) delete state.data.pairs[pairKey];
+      });
+    }
+    function loadFavoriteDefinitions(){
+      try { return JSON.parse(localStorage.getItem(favoriteDefinitionsStorageKey()) || '[]'); } catch(e) { return []; }
+    }
+    function saveFavoriteDefinitions(){
+      const favoriteIds=new Set(state.favorites);
+      const definitions=getAssetGroups().filter(group=>favoriteIds.has(group.id)).map(group=>{
+        const dynamicPairs=group.pairs.map(([,pair])=>pair).filter(pair=>pair.dynamic);
+        if(!dynamicPairs.length) return null;
+        return {
+          id:group.id,
+          name:group.name,
+          thumb:dynamicPairs.find(pair=>pair.logoUrl)?.logoUrl || '',
+          pairs:dynamicPairs.map(pair=>({
+            exchange:pair.exchange,
+            symbol:pair.symbol,
+            fundingIntervalHours:pair.fundingIntervalHours || (24 / pair.fundingPeriodsPerDay) || 8,
+          })),
+          remote:true,
+        };
+      }).filter(Boolean);
+      localStorage.setItem(favoriteDefinitionsStorageKey(), JSON.stringify(definitions));
+    }
+    async function restoreFavoriteAssets(items){
+      loadFavoriteDefinitions().forEach(definition=>addDynamicFundingAsset(state.data, definition));
+      const existing=new Set(getAssetGroups().map(group=>group.id));
+      const missing=[...new Set(items)].filter(id=>!existing.has(id));
+      await Promise.allSettled(missing.map(async id=>{
+        const results=await searchFundingAssets(id);
+        const match=results.find(result=>result.id===id);
+        if(match) addDynamicFundingAsset(state.data, match);
+      }));
+    }
+    async function applyAuthSession(session){
       state.auth = accountFromSession(session);
-      state.favorites = normalizeFavorites(loadFavorites());
+      removeDynamicFundingAssets();
+      const stored=loadFavorites();
+      await restoreFavoriteAssets(stored);
+      state.favorites = normalizeFavorites(stored);
       saveFavorites();
       renderAuth();
       renderFavoriteTabs();
@@ -242,6 +286,7 @@ import { state } from './state.js';
     }
     function saveFavorites(){
       localStorage.setItem(favoriteStorageKey(), JSON.stringify(state.favorites.slice(0,12)));
+      saveFavoriteDefinitions();
     }
     function renderAuth(){
       const loginButton=document.getElementById('loginButton');
@@ -667,7 +712,9 @@ import { state } from './state.js';
       state.selectedAsset=assetId(data.pairs[state.selectedPair]);
       trackLocalVisit();
       await loadAuth();
-      state.favorites = normalizeFavorites(loadFavorites());
+      const storedFavorites=loadFavorites();
+      await restoreFavoriteAssets(storedFavorites);
+      state.favorites = normalizeFavorites(storedFavorites);
       saveFavorites();
       bindUiEvents({
         closeAssetDropdown,

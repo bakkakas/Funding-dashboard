@@ -3,6 +3,7 @@ import { state } from './state.js';
 export const I18N = {
   ko: {
     admin:'관리자', viewV2:'V2 보기', assetSearchPlaceholder:'종목명 검색',
+    navFunding:'Funding', navForeignFlow:'외국인 수급', navMyAssets:'내 자산', navInvestmentSetup:'투자 셋업',
     sortName:'이름순', sortAnnualHigh:'Annualized 높은순', sortAnnualLow:'Annualized 낮은순',
     favorite:'즐겨찾기', login:'로그인', logout:'로그아웃', signup:'회원가입',
     signupSave:'회원가입 저장', loginSave:'로그인 저장', close:'닫기',
@@ -32,6 +33,7 @@ export const I18N = {
   },
   en: {
     admin:'Admin', viewV2:'View V2', assetSearchPlaceholder:'Search asset',
+    navFunding:'Funding', navForeignFlow:'Foreign Flow', navMyAssets:'My Assets', navInvestmentSetup:'Investment Setup',
     sortName:'Name', sortAnnualHigh:'Annualized high to low', sortAnnualLow:'Annualized low to high',
     favorite:'Favorites', login:'Log in', logout:'Log out', signup:'Sign up',
     signupSave:'Save sign-up', loginSave:'Save login', close:'Close',

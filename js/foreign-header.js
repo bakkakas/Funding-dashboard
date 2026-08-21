@@ -3,13 +3,13 @@ import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1'
 const FX_LATEST_URL = 'https://open.er-api.com/v6/latest/USD';
 const FX_REFERENCE_URL = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
 
-export function setupForeignHeader() {
+export function setupForeignHeader({ onLanguageChange } = {}) {
   let lang = localStorage.getItem('fundingDashboardLanguage') === 'en' ? 'en' : 'ko';
   let auth = null;
 
   const copy = {
-    ko: { login: '로그인', signup: '회원가입', logout: '로그아웃', admin: '관리자', close: '닫기', save: '저장', loading: 'USD/KRW 조회 중', failed: 'USD/KRW 조회 실패' },
-    en: { login: 'Login', signup: 'Sign up', logout: 'Log out', admin: 'Admin', close: 'Close', save: 'Save', loading: 'Loading USD/KRW', failed: 'USD/KRW unavailable' }
+    ko: { login: '로그인', signup: '회원가입', logout: '로그아웃', admin: '관리자', close: '닫기', save: '저장', loading: 'USD/KRW 조회 중', failed: 'USD/KRW 조회 실패', google:'Google로 계속하기', or:'또는', password:'비밀번호 (6자 이상)', authStatus:'모든 메뉴에서 같은 Supabase 계정을 사용해.' },
+    en: { login: 'Login', signup: 'Sign up', logout: 'Log out', admin: 'Admin', close: 'Close', save: 'Save', loading: 'Loading USD/KRW', failed: 'USD/KRW unavailable', google:'Continue with Google', or:'or', password:'Password (6+ characters)', authStatus:'The same Supabase account is used across every section.' }
   };
   const modal = document.getElementById('authModal');
   const authStatus = document.getElementById('authStatus');
@@ -24,6 +24,11 @@ export function setupForeignHeader() {
     document.getElementById('adminLink').textContent = text.admin;
     document.getElementById('authCloseButton').textContent = text.close;
     document.getElementById('authSubmitButton').textContent = text.save;
+    document.getElementById('authGoogleLabel').textContent = text.google;
+    document.getElementById('authOrLabel').textContent = text.or;
+    document.getElementById('authPassword').placeholder = text.password;
+    if(!modal.classList.contains('open')) authStatus.textContent = text.authStatus;
+    onLanguageChange?.(lang);
   }
 
   function setLanguage(next) {

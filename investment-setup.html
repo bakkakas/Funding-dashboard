@@ -12,7 +12,7 @@
 <body>
   <div class="wrap">
     <div class="header">
-      <div><h1>투자 셋업</h1></div>
+      <div><h1 data-page-i18n="heading">투자 셋업</h1></div>
       <div class="header-side">
         <div class="header-market-row">
           <div class="header-actions">
@@ -31,13 +31,13 @@
     </div>
     <nav class="dashboard-nav">
       <a class="dashboard-nav-link" href="./">Funding</a>
-      <a class="dashboard-nav-link" href="./foreign-flow.html">외국인 수급</a>
-      <a class="dashboard-nav-link" href="./my-assets.html">내 자산</a>
-      <a class="dashboard-nav-link active" href="./investment-setup.html">투자 셋업</a>
+      <a class="dashboard-nav-link" href="./foreign-flow.html" data-page-i18n="navForeign">외국인 수급</a>
+      <a class="dashboard-nav-link" href="./my-assets.html" data-page-i18n="navAssets">내 자산</a>
+      <a class="dashboard-nav-link active" href="./investment-setup.html" data-page-i18n="navSetup">투자 셋업</a>
     </nav>
     <div class="card wide">
-      <h3 class="section-title">준비 중</h3>
-      <div class="note">내 자산 대시보드 완성 후 투자 계획과 목표 비중을 관리하는 화면이 추가될 예정이야.</div>
+      <h3 class="section-title" data-page-i18n="comingSoon">준비 중</h3>
+      <div class="note" data-page-i18n="comingSoonNote">내 자산 대시보드 완성 후 투자 계획과 목표 비중을 관리하는 화면이 추가될 예정이야.</div>
       <div class="mini" id="accountNotice" style="margin-top:14px">계정 확인 중…</div>
     </div>
   </div>
@@ -48,15 +48,15 @@
         <button class="chip subtle" id="authCloseButton" type="button">닫기</button>
       </div>
       <form class="modal-grid" id="authForm">
-        <button class="chip google-auth" id="authGoogleButton" type="button"><span class="google-mark" aria-hidden="true">G</span>Google로 계속하기</button>
-        <div class="auth-divider"><span>또는</span></div>
+        <button class="chip google-auth" id="authGoogleButton" type="button"><span class="google-mark" aria-hidden="true">G</span><span data-page-i18n="continueGoogle">Google로 계속하기</span></button>
+        <div class="auth-divider"><span data-page-i18n="or">또는</span></div>
         <input class="field" id="authEmail" type="email" autocomplete="email" placeholder="email@example.com">
-        <input class="field" id="authPassword" type="password" autocomplete="current-password" placeholder="비밀번호 (6자 이상)">
+        <input class="field" id="authPassword" type="password" autocomplete="current-password" placeholder="비밀번호 (6자 이상)" data-page-i18n-placeholder="passwordPlaceholder">
         <button class="chip active" id="authSubmitButton" type="submit">로그인</button>
         <div class="auth-status" id="authStatus">모든 메뉴에서 같은 Supabase 계정을 사용해.</div>
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=2"></script>
+  <script type="module" src="./js/investment-setup.js?v=3"></script>
 </body>
 </html>

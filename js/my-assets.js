@@ -1,8 +1,9 @@
 import { authClient as db, signInWithGoogle } from './auth.js?v=1';
 import { setupHeaderWidgets } from './header-widgets.js?v=1';
 import { sortAssetsByValue } from './portfolio-sort.js?v=1';
+import { applyPageTranslations } from './page-i18n.js?v=1';
 const $=id=>document.getElementById(id);
-const CLASSES={stock:'주식',crypto:'크립토',commodity:'원자재',cash:'Cash'};
+const CLASS_LABELS={ko:{stock:'주식',crypto:'크립토',commodity:'원자재',cash:'Cash'},en:{stock:'Stocks',crypto:'Crypto',commodity:'Commodities',cash:'Cash'}};
 const COLORS={stock:'#23e7a5',crypto:'#8ea2ff',commodity:'#f5c451',cash:'#86a8ff'};
 const CATALOG=[
   ['BTC','비트코인','crypto','CG:bitcoin','USD'],['ETH','이더리움','crypto','CG:ethereum','USD'],['SOL','솔라나','crypto','CG:solana','USD'],['BNB','BNB','crypto','CG:binancecoin','USD'],['ORBS','Orbs','crypto','CG:orbs','USD'],
@@ -11,6 +12,12 @@ const CATALOG=[
 let session=null,assets=[],prices={},priceErrors=new Set(),fx=1380,filter='all',valueSort=null,classChart,historyChart;
 let searchTimer=null,searchResults=[],selectedSearchAsset=null,editingAssetId=null;
 let lang=localStorage.getItem('fundingDashboardLanguage')==='en'?'en':'ko',headerWidgets=null;
+const COPY={
+  ko:{pageTitle:'내 자산',heading:'내 자산',subtitle:'주식·크립토·원자재·Cash를 한곳에서 관리해.',navForeign:'외국인 수급',navAssets:'내 자산',navSetup:'투자 셋업',addAsset:'+ 자산 추가',gateHeading:'로그인 후 포트폴리오를 관리할 수 있어',gateNote:'자산 내역은 계정별로 분리되어 안전하게 저장돼.',gateLogin:'로그인 / 회원가입',totalAssets:'총 자산',loadingPrices:'가격 불러오는 중',portfolioChange:'포트폴리오 변화',daily:'일별',weekly:'주별',monthly:'월별',holdings:'보유 자산',refreshPrices:'가격 새로고침',all:'전체',stock:'주식',crypto:'크립토',commodity:'원자재',asset:'자산',assetClass:'자산군',quantity:'수량',currentPrice:'현재가',valuation:'평가액',weight:'비중',excludeTotal:'총액만 제외',authHeading:'로그인 / 회원가입',close:'닫기',continueGoogle:'Google로 계속하기',or:'또는',passwordPlaceholder:'비밀번호 (6자 이상)',login:'로그인',signup:'회원가입',logout:'로그아웃',authStatus:'Google 또는 이메일로 로그인해.',assetSearch:'자산 검색',assetSearchPlaceholder:'BTC, 삼성전자, Gold…',nickname:'닉네임',optional:'선택',nicknamePlaceholder:'개인지갑, 업비트, 바이낸스…',unitPrice:'단가',save:'저장',selectSearchResult:'검색 결과에서 자산을 선택해.',processing:'처리 중…',confirmEmail:'확인 메일을 보냈어. 메일 인증 후 로그인해.',signedIn:'로그인 완료',googlePending:'Google 로그인으로 이동 중…',refreshing:'현재 가격 갱신 중…',loadFailed:'포트폴리오를 불러오지 못했어',asOf:'기준',excludedCount:'개 총액만 제외',priceFailures:'개 가격 조회 실패',loading:'조회 중',failed:'조회 실패',excluded:'총액만 제외',excludeTitle:'체크하면 총자산에서만 제외하고 자산군 분류에는 포함',stableCurrency:'Stable 입력 통화',stableAmount:'Stable 금액',full:'전액',edit:'수정',delete:'삭제',emptyAssets:'등록된 자산이 없어. 자산 추가 버튼으로 시작해.',sortAsc:'평가액 오름차순으로 정렬',sortDesc:'평가액 내림차순으로 정렬',saved:'저장 완료',searching:'주식·크립토 검색 중…',noResults:'검색 결과가 없어.',selected:'선택됨',addAssetTitle:'자산 추가',editAssetTitle:'자산 수정',saveEdit:'수정 저장',editHelp:'닉네임과 수량을 수정할 수 있어.',invalidAsset:'자산과 0보다 큰 수량을 입력해.',duplicateNickname:'같은 종목에 동일한 닉네임이 이미 있어. 다른 닉네임을 입력해.',deleteConfirm:'이 자산을 삭제할까?',historyEmpty:'스냅샷이 쌓이면 변화가 표시돼.'},
+  en:{pageTitle:'My Assets',heading:'My Assets',subtitle:'Manage stocks, crypto, commodities, and cash in one place.',navForeign:'Foreign Flow',navAssets:'My Assets',navSetup:'Investment Setup',addAsset:'+ Add asset',gateHeading:'Log in to manage your portfolio',gateNote:'Your holdings are stored securely and separately for each account.',gateLogin:'Log in / Sign up',totalAssets:'Total assets',loadingPrices:'Loading prices',portfolioChange:'Portfolio change',daily:'Daily',weekly:'Weekly',monthly:'Monthly',holdings:'Holdings',refreshPrices:'Refresh prices',all:'All',stock:'Stocks',crypto:'Crypto',commodity:'Commodities',asset:'Asset',assetClass:'Asset class',quantity:'Quantity',currentPrice:'Current price',valuation:'Value',weight:'Weight',excludeTotal:'Exclude from total only',authHeading:'Log in / Sign up',close:'Close',continueGoogle:'Continue with Google',or:'or',passwordPlaceholder:'Password (6+ characters)',login:'Log in',signup:'Sign up',logout:'Log out',authStatus:'Log in with Google or email.',assetSearch:'Search asset',assetSearchPlaceholder:'BTC, Samsung, Gold…',nickname:'Nickname',optional:'optional',nicknamePlaceholder:'Personal wallet, Upbit, Binance…',unitPrice:'Unit price',save:'Save',selectSearchResult:'Select an asset from the search results.',processing:'Processing…',confirmEmail:'Check your email and confirm it before logging in.',signedIn:'Signed in.',googlePending:'Opening Google sign-in…',refreshing:'Refreshing current prices…',loadFailed:'Could not load the portfolio',asOf:'as of',excludedCount:' excluded from total',priceFailures:' price lookups failed',loading:'Loading',failed:'Unavailable',excluded:'Excluded from total only',excludeTitle:'Exclude from total assets while keeping the asset in allocation categories',stableCurrency:'Stable input currency',stableAmount:'Stable amount',full:'Full',edit:'Edit',delete:'Delete',emptyAssets:'No assets yet. Use Add asset to get started.',sortAsc:'Sort value ascending',sortDesc:'Sort value descending',saved:'Saved',searching:'Searching stocks and crypto…',noResults:'No results found.',selected:'selected',addAssetTitle:'Add asset',editAssetTitle:'Edit asset',saveEdit:'Save changes',editHelp:'You can edit the nickname and quantity.',invalidAsset:'Select an asset and enter a quantity greater than zero.',duplicateNickname:'That asset already has the same nickname. Use a different nickname.',deleteConfirm:'Delete this asset?',historyEmpty:'Portfolio changes will appear after snapshots accumulate.'}
+};
+const c=key=>COPY[lang][key] || COPY.ko[key] || key;
+const classLabel=key=>CLASS_LABELS[lang][key] || CLASS_LABELS.ko[key] || key;
 const won=new Intl.NumberFormat('ko-KR',{style:'currency',currency:'KRW',maximumFractionDigits:0});
 const num=new Intl.NumberFormat('ko-KR',{maximumFractionDigits:4});
 const modal=(id,on)=>{$(id).classList.toggle('open',on)};
@@ -18,7 +25,7 @@ const status=(id,msg,error=false)=>{const el=$(id);el.textContent=msg;el.style.c
 
 async function init(){
   bind();
-  headerWidgets=setupHeaderWidgets({onLanguageChange:next=>{lang=next;renderSession()}});
+  headerWidgets=setupHeaderWidgets({onLanguageChange:next=>{lang=next;applyPageTranslations(COPY,lang);renderSession();if(session){render();renderHistory(document.querySelector('#historyTabs .active')?.dataset.period||'day')}}});
   ({data:{session}}=await db.auth.getSession());
   db.auth.onAuthStateChange((_event,next)=>{session=next;renderSession();if(session)loadPortfolio()});
   renderSession(); if(session) await loadPortfolio();
@@ -37,28 +44,28 @@ function bind(){
 }
 async function authenticate(signup){
   const email=$('portfolioEmail').value.trim(),password=$('portfolioPassword').value;
-  status('portfolioAuthStatus','처리 중…');
+  status('portfolioAuthStatus',c('processing'));
   const {error}=signup?await db.auth.signUp({email,password}):await db.auth.signInWithPassword({email,password});
   if(error)return status('portfolioAuthStatus',error.message,true);
-  status('portfolioAuthStatus',signup?'확인 메일을 보냈어. 메일 인증 후 로그인해.':'로그인 완료'); if(!signup)modal('portfolioAuthModal',false);
+  status('portfolioAuthStatus',signup?c('confirmEmail'):c('signedIn')); if(!signup)modal('portfolioAuthModal',false);
 }
 async function authenticateWithGoogle(){
-  status('portfolioAuthStatus','Google 로그인으로 이동 중…');
+  status('portfolioAuthStatus',c('googlePending'));
   const {error}=await signInWithGoogle('/Funding-dashboard/my-assets.html');
   if(error)status('portfolioAuthStatus',error.message,true);
 }
 async function logout(){await db.auth.signOut();assets=[];prices={};renderSession()}
 function renderSession(){
   const logged=Boolean(session);$('portfolioGate').hidden=logged;$('portfolioApp').hidden=!logged;$('addAsset').disabled=!logged;
-  $('loginButton').textContent=logged?session.user.email:(lang==='en'?'Login':'로그인');
-  $('signupButton').textContent=logged?(lang==='en'?'Log out':'로그아웃'):(lang==='en'?'Sign up':'회원가입');
+  $('loginButton').textContent=logged?session.user.email:c('login');
+  $('signupButton').textContent=logged?c('logout'):c('signup');
 }
 async function loadPortfolio(){
   const {data,error}=await db.from('portfolio_assets').select('*').order('created_at');
-  if(error){$('totalMeta').textContent='포트폴리오를 불러오지 못했어: '+error.message;return} assets=data||[];await refresh();
+  if(error){$('totalMeta').textContent=`${c('loadFailed')}: ${error.message}`;return} assets=data||[];await refresh();
 }
 async function refresh(){
-  $('totalMeta').textContent='현재 가격 갱신 중…';
+  $('totalMeta').textContent=c('refreshing');
   try{const f=await fetch('https://open.er-api.com/v6/latest/USD').then(r=>r.json());fx=Number(f.rates?.KRW)||fx}catch{}
   priceErrors=new Set();
   const quoteTasks=new Map();
@@ -90,10 +97,10 @@ function normalizeStableAmount(value,currency){return Number(Number(value).toFix
 function includedAssets(){return assets.filter(asset=>!asset.excluded_from_total)}
 function render(){renderAssets();renderSummary()}
 function renderSummary(){
-  const countedAssets=includedAssets(),values=countedAssets.map(a=>valueKrw(a)),total=values.reduce((a,b)=>a+b,0),excludedCount=assets.length-countedAssets.length;$('totalValue').textContent=won.format(total);$('totalMeta').textContent=`USD/KRW ${num.format(fx)} · ${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})} 기준${excludedCount?` · ${excludedCount}개 총액만 제외`:''}${priceErrors.size?` · ${priceErrors.size}개 가격 조회 실패`:''}`;
+  const countedAssets=includedAssets(),values=countedAssets.map(a=>valueKrw(a)),total=values.reduce((a,b)=>a+b,0),excludedCount=assets.length-countedAssets.length,timeLocale=lang==='en'?'en-US':'ko-KR';$('totalValue').textContent=won.format(total);$('totalMeta').textContent=`USD/KRW ${num.format(fx)} · ${new Date().toLocaleTimeString(timeLocale,{hour:'2-digit',minute:'2-digit'})} ${c('asOf')}${excludedCount?` · ${excludedCount}${c('excludedCount')}`:''}${priceErrors.size?` · ${priceErrors.size}${c('priceFailures')}`:''}`;
   headerWidgets?.setUpdatedAt(new Date());
-  const allGroups=Object.keys(CLASSES).map(key=>({key,value:assets.filter(a=>a.asset_class===key).reduce((s,a)=>s+valueKrw(a),0)})),classificationTotal=allGroups.reduce((sum,group)=>sum+group.value,0);
-  $('classBreakdown').innerHTML=allGroups.map(group=>`<div class="asset-class-item"><span class="asset-class-dot" style="background:${COLORS[group.key]}"></span><span class="asset-class-name">${CLASSES[group.key]}</span><span class="asset-class-values"><span class="asset-class-value">${won.format(group.value)}</span><span class="asset-class-ratio">${classificationTotal?(group.value/classificationTotal*100).toFixed(1):'0.0'}%</span></span></div>`).join('');
+  const allGroups=Object.keys(CLASS_LABELS.ko).map(key=>({key,value:assets.filter(a=>a.asset_class===key).reduce((s,a)=>s+valueKrw(a),0)})),classificationTotal=allGroups.reduce((sum,group)=>sum+group.value,0);
+  $('classBreakdown').innerHTML=allGroups.map(group=>`<div class="asset-class-item"><span class="asset-class-dot" style="background:${COLORS[group.key]}"></span><span class="asset-class-name">${classLabel(group.key)}</span><span class="asset-class-values"><span class="asset-class-value">${won.format(group.value)}</span><span class="asset-class-ratio">${classificationTotal?(group.value/classificationTotal*100).toFixed(1):'0.0'}%</span></span></div>`).join('');
   const stableTotal=assets.reduce((sum,asset)=>sum+stableValueKrw(asset),0);
   $('stableSummary').innerHTML=`<div class="asset-class-item"><span class="asset-class-dot" style="background:var(--accent)"></span><span class="asset-class-name">Stable</span><span class="asset-class-values"><span class="asset-class-value">${won.format(stableTotal)}</span><span class="asset-class-ratio">${total?(stableTotal/total*100).toFixed(1):'0.0'}%</span></span></div>`;
   const groups=allGroups.filter(x=>x.value>0);
@@ -108,16 +115,16 @@ function renderSummary(){
     });
     ctx.restore();
   }};
-  classChart?.destroy();classChart=new Chart($('classChart'),{type:'doughnut',data:{labels:groups.map(x=>CLASSES[x.key]),datasets:[{data:groups.map(x=>x.value),backgroundColor:groups.map(x=>COLORS[x.key]),borderWidth:0}]},plugins:[percentLabels],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#dce8df',font:{size:12,weight:'700'},generateLabels(chart){const data=chart.data.datasets[0].data.map(Number),sum=data.reduce((a,b)=>a+b,0),meta=chart.getDatasetMeta(0);return chart.data.labels.map((text,index)=>{const style=meta.controller.getStyle(index);return{text:`${text} ${sum?(data[index]/sum*100).toFixed(1):'0.0'}%`,fillStyle:style.backgroundColor,strokeStyle:style.borderColor,lineWidth:style.borderWidth,fontColor:'#dce8df',color:'#dce8df',hidden:!chart.getDataVisibility(index),index}})}}}},cutout:'67%'}});
+  classChart?.destroy();classChart=new Chart($('classChart'),{type:'doughnut',data:{labels:groups.map(x=>classLabel(x.key)),datasets:[{data:groups.map(x=>x.value),backgroundColor:groups.map(x=>COLORS[x.key]),borderWidth:0}]},plugins:[percentLabels],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#dce8df',font:{size:12,weight:'700'},generateLabels(chart){const data=chart.data.datasets[0].data.map(Number),sum=data.reduce((a,b)=>a+b,0),meta=chart.getDatasetMeta(0);return chart.data.labels.map((text,index)=>{const style=meta.controller.getStyle(index);return{text:`${text} ${sum?(data[index]/sum*100).toFixed(1):'0.0'}%`,fillStyle:style.backgroundColor,strokeStyle:style.borderColor,lineWidth:style.borderWidth,fontColor:'#dce8df',color:'#dce8df',hidden:!chart.getDataVisibility(index),index}})}}}},cutout:'67%'}});
 }
 function renderAssets(){
   const filtered=filter==='all'?assets:assets.filter(a=>a.asset_class===filter),list=sortAssetsByValue(filtered,valueSort,valueKrw),classificationTotal=assets.reduce((s,a)=>s+valueKrw(a),0);
   const heading=$('assetValueHeading'),sortButton=$('assetValueSort'),sortIcon=sortButton.querySelector('.table-sort-icon');
   heading.setAttribute('aria-sort',valueSort==='asc'?'ascending':valueSort==='desc'?'descending':'none');
   sortIcon.textContent=valueSort==='asc'?'↑':valueSort==='desc'?'↓':'↕';
-  sortButton.setAttribute('aria-label',valueSort==='desc'?'평가액 오름차순으로 정렬':'평가액 내림차순으로 정렬');
+  sortButton.setAttribute('aria-label',valueSort==='desc'?c('sortAsc'):c('sortDesc'));
   sortButton.classList.toggle('active',Boolean(valueSort));
-  $('assetRows').innerHTML=list.length?list.map(a=>{const p=prices[a.id],failed=priceErrors.has(a.id),v=valueKrw(a),nickname=String(a.nickname||'').trim(),stable=Number(a.stable_amount_krw)||0,stableUnit=stableCurrency(a),excluded=Boolean(a.excluded_from_total),rowClasses=[`asset-row-${a.asset_class}`,excluded?'asset-row-excluded':''].filter(Boolean).join(' ');return `<tr class="${rowClasses}"><td><div class="asset-main">${escapeHtml(a.name)}${nickname?`<span class="asset-nickname">${escapeHtml(nickname)}</span>`:''}</div><div class="asset-sub">${escapeHtml(a.symbol)}</div></td><td><span class="pill asset-class-pill">${CLASSES[a.asset_class]}</span></td><td>${num.format(a.quantity)}</td><td class="${p==null?'price-loading':failed?'price-error':''}">${p==null?'조회 중':failed?'조회 실패':(a.currency==='USD'?'$':'₩')+num.format(p)}</td><td class="asset-value">${won.format(v)}</td><td>${classificationTotal?num.format(v/classificationTotal*100):0}%${excluded?'<div class="excluded-label">총액만 제외</div>':''}</td><td><label class="exclude-toggle" title="체크하면 총자산에서만 제외하고 자산군 분류에는 포함"><input class="exclude-checkbox" data-excluded="${a.id}" type="checkbox" aria-label="${escapeHtml(a.name)} 총자산만 제외" ${excluded?'checked':''}></label></td><td><div class="stable-control"><select class="field stable-currency" data-stable-currency="${a.id}" aria-label="${escapeHtml(a.name)} Stable 입력 통화"><option value="KRW" ${stableUnit==='KRW'?'selected':''}>KRW</option><option value="USD" ${stableUnit==='USD'?'selected':''}>USD</option></select><input class="field stable-input" data-stable="${a.id}" type="number" min="0" step="any" inputmode="decimal" aria-label="${escapeHtml(a.name)} Stable 금액" value="${stable||''}" placeholder="0"><button class="chip stable-full" data-stable-full="${a.id}" type="button">전액</button></div></td><td><div class="asset-actions"><button class="asset-edit" data-edit="${a.id}">수정</button><button class="asset-delete" data-delete="${a.id}">삭제</button></div></td></tr>`}).join(''):'<tr><td colspan="9" class="empty-assets">등록된 자산이 없어. 자산 추가 버튼으로 시작해.</td></tr>';
+  $('assetRows').innerHTML=list.length?list.map(a=>{const p=prices[a.id],failed=priceErrors.has(a.id),v=valueKrw(a),nickname=String(a.nickname||'').trim(),stable=Number(a.stable_amount_krw)||0,stableUnit=stableCurrency(a),excluded=Boolean(a.excluded_from_total),rowClasses=[`asset-row-${a.asset_class}`,excluded?'asset-row-excluded':''].filter(Boolean).join(' '),safeName=escapeHtml(a.name);return `<tr class="${rowClasses}"><td><div class="asset-main">${safeName}${nickname?`<span class="asset-nickname">${escapeHtml(nickname)}</span>`:''}</div><div class="asset-sub">${escapeHtml(a.symbol)}</div></td><td><span class="pill asset-class-pill">${classLabel(a.asset_class)}</span></td><td>${num.format(a.quantity)}</td><td class="${p==null?'price-loading':failed?'price-error':''}">${p==null?c('loading'):failed?c('failed'):(a.currency==='USD'?'$':'₩')+num.format(p)}</td><td class="asset-value">${won.format(v)}</td><td>${classificationTotal?num.format(v/classificationTotal*100):0}%${excluded?`<div class="excluded-label">${c('excluded')}</div>`:''}</td><td><label class="exclude-toggle" title="${c('excludeTitle')}"><input class="exclude-checkbox" data-excluded="${a.id}" type="checkbox" aria-label="${safeName} ${c('excludeTotal')}" ${excluded?'checked':''}></label></td><td><div class="stable-control"><select class="field stable-currency" data-stable-currency="${a.id}" aria-label="${safeName} ${c('stableCurrency')}"><option value="KRW" ${stableUnit==='KRW'?'selected':''}>KRW</option><option value="USD" ${stableUnit==='USD'?'selected':''}>USD</option></select><input class="field stable-input" data-stable="${a.id}" type="number" min="0" step="any" inputmode="decimal" aria-label="${safeName} ${c('stableAmount')}" value="${stable||''}" placeholder="0"><button class="chip stable-full" data-stable-full="${a.id}" type="button">${c('full')}</button></div></td><td><div class="asset-actions"><button class="asset-edit" data-edit="${a.id}">${c('edit')}</button><button class="asset-delete" data-delete="${a.id}">${c('delete')}</button></div></td></tr>`}).join(''):`<tr><td colspan="9" class="empty-assets">${c('emptyAssets')}</td></tr>`;
   document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openAssetModal(assets.find(a=>String(a.id)===b.dataset.edit)));
   document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>deleteAsset(b.dataset.delete));
   document.querySelectorAll('[data-stable]').forEach(input=>{input.onchange=()=>saveStableAmount(input);input.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();input.blur()}}});
@@ -137,7 +144,7 @@ async function saveStableAmount(input){
   const previous=Number(asset.stable_amount_krw)||0;input.disabled=true;input.classList.remove('save-error','saved');input.classList.add('saving');
   const {error}=await db.from('portfolio_assets').update({stable_amount_krw:amount}).eq('id',asset.id);input.disabled=false;input.classList.remove('saving');
   if(error){input.value=previous||'';input.classList.add('save-error');input.title=error.message;return}
-  asset.stable_amount_krw=amount;input.classList.add('saved');input.title='저장 완료';renderSummary();await saveSnapshot();setTimeout(()=>input.classList.remove('saved'),900);
+  asset.stable_amount_krw=amount;input.classList.add('saved');input.title=c('saved');renderSummary();await saveSnapshot();setTimeout(()=>input.classList.remove('saved'),900);
 }
 async function saveStableCurrency(select){
   const asset=assets.find(item=>String(item.id)===select.dataset.stableCurrency);if(!asset)return;
@@ -154,8 +161,8 @@ async function saveStableFull(button){
 }
 async function renderSearch(){
   const raw=$('assetQuery').value.trim(),q=raw.toLowerCase();selectedSearchAsset=null;$('selectedAsset').value='';
-  if(!q){searchResults=[];$('assetResults').innerHTML='';return status('assetStatus','검색 결과에서 자산을 선택해.')}
-  status('assetStatus','주식·크립토 검색 중…');
+  if(!q){searchResults=[];$('assetResults').innerHTML='';return status('assetStatus',c('selectSearchResult'))}
+  status('assetStatus',c('searching'));
   const local=CATALOG.filter(a=>`${a.symbol} ${a.name}`.toLowerCase().includes(q));
   const [coins,stocks]=await Promise.all([
     raw.length<2?[]:fetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(raw)}`).then(r=>r.ok?r.json():{coins:[]}).then(data=>(data.coins||[]).filter(c=>c.market_cap_rank).slice(0,8).map(c=>({symbol:String(c.symbol).toUpperCase(),name:c.name,asset_class:'crypto',quote_symbol:`CG:${c.id}`,currency:'USD',market:'CoinGecko'}))).catch(()=>[]),
@@ -163,36 +170,36 @@ async function renderSearch(){
   ]);
   if($('assetQuery').value.trim()!==raw)return;
   const seen=new Set();searchResults=[...local,...coins,...stocks].filter(a=>{const key=`${a.asset_class}:${a.symbol}`;if(seen.has(key))return false;seen.add(key);return true}).slice(0,14);
-  $('assetResults').innerHTML=searchResults.map((a,index)=>`<button class="asset-result" data-index="${index}"><span><b>${escapeHtml(a.name)}</b><br><small>${escapeHtml(a.symbol)} · ${CLASSES[a.asset_class]}</small></span><small>${escapeHtml(a.market||a.currency)}</small></button>`).join('');
+  $('assetResults').innerHTML=searchResults.map((a,index)=>`<button class="asset-result" data-index="${index}"><span><b>${escapeHtml(a.name)}</b><br><small>${escapeHtml(a.symbol)} · ${classLabel(a.asset_class)}</small></span><small>${escapeHtml(a.market||a.currency)}</small></button>`).join('');
   document.querySelectorAll('.asset-result').forEach(b=>b.onclick=()=>selectAsset(searchResults[Number(b.dataset.index)],b));
-  status('assetStatus',searchResults.length?'검색 결과에서 자산을 선택해.':'검색 결과가 없어.',!searchResults.length);
+  status('assetStatus',searchResults.length?c('selectSearchResult'):c('noResults'),!searchResults.length);
 }
-function selectAsset(a,b){selectedSearchAsset=a;$('selectedAsset').value=a.symbol;document.querySelectorAll('.asset-result').forEach(x=>x.classList.toggle('active',x===b));status('assetStatus',`${a.name} 선택됨`);const manual=a.asset_class==='cash';document.querySelectorAll('.manual-price').forEach(x=>x.hidden=!manual);$('assetManualPrice').value=a.symbol==='USD'?'1':a.symbol==='KRW'?'1':''}
-function resetAssetForm(){clearTimeout(searchTimer);searchResults=[];selectedSearchAsset=null;editingAssetId=null;$('assetModalTitle').textContent='자산 추가';$('saveAsset').textContent='저장';$('assetQuery').disabled=false;$('assetQuery').value='';$('selectedAsset').value='';$('assetNickname').value='';$('assetQuantity').value='';$('assetManualPrice').value='';$('assetResults').innerHTML='';document.querySelectorAll('.manual-price').forEach(x=>x.hidden=true);status('assetStatus','검색 결과에서 자산을 선택해.')}
+function selectAsset(a,b){selectedSearchAsset=a;$('selectedAsset').value=a.symbol;document.querySelectorAll('.asset-result').forEach(x=>x.classList.toggle('active',x===b));status('assetStatus',`${a.name} ${c('selected')}`);const manual=a.asset_class==='cash';document.querySelectorAll('.manual-price').forEach(x=>x.hidden=!manual);$('assetManualPrice').value=a.symbol==='USD'?'1':a.symbol==='KRW'?'1':''}
+function resetAssetForm(){clearTimeout(searchTimer);searchResults=[];selectedSearchAsset=null;editingAssetId=null;$('assetModalTitle').textContent=c('addAssetTitle');$('saveAsset').textContent=c('save');$('assetQuery').disabled=false;$('assetQuery').value='';$('selectedAsset').value='';$('assetNickname').value='';$('assetQuantity').value='';$('assetManualPrice').value='';$('assetResults').innerHTML='';document.querySelectorAll('.manual-price').forEach(x=>x.hidden=true);status('assetStatus',c('selectSearchResult'))}
 function openAssetModal(asset=null){
   resetAssetForm();
   if(asset){
     editingAssetId=asset.id;selectedSearchAsset={symbol:asset.symbol,name:asset.name,asset_class:asset.asset_class,quote_symbol:asset.quote_symbol,currency:asset.currency};
-    $('assetModalTitle').textContent='자산 수정';$('saveAsset').textContent='수정 저장';$('assetQuery').value=`${asset.name} (${asset.symbol})`;$('assetQuery').disabled=true;$('selectedAsset').value=asset.symbol;$('assetNickname').value=asset.nickname||'';$('assetQuantity').value=asset.quantity;
-    const manual=asset.asset_class==='cash';document.querySelectorAll('.manual-price').forEach(x=>x.hidden=!manual);$('assetManualPrice').value=manual?(Number(asset.manual_price)||1):'';status('assetStatus','닉네임과 수량을 수정할 수 있어.');
+    $('assetModalTitle').textContent=c('editAssetTitle');$('saveAsset').textContent=c('saveEdit');$('assetQuery').value=`${asset.name} (${asset.symbol})`;$('assetQuery').disabled=true;$('selectedAsset').value=asset.symbol;$('assetNickname').value=asset.nickname||'';$('assetQuantity').value=asset.quantity;
+    const manual=asset.asset_class==='cash';document.querySelectorAll('.manual-price').forEach(x=>x.hidden=!manual);$('assetManualPrice').value=manual?(Number(asset.manual_price)||1):'';status('assetStatus',c('editHelp'));
   }
   modal('assetModal',true);setTimeout(()=>$(asset?'assetQuantity':'assetQuery').focus(),0);
 }
 async function saveAsset(){
-  const a=selectedSearchAsset,quantity=Number($('assetQuantity').value);if(!a||!Number.isFinite(quantity)||quantity<=0)return status('assetStatus','자산과 0보다 큰 수량을 입력해.',true);
+  const a=selectedSearchAsset,quantity=Number($('assetQuantity').value);if(!a||!Number.isFinite(quantity)||quantity<=0)return status('assetStatus',c('invalidAsset'),true);
   const manual=a.asset_class==='cash'?Number($('assetManualPrice').value)||1:null,nickname=$('assetNickname').value.trim();
   let error;
   if(editingAssetId)({error}=await db.from('portfolio_assets').update({nickname,quantity,manual_price:manual}).eq('id',editingAssetId));
   else{const payload={user_id:session.user.id,symbol:a.symbol,name:a.name,nickname,asset_class:a.asset_class,quote_symbol:a.quote_symbol,currency:a.currency,quantity,manual_price:manual};({error}=await db.from('portfolio_assets').upsert(payload,{onConflict:'user_id,symbol,asset_class,nickname'}))}
-  if(error)return status('assetStatus',error.code==='23505'?'같은 종목에 동일한 닉네임이 이미 있어. 다른 닉네임을 입력해.':error.message,true);
+  if(error)return status('assetStatus',error.code==='23505'?c('duplicateNickname'):error.message,true);
   modal('assetModal',false);await loadPortfolio();
 }
-async function deleteAsset(id){if(!confirm('이 자산을 삭제할까?'))return;await db.from('portfolio_assets').delete().eq('id',id);await loadPortfolio()}
-async function saveSnapshot(){if(!session||!assets.length)return;const countedAssets=includedAssets(),class_values={};Object.keys(CLASSES).forEach(k=>class_values[k]=assets.filter(a=>a.asset_class===k).reduce((s,a)=>s+valueKrw(a),0));const total_value_krw=countedAssets.reduce((sum,asset)=>sum+valueKrw(asset),0);class_values.stable=assets.reduce((sum,asset)=>sum+stableValueKrw(asset),0);const snapshot_date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());await db.from('portfolio_snapshots').upsert({user_id:session.user.id,snapshot_date,total_value_krw,class_values})}
+async function deleteAsset(id){if(!confirm(c('deleteConfirm')))return;await db.from('portfolio_assets').delete().eq('id',id);await loadPortfolio()}
+async function saveSnapshot(){if(!session||!assets.length)return;const countedAssets=includedAssets(),class_values={};Object.keys(CLASS_LABELS.ko).forEach(k=>class_values[k]=assets.filter(a=>a.asset_class===k).reduce((s,a)=>s+valueKrw(a),0));const total_value_krw=countedAssets.reduce((sum,asset)=>sum+valueKrw(asset),0);class_values.stable=assets.reduce((sum,asset)=>sum+stableValueKrw(asset),0);const snapshot_date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());await db.from('portfolio_snapshots').upsert({user_id:session.user.id,snapshot_date,total_value_krw,class_values})}
 async function loadSnapshots(){const {data}=await db.from('portfolio_snapshots').select('*').order('snapshot_date');window.portfolioSnapshots=data||[];renderHistory(document.querySelector('#historyTabs .active')?.dataset.period||'day')}
 function renderHistory(period){
   let rows=[...(window.portfolioSnapshots||[])];if(period!=='day'){const keyed=new Map();rows.forEach(r=>{const d=new Date(r.snapshot_date+'T00:00:00');const key=period==='month'?r.snapshot_date.slice(0,7):`${d.getFullYear()}-${Math.ceil((((d-new Date(d.getFullYear(),0,1))/86400000)+new Date(d.getFullYear(),0,1).getDay()+1)/7)}`;keyed.set(key,r)});rows=[...keyed.values()]}
-  const first=Number(rows[0]?.total_value_krw)||0,last=Number(rows.at(-1)?.total_value_krw)||0,change=first?(last/first-1)*100:0;$('historyChange').textContent=rows.length>1?`${change>=0?'+':''}${change.toFixed(2)}%`:'스냅샷이 쌓이면 변화가 표시돼.';
+  const first=Number(rows[0]?.total_value_krw)||0,last=Number(rows.at(-1)?.total_value_krw)||0,change=first?(last/first-1)*100:0;$('historyChange').textContent=rows.length>1?`${change>=0?'+':''}${change.toFixed(2)}%`:c('historyEmpty');
   historyChart?.destroy();historyChart=new Chart($('historyChart'),{type:'line',data:{labels:rows.map(r=>r.snapshot_date),datasets:[{data:rows.map(r=>Number(r.total_value_krw)),borderColor:'#23e7a5',backgroundColor:'rgba(35,231,165,.12)',fill:true,tension:.25,pointRadius:2}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#82958b'},grid:{display:false}},y:{ticks:{color:'#82958b',callback:v=>`${Math.round(v/1000000)}M`},grid:{color:'rgba(130,149,139,.12)'}}}}});
 }
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
