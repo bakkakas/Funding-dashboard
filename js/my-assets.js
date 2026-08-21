@@ -4,7 +4,7 @@ const CLASSES={stock:'주식',crypto:'크립토',commodity:'원자재',cash:'현
 const COLORS={stock:'#23e7a5',crypto:'#8ea2ff',commodity:'#f5c451',cash:'#86a8ff'};
 const CATALOG=[
   ['BTC','비트코인','crypto','CG:bitcoin','USD'],['ETH','이더리움','crypto','CG:ethereum','USD'],['SOL','솔라나','crypto','CG:solana','USD'],['BNB','BNB','crypto','CG:binancecoin','USD'],['ORBS','Orbs','crypto','CG:orbs','USD'],
-  ['GOLD','금 (PAXG 현물 기준)','commodity','BINANCE:PAXGUSDT','USD'],['KRW','원화','cash','CASH:KRW','KRW'],['USD','달러','cash','CASH:USD','USD']
+  ['USDT','테더 (1달러 고정)','crypto','FIXED:USD','USD'],['GOLD','금 (PAXG 현물 기준)','commodity','BINANCE:PAXGUSDT','USD'],['KRW','원화','cash','CASH:KRW','KRW'],['USD','달러','cash','CASH:USD','USD']
 ].map(([symbol,name,asset_class,quote_symbol,currency])=>({symbol,name,asset_class,quote_symbol,currency}));
 let session=null,assets=[],prices={},priceErrors=new Set(),fx=1380,filter='all',classChart,historyChart;
 let searchTimer=null,searchResults=[],selectedSearchAsset=null,editingAssetId=null;
@@ -60,6 +60,7 @@ async function refresh(){
   render();await saveSnapshot();await loadSnapshots();
 }
 async function quote(a){
+  if(String(a.symbol).toUpperCase()==='USDT')return 1;
   if(a.asset_class==='cash')return a.currency==='USD'?1:1;
   if(a.manual_price!=null)return Number(a.manual_price);
   if(a.quote_symbol.startsWith('CG:')){
