@@ -46,6 +46,17 @@
 .asset-main{font-weight:850}
 .asset-sub{color:var(--muted);font-size:12px;margin-top:3px}
 .asset-value{font-weight:850;font-variant-numeric:tabular-nums}
+.table-sort{display:inline-flex;align-items:center;gap:5px;margin:-6px;padding:6px;border:0;border-radius:6px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.table-sort:hover,.table-sort:focus-visible,.table-sort.active{background:rgba(255,255,255,.07);color:var(--text);outline:none}
+.table-sort-icon{display:inline-block;min-width:12px;color:var(--accent);font-size:14px;line-height:1;text-align:center}
+#assetRows tr{--asset-row-color:130,149,139;box-shadow:inset 4px 0 rgba(var(--asset-row-color),.9);background:linear-gradient(90deg,rgba(var(--asset-row-color),.13),rgba(var(--asset-row-color),.035) 55%,transparent)}
+#assetRows tr.asset-row-stock{--asset-row-color:35,231,165}
+#assetRows tr.asset-row-crypto{--asset-row-color:142,162,255}
+#assetRows tr.asset-row-commodity{--asset-row-color:245,196,81}
+#assetRows tr.asset-row-cash{--asset-row-color:134,168,255}
+#assetRows tr:hover{background:linear-gradient(90deg,rgba(var(--asset-row-color),.21),rgba(var(--asset-row-color),.07) 62%,transparent)}
+#assetRows .asset-class-pill{color:rgb(var(--asset-row-color));background:rgba(var(--asset-row-color),.12);border:1px solid rgba(var(--asset-row-color),.28)}
+#assetRows .empty-assets{box-shadow:none;background:transparent}
 .asset-edit,.asset-delete{border:0;background:transparent;cursor:pointer;font-weight:850;padding:6px 2px}
 .asset-edit{color:var(--accent)}
 .asset-delete{color:var(--bad)}
