@@ -2,6 +2,7 @@ import { authClient as db, signInWithGoogle } from './auth.js?v=1';
 import { setupHeaderWidgets } from './header-widgets.js?v=1';
 import { sortAssetsByValue } from './portfolio-sort.js?v=1';
 import { applyPageTranslations } from './page-i18n.js?v=1';
+import { formatPortfolioKrw } from './portfolio-history.js?v=1';
 const $=id=>document.getElementById(id);
 const CLASS_LABELS={ko:{stock:'주식',crypto:'크립토',commodity:'원자재',cash:'Cash'},en:{stock:'Stocks',crypto:'Crypto',commodity:'Commodities',cash:'Cash'}};
 const COLORS={stock:'#23e7a5',crypto:'#8ea2ff',commodity:'#f5c451',cash:'#86a8ff'};
@@ -200,7 +201,7 @@ async function loadSnapshots(){const {data}=await db.from('portfolio_snapshots')
 function renderHistory(period){
   let rows=[...(window.portfolioSnapshots||[])];if(period!=='day'){const keyed=new Map();rows.forEach(r=>{const d=new Date(r.snapshot_date+'T00:00:00');const key=period==='month'?r.snapshot_date.slice(0,7):`${d.getFullYear()}-${Math.ceil((((d-new Date(d.getFullYear(),0,1))/86400000)+new Date(d.getFullYear(),0,1).getDay()+1)/7)}`;keyed.set(key,r)});rows=[...keyed.values()]}
   const first=Number(rows[0]?.total_value_krw)||0,last=Number(rows.at(-1)?.total_value_krw)||0,change=first?(last/first-1)*100:0;$('historyChange').textContent=rows.length>1?`${change>=0?'+':''}${change.toFixed(2)}%`:c('historyEmpty');
-  historyChart?.destroy();historyChart=new Chart($('historyChart'),{type:'line',data:{labels:rows.map(r=>r.snapshot_date),datasets:[{data:rows.map(r=>Number(r.total_value_krw)),borderColor:'#23e7a5',backgroundColor:'rgba(35,231,165,.12)',fill:true,tension:.25,pointRadius:2}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#82958b'},grid:{display:false}},y:{ticks:{color:'#82958b',callback:v=>`${Math.round(v/1000000)}M`},grid:{color:'rgba(130,149,139,.12)'}}}}});
+  historyChart?.destroy();historyChart=new Chart($('historyChart'),{type:'line',data:{labels:rows.map(r=>r.snapshot_date),datasets:[{data:rows.map(r=>Number(r.total_value_krw)),borderColor:'#23e7a5',backgroundColor:'rgba(35,231,165,.12)',fill:true,tension:.25,pointRadius:2,pointHoverRadius:6,pointHitRadius:16,pointHoverBorderWidth:3}]},options:{responsive:true,interaction:{mode:'nearest',axis:'x',intersect:false},plugins:{legend:{display:false},tooltip:{displayColors:false,callbacks:{title:items=>items[0]?.label||'',label:context=>`${c('totalAssets')}: ${formatPortfolioKrw(context.parsed.y,lang)}`}}},scales:{x:{ticks:{color:'#82958b'},grid:{display:false}},y:{ticks:{color:'#82958b',callback:v=>`${Math.round(v/1000000)}M`},grid:{color:'rgba(130,149,139,.12)'}}}}});
 }
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 init();

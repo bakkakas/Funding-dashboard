@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
+  <link rel="stylesheet" href="./investment-setup.css?v=1">
 </head>
 <body>
   <div class="wrap">
@@ -35,11 +36,114 @@
       <a class="dashboard-nav-link" href="./my-assets.html" data-page-i18n="navAssets">내 자산</a>
       <a class="dashboard-nav-link active" href="./investment-setup.html" data-page-i18n="navSetup">투자 셋업</a>
     </nav>
-    <div class="card wide">
-      <h3 class="section-title" data-page-i18n="comingSoon">준비 중</h3>
-      <div class="note" data-page-i18n="comingSoonNote">내 자산 대시보드 완성 후 투자 계획과 목표 비중을 관리하는 화면이 추가될 예정이야.</div>
-      <div class="mini" id="accountNotice" style="margin-top:14px">계정 확인 중…</div>
+    <div class="setup-tabs" role="tablist" aria-label="투자 셋업 하위 메뉴">
+      <button class="setup-tab" id="planTab" type="button" role="tab" aria-selected="false" data-panel="planPanel" data-page-i18n="planTab">투자 계획</button>
+      <button class="setup-tab active" id="analysisTab" type="button" role="tab" aria-selected="true" data-panel="analysisPanel" data-page-i18n="analysisTab">종목 분석</button>
     </div>
+    <section class="card wide setup-panel" id="planPanel" role="tabpanel" hidden>
+      <h3 class="section-title" data-page-i18n="comingSoon">준비 중</h3>
+      <div class="note" data-page-i18n="comingSoonNote">투자 계획과 목표 비중을 관리하는 화면이 추가될 예정이야.</div>
+      <div class="mini" id="accountNotice" style="margin-top:14px">계정 확인 중…</div>
+    </section>
+    <section class="setup-panel" id="analysisPanel" role="tabpanel">
+      <div class="analysis-shell">
+        <aside class="card report-index">
+          <div class="report-index-head">
+            <div>
+              <div class="eyebrow" data-page-i18n="researchLibrary">RESEARCH LIBRARY</div>
+              <h2 data-page-i18n="analysisTab">종목 분석</h2>
+            </div>
+            <span class="report-count">1</span>
+          </div>
+          <button class="report-list-item active" type="button" aria-current="true">
+            <span class="report-token-mark">E</span>
+            <span><strong>ether.fi</strong><small>ETHFI · 2026.08.24</small></span>
+          </button>
+          <div class="report-index-note" data-page-i18n="moreReports">분석 보고서는 이 목록에 계속 추가돼.</div>
+        </aside>
+
+        <article class="research-report">
+          <header class="card report-hero">
+            <div class="report-hero-main">
+              <div class="token-logo">E</div>
+              <div>
+                <div class="eyebrow" data-page-i18n="cryptoResearch">CRYPTO RESEARCH</div>
+                <h2>ether.fi <span>(ETHFI)</span></h2>
+                <p data-page-i18n="heroSummary">비수탁형 리퀴드 리스테이킹에서 출발해 온체인 금융 앱으로 확장 중인 ether.fi의 거버넌스 토큰.</p>
+              </div>
+            </div>
+            <div class="report-date"><span data-page-i18n="updatedLabel">업데이트</span><strong>2026.08.24</strong></div>
+          </header>
+
+          <section class="market-grid" aria-label="ETHFI 시장 데이터">
+            <div class="card market-stat"><span data-page-i18n="price">가격</span><strong id="ethfiPrice">$0.638</strong><small data-page-i18n="liveData">CoinGecko 실시간</small></div>
+            <div class="card market-stat"><span data-page-i18n="marketCap">시가총액 (Circulation 기준)</span><strong id="ethfiMarketCap">$648.9M</strong><small id="ethfiCirculating">유통량 약 1.02B ETHFI</small></div>
+            <div class="card market-stat"><span>FDV</span><strong id="ethfiFdv">$648.9M</strong><small data-page-i18n="fixedSupply">공식 고정 공급량 1B</small></div>
+          </section>
+          <div class="market-status" id="marketStatus" data-page-i18n="marketFallback">2026.08.24 기준값 · 실시간 데이터 갱신 중</div>
+
+          <section class="card research-section overview-section">
+            <div class="section-number">01</div>
+            <div class="research-content">
+              <h3 data-page-i18n="overview">개요</h3>
+              <p data-page-i18n="overviewBody">ether.fi는 ETH 보유자가 자산 통제권을 유지한 채 스테이킹·리스테이킹 수익을 얻도록 설계된 비수탁 프로토콜이다. eETH와 weETH를 통해 유동성을 유지하며 DeFi에서 활용할 수 있다. 현재는 Stake·Liquid·Cash를 묶고 토큰화 주식·금속 거래, Aave 기반 대출, 법정화폐 입출금까지 제공하는 온체인 금융 앱으로 확장하고 있다.</p>
+              <div class="key-facts">
+                <div><span data-page-i18n="tokenRole">토큰 역할</span><strong data-page-i18n="tokenRoleValue">거버넌스 · sETHFI 스테이킹 · 바이백 분배</strong></div>
+                <div><span data-page-i18n="supply">공급량</span><strong data-page-i18n="supplyValue">공식 문서상 고정 10억 개 · 추가 발행 없음</strong></div>
+              </div>
+              <a class="source-link" href="https://etherfi.gitbook.io/etherfi/ether.fi-whitepaper/introduction" target="_blank" rel="noopener" data-page-i18n="officialOverview">공식 프로토콜 개요 ↗</a>
+            </div>
+          </section>
+
+          <section class="card research-section">
+            <div class="section-number">02</div>
+            <div class="research-content">
+              <h3 data-page-i18n="valueDrivers">토큰 가치 상승 요인</h3>
+              <div class="driver-grid">
+                <div class="driver-card"><b>01</b><strong data-page-i18n="driverBuybackTitle">프로토콜 수익 기반 바이백</strong><p data-page-i18n="driverBuybackBody">eETH 출금 수수료 수익 100%를 주간 바이백에 사용하고, Stake·Liquid·Cash의 프로토콜 수익 일부도 월간 바이백에 배정한다. 매입 ETHFI는 sETHFI 보유자에게 분배된다.</p></div>
+                <div class="driver-card"><b>02</b><strong data-page-i18n="driverAppTitle">온체인 금융 앱 확장</strong><p data-page-i18n="driverAppBody">토큰화 주식·금속, 담보 대출, 글로벌 법정화폐 레일, Cash 카드가 하나의 앱으로 통합됐다. 사용량과 수익이 커질수록 바이백 재원이 확대될 가능성이 있다.</p></div>
+                <div class="driver-card"><b>03</b><strong data-page-i18n="driverInstitutionTitle">기관 채택과 보안 강화</strong><p data-page-i18n="driverInstitutionBody">KPK가 2,500만 달러 이상을 weETH 핵심 자산으로 배정했고, 프로토콜은 Certora 감사와 권한·출금 구조 강화 작업을 진행했다. 담보 자산 채택 확대는 weETH 수요에 긍정적이다.</p></div>
+                <div class="driver-card"><b>04</b><strong data-page-i18n="driverSupplyTitle">언락 오버행의 종료 접근</strong><p data-page-i18n="driverSupplyBody">현재 일정대로라면 2027년 3월에 베스팅이 끝난다. 남은 물량은 단기 매도 압력이지만, 종료 후에는 신규 유통 증가 부담이 크게 낮아진다.</p></div>
+              </div>
+              <a class="source-link" href="https://etherfi.gitbook.io/gov/ethfi-buyback-program" target="_blank" rel="noopener" data-page-i18n="buybackSource">공식 바이백 프로그램 ↗</a>
+            </div>
+          </section>
+
+          <section class="card research-section">
+            <div class="section-number">03</div>
+            <div class="research-content">
+              <h3 data-page-i18n="recentNews">최근 주요 뉴스</h3>
+              <div class="news-list">
+                <a href="https://ether.fi/blog/ether-fi-summer-next-generation-crypto-neobank" target="_blank" rel="noopener"><time>2026.08.13</time><span><strong data-page-i18n="newsSummerTitle">ether.fi Summer 출시</strong><small data-page-i18n="newsSummerBody">토큰화 주식·금속 거래, Aave 담보대출, 30개 이상 통화의 입출금 수단을 통합한 차세대 앱 공개.</small></span><i>↗</i></a>
+                <a href="https://ether.fi/blog/hardening-weeth-creating-the-market-standard" target="_blank" rel="noopener"><time>2026.08.06</time><span><strong data-page-i18n="newsHardeningTitle">weETH 프로토콜 하드닝 완료</strong><small data-page-i18n="newsHardeningBody">출금 경로·권한·보안 경계를 강화하고 Steakhouse Prime Vault 담보 시장에 진입.</small></span><i>↗</i></a>
+                <a href="https://www.ether.fi/blog/why-kpk-made-weeth-a-core-holding" target="_blank" rel="noopener"><time>2026.07.22</time><span><strong data-page-i18n="newsKpkTitle">KPK, weETH에 2,500만 달러 이상 배정</strong><small data-page-i18n="newsKpkBody">65개 이상 항목의 실사를 거쳐 전술 포지션이 아닌 핵심 전략 자산으로 채택.</small></span><i>↗</i></a>
+                <a href="https://beta.ether.fi/blog/safe-staking-from-doctrine-to-code" target="_blank" rel="noopener"><time>2026.07.14</time><span><strong data-page-i18n="newsSecurityTitle">핵심 컨트랙트 보안 구조 개편</strong><small data-page-i18n="newsSecurityBody">Certora 감사와 불변조건 테스트를 적용하고 운영 키 권한을 세분화.</small></span><i>↗</i></a>
+              </div>
+            </div>
+          </section>
+
+          <section class="card research-section unlock-section">
+            <div class="section-number">04</div>
+            <div class="research-content">
+              <h3 data-page-i18n="unlockSchedule">토큰 언락 일정</h3>
+              <div class="unlock-highlight">
+                <div><span data-page-i18n="nextUnlock">다음 언락</span><strong>2026.09.15</strong><small>8.9M ETHFI · <span data-page-i18n="supplyPercent">총 공급량의 0.9%</span></small></div>
+                <div><span data-page-i18n="remainingUnlock">잔여 언락</span><strong>62.67M ETHFI</strong><small data-page-i18n="remainingDetail">총 공급량의 6.3% · 7회</small></div>
+                <div><span data-page-i18n="vestingEnd">최종 베스팅 종료</span><strong>2027.03.15</strong><small data-page-i18n="insiderUnlock">남은 일정은 주로 투자자·핵심 기여자 물량</small></div>
+              </div>
+              <div class="unlock-timeline" aria-label="ETHFI unlock timeline">
+                <span class="past" style="width:93.7%"></span><i style="left:93.7%"></i>
+              </div>
+              <div class="unlock-legend"><span><i></i><span data-page-i18n="unlocked">해제 93.7%</span></span><span><i></i><span data-page-i18n="locked">잔여 6.3%</span></span></div>
+              <p class="data-note" data-page-i18n="unlockNote">공식 배분 문서의 고정 공급량 10억 개와 Tokenomics.com의 베스팅 일정 기준. 데이터 제공처에 따라 ‘유통량’과 ‘언락 물량’ 정의가 달라 수치 차이가 날 수 있다.</p>
+              <div class="source-row"><a class="source-link" href="https://etherfi.gitbook.io/gov/ethfi-allocations" target="_blank" rel="noopener" data-page-i18n="allocationSource">공식 ETHFI 배분 ↗</a><a class="source-link" href="https://app.tokenomics.com/tokenomics/ether-fi/unlocks" target="_blank" rel="noopener" data-page-i18n="unlockSource">언락 일정 원문 ↗</a></div>
+            </div>
+          </section>
+
+          <footer class="report-disclaimer" data-page-i18n="disclaimer">정보 제공 목적의 리서치이며 투자 권유가 아니야. 시장 데이터와 일정은 변동될 수 있어.</footer>
+        </article>
+      </div>
+    </section>
   </div>
   <div class="modal-backdrop" id="authModal" aria-hidden="true">
     <div class="modal">
@@ -57,6 +161,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=3"></script>
+  <script type="module" src="./js/investment-setup.js?v=4"></script>
 </body>
 </html>
