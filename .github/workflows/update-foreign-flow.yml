@@ -1,9 +1,16 @@
 name: Update foreign flow data
 on:
   schedule:
-    - cron: '*/15 0-6 * * 1-5'
-    - cron: '0,15,30 7 * * 1-5'
+    # Avoid GitHub Actions' busiest quarter-hour boundaries, where scheduled
+    # runs can be delayed long enough to miss the morning market session.
+    - cron: '7,22,37,52 0-6 * * 1-5'
+    - cron: '7,22,37 7 * * 1-5'
   workflow_dispatch:
+
+concurrency:
+  group: update-foreign-flow
+  cancel-in-progress: false
+
 permissions:
   contents: write
 jobs:
