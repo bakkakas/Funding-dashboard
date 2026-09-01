@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=3">
+  <link rel="stylesheet" href="./investment-setup.css?v=4">
 </head>
 <body>
   <div class="wrap">
@@ -56,7 +56,7 @@
             <span class="report-count">1</span>
           </div>
           <button class="report-list-item active" type="button" aria-current="true">
-            <span class="report-token-mark">E</span>
+            <span class="report-token-mark"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt=""></span>
             <span><strong>ether.fi</strong><small>ETHFI · 2026.08.24</small></span>
           </button>
           <div class="report-index-note" data-page-i18n="moreReports">분석 보고서는 이 목록에 계속 추가돼.</div>
@@ -65,11 +65,16 @@
         <article class="research-report">
           <header class="card report-hero">
             <div class="report-hero-main">
-              <div class="token-logo">E</div>
+              <div class="token-logo"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt="ether.fi logo"></div>
               <div>
                 <div class="eyebrow" data-page-i18n="cryptoResearch">CRYPTO RESEARCH</div>
                 <h2>ether.fi <span>(ETHFI)</span></h2>
                 <p data-page-i18n="heroSummary">비수탁형 리퀴드 리스테이킹에서 출발해 온체인 금융 앱으로 확장 중인 ether.fi의 거버넌스 토큰.</p>
+                <div class="hero-market-facts">
+                  <span id="ethfiMarketCapRank">CoinGecko 시총 순위 -</span>
+                  <span id="ethfiCirculating">유통량 약 1.02B ETHFI</span>
+                  <span id="ethfiCirculatingRatio">Max 대비 유통률 -</span>
+                </div>
               </div>
             </div>
             <div class="report-hero-side">
@@ -90,15 +95,23 @@
                 <div class="eyebrow">ETHFI / USDT · BINANCE</div>
                 <h3 id="priceChartTitle" data-page-i18n="priceChart">가격 변화 차트</h3>
               </div>
-              <a href="https://www.tradingview.com/symbols/ETHFIUSDT/?exchange=BINANCE" target="_blank" rel="noopener noreferrer"><span data-page-i18n="openTradingView">TradingView에서 열기</span><i aria-hidden="true">↗</i></a>
+              <div class="price-chart-actions">
+                <div class="chart-size-controls" aria-label="차트 세로 크기 조절">
+                  <button id="chartShrinkButton" type="button" aria-label="차트 축소">−</button>
+                  <button id="chartResetButton" type="button" data-page-i18n="chartSizeDefault">기본</button>
+                  <button id="chartGrowButton" type="button" aria-label="차트 확대">+</button>
+                </div>
+                <a href="https://www.tradingview.com/symbols/ETHFIUSDT/?exchange=BINANCE" target="_blank" rel="noopener noreferrer"><span data-page-i18n="openTradingView">TradingView에서 열기</span><i aria-hidden="true">↗</i></a>
+              </div>
             </div>
             <div class="tradingview-chart"><div class="tradingview-widget-container" id="ethfiTradingViewChart"><span class="chart-loading" data-page-i18n="chartLoading">차트 불러오는 중…</span></div></div>
+            <div class="chart-resize-hint" data-page-i18n="chartResizeHint">−/+ 버튼 또는 우측 하단 드래그로 세로 크기 조절</div>
           </section>
 
           <section class="market-grid" aria-label="ETHFI 시장 데이터">
             <div class="card market-stat"><span data-page-i18n="price">가격</span><strong id="ethfiPrice">$0.638</strong><small data-page-i18n="liveData">CoinGecko 실시간</small></div>
-            <div class="card market-stat"><span data-page-i18n="marketCap">시가총액 (Circulation 기준)</span><strong id="ethfiMarketCap">$648.9M</strong><div class="market-stat-details"><small id="ethfiMarketCapRank">CoinGecko 시총 순위 -</small><small id="ethfiCirculating">유통량 약 1.02B ETHFI</small><small id="ethfiCirculatingRatio">Max 대비 유통률 -</small></div></div>
-            <div class="card market-stat"><span>FDV</span><strong id="ethfiFdv">$648.9M</strong><div class="market-stat-details"><small id="ethfiFdvRank">CoinGecko 시총 순위 -</small><small data-page-i18n="fixedSupply">공식 고정 공급량 1B</small></div></div>
+            <div class="card market-stat"><span data-page-i18n="marketCap">시가총액 (Circulation 기준)</span><strong id="ethfiMarketCap">$648.9M</strong><small data-page-i18n="liveData">CoinGecko 실시간</small></div>
+            <div class="card market-stat"><span>FDV</span><strong id="ethfiFdv">$648.9M</strong></div>
           </section>
           <div class="market-status" id="marketStatus" data-page-i18n="marketFallback">2026.08.24 기준값 · 실시간 데이터 갱신 중</div>
 
@@ -181,6 +194,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=6"></script>
+  <script type="module" src="./js/investment-setup.js?v=7"></script>
 </body>
 </html>

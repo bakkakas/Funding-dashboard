@@ -10,7 +10,8 @@
 .eyebrow{color:var(--accent);font-size:10px;font-weight:900;letter-spacing:.14em}
 .report-count{display:grid;place-items:center;min-width:25px;height:25px;border-radius:999px;background:rgba(35,231,165,.12);color:var(--accent);font-size:12px;font-weight:900}
 .report-list-item{width:100%;display:flex;align-items:center;gap:10px;padding:10px;border:1px solid rgba(35,231,165,.32);border-radius:8px;background:rgba(35,231,165,.09);color:var(--text);text-align:left;cursor:pointer}
-.report-token-mark,.token-logo{display:grid;place-items:center;border-radius:8px;background:linear-gradient(145deg,#23e7a5,#86a8ff);color:#07140f;font-weight:950}
+.report-token-mark,.token-logo{display:grid;place-items:center;overflow:hidden;border:1px solid rgba(134,118,221,.3);border-radius:8px;background:#17171c}
+.report-token-mark img,.token-logo img{display:block;width:100%;height:100%;object-fit:cover}
 .report-token-mark{width:34px;height:34px;flex:0 0 34px}
 .report-list-item span:last-child{display:grid;gap:3px;min-width:0}
 .report-list-item strong{font-size:13px}
@@ -23,35 +24,41 @@
 .report-hero h2{margin:5px 0 6px;color:#f3fff8;font-size:clamp(26px,4vw,38px);line-height:1}
 .report-hero h2 span{color:var(--muted);font-size:.56em}
 .report-hero p{max-width:740px;margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+.hero-market-facts{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
+.hero-market-facts span{padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,.02);color:#aebbb4;font-size:9px;font-weight:750}
 .report-hero-side{display:grid;justify-items:end;gap:15px;max-width:520px}
 .report-date{display:grid;gap:5px;text-align:right;white-space:nowrap}
 .report-date span{color:var(--muted);font-size:11px}
 .report-date strong{font-size:13px}
 .token-links{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}
-.token-links a,.price-chart-head>a{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.025);color:#c9d8d0;font-size:10px;font-weight:850;line-height:1;text-decoration:none;transition:border-color .15s,color .15s,background .15s}
-.token-links a:hover,.price-chart-head>a:hover{border-color:rgba(35,231,165,.48);background:rgba(35,231,165,.08);color:var(--accent)}
+.token-links a,.price-chart-actions>a{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.025);color:#c9d8d0;font-size:10px;font-weight:850;line-height:1;text-decoration:none;transition:border-color .15s,color .15s,background .15s}
+.token-links a:hover,.price-chart-actions>a:hover{border-color:rgba(35,231,165,.48);background:rgba(35,231,165,.08);color:var(--accent)}
 .token-links a.unofficial-link{border-color:rgba(245,196,81,.32);color:#e8d69d}
 .token-links a.unofficial-link:hover{border-color:rgba(245,196,81,.62);background:rgba(245,196,81,.08);color:#f5c451}
 .token-link-logo{width:13px;height:13px;object-fit:contain;flex:0 0 13px}
 .token-link-globe{display:grid;width:13px;height:13px;place-items:center;color:var(--accent);font-size:15px;line-height:1}
-.token-links i,.price-chart-head i{font-style:normal;color:var(--accent)}
+.token-links i,.price-chart-actions i{font-style:normal;color:var(--accent)}
 .price-chart-card{padding:14px;overflow:hidden}
 .price-chart-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:2px 2px 12px}
 .price-chart-head h3{margin:4px 0 0;color:#f3fff8;font-size:16px}
-.tradingview-chart{height:clamp(900px,120vw,1300px);overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#0a110e;color:var(--muted);font-size:11px}
+.price-chart-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.chart-size-controls{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.chart-size-controls button{min-width:31px;height:28px;border:0;border-right:1px solid var(--line);background:rgba(255,255,255,.025);color:#c9d8d0;font:inherit;font-size:11px;font-weight:850;cursor:pointer}
+.chart-size-controls button:last-child{border-right:0}
+.chart-size-controls button:hover{background:rgba(35,231,165,.08);color:var(--accent)}
+.tradingview-chart{height:650px;min-height:320px;max-height:1400px;resize:vertical;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#0a110e;color:var(--muted);font-size:11px}
 .tradingview-chart>.tradingview-widget-container{height:100%;width:100%}
 .tradingview-chart .chart-loading{display:grid;height:100%;place-items:center}
+.chart-resize-hint{padding:7px 3px 0;color:var(--muted);font-size:9px;text-align:right}
 .market-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .market-stat{display:grid;gap:7px;padding:15px 16px}
-.market-stat>span{color:var(--muted);font-size:11px;font-weight:800}
+.market-stat>span{color:#c8d5ce;font-size:15px;font-weight:900}
 .market-stat>strong{color:#f3fff8;font-size:24px;font-variant-numeric:tabular-nums}
 .market-stat>small{color:var(--muted);font-size:10px}
 .market-change{font-size:.52em;font-style:normal;vertical-align:.12em}
 .market-change.positive{color:#23e7a5}
 .market-change.negative{color:#ff6b7a}
 .market-change.neutral{color:var(--muted)}
-.market-stat-details{display:grid;gap:4px}
-.market-stat-details small{color:var(--muted);font-size:10px}
 .market-status{margin-top:-8px;padding:0 4px;color:var(--muted);font-size:10px;text-align:right}
 .research-section{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;padding:22px 24px}
 .section-number{color:rgba(35,231,165,.42);font-size:13px;font-weight:900;letter-spacing:.08em;padding-top:4px}
@@ -106,7 +113,8 @@
   .report-date{text-align:left}
   .token-links{justify-content:flex-start}
   .price-chart-head{align-items:flex-start;flex-direction:column}
-  .tradingview-chart{height:1075px}
+  .price-chart-actions{justify-content:flex-start}
+  .tradingview-chart{height:540px}
   .market-grid,.driver-grid,.unlock-highlight,.key-facts{grid-template-columns:1fr}
   .research-section{grid-template-columns:1fr;padding:18px}
   .section-number{padding:0}
