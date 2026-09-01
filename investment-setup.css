@@ -18,7 +18,8 @@
 .report-list-item small{color:var(--muted);font-size:11px}
 .report-index-note{padding:14px 4px 2px;color:var(--muted);font-size:11px;line-height:1.55}
 .research-report{display:grid;gap:16px;min-width:0}
-.report-hero{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px}
+.report-hero{display:grid;gap:20px;padding:24px}
+.report-hero-top{display:flex;align-items:center;justify-content:space-between;gap:20px}
 .report-hero-main{display:flex;align-items:center;gap:16px;min-width:0}
 .token-logo{width:56px;height:56px;flex:0 0 56px;font-size:25px}
 .report-hero h2{margin:5px 0 6px;color:#f3fff8;font-size:clamp(26px,4vw,38px);line-height:1}
@@ -50,16 +51,17 @@
 .tradingview-chart>.tradingview-widget-container{height:100%;width:100%}
 .tradingview-chart .chart-loading{display:grid;height:100%;place-items:center}
 .chart-resize-hint{padding:7px 3px 0;color:var(--muted);font-size:9px;text-align:right}
-.market-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.market-stat{display:grid;gap:7px;padding:15px 16px}
-.market-stat>span{color:#c8d5ce;font-size:15px;font-weight:900}
-.market-stat>strong{color:#f3fff8;font-size:24px;font-variant-numeric:tabular-nums}
-.market-stat>small{color:var(--muted);font-size:10px}
+.hero-market-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.018);overflow:hidden}
+.hero-market-stat{display:grid;gap:7px;min-width:0;padding:15px 16px;border-right:1px solid var(--line)}
+.hero-market-stat:last-child{border-right:0}
+.hero-market-stat>span{color:#c8d5ce;font-size:14px;font-weight:900}
+.hero-market-stat>strong{color:#f3fff8;font-size:24px;font-variant-numeric:tabular-nums}
+.hero-market-stat>small{color:var(--muted);font-size:10px}
 .market-change{font-size:.52em;font-style:normal;vertical-align:.12em}
 .market-change.positive{color:#23e7a5}
 .market-change.negative{color:#ff6b7a}
 .market-change.neutral{color:var(--muted)}
-.market-status{margin-top:-8px;padding:0 4px;color:var(--muted);font-size:10px;text-align:right}
+.market-status{margin-top:-12px;padding:0 4px;color:var(--muted);font-size:10px;text-align:right}
 .research-section{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;padding:22px 24px}
 .section-number{color:rgba(35,231,165,.42);font-size:13px;font-weight:900;letter-spacing:.08em;padding-top:4px}
 .research-content{min-width:0}
@@ -108,14 +110,18 @@
   .report-list-item{max-width:360px}
 }
 @media(max-width:700px){
-  .report-hero{align-items:flex-start;flex-direction:column;padding:18px}
+  .report-hero{padding:18px}
+  .report-hero-top{align-items:flex-start;flex-direction:column}
   .report-hero-side{width:100%;justify-items:start}
   .report-date{text-align:left}
   .token-links{justify-content:flex-start}
   .price-chart-head{align-items:flex-start;flex-direction:column}
   .price-chart-actions{justify-content:flex-start}
   .tradingview-chart{height:540px}
-  .market-grid,.driver-grid,.unlock-highlight,.key-facts{grid-template-columns:1fr}
+  .hero-market-grid{grid-template-columns:1fr}
+  .hero-market-stat{border-right:0;border-bottom:1px solid var(--line)}
+  .hero-market-stat:last-child{border-bottom:0}
+  .driver-grid,.unlock-highlight,.key-facts{grid-template-columns:1fr}
   .research-section{grid-template-columns:1fr;padding:18px}
   .section-number{padding:0}
   .news-list>a{grid-template-columns:76px minmax(0,1fr) 14px;gap:8px}
