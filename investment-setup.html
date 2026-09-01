@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=1">
+  <link rel="stylesheet" href="./investment-setup.css?v=2">
 </head>
 <body>
   <div class="wrap">
@@ -72,8 +72,27 @@
                 <p data-page-i18n="heroSummary">비수탁형 리퀴드 리스테이킹에서 출발해 온체인 금융 앱으로 확장 중인 ether.fi의 거버넌스 토큰.</p>
               </div>
             </div>
-            <div class="report-date"><span data-page-i18n="updatedLabel">업데이트</span><strong>2026.08.24</strong></div>
+            <div class="report-hero-side">
+              <div class="report-date"><span data-page-i18n="updatedLabel">업데이트</span><strong>2026.08.24</strong></div>
+              <nav class="token-links" aria-label="ether.fi 공식 및 시장 정보 링크">
+                <a href="https://www.ether.fi/" target="_blank" rel="noopener noreferrer"><span data-page-i18n="websiteLink">웹사이트</span><i aria-hidden="true">↗</i></a>
+                <a href="https://coinmarketcap.com/currencies/ether-fi-ethfi/" target="_blank" rel="noopener noreferrer"><span>CoinMarketCap</span><i aria-hidden="true">↗</i></a>
+                <a href="https://www.coingecko.com/en/coins/ether-fi" target="_blank" rel="noopener noreferrer"><span>CoinGecko</span><i aria-hidden="true">↗</i></a>
+                <a href="https://x.com/ether_fi" target="_blank" rel="noopener noreferrer"><span data-page-i18n="officialXLink">공식 X</span><i aria-hidden="true">↗</i></a>
+              </nav>
+            </div>
           </header>
+
+          <section class="card price-chart-card" aria-labelledby="priceChartTitle">
+            <div class="price-chart-head">
+              <div>
+                <div class="eyebrow">ETHFI / USDT · BINANCE</div>
+                <h3 id="priceChartTitle" data-page-i18n="priceChart">가격 변화 차트</h3>
+              </div>
+              <a href="https://www.tradingview.com/symbols/ETHFIUSDT/?exchange=BINANCE" target="_blank" rel="noopener noreferrer"><span data-page-i18n="openTradingView">TradingView에서 열기</span><i aria-hidden="true">↗</i></a>
+            </div>
+            <div class="tradingview-chart tradingview-widget-container" id="ethfiTradingViewChart"><span data-page-i18n="chartLoading">차트 불러오는 중…</span></div>
+          </section>
 
           <section class="market-grid" aria-label="ETHFI 시장 데이터">
             <div class="card market-stat"><span data-page-i18n="price">가격</span><strong id="ethfiPrice">$0.638</strong><small data-page-i18n="liveData">CoinGecko 실시간</small></div>
@@ -161,6 +180,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=4"></script>
+  <script type="module" src="./js/investment-setup.js?v=5"></script>
 </body>
 </html>

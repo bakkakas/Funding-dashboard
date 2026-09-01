@@ -23,9 +23,19 @@
 .report-hero h2{margin:5px 0 6px;color:#f3fff8;font-size:clamp(26px,4vw,38px);line-height:1}
 .report-hero h2 span{color:var(--muted);font-size:.56em}
 .report-hero p{max-width:740px;margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+.report-hero-side{display:grid;justify-items:end;gap:15px;max-width:440px}
 .report-date{display:grid;gap:5px;text-align:right;white-space:nowrap}
 .report-date span{color:var(--muted);font-size:11px}
 .report-date strong{font-size:13px}
+.token-links{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+.token-links a,.price-chart-head>a{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.025);color:#c9d8d0;font-size:10px;font-weight:850;line-height:1;text-decoration:none;transition:border-color .15s,color .15s,background .15s}
+.token-links a:hover,.price-chart-head>a:hover{border-color:rgba(35,231,165,.48);background:rgba(35,231,165,.08);color:var(--accent)}
+.token-links i,.price-chart-head i{font-style:normal;color:var(--accent)}
+.price-chart-card{padding:14px;overflow:hidden}
+.price-chart-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:2px 2px 12px}
+.price-chart-head h3{margin:4px 0 0;color:#f3fff8;font-size:16px}
+.tradingview-chart{height:clamp(360px,48vw,520px);overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#0a110e;color:var(--muted);font-size:11px}
+.tradingview-chart>span{display:grid;height:100%;place-items:center}
 .market-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .market-stat{display:grid;gap:7px;padding:15px 16px}
 .market-stat>span{color:var(--muted);font-size:11px;font-weight:800}
@@ -81,7 +91,11 @@
 }
 @media(max-width:700px){
   .report-hero{align-items:flex-start;flex-direction:column;padding:18px}
+  .report-hero-side{width:100%;justify-items:start}
   .report-date{text-align:left}
+  .token-links{justify-content:flex-start}
+  .price-chart-head{align-items:flex-start;flex-direction:column}
+  .tradingview-chart{height:430px}
   .market-grid,.driver-grid,.unlock-highlight,.key-facts{grid-template-columns:1fr}
   .research-section{grid-template-columns:1fr;padding:18px}
   .section-number{padding:0}
