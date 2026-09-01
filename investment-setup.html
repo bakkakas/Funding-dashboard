@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=2">
+  <link rel="stylesheet" href="./investment-setup.css?v=3">
 </head>
 <body>
   <div class="wrap">
@@ -75,10 +75,11 @@
             <div class="report-hero-side">
               <div class="report-date"><span data-page-i18n="updatedLabel">업데이트</span><strong>2026.08.24</strong></div>
               <nav class="token-links" aria-label="ether.fi 공식 및 시장 정보 링크">
-                <a href="https://www.ether.fi/" target="_blank" rel="noopener noreferrer"><span data-page-i18n="websiteLink">웹사이트</span><i aria-hidden="true">↗</i></a>
-                <a href="https://coinmarketcap.com/currencies/ether-fi-ethfi/" target="_blank" rel="noopener noreferrer"><span>CoinMarketCap</span><i aria-hidden="true">↗</i></a>
-                <a href="https://www.coingecko.com/en/coins/ether-fi" target="_blank" rel="noopener noreferrer"><span>CoinGecko</span><i aria-hidden="true">↗</i></a>
-                <a href="https://x.com/ether_fi" target="_blank" rel="noopener noreferrer"><span data-page-i18n="officialXLink">공식 X</span><i aria-hidden="true">↗</i></a>
+                <a href="https://www.ether.fi/" target="_blank" rel="noopener noreferrer"><span class="token-link-globe" aria-hidden="true">◎</span><span data-page-i18n="websiteLink">웹사이트</span><i aria-hidden="true">↗</i></a>
+                <a href="https://coinmarketcap.com/currencies/ether-fi-ethfi/" target="_blank" rel="noopener noreferrer"><img class="token-link-logo" alt="" src="https://cdn.simpleicons.org/coinmarketcap/8B5CF6"><span>CoinMarketCap</span><i aria-hidden="true">↗</i></a>
+                <a href="https://www.coingecko.com/en/coins/ether-fi" target="_blank" rel="noopener noreferrer"><img class="token-link-logo" alt="" src="https://www.coingecko.com/favicon.ico"><span>CoinGecko</span><i aria-hidden="true">↗</i></a>
+                <a href="https://x.com/ether_fi" target="_blank" rel="noopener noreferrer"><img class="token-link-logo" alt="" src="https://cdn.simpleicons.org/x/FFFFFF"><span data-page-i18n="officialXLink">공식 X</span><i aria-hidden="true">↗</i></a>
+                <a class="unofficial-link" href="https://t.me/EtherFiAlerts" target="_blank" rel="noopener noreferrer"><img class="token-link-logo" alt="" src="https://cdn.simpleicons.org/telegram/26A5E4"><span data-page-i18n="telegramUnofficial">Telegram · 비공식</span><i aria-hidden="true">↗</i></a>
               </nav>
             </div>
           </header>
@@ -91,13 +92,13 @@
               </div>
               <a href="https://www.tradingview.com/symbols/ETHFIUSDT/?exchange=BINANCE" target="_blank" rel="noopener noreferrer"><span data-page-i18n="openTradingView">TradingView에서 열기</span><i aria-hidden="true">↗</i></a>
             </div>
-            <div class="tradingview-chart tradingview-widget-container" id="ethfiTradingViewChart"><span data-page-i18n="chartLoading">차트 불러오는 중…</span></div>
+            <div class="tradingview-chart"><div class="tradingview-widget-container" id="ethfiTradingViewChart"><span class="chart-loading" data-page-i18n="chartLoading">차트 불러오는 중…</span></div></div>
           </section>
 
           <section class="market-grid" aria-label="ETHFI 시장 데이터">
             <div class="card market-stat"><span data-page-i18n="price">가격</span><strong id="ethfiPrice">$0.638</strong><small data-page-i18n="liveData">CoinGecko 실시간</small></div>
-            <div class="card market-stat"><span data-page-i18n="marketCap">시가총액 (Circulation 기준)</span><strong id="ethfiMarketCap">$648.9M</strong><small id="ethfiCirculating">유통량 약 1.02B ETHFI</small></div>
-            <div class="card market-stat"><span>FDV</span><strong id="ethfiFdv">$648.9M</strong><small data-page-i18n="fixedSupply">공식 고정 공급량 1B</small></div>
+            <div class="card market-stat"><span data-page-i18n="marketCap">시가총액 (Circulation 기준)</span><strong id="ethfiMarketCap">$648.9M</strong><div class="market-stat-details"><small id="ethfiMarketCapRank">CoinGecko 시총 순위 -</small><small id="ethfiCirculating">유통량 약 1.02B ETHFI</small><small id="ethfiCirculatingRatio">Max 대비 유통률 -</small></div></div>
+            <div class="card market-stat"><span>FDV</span><strong id="ethfiFdv">$648.9M</strong><div class="market-stat-details"><small id="ethfiFdvRank">CoinGecko 시총 순위 -</small><small data-page-i18n="fixedSupply">공식 고정 공급량 1B</small></div></div>
           </section>
           <div class="market-status" id="marketStatus" data-page-i18n="marketFallback">2026.08.24 기준값 · 실시간 데이터 갱신 중</div>
 
@@ -180,6 +181,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=5"></script>
+  <script type="module" src="./js/investment-setup.js?v=6"></script>
 </body>
 </html>
