@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=5">
+  <link rel="stylesheet" href="./investment-setup.css?v=6">
 </head>
 <body>
   <div class="wrap">
@@ -55,10 +55,32 @@
             </div>
             <span class="report-count">1</span>
           </div>
-          <button class="report-list-item active" type="button" aria-current="true">
-            <span class="report-token-mark"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt=""></span>
-            <span><strong>ether.fi</strong><small>ETHFI · 2026.08.24</small></span>
-          </button>
+          <div class="research-filter-row" role="group" aria-label="종목 필터">
+            <button class="research-filter active" id="allResearchFilter" type="button" data-filter="all"><span data-page-i18n="allAssets">전체</span><b id="allResearchCount">1</b></button>
+            <button class="research-filter" id="favoriteResearchFilter" type="button" data-filter="favorites"><span><i aria-hidden="true">★</i> <span data-page-i18n="favorites">즐겨찾기</span></span><b id="favoriteResearchCount">0</b></button>
+          </div>
+          <div class="report-list" id="researchReportList">
+            <div class="report-list-row active" data-asset-id="ethfi">
+              <button class="report-list-item" type="button" aria-current="true" data-select-asset="ethfi">
+                <span class="report-token-mark"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt=""></span>
+                <span><strong>ether.fi</strong><small>ETHFI · 2026.08.24</small></span>
+              </button>
+              <button class="report-favorite" id="reportFavoriteButton" type="button" data-favorite-asset="ethfi" aria-pressed="false" aria-label="ETHFI 즐겨찾기 추가">☆</button>
+            </div>
+          </div>
+          <div class="research-empty" id="researchFilterEmpty" hidden data-page-i18n="emptyResearchFilter">이 리스트에 담긴 종목이 없어.</div>
+          <section class="custom-lists" aria-labelledby="customListsTitle">
+            <div class="custom-lists-head">
+              <div class="eyebrow" id="customListsTitle" data-page-i18n="myLists">MY LISTS</div>
+              <button id="showNewListButton" type="button" aria-label="새 리스트 만들기">＋</button>
+            </div>
+            <form class="new-list-form" id="sidebarNewListForm" hidden>
+              <input id="sidebarNewListName" maxlength="28" autocomplete="off" placeholder="리스트 이름" data-page-i18n-placeholder="listNamePlaceholder">
+              <button type="submit" data-page-i18n="add">추가</button>
+            </form>
+            <div class="custom-list-nav" id="customListNav"></div>
+            <div class="custom-list-empty" id="customListEmpty" data-page-i18n="noCustomLists">+를 눌러 첫 리스트를 만들어봐.</div>
+          </section>
           <div class="report-index-note" data-page-i18n="moreReports">분석 보고서는 이 목록에 계속 추가돼.</div>
         </aside>
 
@@ -80,6 +102,20 @@
               </div>
               <div class="report-hero-side">
                 <div class="report-date"><span data-page-i18n="updatedLabel">업데이트</span><strong>2026.08.24</strong></div>
+                <div class="research-actions">
+                  <button class="research-action" id="heroFavoriteButton" type="button" aria-pressed="false"><i aria-hidden="true">☆</i><span data-page-i18n="addFavorite">즐겨찾기</span></button>
+                  <div class="list-picker-wrap">
+                    <button class="research-action" id="listPickerButton" type="button" aria-expanded="false"><i aria-hidden="true">＋</i><span data-page-i18n="addToList">리스트에 추가</span></button>
+                    <div class="list-picker" id="listPicker" hidden>
+                      <div class="list-picker-title"><strong data-page-i18n="selectList">담을 리스트 선택</strong><small data-page-i18n="savedInBrowser">이 브라우저에 자동 저장</small></div>
+                      <div class="list-picker-options" id="listPickerOptions"></div>
+                      <form class="picker-new-list" id="pickerNewListForm">
+                        <input id="pickerNewListName" maxlength="28" autocomplete="off" placeholder="새 리스트 이름" data-page-i18n-placeholder="newListPlaceholder">
+                        <button type="submit" aria-label="리스트 생성 및 추가">＋</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
                 <nav class="token-links" aria-label="ether.fi 공식 및 시장 정보 링크">
                   <a href="https://www.ether.fi/" target="_blank" rel="noopener noreferrer"><span class="token-link-globe" aria-hidden="true">◎</span><span data-page-i18n="websiteLink">웹사이트</span><i aria-hidden="true">↗</i></a>
                   <a href="https://coinmarketcap.com/currencies/ether-fi-ethfi/" target="_blank" rel="noopener noreferrer"><img class="token-link-logo" alt="" src="https://cdn.simpleicons.org/coinmarketcap/8B5CF6"><span>CoinMarketCap</span><i aria-hidden="true">↗</i></a>
@@ -195,6 +231,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=7"></script>
+  <script type="module" src="./js/investment-setup.js?v=8"></script>
 </body>
 </html>
