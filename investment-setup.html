@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=7">
+  <link rel="stylesheet" href="./investment-setup.css?v=8">
 </head>
 <body>
   <div class="wrap">
@@ -95,8 +95,13 @@
                   <p data-page-i18n="heroSummary">비수탁형 리퀴드 리스테이킹에서 출발해 온체인 금융 앱으로 확장 중인 ether.fi의 거버넌스 토큰.</p>
                   <div class="hero-market-facts">
                     <div class="market-fact rank-fact"><img src="https://www.coingecko.com/favicon.ico" alt="CoinGecko"><strong id="ethfiMarketCapRank">#-</strong></div>
-                    <div class="market-fact"><span data-page-i18n="circulatingSupply">유통량</span><strong id="ethfiCirculating">1.02B ETHFI</strong></div>
-                    <div class="market-fact circulation-fact"><span data-page-i18n="circulatingRatioPrefix">Max 대비 유통률</span><strong id="ethfiCirculatingRatio">-</strong><div class="circulation-bar" role="progressbar" aria-label="Max 대비 유통률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="ethfiCirculatingBar"></i></div></div>
+                    <div class="market-fact circulation-fact">
+                      <div class="circulation-metrics">
+                        <span class="circulation-metric"><small data-page-i18n="circulatingSupply">유통량</small><strong id="ethfiCirculating">1.02B ETHFI</strong></span>
+                        <span class="circulation-metric ratio-metric"><small data-page-i18n="circulatingRatioPrefix">Max 대비 유통률</small><strong id="ethfiCirculatingRatio">-</strong></span>
+                      </div>
+                      <div class="circulation-bar" role="progressbar" aria-label="Max 대비 유통률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="ethfiCirculatingBar"></i></div>
+                    </div>
                   </div>
                 </div>
               </div>
