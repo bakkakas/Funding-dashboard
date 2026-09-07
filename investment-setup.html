@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=8">
+  <link rel="stylesheet" href="./investment-setup.css?v=9">
 </head>
 <body>
   <div class="wrap">
@@ -138,6 +138,49 @@
             <div class="market-status" id="marketStatus" data-page-i18n="marketFallback">2026.08.24 기준값 · 실시간 데이터 갱신 중</div>
           </header>
 
+          <section class="card decision-beta" aria-labelledby="decisionBetaTitle">
+            <div class="decision-beta-head">
+              <div>
+                <div class="decision-beta-kicker"><span>BETA</span><b data-page-i18n="decisionTracker">INVESTMENT DECISION TRACKER</b></div>
+                <h3 id="decisionBetaTitle" data-page-i18n="decisionTitle">투자 판단 테스트</h3>
+                <p data-page-i18n="decisionIntro">실데이터 규칙과 내 판단을 분리해 표시. 점수는 검토 우선순위이며 매수 신호가 아님.</p>
+              </div>
+              <label class="decision-scenario"><span data-page-i18n="scenarioTest">시나리오 테스트</span><select id="decisionScenario">
+                <option value="live" data-page-i18n="scenarioLive">실데이터</option>
+                <option value="warning" data-page-i18n="scenarioWarning">주의 상황 체험</option>
+                <option value="invalidated" data-page-i18n="scenarioInvalidated">무효화 상황 체험</option>
+              </select></label>
+            </div>
+
+            <div class="decision-summary-grid">
+              <div class="decision-summary-card signal" id="decisionSignalCard"><span data-page-i18n="systemSignal">시스템 신호</span><strong><b id="decisionSignal">계산 중</b><em id="decisionScore">--</em></strong><small id="decisionSignalNote">실데이터 불러오는 중</small></div>
+              <label class="decision-summary-card input-card"><span data-page-i18n="myDecision">내 판단</span><select id="personalDecision">
+                <option value="interest" data-page-i18n="decisionInterest">관심</option>
+                <option value="watch" data-page-i18n="decisionWatch">관망</option>
+                <option value="buywait" data-page-i18n="decisionBuyWait">매수 대기</option>
+                <option value="holding" data-page-i18n="decisionHolding">보유</option>
+                <option value="avoid" data-page-i18n="decisionAvoid">제외</option>
+              </select><small data-page-i18n="savedLocally">이 브라우저에 저장</small></label>
+              <div class="decision-summary-card input-card"><span data-page-i18n="buyZone">매수 관심 가격</span><div class="buy-zone-inputs"><label><i>$</i><input id="decisionBuyMin" type="number" min="0" step="any" placeholder="Min" aria-label="매수 관심 최저 가격"></label><b>–</b><label><i>$</i><input id="decisionBuyMax" type="number" min="0" step="any" placeholder="Max" aria-label="매수 관심 최고 가격"></label></div><small data-page-i18n="optionalInput">선택 입력</small></div>
+              <div class="decision-summary-card"><span data-page-i18n="nextCatalyst">다음 촉매</span><strong id="decisionCatalyst">월간 언락 · D-8</strong><small data-page-i18n="catalystNote">이벤트 이후 공급 압력 재평가</small></div>
+              <div class="decision-summary-card"><span data-page-i18n="dataConfidence">판단 신뢰도</span><strong id="decisionConfidence">--</strong><small id="decisionFreshness">데이터 확인 중</small></div>
+            </div>
+
+            <label class="decision-thesis"><span data-page-i18n="oneLineThesis">내 한 줄 투자 논리</span><input id="decisionThesis" maxlength="180" data-page-i18n-placeholder="thesisPlaceholder" placeholder="왜 이 프로젝트를 보는지 한 문장으로 기록"><small data-page-i18n="savedLocally">이 브라우저에 저장</small></label>
+
+            <div class="decision-detail-grid">
+              <section class="decision-panel" aria-labelledby="scoreBreakdownTitle">
+                <div class="decision-panel-head"><div><h4 id="scoreBreakdownTitle" data-page-i18n="scoreBreakdown">자동 점수 · 근거</h4><p data-page-i18n="scoreMethod">0 위험 · 1 중립 · 2 양호 후 가중치 적용</p></div><a href="https://defillama.com/protocol/ether.fi?fees=true&amp;tvl=false" target="_blank" rel="noopener">DefiLlama ↗</a></div>
+                <div class="decision-score-list" id="decisionScoreList"></div>
+              </section>
+              <section class="decision-panel" aria-labelledby="ruleMonitorTitle">
+                <div class="decision-panel-head"><div><h4 id="ruleMonitorTitle" data-page-i18n="ruleMonitor">투자 논리 모니터</h4><p data-page-i18n="ruleMethod">현재값·임계값·출처로 판정</p></div><span class="decision-data-mode" id="decisionDataMode">LIVE</span></div>
+                <div class="decision-rule-list" id="decisionRuleList"></div>
+              </section>
+            </div>
+            <div class="decision-beta-foot"><span id="decisionDataStatus" data-page-i18n="decisionLoading">DefiLlama·CoinGecko 데이터 불러오는 중</span><span data-page-i18n="betaDisclaimer">Beta 규칙 · 실제 사용 후 임계값 조정 필요</span></div>
+          </section>
+
           <section class="card price-chart-card" aria-labelledby="priceChartTitle">
             <div class="price-chart-head">
               <div>
@@ -235,6 +278,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=9"></script>
+  <script type="module" src="./js/investment-setup.js?v=10"></script>
 </body>
 </html>
