@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=10">
+  <link rel="stylesheet" href="./investment-setup.css?v=11">
 </head>
 <body>
   <div class="wrap">
@@ -59,6 +59,7 @@
             <button class="research-filter active" id="allResearchFilter" type="button" data-filter="all"><span data-page-i18n="allAssets">전체</span><b id="allResearchCount">1</b></button>
             <button class="research-filter" id="favoriteResearchFilter" type="button" data-filter="favorites"><span><i aria-hidden="true">★</i> <span data-page-i18n="favorites">즐겨찾기</span></span><b id="favoriteResearchCount">0</b></button>
           </div>
+          <div class="research-sync-note" id="researchSyncStatus" role="status"></div><button class="chip subtle" id="researchSyncRetry" type="button" hidden>동기화 재시도</button>
           <input class="research-search" id="researchSearch" type="search" placeholder="종목명·티커 검색" aria-label="종목 검색"><div class="report-list" id="researchReportList"></div>
           <div class="research-empty" id="researchFilterEmpty" hidden data-page-i18n="emptyResearchFilter">이 리스트에 담긴 종목 없음.</div>
           <section class="custom-lists" aria-labelledby="customListsTitle">
@@ -125,6 +126,7 @@
             <div class="market-status" id="marketStatus" data-page-i18n="marketFallback">2026.08.24 기준값 · 실시간 데이터 갱신 중</div>
           </header>
 
+          <section class="card daily-news" id="researchDailyNews" aria-label="오늘의 주요 뉴스" aria-live="polite"></section>
           <section class="card decision-beta" aria-labelledby="decisionBetaTitle">
             <div class="decision-beta-head">
               <div>
@@ -255,6 +257,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=11"></script>
+  <script type="module" src="./js/investment-setup.js?v=12"></script>
 </body>
 </html>

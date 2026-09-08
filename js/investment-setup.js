@@ -17,6 +17,7 @@ import {
 } from './investment-score.js?v=2';
 import { numberOrNull, localize, safeUrl, decisionStorageKey, validateCatalog, validateAsset, selectAssetId, unlockSummary, resolveProfile, fetchJson, loadProtocolMetrics } from './research-data.js?v=1';
 import { renderCatalog, renderAssetContent } from './research-renderer.js?v=1';
+import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=1';
 
 const $ = id => document.getElementById(id);
 let account = null;
@@ -40,6 +41,20 @@ let decisionMetrics = null;
 let decisionMarket = null;
 let decisionMetricsError = false;
 let decisionUpdatedAt = null;
+const newsAccount=new ResearchNewsAccount(authClient,{
+  legacyFavorites:()=>{
+    const owner=localStorage.getItem('fundingResearchFavoritesImportedBy.v1');
+    return owner&&owner!==account?.id?[]:loadResearchCollections().favorites.filter(id=>catalog.some(asset=>asset.id===id));
+  },
+  onChange:state=>{
+    if(state.ready&&state.userId&&!localStorage.getItem('fundingResearchFavoritesImportedBy.v1'))localStorage.setItem('fundingResearchFavoritesImportedBy.v1',state.userId);
+    collections={...collections,favorites:state.userId?(state.ready?state.favorites:[]):loadResearchCollections().favorites};
+    renderResearchCollections();newsPanel.refresh();
+  },
+});
+const newsPanel=new ResearchNewsPanel(authClient,$('researchDailyNews'),{
+  getContext:()=>({userId:account?.id,assetId:currentAsset?.id,favorite:newsAccount.userId===account?.id&&newsAccount.ready&&newsAccount.favorites.includes(currentAsset?.id),language}),
+});
 const COPY={
   "ko": {
     "pageTitle": "투자 셋업",
@@ -319,9 +334,18 @@ function loadResearchCollections() {
 }
 
 function saveResearchCollections(next) {
-  collections = normalizeResearchCollections(next);
-  localStorage.setItem(COLLECTIONS_STORAGE_KEY, JSON.stringify(collections));
+  const normalized=normalizeResearchCollections(next);
+  if(account){
+    const changed=[...new Set([...collections.favorites,...normalized.favorites])].find(id=>collections.favorites.includes(id)!==normalized.favorites.includes(id));
+    if(changed){void newsAccount.toggle(changed,normalized.favorites.includes(changed));return;}
+    collections={...normalized,favorites:newsAccount.favorites};
+    localStorage.setItem(COLLECTIONS_STORAGE_KEY,JSON.stringify({...normalized,favorites:loadResearchCollections().favorites}));
+  }else{
+    collections=normalized;
+    localStorage.setItem(COLLECTIONS_STORAGE_KEY, JSON.stringify(collections));
+  }
   renderResearchCollections();
+  newsPanel.refresh();
 }
 
 function createListId() {
@@ -352,6 +376,11 @@ function renderResearchCollections() {
   heroFavorite.querySelector('i').textContent = isFavorite ? '★' : '☆';
   heroFavorite.querySelector('span').textContent = isFavorite ? c('favorited') : c('addFavorite');
   heroFavorite.setAttribute('aria-pressed', String(isFavorite));
+  document.querySelectorAll('[data-favorite-asset],#heroFavoriteButton').forEach(button=>button.disabled=!!account&&(!newsAccount.ready||newsAccount.busy));
+  $('researchSyncStatus').textContent=account
+    ? newsAccount.error || (newsAccount.busy?(language==='en'?'Syncing favorites…':'즐겨찾기 동기화 중…'):newsAccount.ready?(language==='en'?'Favorites synced to account':'즐겨찾기 계정 동기화 완료'):(language==='en'?'Connecting account…':'계정 연결 중…'))
+    :language==='en'?'Browser favorites · sign in for daily screening':'브라우저 즐겨찾기 · 자동 뉴스는 로그인 필요';
+  $('researchSyncRetry').hidden=!newsAccount.error;
 
   const listNav = $('customListNav');
   listNav.replaceChildren();
@@ -469,6 +498,7 @@ function render() {
   renderMarketData();
   renderUnlockSchedule(currentPrice);
   renderDecisionPanel();
+  newsPanel.refresh();
 }
 
 function mountTradingViewChart() {
@@ -921,7 +951,18 @@ const { data, error } = await authClient.auth.getSession();
 if (error) $('authStatus').textContent = error.message;
 account = accountFromSession(data?.session);
 render();
+void newsAccount.connect(account?.id||null);
 authClient.auth.onAuthStateChange((_event, session) => {
   account = accountFromSession(session);
-  render();
+  if(newsAccount.userId!==(account?.id||null)) {
+    newsAccount.reset(account?.id||null);
+    collections={...collections,favorites:account?[]:loadResearchCollections().favorites};
+    newsPanel.version++;newsPanel.key='';newsPanel.state=null;newsPanel.error='';newsPanel.loading=false;
+    newsPanel.render();renderResearchCollections();
+  }
+  // Defer Supabase queries outside the auth callback to avoid auth-lock deadlocks.
+  setTimeout(()=>{void newsAccount.connect(account?.id||null);render();},0);
 });
+$('researchSyncRetry').onclick=()=>{if(!newsAccount.busy){newsAccount.ready=false;void newsAccount.connect(account?.id||null);}};
+setInterval(()=>newsPanel.refresh(true),60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){newsPanel.refresh(true);if(account&&!newsAccount.busy){newsAccount.ready=false;void newsAccount.connect(account.id);}}});
