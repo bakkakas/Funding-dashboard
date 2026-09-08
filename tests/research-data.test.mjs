@@ -7,6 +7,28 @@ const json=name=>JSON.parse(readFileSync(new URL('../data/research/'+name+'.json
 const profiles=json('profiles');
 const asset=validateAsset(json('ethfi'),'ethfi');
 const profile=resolveProfile(asset,profiles);
+test('requested assets have distinct verified market mappings, sourced bilingual content and no inherited score',()=>{
+  const mapping={ena:'ethena',mon:'monad',stx:'blockstack',cake:'pancakeswap-token',bnb:'binancecoin',ondo:'ondo-finance',inj:'injective-protocol',xpl:'plasma'};
+  const catalog=validateCatalog(json('index'));
+  for(const [id,cg] of Object.entries(mapping)) {
+    assert.ok(catalog.some(item=>item.id===id));
+    const doc=validateAsset(json(id),id);
+    assert.equal(doc.market.coingeckoId,cg);
+    assert.equal(resolveProfile(doc,profiles),null);
+    assert.ok(doc.chart.symbol.endsWith(doc.symbol+'USDT'));
+    for(const key of ['heroSummary','overviewBody','tokenRoleValue','supplyValue','insiderUnlock','unlockNote']) {
+      assert.ok(doc.copy[key].ko);assert.ok(doc.copy[key].en);
+    }
+    assert.ok(doc.drivers.length>=2);assert.ok(doc.news.length>=1);
+    for(const item of doc.drivers) assert.ok(item.sources.every(source=>safeUrl(source.url)));
+    for(const item of doc.news) {assert.match(item.date,/^\d{4}-\d{2}-\d{2}$/);assert.ok(safeUrl(item.source.url));}
+    if(['mon','stx','inj','xpl'].includes(id)) assert.equal(doc.market.maxSupply,null);
+    if(!['ena','cake'].includes(id)) assert.equal(doc.metrics.defillamaSlug,null);
+    assert.equal(doc.unlock.status,id==='inj'?'complete':'unknown');
+  }
+  assert.equal(json('cake').market.maxSupply,400000000);
+  assert.equal(json('mon').chart.symbol,'BYBIT:MONUSDT');
+});
 test('published catalog and documents validate; ids resolve and legacy key survives',()=>{
   const catalog=validateCatalog(json('index'));
   for(const item of catalog) assert.equal(validateAsset(json(item.id),item.id).id,item.id);
