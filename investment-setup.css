@@ -289,3 +289,11 @@
   .decision-score-points{grid-column:2;grid-row:1}
   .decision-beta-foot{flex-direction:column}
 }
+.research-report[hidden],.research-loading[hidden],.report-list-row[hidden],.price-chart-card[hidden],.unlock-timeline[hidden],.unlock-legend[hidden]{display:none!important}
+.research-search{box-sizing:border-box;width:100%;margin:12px 0 6px;padding:10px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.03);color:var(--text);font:inherit;font-size:12px}
+.research-search:focus{outline:1px solid var(--accent)}
+.research-loading{padding:24px;align-self:start;color:var(--muted)}
+#researchReportList{max-height:440px;overflow-y:auto}
+#scoreProfileLabel{font-size:9px;color:var(--muted);text-align:right}
+.token-links img,.source-link img{width:14px;height:14px;object-fit:contain;border-radius:3px}
+.report-list-row:not(.active){border-color:var(--line);background:rgba(255,255,255,.02)}

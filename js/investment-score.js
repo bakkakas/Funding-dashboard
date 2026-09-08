@@ -6,7 +6,7 @@ const CATEGORY_WEIGHTS = Object.freeze({
   securityGovernance: 15,
 });
 
-const finite = value => Number.isFinite(Number(value)) ? Number(value) : null;
+const finite = value => value === null || value === undefined || value === '' || typeof value === 'boolean' ? null : Number.isFinite(Number(value)) ? Number(value) : null;
 
 export function percentChange(current, previous) {
   const currentValue = finite(current);
@@ -24,11 +24,12 @@ export function seriesChange(rows, days) {
   const latest = valid.at(-1);
   const target = latest.date - Number(days) * 86_400;
   const previous = valid.reduce((best, row) => Math.abs(row.date - target) < Math.abs(best.date - target) ? row : best, valid[0]);
+  if (previous.date === latest.date || Math.abs(previous.date - target) > 3 * 86_400) return null;
   return percentChange(latest.value, previous.value);
 }
 
-function category(key, rawScore, value, note) {
-  const weight = CATEGORY_WEIGHTS[key];
+function category(key, rawScore, value, note, weights) {
+  const weight = weights[key];
   const assessed = rawScore !== null;
   return {
     key,
@@ -64,7 +65,12 @@ export function applyDecisionScenario(input, scenario = 'live') {
   return { ...base, simulated: false };
 }
 
-export function evaluateInvestmentDecision(input = {}) {
+export function evaluateInvestmentDecision(input = {}, profile = null) {
+  const weights = profile?.weights ?? CATEGORY_WEIGHTS;
+  const thresholds = profile?.thresholds ?? {};
+  if (profile && (Object.keys(CATEGORY_WEIGHTS).some(key => finite(weights[key]) === null || weights[key] < 0) || Math.abs(Object.values(weights).reduce((sum, value) => sum + value, 0) - 100) > 0.001 || ['growthGood','growthRisk','holderRevenueMin','unlockGood','unlockRisk','valuationGood','valuationRisk','priority','watch','minimumCoverage'].some(key => finite(thresholds[key]) === null))) throw new Error('Invalid evaluation profile');
+  if (!profile) input = {};
+  const categoryForProfile = (key, score, value, note) => category(key, score, value, note, weights);
   const tvl30dChange = finite(input.tvl30dChange);
   const holderRevenue30d = finite(input.holderRevenue30d);
   const nextUnlockToCirculatingPct = finite(input.nextUnlockToCirculatingPct);
@@ -76,31 +82,31 @@ export function evaluateInvestmentDecision(input = {}) {
     : null;
 
   const categories = [
-    category(
+    categoryForProfile(
       'protocolGrowth',
-      tvl30dChange === null ? null : tvl30dChange >= 0 ? 2 : tvl30dChange > -10 ? 1 : 0,
+      tvl30dChange === null ? null : tvl30dChange >= thresholds.growthGood ? 2 : tvl30dChange > thresholds.growthRisk ? 1 : 0,
       tvl30dChange,
       'tvl30dChange',
     ),
-    category(
+    categoryForProfile(
       'tokenValueCapture',
-      holderRevenue30d === null ? null : holderRevenue30d > 0 ? 2 : 0,
+      holderRevenue30d === null ? null : holderRevenue30d > thresholds.holderRevenueMin ? 2 : 0,
       holderRevenue30d,
       'holderRevenue30d',
     ),
-    category(
+    categoryForProfile(
       'supplyUnlock',
-      nextUnlockToCirculatingPct === null ? null : nextUnlockToCirculatingPct <= 1 ? 2 : nextUnlockToCirculatingPct <= 3 ? 1 : 0,
+      nextUnlockToCirculatingPct === null ? null : nextUnlockToCirculatingPct <= thresholds.unlockGood ? 2 : nextUnlockToCirculatingPct <= thresholds.unlockRisk ? 1 : 0,
       nextUnlockToCirculatingPct,
       'nextUnlockToCirculatingPct',
     ),
-    category(
+    categoryForProfile(
       'valuation',
-      revenueMultiple === null ? null : revenueMultiple <= 10 ? 2 : revenueMultiple <= 20 ? 1 : 0,
+      revenueMultiple === null ? null : revenueMultiple <= thresholds.valuationGood ? 2 : revenueMultiple <= thresholds.valuationRisk ? 1 : 0,
       revenueMultiple,
       'marketCapToAnnualizedRevenue',
     ),
-    category(
+    categoryForProfile(
       'securityGovernance',
       securityIncident === null ? null : securityIncident ? 0 : 2,
       securityIncident,
@@ -116,26 +122,27 @@ export function evaluateInvestmentDecision(input = {}) {
   const signal = invalidated
     ? 'invalidated'
     : score === null ? 'pending'
-    : score >= 75 && coverage >= 80 ? 'priority'
-    : score >= 60 ? 'watch'
+    : coverage < thresholds.minimumCoverage ? 'pending'
+    : score >= thresholds.priority ? 'priority'
+    : score >= thresholds.watch ? 'watch'
     : 'low';
 
   const rules = [
     {
       key: 'growth',
-      status: tvl30dChange === null ? 'pending' : tvl30dChange <= -10 ? 'danger' : tvl30dChange < 0 ? 'watch' : 'pass',
+      status: tvl30dChange === null ? 'pending' : tvl30dChange <= thresholds.growthRisk ? 'danger' : tvl30dChange < thresholds.growthGood ? 'watch' : 'pass',
       value: tvl30dChange,
       source: 'DefiLlama',
     },
     {
       key: 'valueCapture',
-      status: holderRevenue30d === null ? 'pending' : holderRevenue30d > 0 ? 'pass' : 'watch',
+      status: holderRevenue30d === null ? 'pending' : holderRevenue30d > thresholds.holderRevenueMin ? 'pass' : 'watch',
       value: holderRevenue30d,
       source: 'DefiLlama',
     },
     {
       key: 'unlockPressure',
-      status: nextUnlockToCirculatingPct === null ? 'pending' : nextUnlockToCirculatingPct > 3 ? 'danger' : nextUnlockToCirculatingPct > 1 ? 'watch' : 'pass',
+      status: nextUnlockToCirculatingPct === null ? 'pending' : nextUnlockToCirculatingPct > thresholds.unlockRisk ? 'danger' : nextUnlockToCirculatingPct > thresholds.unlockGood ? 'watch' : 'pass',
       value: nextUnlockToCirculatingPct,
       source: 'Tokenomics.com · CoinGecko',
     },

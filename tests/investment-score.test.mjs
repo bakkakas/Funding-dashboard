@@ -1,11 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   applyDecisionScenario,
-  evaluateInvestmentDecision,
+  evaluateInvestmentDecision as evaluate,
   percentChange,
   seriesChange,
 } from '../js/investment-score.js';
+const profile=JSON.parse(readFileSync(new URL('../data/research/profiles.json',import.meta.url)))['ethfi-beta-v1'];
+const evaluateInvestmentDecision=input=>evaluate(input,profile);
 
 const healthyInput = {
   tvl30dChange: 12,

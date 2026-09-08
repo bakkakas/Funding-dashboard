@@ -14,52 +14,256 @@ import {
   applyDecisionScenario,
   evaluateInvestmentDecision,
   seriesChange,
-} from './investment-score.js?v=1';
+} from './investment-score.js?v=2';
+import { numberOrNull, localize, safeUrl, decisionStorageKey, validateCatalog, validateAsset, selectAssetId, unlockSummary, resolveProfile, fetchJson, loadProtocolMetrics } from './research-data.js?v=1';
+import { renderCatalog, renderAssetContent } from './research-renderer.js?v=1';
 
 const $ = id => document.getElementById(id);
 let account = null;
 let mode = 'login';
 let language = localStorage.getItem('fundingDashboardLanguage') === 'en' ? 'en' : 'ko';
 const COLLECTIONS_STORAGE_KEY = 'fundingResearchCollections.v1';
-const DECISION_STORAGE_KEY = 'fundingInvestmentDecision.ethfi.v1';
-const CURRENT_ASSET_ID = 'ethfi';
-const ETHFI_TOTAL_SUPPLY = 1_000_000_000;
-const ETHFI_UNLOCK_EVENTS = [
-  { date: '2026-09-15', amount: 8_945_833 },
-  { date: '2026-10-15', amount: 8_945_833 },
-  { date: '2026-11-15', amount: 8_945_833 },
-  { date: '2026-12-15', amount: 8_945_833 },
-  { date: '2027-01-15', amount: 8_945_833 },
-  { date: '2027-02-15', amount: 8_945_833 },
-  { date: '2027-03-15', amount: 8_945_833 },
-];
-let currentEthfiPrice = 0.638;
+let currentAsset = null;
+let catalog = [];
+let profiles = {};
+let currentPrice = null;
+let assetController = null;
+let selectionVersion = 0;
+let searchQuery = '';
+let metricsLoading = false;
+let marketFailed = false;
 let selectedResearchFilter = 'all';
 let collections = loadResearchCollections();
-let decisionPreferences = loadDecisionPreferences();
+let decisionPreferences = {};
 let decisionScenario = 'live';
 let decisionMetrics = null;
 let decisionMarket = null;
 let decisionMetricsError = false;
 let decisionUpdatedAt = null;
 const COPY={
-  ko:{
-    pageTitle:'투자 셋업',heading:'투자 셋업',navForeign:'외국인 수급',navAssets:'내 자산',navSetup:'투자 셋업',planTab:'투자 계획',analysisTab:'종목 분석',comingSoon:'준비 중',comingSoonNote:'투자 계획·목표 비중 관리 화면 추가 예정.',continueGoogle:'Google로 계속하기',or:'또는',passwordPlaceholder:'비밀번호 (6자 이상)',login:'로그인',signup:'회원가입',logout:'로그아웃',close:'닫기',connected:'계정 연결됨',accountNotice:'로그인 시 다른 메뉴와 같은 계정에 투자 셋업 저장 예정.',invalidEmail:'이메일 형식으로 입력.',invalidPassword:'비밀번호 6자 이상 입력.',confirmEmail:'확인 메일에서 인증 완료.',signedIn:'로그인 완료',googlePending:'Google 로그인으로 이동 중…',
-    researchLibrary:'RESEARCH LIBRARY',moreReports:'분석 보고서 계속 추가 예정.',allAssets:'전체',favorites:'즐겨찾기',myLists:'MY LISTS',noCustomLists:'+를 눌러 첫 리스트 생성.',emptyResearchFilter:'이 리스트에 담긴 종목 없음.',listNamePlaceholder:'리스트 이름',newListPlaceholder:'새 리스트 이름',add:'추가',addFavorite:'즐겨찾기',favorited:'즐겨찾기 완료',addToList:'리스트에 추가',selectList:'담을 리스트 선택',savedInBrowser:'브라우저에 자동 저장',noListsInPicker:'리스트 없음. 아래에서 바로 생성.',renameList:'리스트 이름 변경',deleteList:'리스트 삭제',renamePrompt:'새 리스트 이름 입력.',deleteConfirm:'이 리스트 삭제?',duplicateList:'같은 이름의 리스트 존재.',cryptoResearch:'CRYPTO RESEARCH',heroSummary:'비수탁형 리퀴드 리스테이킹에서 출발해 온체인 금융 앱으로 확장 중인 ether.fi 거버넌스 토큰.',updatedLabel:'업데이트',websiteLink:'웹사이트',officialXLink:'공식 X',telegramUnofficial:'Telegram · 비공식',priceChart:'가격 변화 차트',openTradingView:'TradingView에서 열기',chartLoading:'차트 불러오는 중…',chartSizeDefault:'기본',chartResizeHint:'−/+ 버튼 또는 우측 하단 드래그로 세로 크기 조절',price:'가격',liveData:'CoinGecko 실시간',marketCap:'시가총액 (Circulation 기준)',fixedSupply:'공식 고정 공급량 1B',marketFallback:'2026.08.24 기준값 · 실시간 데이터 갱신 중',marketLive:'CoinGecko 최신 시장 데이터',marketUnavailable:'실시간 조회 실패 · 2026.08.24 기준값 표시',circulatingSupply:'유통량',circulatingRatioPrefix:'Max 대비 유통률',sourceOfficialDocs:'공식 문서',sourceOfficialBlog:'공식 블로그',sourceKpkBlog:'공식 블로그 · KPK',sourceSecurityBlog:'공식 블로그 · 보안',
-    overview:'개요',overviewBody:'ether.fi는 ETH 보유자가 자산 통제권을 유지한 채 스테이킹·리스테이킹 수익을 얻도록 설계된 비수탁 프로토콜. eETH·weETH로 유동성과 DeFi 활용성 유지. 현재 Stake·Liquid·Cash, 토큰화 주식·금속 거래, Aave 기반 대출, 법정화폐 입출금을 묶은 온체인 금융 앱으로 확장 중.',tokenRole:'토큰 역할',tokenRoleValue:'거버넌스 · sETHFI 스테이킹 · 바이백 분배',supply:'공급량',supplyValue:'공식 문서상 고정 10억 개 · 추가 발행 없음',officialOverview:'공식 프로토콜 개요 ↗',
-    valueDrivers:'토큰 가치 상승 요인',driverBuybackTitle:'프로토콜 수익 기반 바이백',driverBuybackBody:'eETH 출금 수수료 수익 100%를 주간 바이백에 사용. Stake·Liquid·Cash 수익 일부도 월간 바이백에 배정. 매입 ETHFI는 sETHFI 보유자에게 분배.',driverAppTitle:'온체인 금융 앱 확장',driverAppBody:'토큰화 주식·금속, 담보 대출, 글로벌 법정화폐 레일, Cash 카드를 하나의 앱에 통합. 사용량·수익 증가 시 바이백 재원 확대 가능.',driverInstitutionTitle:'기관 채택과 보안 강화',driverInstitutionBody:'KPK가 2,500만 달러 이상을 weETH 핵심 자산으로 배정. Certora 감사와 권한·출금 구조 강화 완료. 담보 채택 확대는 weETH 수요에 긍정적.',driverSupplyTitle:'언락 오버행의 종료 접근',driverSupplyBody:'현 일정 기준 2027년 3월 베스팅 종료. 잔여 물량은 단기 매도 압력. 종료 후 신규 유통 부담 축소.',
-    recentNews:'최근 주요 뉴스',newsSummerTitle:'ether.fi Summer 출시',newsSummerBody:'토큰화 주식·금속 거래, Aave 담보대출, 30개 이상 통화의 입출금 수단을 통합한 차세대 앱 공개.',newsHardeningTitle:'weETH 프로토콜 하드닝 완료',newsHardeningBody:'출금 경로·권한·보안 경계를 강화하고 Steakhouse Prime Vault 담보 시장에 진입.',newsKpkTitle:'KPK, weETH에 2,500만 달러 이상 배정',newsKpkBody:'65개 이상 항목의 실사를 거쳐 전술 포지션이 아닌 핵심 전략 자산으로 채택.',newsSecurityTitle:'핵심 컨트랙트 보안 구조 개편',newsSecurityBody:'Certora 감사와 불변조건 테스트를 적용하고 운영 키 권한을 세분화.',
-    decisionTracker:'INVESTMENT DECISION TRACKER',decisionTitle:'투자 판단 테스트',decisionIntro:'실데이터 규칙과 내 판단을 분리해 표시. 점수는 검토 우선순위이며 매수 신호가 아님.',scenarioTest:'시나리오 테스트',scenarioLive:'실데이터',scenarioWarning:'주의 상황 체험',scenarioInvalidated:'무효화 상황 체험',systemSignal:'시스템 신호',myDecision:'내 판단',decisionInterest:'관심',decisionWatch:'관망',decisionBuyWait:'매수 대기',decisionHolding:'보유',decisionAvoid:'제외',savedLocally:'이 브라우저에 저장',buyZone:'매수 관심 가격',optionalInput:'선택 입력',nextCatalyst:'다음 촉매',catalystNote:'이벤트 이후 공급 압력 재평가',dataConfidence:'판단 신뢰도',oneLineThesis:'내 한 줄 투자 논리',thesisPlaceholder:'왜 이 프로젝트를 보는지 한 문장으로 기록',scoreBreakdown:'자동 점수 · 근거',scoreMethod:'0 위험 · 1 중립 · 2 양호 후 가중치 적용',ruleMonitor:'투자 논리 모니터',ruleMethod:'현재값·임계값·출처로 판정',decisionLoading:'DefiLlama·CoinGecko 데이터 불러오는 중',betaDisclaimer:'Beta 규칙 · 실제 사용 후 임계값 조정 필요',
-    unlockSchedule:'토큰 언락 일정',nextUnlock:'다음 언락',remainingUnlock:'잔여 언락',vestingEnd:'최종 베스팅 종료',insiderUnlock:'주요 잔여 물량: 투자자·핵심 기여자',unlockedLabel:'해제',lockedLabel:'잔여',eventsUnit:'회',unlockComplete:'완료',unlockNote:'대규모 월간 언락 수치는 Tokenomics.com 기준. 공식 배분·Tokenomist·DropsTab 교차 참고. 플랫폼별 유통량·언락 정의 차이로 수치 편차 가능. 달러 가치는 CoinGecko 현재가 연동.',allocationSource:'공식 ETHFI 배분 ↗',disclaimer:'정보 제공 목적의 리서치 · 투자 권유 아님. 시장 데이터와 일정은 변동 가능.'
+  "ko": {
+    "pageTitle": "투자 셋업",
+    "heading": "투자 셋업",
+    "navForeign": "외국인 수급",
+    "navAssets": "내 자산",
+    "navSetup": "투자 셋업",
+    "planTab": "투자 계획",
+    "analysisTab": "종목 분석",
+    "comingSoon": "준비 중",
+    "comingSoonNote": "투자 계획·목표 비중 관리 화면 추가 예정.",
+    "continueGoogle": "Google로 계속하기",
+    "or": "또는",
+    "passwordPlaceholder": "비밀번호 (6자 이상)",
+    "login": "로그인",
+    "signup": "회원가입",
+    "logout": "로그아웃",
+    "close": "닫기",
+    "connected": "계정 연결됨",
+    "accountNotice": "로그인 시 다른 메뉴와 같은 계정에 투자 셋업 저장 예정.",
+    "invalidEmail": "이메일 형식으로 입력.",
+    "invalidPassword": "비밀번호 6자 이상 입력.",
+    "confirmEmail": "확인 메일에서 인증 완료.",
+    "signedIn": "로그인 완료",
+    "googlePending": "Google 로그인으로 이동 중…",
+    "researchLibrary": "RESEARCH LIBRARY",
+    "moreReports": "분석 보고서 계속 추가 예정.",
+    "allAssets": "전체",
+    "favorites": "즐겨찾기",
+    "myLists": "MY LISTS",
+    "noCustomLists": "+를 눌러 첫 리스트 생성.",
+    "emptyResearchFilter": "이 리스트에 담긴 종목 없음.",
+    "listNamePlaceholder": "리스트 이름",
+    "newListPlaceholder": "새 리스트 이름",
+    "add": "추가",
+    "addFavorite": "즐겨찾기",
+    "favorited": "즐겨찾기 완료",
+    "addToList": "리스트에 추가",
+    "selectList": "담을 리스트 선택",
+    "savedInBrowser": "브라우저에 자동 저장",
+    "noListsInPicker": "리스트 없음. 아래에서 바로 생성.",
+    "renameList": "리스트 이름 변경",
+    "deleteList": "리스트 삭제",
+    "renamePrompt": "새 리스트 이름 입력.",
+    "deleteConfirm": "이 리스트 삭제?",
+    "duplicateList": "같은 이름의 리스트 존재.",
+    "cryptoResearch": "CRYPTO RESEARCH",
+    "updatedLabel": "업데이트",
+    "websiteLink": "웹사이트",
+    "officialXLink": "공식 X",
+    "telegramUnofficial": "Telegram · 비공식",
+    "priceChart": "가격 변화 차트",
+    "openTradingView": "TradingView에서 열기",
+    "chartLoading": "차트 불러오는 중…",
+    "chartSizeDefault": "기본",
+    "chartResizeHint": "−/+ 버튼 또는 우측 하단 드래그로 세로 크기 조절",
+    "price": "가격",
+    "liveData": "CoinGecko 실시간",
+    "marketCap": "시가총액 (Circulation 기준)",
+    "fixedSupply": "최대 공급량",
+    "marketFallback": "시장 데이터 불러오는 중",
+    "marketLive": "CoinGecko 최신 시장 데이터",
+    "marketUnavailable": "시장 데이터 조회 실패 · 재시도 가능",
+    "circulatingSupply": "유통량",
+    "circulatingRatioPrefix": "Max 대비 유통률",
+    "sourceOfficialDocs": "공식 문서",
+    "sourceOfficialBlog": "공식 블로그",
+    "sourceKpkBlog": "공식 블로그 · KPK",
+    "sourceSecurityBlog": "공식 블로그 · 보안",
+    "overview": "개요",
+    "tokenRole": "토큰 역할",
+    "supply": "공급량",
+    "officialOverview": "공식 프로토콜 개요 ↗",
+    "valueDrivers": "토큰 가치 상승 요인",
+    "recentNews": "최근 주요 뉴스",
+    "decisionTracker": "INVESTMENT DECISION TRACKER",
+    "decisionTitle": "투자 판단 테스트",
+    "decisionIntro": "실데이터 규칙과 내 판단을 분리해 표시. 점수는 검토 우선순위이며 매수 신호가 아님.",
+    "scenarioTest": "시나리오 테스트",
+    "scenarioLive": "실데이터",
+    "scenarioWarning": "주의 상황 체험",
+    "scenarioInvalidated": "무효화 상황 체험",
+    "systemSignal": "시스템 신호",
+    "myDecision": "내 판단",
+    "decisionInterest": "관심",
+    "decisionWatch": "관망",
+    "decisionBuyWait": "매수 대기",
+    "decisionHolding": "보유",
+    "decisionAvoid": "제외",
+    "savedLocally": "이 브라우저에 저장",
+    "buyZone": "매수 관심 가격",
+    "optionalInput": "선택 입력",
+    "nextCatalyst": "다음 촉매",
+    "catalystNote": "이벤트 이후 공급 압력 재평가",
+    "dataConfidence": "데이터 커버리지",
+    "oneLineThesis": "내 한 줄 투자 논리",
+    "thesisPlaceholder": "왜 이 프로젝트를 보는지 한 문장으로 기록",
+    "scoreBreakdown": "자동 점수 · 근거",
+    "scoreMethod": "0 위험 · 1 중립 · 2 양호 후 가중치 적용",
+    "ruleMonitor": "투자 논리 모니터",
+    "ruleMethod": "현재값·임계값·출처로 판정",
+    "decisionLoading": "DefiLlama·CoinGecko 데이터 불러오는 중",
+    "betaDisclaimer": "Beta 규칙 · 실제 사용 후 임계값 조정 필요",
+    "unlockSchedule": "토큰 언락 일정",
+    "nextUnlock": "다음 언락",
+    "remainingUnlock": "잔여 언락",
+    "vestingEnd": "등록 일정 종료",
+    "unlockedLabel": "해제",
+    "lockedLabel": "잔여",
+    "eventsUnit": "회",
+    "unlockComplete": "완료",
+    "disclaimer": "정보 제공 목적의 리서치 · 투자 권유 아님. 시장 데이터와 일정은 변동 가능."
   },
-  en:{
-    pageTitle:'Investment Setup',heading:'Investment Setup',navForeign:'Foreign Flow',navAssets:'My Assets',navSetup:'Investment Setup',planTab:'Investment Plan',analysisTab:'Asset Research',comingSoon:'Coming soon',comingSoonNote:'Investment plans and target allocations will be added here.',continueGoogle:'Continue with Google',or:'or',passwordPlaceholder:'Password (6+ characters)',login:'Log in',signup:'Sign up',logout:'Log out',close:'Close',connected:'account connected',accountNotice:'Log in to use the same account as the other dashboard sections.',invalidEmail:'Enter a valid email address.',invalidPassword:'Use at least 6 characters for the password.',confirmEmail:'Check your email if confirmation is required.',signedIn:'Signed in.',googlePending:'Opening Google sign-in…',
-    researchLibrary:'RESEARCH LIBRARY',moreReports:'New research reports will be added to this list.',allAssets:'All',favorites:'Favorites',myLists:'MY LISTS',noCustomLists:'Press + to create your first list.',emptyResearchFilter:'There are no assets in this list.',listNamePlaceholder:'List name',newListPlaceholder:'New list name',add:'Add',addFavorite:'Favorite',favorited:'Favorited',addToList:'Add to list',selectList:'Choose lists',savedInBrowser:'Saved automatically in this browser',noListsInPicker:'No lists yet. Create one below.',renameList:'Rename list',deleteList:'Delete list',renamePrompt:'Enter a new list name.',deleteConfirm:'Delete this list?',duplicateList:'A list with that name already exists.',cryptoResearch:'CRYPTO RESEARCH',heroSummary:'The governance token of ether.fi, expanding from non-custodial liquid restaking into a full onchain finance app.',updatedLabel:'Updated',websiteLink:'Website',officialXLink:'Official X',telegramUnofficial:'Telegram · unofficial',priceChart:'Price chart',openTradingView:'Open in TradingView',chartLoading:'Loading chart…',chartSizeDefault:'Default',chartResizeHint:'Use −/+ or drag the bottom-right corner to resize vertically',price:'Price',liveData:'Live from CoinGecko',marketCap:'Market cap (circulating)',fixedSupply:'Official fixed supply: 1B',marketFallback:'Baseline as of Aug 24, 2026 · refreshing live data',marketLive:'Latest CoinGecko market data',marketUnavailable:'Live lookup failed · showing Aug 24, 2026 baseline',circulatingSupply:'Circulating supply',circulatingRatioPrefix:'Circulating / max supply',sourceOfficialDocs:'Official docs',sourceOfficialBlog:'Official blog',sourceKpkBlog:'Official blog · KPK',sourceSecurityBlog:'Official blog · security',
-    overview:'Overview',overviewBody:'ether.fi is a non-custodial protocol designed to let ETH holders earn staking and restaking rewards while retaining control of their assets. eETH and weETH preserve liquidity and DeFi composability. The project is now expanding into an onchain finance app combining Stake, Liquid and Cash with tokenized stocks and metals, Aave-powered borrowing and global fiat rails.',tokenRole:'Token role',tokenRoleValue:'Governance · sETHFI staking · buyback distribution',supply:'Supply',supplyValue:'Officially fixed at 1 billion · no further issuance',officialOverview:'Official protocol overview ↗',
-    valueDrivers:'Token value drivers',driverBuybackTitle:'Protocol-revenue buybacks',driverBuybackBody:'100% of eETH withdrawal-fee revenue funds weekly buybacks, while part of Stake, Liquid and Cash revenue funds monthly buybacks. Purchased ETHFI is distributed to sETHFI holders.',driverAppTitle:'Onchain finance app expansion',driverAppBody:'Tokenized stocks and metals, collateralized borrowing, global fiat rails and the Cash card are now integrated in one app. Greater usage and revenue could expand the buyback pool.',driverInstitutionTitle:'Institutional adoption and security',driverInstitutionBody:'KPK allocated more than $25M to weETH as a core asset, while ether.fi completed Certora-audited upgrades to permissions and withdrawal paths. Broader collateral adoption can support weETH demand.',driverSupplyTitle:'Unlock overhang nearing its end',driverSupplyBody:'The current vesting schedule ends in March 2027. Remaining releases are a near-term source of selling pressure, but issuance overhang should fall materially after vesting ends.',buybackSource:'Official buyback program ↗',
-    recentNews:'Recent major news',newsSummerTitle:'ether.fi Summer launched',newsSummerBody:'A next-generation app combining tokenized stocks and metals, Aave borrowing and fiat rails across more than 30 currencies.',newsHardeningTitle:'weETH hardening completed',newsHardeningBody:'Withdrawal paths, permissions and security boundaries were strengthened before entering Steakhouse Prime Vault markets.',newsKpkTitle:'KPK allocated $25M+ to weETH',newsKpkBody:'Following a 65+ point review, KPK adopted weETH as a core strategy asset rather than a tactical position.',newsSecurityTitle:'Core contract security overhaul',newsSecurityBody:'Certora audits and invariant testing were applied while operational-key permissions were segmented.',
-    decisionTracker:'INVESTMENT DECISION TRACKER',decisionTitle:'Decision tracker beta',decisionIntro:'Live-data rules are separate from your decision. The score ranks review priority and is not a buy signal.',scenarioTest:'Scenario test',scenarioLive:'Live data',scenarioWarning:'Preview warning state',scenarioInvalidated:'Preview invalidation',systemSignal:'System signal',myDecision:'My decision',decisionInterest:'Interested',decisionWatch:'Watch',decisionBuyWait:'Waiting to buy',decisionHolding:'Holding',decisionAvoid:'Avoid',savedLocally:'Saved in this browser',buyZone:'Price zone of interest',optionalInput:'Optional',nextCatalyst:'Next catalyst',catalystNote:'Reassess supply pressure after the event',dataConfidence:'Data confidence',oneLineThesis:'My one-line thesis',thesisPlaceholder:'Record why this project is on your watchlist',scoreBreakdown:'Automated score · evidence',scoreMethod:'0 risk · 1 neutral · 2 healthy, then weighted',ruleMonitor:'Thesis monitor',ruleMethod:'Evaluated from value, threshold and source',decisionLoading:'Loading DefiLlama and CoinGecko data',betaDisclaimer:'Beta rules · thresholds need tuning after real use',
-    unlockSchedule:'Token unlock schedule',nextUnlock:'Next unlock',remainingUnlock:'Remaining unlocks',vestingEnd:'Final vesting date',insiderUnlock:'Main remaining allocation: investors and core contributors',unlockedLabel:'Unlocked',lockedLabel:'Remaining',eventsUnit:'events',unlockComplete:'Complete',unlockNote:'Major monthly unlock figures follow Tokenomics.com, cross-checked with the official allocation, Tokenomist and DropsTab. Figures may vary because providers define circulating and unlocked supply differently. USD values use the current CoinGecko price.',allocationSource:'Official ETHFI allocation ↗',disclaimer:'Research for information only · not investment advice. Market data and schedules may change.'
+  "en": {
+    "pageTitle": "Investment Setup",
+    "heading": "Investment Setup",
+    "navForeign": "Foreign Flow",
+    "navAssets": "My Assets",
+    "navSetup": "Investment Setup",
+    "planTab": "Investment Plan",
+    "analysisTab": "Asset Research",
+    "comingSoon": "Coming soon",
+    "comingSoonNote": "Investment plans and target allocations will be added here.",
+    "continueGoogle": "Continue with Google",
+    "or": "or",
+    "passwordPlaceholder": "Password (6+ characters)",
+    "login": "Log in",
+    "signup": "Sign up",
+    "logout": "Log out",
+    "close": "Close",
+    "connected": "account connected",
+    "accountNotice": "Log in to use the same account as the other dashboard sections.",
+    "invalidEmail": "Enter a valid email address.",
+    "invalidPassword": "Use at least 6 characters for the password.",
+    "confirmEmail": "Check your email if confirmation is required.",
+    "signedIn": "Signed in.",
+    "googlePending": "Opening Google sign-in…",
+    "researchLibrary": "RESEARCH LIBRARY",
+    "moreReports": "New research reports will be added to this list.",
+    "allAssets": "All",
+    "favorites": "Favorites",
+    "myLists": "MY LISTS",
+    "noCustomLists": "Press + to create your first list.",
+    "emptyResearchFilter": "There are no assets in this list.",
+    "listNamePlaceholder": "List name",
+    "newListPlaceholder": "New list name",
+    "add": "Add",
+    "addFavorite": "Favorite",
+    "favorited": "Favorited",
+    "addToList": "Add to list",
+    "selectList": "Choose lists",
+    "savedInBrowser": "Saved automatically in this browser",
+    "noListsInPicker": "No lists yet. Create one below.",
+    "renameList": "Rename list",
+    "deleteList": "Delete list",
+    "renamePrompt": "Enter a new list name.",
+    "deleteConfirm": "Delete this list?",
+    "duplicateList": "A list with that name already exists.",
+    "cryptoResearch": "CRYPTO RESEARCH",
+    "updatedLabel": "Updated",
+    "websiteLink": "Website",
+    "officialXLink": "Official X",
+    "telegramUnofficial": "Telegram · unofficial",
+    "priceChart": "Price chart",
+    "openTradingView": "Open in TradingView",
+    "chartLoading": "Loading chart…",
+    "chartSizeDefault": "Default",
+    "chartResizeHint": "Use −/+ or drag the bottom-right corner to resize vertically",
+    "price": "Price",
+    "liveData": "Live from CoinGecko",
+    "marketCap": "Market cap (circulating)",
+    "fixedSupply": "Maximum supply",
+    "marketFallback": "Loading market data",
+    "marketLive": "Latest CoinGecko market data",
+    "marketUnavailable": "Market data unavailable · retry available",
+    "circulatingSupply": "Circulating supply",
+    "circulatingRatioPrefix": "Circulating / max supply",
+    "sourceOfficialDocs": "Official docs",
+    "sourceOfficialBlog": "Official blog",
+    "sourceKpkBlog": "Official blog · KPK",
+    "sourceSecurityBlog": "Official blog · security",
+    "overview": "Overview",
+    "tokenRole": "Token role",
+    "supply": "Supply",
+    "officialOverview": "Official protocol overview ↗",
+    "valueDrivers": "Token value drivers",
+    "recentNews": "Recent major news",
+    "decisionTracker": "INVESTMENT DECISION TRACKER",
+    "decisionTitle": "Decision tracker beta",
+    "decisionIntro": "Live-data rules are separate from your decision. The score ranks review priority and is not a buy signal.",
+    "scenarioTest": "Scenario test",
+    "scenarioLive": "Live data",
+    "scenarioWarning": "Preview warning state",
+    "scenarioInvalidated": "Preview invalidation",
+    "systemSignal": "System signal",
+    "myDecision": "My decision",
+    "decisionInterest": "Interested",
+    "decisionWatch": "Watch",
+    "decisionBuyWait": "Waiting to buy",
+    "decisionHolding": "Holding",
+    "decisionAvoid": "Avoid",
+    "savedLocally": "Saved in this browser",
+    "buyZone": "Price zone of interest",
+    "optionalInput": "Optional",
+    "nextCatalyst": "Next catalyst",
+    "catalystNote": "Reassess supply pressure after the event",
+    "dataConfidence": "Data coverage",
+    "oneLineThesis": "My one-line thesis",
+    "thesisPlaceholder": "Record why this project is on your watchlist",
+    "scoreBreakdown": "Automated score · evidence",
+    "scoreMethod": "0 risk · 1 neutral · 2 healthy, then weighted",
+    "ruleMonitor": "Thesis monitor",
+    "ruleMethod": "Evaluated from value, threshold and source",
+    "decisionLoading": "Loading DefiLlama and CoinGecko data",
+    "betaDisclaimer": "Beta rules · thresholds need tuning after real use",
+    "unlockSchedule": "Token unlock schedule",
+    "nextUnlock": "Next unlock",
+    "remainingUnlock": "Remaining unlocks",
+    "vestingEnd": "Registered schedule end",
+    "unlockedLabel": "Unlocked",
+    "lockedLabel": "Remaining",
+    "eventsUnit": "events",
+    "unlockComplete": "Complete",
+    "disclaimer": "Research for information only · not investment advice. Market data and schedules may change."
   }
 };
 const c=key=>COPY[language][key] || COPY.ko[key] || key;
@@ -89,7 +293,7 @@ const d = key => DECISION_TEXT[language][key] ?? DECISION_TEXT.ko[key];
 function loadDecisionPreferences() {
   const fallback = { personalDecision:'interest', buyMin:'', buyMax:'', thesis:'' };
   try {
-    const saved = JSON.parse(localStorage.getItem(DECISION_STORAGE_KEY) || '{}');
+    const saved = JSON.parse(localStorage.getItem(decisionStorageKey(currentAsset.id)) || '{}');
     return { ...fallback, ...saved };
   } catch (_error) {
     return fallback;
@@ -103,7 +307,7 @@ function saveDecisionPreferences() {
     buyMax: $('decisionBuyMax').value,
     thesis: $('decisionThesis').value.trim(),
   };
-  localStorage.setItem(DECISION_STORAGE_KEY, JSON.stringify(decisionPreferences));
+  localStorage.setItem(decisionStorageKey(currentAsset.id), JSON.stringify(decisionPreferences));
 }
 
 function loadResearchCollections() {
@@ -131,9 +335,12 @@ function setListPickerOpen(open) {
 }
 
 function renderResearchCollections() {
-  const assetIds = [...document.querySelectorAll('[data-asset-id]')].map(row => row.dataset.assetId);
-  const visibleAssetIds = new Set(assetsForResearchFilter(collections, selectedResearchFilter, assetIds));
-  const isFavorite = collections.favorites.includes(CURRENT_ASSET_ID);
+  if (!currentAsset) return;
+  renderCatalog(catalog, currentAsset.id, collections.favorites, language);
+  const assetIds = catalog.map(asset => asset.id);
+  const matches = new Set(catalog.filter(asset => `${asset.name} ${asset.symbol}`.toLowerCase().includes(searchQuery)).map(asset => asset.id));
+  const visibleAssetIds = new Set(assetsForResearchFilter(collections, selectedResearchFilter, assetIds).filter(id => matches.has(id)));
+  const isFavorite = collections.favorites.includes(currentAsset.id);
 
   $('allResearchCount').textContent = String(assetIds.length);
   $('favoriteResearchCount').textContent = String(assetIds.filter(id => collections.favorites.includes(id)).length);
@@ -141,10 +348,6 @@ function renderResearchCollections() {
   document.querySelectorAll('[data-asset-id]').forEach(row => { row.hidden = !visibleAssetIds.has(row.dataset.assetId); });
   $('researchFilterEmpty').hidden = visibleAssetIds.size > 0;
 
-  const sidebarFavorite = $('reportFavoriteButton');
-  sidebarFavorite.textContent = isFavorite ? '★' : '☆';
-  sidebarFavorite.setAttribute('aria-pressed', String(isFavorite));
-  sidebarFavorite.setAttribute('aria-label', isFavorite ? `ETHFI ${c('favorited')}` : `ETHFI ${c('addFavorite')}`);
   const heroFavorite = $('heroFavoriteButton');
   heroFavorite.querySelector('i').textContent = isFavorite ? '★' : '☆';
   heroFavorite.querySelector('span').textContent = isFavorite ? c('favorited') : c('addFavorite');
@@ -206,8 +409,8 @@ function renderResearchCollections() {
       label.className = 'list-picker-option';
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
-      checkbox.checked = list.assetIds.includes(CURRENT_ASSET_ID);
-      checkbox.onchange = () => saveResearchCollections(toggleAssetInResearchList(collections, list.id, CURRENT_ASSET_ID));
+      checkbox.checked = list.assetIds.includes(currentAsset.id);
+      checkbox.onchange = () => saveResearchCollections(toggleAssetInResearchList(collections, list.id, currentAsset.id));
       const name = document.createElement('span');
       name.textContent = list.name;
       label.append(checkbox, name);
@@ -230,7 +433,7 @@ function submitNewList(event, inputId, addCurrentAsset) {
   input.setCustomValidity('');
   input.value = '';
   const created = next.lists.at(-1);
-  saveResearchCollections(addCurrentAsset ? toggleAssetInResearchList(next, created.id, CURRENT_ASSET_ID) : next);
+  saveResearchCollections(addCurrentAsset ? toggleAssetInResearchList(next, created.id, currentAsset.id) : next);
   if (!addCurrentAsset) {
     selectedResearchFilter = created.id;
     renderResearchCollections();
@@ -260,15 +463,19 @@ function render() {
   $('accountNotice').textContent = account
     ? `${account.email} ${c('connected')}`
     : c('accountNotice');
+  if (!currentAsset) return;
+  renderAssetContent(currentAsset, language, resolveProfile(currentAsset, profiles));
   renderResearchCollections();
-  renderUnlockSchedule(currentEthfiPrice);
+  renderMarketData();
+  renderUnlockSchedule(currentPrice);
   renderDecisionPanel();
 }
 
 function mountTradingViewChart() {
-  const host = $('ethfiTradingViewChart');
+  const host = $('assetTradingViewChart');
   if (!host) return;
   host.replaceChildren();
+  if (!currentAsset?.chart?.symbol) return;
   const widget = document.createElement('div');
   widget.className = 'tradingview-widget-container__widget';
   widget.style.height = '100%';
@@ -279,7 +486,7 @@ function mountTradingViewChart() {
   script.async = true;
   script.textContent = JSON.stringify({
     autosize: true,
-    symbol: 'BINANCE:ETHFIUSDT',
+    symbol: currentAsset.chart.symbol,
     interval: 'D',
     timezone: 'Asia/Seoul',
     theme: 'dark',
@@ -312,40 +519,38 @@ $('chartResetButton').onclick = () => {
 };
 
 function formatUsd(value) {
-  const amount = Number(value);
-  if (!Number.isFinite(amount)) return '-';
+  const amount = numberOrNull(value);
+  if (amount === null) return '—';
   if (amount >= 1e9) return `$${(amount / 1e9).toFixed(2)}B`;
   if (amount >= 1e6) return `$${(amount / 1e6).toFixed(1)}M`;
   return `$${new Intl.NumberFormat(language === 'en' ? 'en-US' : 'ko-KR', { maximumFractionDigits:4 }).format(amount)}`;
 }
 
 function formatSupply(value) {
-  const amount = Number(value);
-  if (!Number.isFinite(amount)) return '-';
-  return amount >= 1e9 ? `${(amount / 1e9).toFixed(2)}B ETHFI` : `${(amount / 1e6).toFixed(1)}M ETHFI`;
+  return formatUnlockSupply(value);
 }
 
 function formatUnlockSupply(value) {
-  const amount = Number(value);
-  if (!Number.isFinite(amount)) return '-';
-  if (amount >= 1e9) return `${(amount / 1e9).toFixed(2)}B ETHFI`;
-  if (amount >= 1e6) return `${(amount / 1e6).toFixed(2)}M ETHFI`;
-  return `${new Intl.NumberFormat(language === 'en' ? 'en-US' : 'ko-KR').format(amount)} ETHFI`;
+  const amount = numberOrNull(value);
+  if (amount === null) return '—';
+  if (amount >= 1e9) return `${(amount / 1e9).toFixed(2)}B ${currentAsset.symbol}`;
+  if (amount >= 1e6) return `${(amount / 1e6).toFixed(2)}M ${currentAsset.symbol}`;
+  return `${new Intl.NumberFormat(language === 'en' ? 'en-US' : 'ko-KR').format(amount)} ${currentAsset.symbol}`;
 }
 
 function formatSignedPercent(value) {
-  const amount = Number(value);
-  if (!Number.isFinite(amount)) return d('pending');
+  const amount = numberOrNull(value);
+  if (amount === null) return d('pending');
   return `${amount >= 0 ? '+' : ''}${amount.toFixed(1)}%`;
 }
 
 function decisionInput() {
   const today = kstDateKey();
-  const nextUnlock = ETHFI_UNLOCK_EVENTS.find(event => event.date >= today);
-  const circulating = Number(decisionMarket?.circulatingSupply);
+  const {next:nextUnlock,completed} = unlockSummary(currentAsset,today);
+  const circulating = numberOrNull(decisionMarket?.circulatingSupply);
   const nextUnlockToCirculatingPct = nextUnlock && Number.isFinite(circulating) && circulating > 0
     ? nextUnlock.amount / circulating * 100
-    : null;
+    : completed ? 0 : null;
   return {
     tvl30dChange: decisionMetrics?.tvl30dChange ?? null,
     holderRevenue30d: decisionMetrics?.holderRevenue30d ?? null,
@@ -366,7 +571,7 @@ function categoryValue(item, input) {
 }
 
 function ruleValue(rule) {
-  if (rule.status === 'pending') return d('manualReview');
+  if (rule.status === 'pending') return rule.key === 'criticalRisk' ? d('manualReview') : d('pending');
   if (rule.key === 'growth') return formatSignedPercent(rule.value);
   if (rule.key === 'valueCapture') return `${formatUsd(rule.value)} · ${d('days30')}`;
   if (rule.key === 'unlockPressure') return `${Number(rule.value).toFixed(2)}% · ${d('ofCirculation')}`;
@@ -399,12 +604,7 @@ function renderDecisionScores(evaluation, input) {
 }
 
 function renderDecisionRules(evaluation) {
-  const sourceUrls = {
-    growth:'https://defillama.com/protocol/ether.fi?fees=true&tvl=true',
-    valueCapture:'https://defillama.com/protocol/ether.fi?fees=true&tvl=false',
-    unlockPressure:'https://app.tokenomics.com/tokenomics/ether-fi/unlocks',
-    criticalRisk:'https://www.ether.fi/blog',
-  };
+  const profile = resolveProfile(currentAsset, profiles);
   const host = $('decisionRuleList');
   host.replaceChildren(...evaluation.rules.map(rule => {
     const row = document.createElement('div');
@@ -416,17 +616,24 @@ function renderDecisionRules(evaluation) {
     const title = document.createElement('strong');
     title.textContent = d('ruleTitle')[rule.key];
     const threshold = document.createElement('small');
-    threshold.textContent = d('ruleThreshold')[rule.key];
+    const t=profile?.thresholds;
+    const descriptions=t?(language==='en'?{
+      growth:`Risk: 30d TVL ≤ ${t.growthRisk}%`,valueCapture:`Watch: holder revenue ≤ $${t.holderRevenueMin}`,unlockPressure:`Risk: circulating supply > ${t.unlockRisk}%`,criticalRisk:'Manual review of critical incidents',
+    }:{
+      growth:`위험: TVL 30일 ${t.growthRisk}% 이하`,valueCapture:`주의: 홀더 수익 $${t.holderRevenueMin} 이하`,unlockPressure:`위험: 유통량 대비 ${t.unlockRisk}% 초과`,criticalRisk:'중대 사고·정책 변경 수동 검토',
+    }):{};
+    threshold.textContent=descriptions[rule.key] || d('pending');
     copy.append(title, threshold);
     const value = document.createElement('span');
     value.className = 'decision-rule-value';
     const current = document.createElement('strong');
     current.textContent = ruleValue(rule);
     const source = document.createElement('a');
-    source.href = sourceUrls[rule.key];
+    const registeredSource = currentAsset.ruleSources[rule.key];
+    if (safeUrl(registeredSource?.url)) source.href = safeUrl(registeredSource.url);
     source.target = '_blank';
     source.rel = 'noopener';
-    source.textContent = `${evaluation.simulated ? d('sourceTest') : rule.key === 'criticalRisk' ? d('sourceManual') : rule.source} ↗`;
+    source.textContent = evaluation.simulated ? d('sourceTest') : localize(registeredSource?.label, language) || d('pending');
     value.append(current, source);
     const status = document.createElement('b');
     status.className = 'decision-rule-status';
@@ -439,11 +646,12 @@ function renderDecisionRules(evaluation) {
 function renderDecisionPanel() {
   if (!$('decisionSignalCard')) return;
   const input = applyDecisionScenario(decisionInput(), decisionScenario);
-  const evaluation = evaluateInvestmentDecision(input);
+  const profile = resolveProfile(currentAsset, profiles);
+  const evaluation = evaluateInvestmentDecision(input, profile);
   $('decisionSignalCard').dataset.tone = evaluation.signal;
   $('decisionSignal').textContent = d('signal')[evaluation.signal];
   $('decisionScore').textContent = evaluation.score === null ? '--' : String(evaluation.score);
-  $('decisionSignalNote').textContent = evaluation.invalidated ? d('invalidatedNote') : evaluation.simulated ? d('testNote') : d('liveNote');
+  $('decisionSignalNote').textContent = !profile ? (language === 'en' ? 'Evaluation rules not configured' : '평가 기준 미설정') : evaluation.invalidated ? d('invalidatedNote') : evaluation.simulated ? d('testNote') : d('liveNote');
   $('decisionConfidence').textContent = `${evaluation.coverage}%`;
   $('decisionDataMode').textContent = evaluation.simulated ? 'TEST' : 'LIVE';
   $('decisionDataMode').classList.toggle('test', evaluation.simulated);
@@ -456,49 +664,36 @@ function renderDecisionPanel() {
     ? d('fetchFailed')
     : decisionMetrics && decisionMarket
       ? `${d('dataReady')} · TVL ${formatUsd(decisionMetrics.tvl)} · Revenue 30d ${formatUsd(decisionMetrics.protocolRevenue30d)}`
-      : d('loading');
+      : metricsLoading ? d('loading') : d('pending');
 
   const today = kstDateKey();
-  const next = ETHFI_UNLOCK_EVENTS.find(event => event.date >= today);
+  const next = currentAsset.unlock.events.find(event => event.date >= today);
   if (next) {
     const days = Math.max(0, Math.round((new Date(`${next.date}T00:00:00+09:00`) - new Date(`${today}T00:00:00+09:00`)) / 86_400_000));
     $('decisionCatalyst').textContent = `${d('events')} · ${days === 0 ? 'D-DAY' : `D-${days}`}`;
   } else {
-    $('decisionCatalyst').textContent = c('unlockComplete');
+    $('decisionCatalyst').textContent = currentAsset.unlock.status === 'complete' ? c('unlockComplete') : d('pending');
   }
   renderDecisionScores(evaluation, input);
   renderDecisionRules(evaluation);
 }
 
-async function refreshDecisionMetrics() {
-  const base = 'https://api.llama.fi';
-  const fetchJson = async url => {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`DefiLlama ${response.status}`);
-    return response.json();
-  };
-  try {
-    const [protocol, fees, revenue, holders] = await Promise.all([
-      fetchJson(`${base}/protocol/ether.fi`),
-      fetchJson(`${base}/summary/fees/ether.fi?dataType=dailyFees`),
-      fetchJson(`${base}/summary/fees/ether.fi?dataType=dailyRevenue`),
-      fetchJson(`${base}/summary/fees/ether.fi?dataType=dailyHoldersRevenue`),
-    ]);
-    const tvlRows = Array.isArray(protocol.tvl) ? protocol.tvl : [];
-    decisionMetrics = {
-      tvl: Number(tvlRows.at(-1)?.totalLiquidityUSD),
-      tvl30dChange: seriesChange(tvlRows, 30),
-      fees30d: Number(fees.total30d),
-      protocolRevenue30d: Number(revenue.total30d),
-      holderRevenue30d: Number(holders.total30d),
-    };
-    decisionMetricsError = false;
-    decisionUpdatedAt = new Date();
-  } catch (_error) {
-    decisionMetricsError = true;
-  }
+async function refreshDecisionMetrics(asset, version, signal) {
+  metricsLoading = true;
+  const result = await loadProtocolMetrics(asset, {signal});
+  if (version !== selectionVersion) return;
+  const metrics = result.metrics;
+  decisionMetrics = metrics ? {
+    ...metrics,
+    tvl:numberOrNull(metrics.tvlRows.at(-1)?.totalLiquidityUSD),
+    tvl30dChange:seriesChange(metrics.tvlRows,30),
+  } : null;
+  metricsLoading = false;
+  decisionMetricsError = result.partial;
+  decisionUpdatedAt = new Date();
   renderDecisionPanel();
 }
+
 
 function kstDateKey(date = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -509,88 +704,152 @@ function kstDateKey(date = new Date()) {
 }
 
 function renderUnlockSchedule(price) {
-  const today = kstDateKey();
-  const upcoming = ETHFI_UNLOCK_EVENTS.filter(event => event.date >= today);
-  const next = upcoming[0];
-  const remaining = upcoming.reduce((sum, event) => sum + event.amount, 0);
-  const remainingRatio = remaining / ETHFI_TOTAL_SUPPLY * 100;
-  const unlockedRatio = Math.max(0, 100 - remainingRatio);
-
-  if (next) {
-    const days = Math.max(0, Math.round((new Date(`${next.date}T00:00:00+09:00`) - new Date(`${today}T00:00:00+09:00`)) / 86_400_000));
-    $('nextUnlockCountdown').textContent = days === 0 ? 'D-DAY' : `D-${days}`;
-    $('nextUnlockDate').textContent = next.date.replaceAll('-', '.');
-    $('nextUnlockAmount').textContent = formatUnlockSupply(next.amount);
-    $('nextUnlockUsd').textContent = `≈ ${formatUsd(next.amount * price)}`;
-    $('nextUnlockDetail').textContent = language === 'en'
-      ? `${(next.amount / ETHFI_TOTAL_SUPPLY * 100).toFixed(1)}% of total supply`
-      : `총 공급량의 ${(next.amount / ETHFI_TOTAL_SUPPLY * 100).toFixed(1)}%`;
-  } else {
-    $('nextUnlockCountdown').textContent = c('unlockComplete');
-    $('nextUnlockDate').textContent = '2027.03.15';
-    $('nextUnlockAmount').textContent = '0 ETHFI';
-    $('nextUnlockUsd').textContent = '$0';
-    $('nextUnlockDetail').textContent = c('unlockComplete');
+  const today=kstDateKey();
+  const {upcoming,next,known,completed,remaining}=unlockSummary(currentAsset,today);
+  const total=numberOrNull(currentAsset.market.maxSupply);
+  const ratio=known && total>0 ? remaining/total*100 : null;
+  const usd=amount=>price===null || amount===null ? '—' : '≈ '+formatUsd(amount*price);
+  const missing=language==='en'?'Schedule not available':'일정 확인 필요';
+  if(next && known){
+    const days=Math.max(0,Math.round((new Date(next.date+'T00:00:00+09:00')-new Date(today+'T00:00:00+09:00'))/86400000));
+    $('nextUnlockCountdown').textContent=days===0?'D-DAY':'D-'+days;
+    $('nextUnlockDate').textContent=next.date.replaceAll('-','.');
+    $('nextUnlockAmount').textContent=formatUnlockSupply(next.amount);
+    $('nextUnlockUsd').textContent=usd(next.amount);
+    $('nextUnlockDetail').textContent=total>0?(next.amount/total*100).toFixed(1)+'% '+(language==='en'?'of max supply':' / 최대 공급량'):'—';
+  }else{
+    $('nextUnlockCountdown').textContent=completed?c('unlockComplete'):missing;
+    $('nextUnlockDate').textContent='—';
+    $('nextUnlockAmount').textContent=completed?formatUnlockSupply(0):'—';
+    $('nextUnlockUsd').textContent=completed?'$0':'—';
+    $('nextUnlockDetail').textContent=completed?c('unlockComplete'):missing;
   }
-
-  $('remainingUnlockAmount').textContent = formatUnlockSupply(remaining);
-  $('remainingUnlockUsd').textContent = `≈ ${formatUsd(remaining * price)}`;
-  $('remainingUnlockDetail').textContent = language === 'en'
-    ? `${remainingRatio.toFixed(1)}% of total supply · ${upcoming.length} ${c('eventsUnit')}`
-    : `총 공급량의 ${remainingRatio.toFixed(1)}% · ${upcoming.length}${c('eventsUnit')}`;
-  $('unlockTimelinePast').style.width = `${unlockedRatio}%`;
-  $('unlockTimelineMarker').style.left = `${unlockedRatio}%`;
-  $('unlockedLegend').textContent = `${c('unlockedLabel')} ${unlockedRatio.toFixed(1)}%`;
-  $('lockedLegend').textContent = `${c('lockedLabel')} ${remainingRatio.toFixed(1)}%`;
+  $('remainingUnlockAmount').textContent=formatUnlockSupply(remaining);
+  $('remainingUnlockUsd').textContent=usd(remaining);
+  $('remainingUnlockDetail').textContent=known?(language==='en'?'Registered: ':'등록 일정: ')+upcoming.length+' '+c('eventsUnit')+(ratio===null?'':' · '+ratio.toFixed(1)+'%'):missing;
+  const showTimeline=known && ratio!==null && ratio<=100 && currentAsset.unlock.completeSchedule===true;
+  document.querySelector('.unlock-timeline').hidden=!showTimeline;
+  document.querySelector('.unlock-legend').hidden=!showTimeline;
+  if(showTimeline){
+    $('unlockTimelinePast').style.width=(100-ratio)+'%';
+    $('unlockTimelineMarker').style.left=(100-ratio)+'%';
+    $('unlockedLegend').textContent=c('unlockedLabel')+' '+(100-ratio).toFixed(1)+'%';
+    $('lockedLegend').textContent=c('lockedLabel')+' '+ratio.toFixed(1)+'%';
+  }
 }
 
+
 function renderPrice(value, change24h) {
-  const host = $('ethfiPrice');
-  const change = Number(change24h);
+  const host = $('assetPrice');
+  const change = numberOrNull(change24h);
   host.replaceChildren(document.createTextNode(formatUsd(value)));
-  if (!Number.isFinite(change)) return;
+  if (change === null) return;
   const changeNode = document.createElement('em');
   changeNode.className = `market-change ${change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral'}`;
   changeNode.textContent = `(${change >= 0 ? '+' : ''}${change.toFixed(2)}%)`;
   host.append(' ', changeNode);
 }
 
-async function refreshEthfiMarket() {
+function renderMarketData() {
+  const market = decisionMarket;
+  renderPrice(market?.price, market?.change24h);
+  $('assetMarketCap').textContent=formatUsd(market?.marketCap);
+  $('assetFdv').textContent=formatUsd(market?.fdv);
+  $('assetMarketCapRank').textContent=market?.rank>0?'#'+market.rank:'#—';
+  $('assetCirculating').textContent=formatSupply(market?.circulatingSupply);
+  const ratio=market?.circulatingSupply!==null && market?.maxSupply>0?market.circulatingSupply/market.maxSupply*100:null;
+  $('assetCirculatingRatio').textContent=ratio===null?'—':ratio.toFixed(2)+'%';
+  $('assetCirculatingBar').style.width=Math.min(100,Math.max(0,ratio??0))+'%';
+  $('assetCirculatingBar').parentElement.setAttribute('aria-valuenow',String(Math.min(100,Math.max(0,ratio??0))));
+  $('marketStatus').textContent=market?c('marketLive')+' · '+new Intl.DateTimeFormat(language==='en'?'en-US':'ko-KR',{dateStyle:'short',timeStyle:'short',timeZone:'Asia/Seoul'}).format(market.updatedAt):!currentAsset.market.coingeckoId?(language==='en'?'Market source not configured':'시장 데이터 소스 미등록'):marketFailed?c('marketUnavailable'):c('marketFallback');
+}
+
+async function refreshAssetMarket(asset, version, signal) {
+  if (!asset.market.coingeckoId) {
+    $('marketStatus').textContent=language==='en'?'Market source not configured':'시장 데이터 소스 미등록';
+    return;
+  }
   try {
-    const response = await fetch('https://api.coingecko.com/api/v3/coins/ether-fi?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false');
-    if (!response.ok) throw new Error(`CoinGecko ${response.status}`);
-    const data = await response.json();
-    const market = data.market_data || {};
-    const livePrice = Number(market.current_price?.usd);
-    if (Number.isFinite(livePrice) && livePrice > 0) currentEthfiPrice = livePrice;
-    renderPrice(currentEthfiPrice, market.price_change_percentage_24h);
-    $('ethfiMarketCap').textContent = formatUsd(market.market_cap?.usd);
-    $('ethfiFdv').textContent = formatUsd(market.fully_diluted_valuation?.usd);
-    const rank = Number(data.market_cap_rank);
-    $('ethfiMarketCapRank').textContent = Number.isFinite(rank) ? `#${rank}` : '#-';
-    $('ethfiCirculating').textContent = formatSupply(market.circulating_supply);
-    const circulating = Number(market.circulating_supply);
-    const maxSupply = Number(market.max_supply);
-    decisionMarket = {
-      marketCap: Number(market.market_cap?.usd),
-      circulatingSupply: circulating,
-      volume24h: Number(market.total_volume?.usd),
-      price: currentEthfiPrice,
-    };
-    const circulatingRatio = Number.isFinite(circulating) && Number.isFinite(maxSupply) && maxSupply > 0
-      ? Math.min(100, Math.max(0, circulating / maxSupply * 100))
-      : null;
-    $('ethfiCirculatingRatio').textContent = circulatingRatio === null ? '-' : `${circulatingRatio.toFixed(2)}%`;
-    $('ethfiCirculatingBar').style.width = `${circulatingRatio ?? 0}%`;
-    $('ethfiCirculatingBar').parentElement.setAttribute('aria-valuenow', String(circulatingRatio ?? 0));
-    renderUnlockSchedule(currentEthfiPrice);
+    const data=await fetchJson('https://api.coingecko.com/api/v3/coins/'+encodeURIComponent(asset.market.coingeckoId)+'?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false',{signal});
+    if(version!==selectionVersion)return;
+    const market=data.market_data || {};
+    const updatedAt=data.last_updated?new Date(data.last_updated):new Date();
+    if(!Number.isFinite(updatedAt.getTime()) || Date.now()-updatedAt.getTime()>24*60*60*1000)throw new Error('Stale market data');
+    const price=numberOrNull(market.current_price?.usd);
+    currentPrice=price>0?price:null;
+    decisionMarket={price:currentPrice,change24h:numberOrNull(market.price_change_percentage_24h),marketCap:numberOrNull(market.market_cap?.usd),fdv:numberOrNull(market.fully_diluted_valuation?.usd),rank:numberOrNull(data.market_cap_rank),circulatingSupply:numberOrNull(market.circulating_supply),maxSupply:numberOrNull(market.max_supply) ?? numberOrNull(asset.market.maxSupply),updatedAt};
+    renderMarketData();
+    renderUnlockSchedule(currentPrice);
     renderDecisionPanel();
-    $('marketStatus').textContent = `${c('marketLive')} · ${new Intl.DateTimeFormat(language === 'en' ? 'en-US' : 'ko-KR', {dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Seoul'}).format(new Date(data.last_updated || Date.now()))}`;
-  } catch (error) {
-    $('marketStatus').textContent = c('marketUnavailable');
+  }catch(error){
+    if(version!==selectionVersion)return;
+    marketFailed=true;
+    renderMarketData();
     renderDecisionPanel();
   }
 }
+
+function showLoadError(retry) {
+  const host=$('researchLoading');
+  host.hidden=false;
+  host.textContent=language==='en'?'Unable to load research. ':'종목 정보를 불러오지 못했어. ';
+  const button=document.createElement('button');
+  button.className='chip';button.textContent=language==='en'?'Retry':'다시 시도';
+  button.onclick=retry;host.append(button);
+}
+
+async function selectAsset(id, updateUrl=true) {
+  if(!catalog.some(asset=>asset.id===id))return;
+  const version=++selectionVersion;
+  assetController?.abort();
+  assetController=new AbortController();
+  const signal=assetController.signal;
+  document.querySelector('.research-report').hidden=true;
+  $('researchLoading').hidden=false;
+  $('researchLoading').textContent=language==='en'?'Loading research…':'종목 불러오는 중…';
+  try {
+    const data=await fetchJson('./data/research/'+encodeURIComponent(id)+'.json',{signal});
+    if(version!==selectionVersion)return;
+    currentAsset=validateAsset(data,id);
+    currentPrice=null;decisionMetrics=null;decisionMarket=null;decisionMetricsError=false;decisionUpdatedAt=null;metricsLoading=true;marketFailed=false;
+    decisionScenario='live';$('decisionScenario').value='live';
+    decisionPreferences=loadDecisionPreferences();
+    $('personalDecision').value=decisionPreferences.personalDecision;
+    $('decisionBuyMin').value=decisionPreferences.buyMin;
+    $('decisionBuyMax').value=decisionPreferences.buyMax;
+    $('decisionThesis').value=decisionPreferences.thesis;
+    setListPickerOpen(false);
+    render();renderMarketData();mountTradingViewChart();
+    $('researchLoading').hidden=true;
+    document.querySelector('.research-report').hidden=false;
+    if(updateUrl){const url=new URL(location.href);url.searchParams.set('asset',id);history.pushState({},'',url);}
+    refreshAssetMarket(currentAsset,version,signal);
+    refreshDecisionMetrics(currentAsset,version,signal);
+  }catch(error){
+    if(version!==selectionVersion)return;
+    showLoadError(()=>selectAsset(id,updateUrl));
+  }
+}
+
+async function initializeResearch() {
+  try {
+    const [index,settings]=await Promise.all([fetchJson('./data/research/index.json'),fetchJson('./data/research/profiles.json')]);
+    catalog=validateCatalog(index);profiles=settings;
+    renderCatalog(catalog,null,collections.favorites,language);
+    const requested=new URL(location.href).searchParams.get('asset');
+    const selected=selectAssetId(catalog,requested);
+    if(requested!==selected){const url=new URL(location.href);url.searchParams.set('asset',selected);history.replaceState({},'',url);}
+    await selectAsset(selected,false);
+  }catch(error){showLoadError(initializeResearch);}
+}
+window.addEventListener('popstate',()=>selectAsset(selectAssetId(catalog,new URL(location.href).searchParams.get('asset')),false));
+$('researchReportList').onclick=event=>{
+  const favorite=event.target.closest('[data-favorite-asset]');
+  if(favorite){saveResearchCollections(toggleFavorite(collections,favorite.dataset.favoriteAsset));return;}
+  const button=event.target.closest('[data-select-asset]');
+  if(button)selectAsset(button.dataset.selectAsset);
+};
+$('researchSearch').oninput=event=>{searchQuery=event.target.value.trim().toLowerCase();renderResearchCollections();};
 
 document.querySelector('.setup-tabs').onclick = event => {
   const tab = event.target.closest('[data-panel]');
@@ -605,8 +864,7 @@ document.querySelector('.setup-tabs').onclick = event => {
 
 $('allResearchFilter').onclick = () => { selectedResearchFilter = 'all'; renderResearchCollections(); };
 $('favoriteResearchFilter').onclick = () => { selectedResearchFilter = 'favorites'; renderResearchCollections(); };
-$('reportFavoriteButton').onclick = () => saveResearchCollections(toggleFavorite(collections, CURRENT_ASSET_ID));
-$('heroFavoriteButton').onclick = () => saveResearchCollections(toggleFavorite(collections, CURRENT_ASSET_ID));
+$('heroFavoriteButton').onclick = () => saveResearchCollections(toggleFavorite(collections, currentAsset.id));
 $('showNewListButton').onclick = () => {
   const form = $('sidebarNewListForm');
   form.hidden = !form.hidden;
@@ -621,12 +879,8 @@ $('decisionScenario').onchange = event => {
   decisionScenario = event.currentTarget.value;
   renderDecisionPanel();
 };
-$('personalDecision').value = decisionPreferences.personalDecision;
-$('decisionBuyMin').value = decisionPreferences.buyMin;
-$('decisionBuyMax').value = decisionPreferences.buyMax;
-$('decisionThesis').value = decisionPreferences.thesis;
 ['personalDecision','decisionBuyMin','decisionBuyMax','decisionThesis'].forEach(id => {
-  $(id).addEventListener(id === 'decisionThesis' ? 'input' : 'change', saveDecisionPreferences);
+  $(id).addEventListener('input', saveDecisionPreferences);
 });
 document.addEventListener('click', event => {
   if (!event.target.closest('.list-picker-wrap')) setListPickerOpen(false);
@@ -635,7 +889,7 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape') setListPickerOpen(false);
 });
 
-setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); refreshEthfiMarket(); mountTradingViewChart(); } });
+setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); if(currentAsset){renderMarketData();mountTradingViewChart();} } });
 
 async function submitAuth(event) {
   event.preventDefault();
@@ -662,12 +916,11 @@ $('authGoogleButton').onclick = async () => {
   if (error) $('authStatus').textContent = error.message;
 };
 
+await initializeResearch();
 const { data, error } = await authClient.auth.getSession();
 if (error) $('authStatus').textContent = error.message;
 account = accountFromSession(data?.session);
 render();
-refreshEthfiMarket();
-refreshDecisionMetrics();
 authClient.auth.onAuthStateChange((_event, session) => {
   account = accountFromSession(session);
   render();

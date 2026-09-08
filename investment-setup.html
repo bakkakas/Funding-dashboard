@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=9">
+  <link rel="stylesheet" href="./investment-setup.css?v=10">
 </head>
 <body>
   <div class="wrap">
@@ -59,15 +59,7 @@
             <button class="research-filter active" id="allResearchFilter" type="button" data-filter="all"><span data-page-i18n="allAssets">전체</span><b id="allResearchCount">1</b></button>
             <button class="research-filter" id="favoriteResearchFilter" type="button" data-filter="favorites"><span><i aria-hidden="true">★</i> <span data-page-i18n="favorites">즐겨찾기</span></span><b id="favoriteResearchCount">0</b></button>
           </div>
-          <div class="report-list" id="researchReportList">
-            <div class="report-list-row active" data-asset-id="ethfi">
-              <button class="report-list-item" type="button" aria-current="true" data-select-asset="ethfi">
-                <span class="report-token-mark"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt=""></span>
-                <span><strong>ether.fi</strong><small>ETHFI · 2026.09.07</small></span>
-              </button>
-              <button class="report-favorite" id="reportFavoriteButton" type="button" data-favorite-asset="ethfi" aria-pressed="false" aria-label="ETHFI 즐겨찾기 추가">☆</button>
-            </div>
-          </div>
+          <input class="research-search" id="researchSearch" type="search" placeholder="종목명·티커 검색" aria-label="종목 검색"><div class="report-list" id="researchReportList"></div>
           <div class="research-empty" id="researchFilterEmpty" hidden data-page-i18n="emptyResearchFilter">이 리스트에 담긴 종목 없음.</div>
           <section class="custom-lists" aria-labelledby="customListsTitle">
             <div class="custom-lists-head">
@@ -84,29 +76,30 @@
           <div class="report-index-note" data-page-i18n="moreReports">분석 보고서 계속 추가 예정.</div>
         </aside>
 
-        <article class="research-report">
+        <div id="researchLoading" class="card research-loading" role="status">종목 불러오는 중…</div>
+        <article class="research-report" hidden>
           <header class="card report-hero">
             <div class="report-hero-top">
               <div class="report-hero-main">
-                <div class="token-logo"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt="ether.fi logo"></div>
+                <div class="token-logo" id="assetLogo"></div>
                 <div>
                   <div class="eyebrow" data-page-i18n="cryptoResearch">CRYPTO RESEARCH</div>
-                  <h2>ether.fi <span>(ETHFI)</span></h2>
-                  <p data-page-i18n="heroSummary">비수탁형 리퀴드 리스테이킹에서 출발해 온체인 금융 앱으로 확장 중인 ether.fi의 거버넌스 토큰.</p>
+                  <h2 id="assetName"></h2>
+                  <p data-asset-copy="heroSummary"></p>
                   <div class="hero-market-facts">
-                    <div class="market-fact rank-fact"><img src="https://www.coingecko.com/favicon.ico" alt="CoinGecko"><strong id="ethfiMarketCapRank">#-</strong></div>
+                    <div class="market-fact rank-fact"><img src="https://www.coingecko.com/favicon.ico" alt="CoinGecko"><strong id="assetMarketCapRank">—</strong></div>
                     <div class="market-fact circulation-fact">
                       <div class="circulation-metrics">
-                        <span class="circulation-metric"><small data-page-i18n="circulatingSupply">유통량</small><strong id="ethfiCirculating">1.02B ETHFI</strong></span>
-                        <span class="circulation-metric ratio-metric"><small data-page-i18n="circulatingRatioPrefix">Max 대비 유통률</small><strong id="ethfiCirculatingRatio">-</strong></span>
+                        <span class="circulation-metric"><small data-page-i18n="circulatingSupply">유통량</small><strong id="assetCirculating">—</strong></span>
+                        <span class="circulation-metric ratio-metric"><small data-page-i18n="circulatingRatioPrefix">Max 대비 유통률</small><strong id="assetCirculatingRatio">—</strong></span>
                       </div>
-                      <div class="circulation-bar" role="progressbar" aria-label="Max 대비 유통률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="ethfiCirculatingBar"></i></div>
+                      <div class="circulation-bar" role="progressbar" aria-label="Max 대비 유통률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="assetCirculatingBar"></i></div>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="report-hero-side">
-                <div class="report-date"><span data-page-i18n="updatedLabel">업데이트</span><strong>2026.09.07</strong></div>
+                <div class="report-date"><span data-page-i18n="updatedLabel">업데이트</span><strong id="assetUpdatedAt"></strong></div>
                 <div class="research-actions">
                   <button class="research-action" id="heroFavoriteButton" type="button" aria-pressed="false"><i aria-hidden="true">☆</i><span data-page-i18n="addFavorite">즐겨찾기</span></button>
                   <div class="list-picker-wrap">
@@ -121,19 +114,13 @@
                     </div>
                   </div>
                 </div>
-                <nav class="token-links" aria-label="ether.fi 공식 및 시장 정보 링크">
-                  <a href="https://www.ether.fi/" target="_blank" rel="noopener noreferrer"><span class="token-link-globe" aria-hidden="true">◎</span><span data-page-i18n="websiteLink">웹사이트</span><i aria-hidden="true">↗</i></a>
-                  <a href="https://coinmarketcap.com/currencies/ether-fi-ethfi/" target="_blank" rel="noopener noreferrer"><img class="token-link-logo" alt="" src="https://cdn.simpleicons.org/coinmarketcap/8B5CF6"><span>CoinMarketCap</span><i aria-hidden="true">↗</i></a>
-                  <a href="https://www.coingecko.com/en/coins/ether-fi" target="_blank" rel="noopener noreferrer"><img class="token-link-logo" alt="" src="https://www.coingecko.com/favicon.ico"><span>CoinGecko</span><i aria-hidden="true">↗</i></a>
-                  <a href="https://x.com/ether_fi" target="_blank" rel="noopener noreferrer"><img class="token-link-logo" alt="" src="https://cdn.simpleicons.org/x/FFFFFF"><span data-page-i18n="officialXLink">공식 X</span><i aria-hidden="true">↗</i></a>
-                  <a class="unofficial-link" href="https://t.me/EtherFiAlerts" target="_blank" rel="noopener noreferrer"><img class="token-link-logo" alt="" src="https://cdn.simpleicons.org/telegram/26A5E4"><span data-page-i18n="telegramUnofficial">Telegram · 비공식</span><i aria-hidden="true">↗</i></a>
-                </nav>
+                <nav class="token-links" id="assetLinks" aria-label="프로젝트 링크"></nav>
               </div>
             </div>
-            <section class="hero-market-grid" aria-label="ETHFI 시장 데이터">
-              <div class="hero-market-stat"><span data-page-i18n="price">가격</span><strong id="ethfiPrice">$0.638</strong><small data-page-i18n="liveData">CoinGecko 실시간</small></div>
-              <div class="hero-market-stat"><span data-page-i18n="marketCap">시가총액 (Circulation 기준)</span><strong id="ethfiMarketCap">$648.9M</strong><small data-page-i18n="liveData">CoinGecko 실시간</small></div>
-              <div class="hero-market-stat"><span>FDV</span><strong id="ethfiFdv">$648.9M</strong><small data-page-i18n="liveData">CoinGecko 실시간</small></div>
+            <section class="hero-market-grid" aria-label="시장 데이터">
+              <div class="hero-market-stat"><span data-page-i18n="price">가격</span><strong id="assetPrice">—</strong><small data-page-i18n="liveData">CoinGecko 실시간</small></div>
+              <div class="hero-market-stat"><span data-page-i18n="marketCap">시가총액 (Circulation 기준)</span><strong id="assetMarketCap">—</strong><small data-page-i18n="liveData">CoinGecko 실시간</small></div>
+              <div class="hero-market-stat"><span>FDV</span><strong id="assetFdv">—</strong><small data-page-i18n="liveData">CoinGecko 실시간</small></div>
             </section>
             <div class="market-status" id="marketStatus" data-page-i18n="marketFallback">2026.08.24 기준값 · 실시간 데이터 갱신 중</div>
           </header>
@@ -162,7 +149,7 @@
                 <option value="avoid" data-page-i18n="decisionAvoid">제외</option>
               </select><small data-page-i18n="savedLocally">이 브라우저에 저장</small></label>
               <div class="decision-summary-card input-card"><span data-page-i18n="buyZone">매수 관심 가격</span><div class="buy-zone-inputs"><label><i>$</i><input id="decisionBuyMin" type="number" min="0" step="any" placeholder="Min" aria-label="매수 관심 최저 가격"></label><b>–</b><label><i>$</i><input id="decisionBuyMax" type="number" min="0" step="any" placeholder="Max" aria-label="매수 관심 최고 가격"></label></div><small data-page-i18n="optionalInput">선택 입력</small></div>
-              <div class="decision-summary-card"><span data-page-i18n="nextCatalyst">다음 촉매</span><strong id="decisionCatalyst">월간 언락 · D-8</strong><small data-page-i18n="catalystNote">이벤트 이후 공급 압력 재평가</small></div>
+              <div class="decision-summary-card"><span data-page-i18n="nextCatalyst">다음 촉매</span><strong id="decisionCatalyst">—</strong><small data-page-i18n="catalystNote">이벤트 이후 공급 압력 재평가</small></div>
               <div class="decision-summary-card"><span data-page-i18n="dataConfidence">판단 신뢰도</span><strong id="decisionConfidence">--</strong><small id="decisionFreshness">데이터 확인 중</small></div>
             </div>
 
@@ -170,7 +157,7 @@
 
             <div class="decision-detail-grid">
               <section class="decision-panel" aria-labelledby="scoreBreakdownTitle">
-                <div class="decision-panel-head"><div><h4 id="scoreBreakdownTitle" data-page-i18n="scoreBreakdown">자동 점수 · 근거</h4><p data-page-i18n="scoreMethod">0 위험 · 1 중립 · 2 양호 후 가중치 적용</p></div><a href="https://defillama.com/protocol/ether.fi?fees=true&amp;tvl=false" target="_blank" rel="noopener">DefiLlama ↗</a></div>
+                <div class="decision-panel-head"><div><h4 id="scoreBreakdownTitle" data-page-i18n="scoreBreakdown">자동 점수 · 근거</h4><p data-page-i18n="scoreMethod">0 위험 · 1 중립 · 2 양호 후 가중치 적용</p></div><span id="scoreProfileLabel"></span></div>
                 <div class="decision-score-list" id="decisionScoreList"></div>
               </section>
               <section class="decision-panel" aria-labelledby="ruleMonitorTitle">
@@ -184,7 +171,7 @@
           <section class="card price-chart-card" aria-labelledby="priceChartTitle">
             <div class="price-chart-head">
               <div>
-                <div class="eyebrow">ETHFI / USDT · BINANCE</div>
+                <div class="eyebrow" id="assetChartSymbol"></div>
                 <h3 id="priceChartTitle" data-page-i18n="priceChart">가격 변화 차트</h3>
               </div>
               <div class="price-chart-actions">
@@ -193,10 +180,10 @@
                   <button id="chartResetButton" type="button" data-page-i18n="chartSizeDefault">기본</button>
                   <button id="chartGrowButton" type="button" aria-label="차트 확대">+</button>
                 </div>
-                <a href="https://www.tradingview.com/symbols/ETHFIUSDT/?exchange=BINANCE" target="_blank" rel="noopener noreferrer"><span data-page-i18n="openTradingView">TradingView에서 열기</span><i aria-hidden="true">↗</i></a>
+                <a id="assetChartLink" target="_blank" rel="noopener noreferrer"><span data-page-i18n="openTradingView">TradingView에서 열기</span><i aria-hidden="true">↗</i></a>
               </div>
             </div>
-            <div class="tradingview-chart"><div class="tradingview-widget-container" id="ethfiTradingViewChart"><span class="chart-loading" data-page-i18n="chartLoading">차트 불러오는 중…</span></div></div>
+            <div class="tradingview-chart"><div class="tradingview-widget-container" id="assetTradingViewChart"><span class="chart-loading" data-page-i18n="chartLoading">차트 불러오는 중…</span></div></div>
             <div class="chart-resize-hint" data-page-i18n="chartResizeHint">−/+ 버튼 또는 우측 하단 드래그로 세로 크기 조절</div>
           </section>
 
@@ -204,12 +191,12 @@
             <div class="section-number">01</div>
             <div class="research-content">
               <h3 data-page-i18n="overview">개요</h3>
-              <p data-page-i18n="overviewBody">ether.fi는 ETH 보유자가 자산 통제권을 유지한 채 스테이킹·리스테이킹 수익을 얻도록 설계된 비수탁 프로토콜. eETH·weETH로 유동성과 DeFi 활용성 유지. 현재 Stake·Liquid·Cash, 토큰화 주식·금속 거래, Aave 기반 대출, 법정화폐 입출금을 묶은 온체인 금융 앱으로 확장 중.</p>
+              <p data-asset-copy="overviewBody"></p>
               <div class="key-facts">
-                <div><span data-page-i18n="tokenRole">토큰 역할</span><strong data-page-i18n="tokenRoleValue">거버넌스 · sETHFI 스테이킹 · 바이백 분배</strong></div>
-                <div><span data-page-i18n="supply">공급량</span><strong data-page-i18n="supplyValue">공식 문서상 고정 10억 개 · 추가 발행 없음</strong></div>
+                <div><span data-page-i18n="tokenRole">토큰 역할</span><strong data-asset-copy="tokenRoleValue"></strong></div>
+                <div><span data-page-i18n="supply">공급량</span><strong data-asset-copy="supplyValue"></strong></div>
               </div>
-              <a class="source-link" href="https://etherfi.gitbook.io/etherfi/ether.fi-whitepaper/introduction" target="_blank" rel="noopener" data-page-i18n="officialOverview">공식 프로토콜 개요 ↗</a>
+              <div id="overviewSources"></div>
             </div>
           </section>
 
@@ -217,12 +204,7 @@
             <div class="section-number">02</div>
             <div class="research-content">
               <h3 data-page-i18n="valueDrivers">토큰 가치 상승 요인</h3>
-              <div class="driver-grid">
-                <div class="driver-card"><b>01</b><strong data-page-i18n="driverBuybackTitle">프로토콜 수익 기반 바이백</strong><p data-page-i18n="driverBuybackBody">eETH 출금 수수료 수익 100%를 주간 바이백에 사용. Stake·Liquid·Cash 수익 일부도 월간 바이백에 배정. 매입 ETHFI는 sETHFI 보유자에게 분배.</p><a class="source-badge" href="https://etherfi.gitbook.io/gov/ethfi-buyback-program" target="_blank" rel="noopener"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt=""><span data-page-i18n="sourceOfficialDocs">공식 문서</span><i>↗</i></a></div>
-                <div class="driver-card"><b>02</b><strong data-page-i18n="driverAppTitle">온체인 금융 앱 확장</strong><p data-page-i18n="driverAppBody">토큰화 주식·금속, 담보 대출, 글로벌 법정화폐 레일, Cash 카드를 하나의 앱에 통합. 사용량·수익 증가 시 바이백 재원 확대 가능.</p><a class="source-badge" href="https://ether.fi/blog/ether-fi-summer-next-generation-crypto-neobank" target="_blank" rel="noopener"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt=""><span data-page-i18n="sourceOfficialBlog">공식 블로그</span><i>↗</i></a></div>
-                <div class="driver-card"><b>03</b><strong data-page-i18n="driverInstitutionTitle">기관 채택과 보안 강화</strong><p data-page-i18n="driverInstitutionBody">KPK가 2,500만 달러 이상을 weETH 핵심 자산으로 배정. Certora 감사와 권한·출금 구조 강화 완료. 담보 채택 확대는 weETH 수요에 긍정적.</p><div class="source-badge-row"><a class="source-badge" href="https://www.ether.fi/blog/why-kpk-made-weeth-a-core-holding" target="_blank" rel="noopener"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt=""><span data-page-i18n="sourceKpkBlog">공식 블로그 · KPK</span><i>↗</i></a><a class="source-badge" href="https://www.ether.fi/blog/hardening-weeth-creating-the-market-standard" target="_blank" rel="noopener"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt=""><span data-page-i18n="sourceSecurityBlog">공식 블로그 · 보안</span><i>↗</i></a></div></div>
-                <div class="driver-card"><b>04</b><strong data-page-i18n="driverSupplyTitle">언락 오버행의 종료 접근</strong><p data-page-i18n="driverSupplyBody">현 일정 기준 2027년 3월 베스팅 종료. 잔여 물량은 단기 매도 압력. 종료 후 신규 유통 부담 축소.</p><a class="source-badge" href="https://app.tokenomics.com/tokenomics/ether-fi/unlocks" target="_blank" rel="noopener"><img src="https://app.tokenomics.com/favicon.ico" alt=""><span>Tokenomics.com</span><i>↗</i></a></div>
-              </div>
+              <div class="driver-grid" id="assetDrivers"></div>
             </div>
           </section>
 
@@ -230,12 +212,7 @@
             <div class="section-number">03</div>
             <div class="research-content">
               <h3 data-page-i18n="recentNews">최근 주요 뉴스</h3>
-              <div class="news-list">
-                <a href="https://ether.fi/blog/ether-fi-summer-next-generation-crypto-neobank" target="_blank" rel="noopener"><time>2026.08.13</time><span class="news-copy"><span class="news-source"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt=""><span data-page-i18n="sourceOfficialBlog">공식 블로그</span></span><strong data-page-i18n="newsSummerTitle">ether.fi Summer 출시</strong><small data-page-i18n="newsSummerBody">토큰화 주식·금속 거래, Aave 담보대출, 30개 이상 통화의 입출금 수단을 통합한 차세대 앱 공개.</small></span><i>↗</i></a>
-                <a href="https://ether.fi/blog/hardening-weeth-creating-the-market-standard" target="_blank" rel="noopener"><time>2026.08.06</time><span class="news-copy"><span class="news-source"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt=""><span data-page-i18n="sourceOfficialBlog">공식 블로그</span></span><strong data-page-i18n="newsHardeningTitle">weETH 프로토콜 하드닝 완료</strong><small data-page-i18n="newsHardeningBody">출금 경로·권한·보안 경계를 강화하고 Steakhouse Prime Vault 담보 시장에 진입.</small></span><i>↗</i></a>
-                <a href="https://www.ether.fi/blog/why-kpk-made-weeth-a-core-holding" target="_blank" rel="noopener"><time>2026.07.22</time><span class="news-copy"><span class="news-source"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt=""><span data-page-i18n="sourceOfficialBlog">공식 블로그</span></span><strong data-page-i18n="newsKpkTitle">KPK, weETH에 2,500만 달러 이상 배정</strong><small data-page-i18n="newsKpkBody">65개 이상 항목의 실사를 거쳐 전술 포지션이 아닌 핵심 전략 자산으로 채택.</small></span><i>↗</i></a>
-                <a href="https://beta.ether.fi/blog/safe-staking-from-doctrine-to-code" target="_blank" rel="noopener"><time>2026.07.14</time><span class="news-copy"><span class="news-source"><img src="https://www.ether.fi/images/favicon/android-chrome-192x192.png" alt=""><span data-page-i18n="sourceOfficialBlog">공식 블로그</span></span><strong data-page-i18n="newsSecurityTitle">핵심 컨트랙트 보안 구조 개편</strong><small data-page-i18n="newsSecurityBody">Certora 감사와 불변조건 테스트를 적용하고 운영 키 권한을 세분화.</small></span><i>↗</i></a>
-              </div>
+              <div class="news-list" id="assetNews"></div>
             </div>
           </section>
 
@@ -244,16 +221,16 @@
             <div class="research-content">
               <h3 data-page-i18n="unlockSchedule">토큰 언락 일정</h3>
               <div class="unlock-highlight">
-                <div class="unlock-card primary"><div class="unlock-card-head"><span data-page-i18n="nextUnlock">다음 언락</span><b id="nextUnlockCountdown">D-8</b></div><time id="nextUnlockDate">2026.09.15</time><strong id="nextUnlockAmount">8.95M ETHFI</strong><em id="nextUnlockUsd">≈ $5.7M</em><small id="nextUnlockDetail">총 공급량의 0.9%</small></div>
-                <div class="unlock-card"><span data-page-i18n="remainingUnlock">잔여 언락</span><strong id="remainingUnlockAmount">62.62M ETHFI</strong><em id="remainingUnlockUsd">≈ $40.0M</em><small id="remainingUnlockDetail">총 공급량의 6.3% · 7회</small></div>
-                <div class="unlock-card"><span data-page-i18n="vestingEnd">최종 베스팅 종료</span><strong>2027.03.15</strong><small data-page-i18n="insiderUnlock">주요 잔여 물량: 투자자·핵심 기여자</small></div>
+                <div class="unlock-card primary"><div class="unlock-card-head"><span data-page-i18n="nextUnlock">다음 언락</span><b id="nextUnlockCountdown">—</b></div><time id="nextUnlockDate">—</time><strong id="nextUnlockAmount">—</strong><em id="nextUnlockUsd">—</em><small id="nextUnlockDetail">—</small></div>
+                <div class="unlock-card"><span data-page-i18n="remainingUnlock">잔여 언락</span><strong id="remainingUnlockAmount">—</strong><em id="remainingUnlockUsd">—</em><small id="remainingUnlockDetail">—</small></div>
+                <div class="unlock-card"><span data-page-i18n="vestingEnd">최종 베스팅 종료</span><strong id="vestingEndDate"></strong><small data-asset-copy="insiderUnlock"></small></div>
               </div>
-              <div class="unlock-timeline" aria-label="ETHFI unlock timeline">
+              <div class="unlock-timeline" aria-label="등록 언락 일정">
                 <span class="past" id="unlockTimelinePast" style="width:93.7%"></span><i id="unlockTimelineMarker" style="left:93.7%"></i>
               </div>
-              <div class="unlock-legend"><span><i></i><span id="unlockedLegend">해제 93.7%</span></span><span><i></i><span id="lockedLegend">잔여 6.3%</span></span></div>
-              <p class="data-note" data-page-i18n="unlockNote">대규모 월간 언락 수치는 Tokenomics.com 기준. 공식 배분·Tokenomist·DropsTab 교차 참고. 플랫폼별 유통량·언락 정의 차이로 수치 편차 가능. 달러 가치는 CoinGecko 현재가 연동.</p>
-              <div class="source-row"><a class="source-link" href="https://etherfi.gitbook.io/gov/ethfi-allocations" target="_blank" rel="noopener" data-page-i18n="allocationSource">공식 ETHFI 배분 ↗</a><a class="source-link" href="https://app.tokenomics.com/tokenomics/ether-fi/unlocks" target="_blank" rel="noopener"><img src="https://app.tokenomics.com/favicon.ico" alt=""><span>Tokenomics.com ↗</span></a><a class="source-link" href="https://tokenomist.ai/ether-fi" target="_blank" rel="noopener"><img src="https://tokenomist.ai/favicon.ico" alt=""><span>Tokenomist ↗</span></a><a class="source-link" href="https://dropstab.com/coins/ether-fi/vesting" target="_blank" rel="noopener"><img src="https://dropstab.com/favicon.ico" alt=""><span>DropsTab ↗</span></a></div>
+              <div class="unlock-legend"><span><i></i><span id="unlockedLegend">—</span></span><span><i></i><span id="lockedLegend">—</span></span></div>
+              <p class="data-note" data-asset-copy="unlockNote"></p>
+              <div class="source-row" id="unlockSources"></div>
             </div>
           </section>
 
@@ -278,6 +255,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=10"></script>
+  <script type="module" src="./js/investment-setup.js?v=11"></script>
 </body>
 </html>
