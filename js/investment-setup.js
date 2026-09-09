@@ -17,7 +17,7 @@ import {
 } from './investment-score.js?v=2';
 import { numberOrNull, localize, safeUrl, decisionStorageKey, validateCatalog, validateAsset, selectAssetId, unlockSummary, resolveProfile, fetchJson, loadProtocolMetrics } from './research-data.js?v=1';
 import { renderCatalog, renderAssetContent } from './research-renderer.js?v=1';
-import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=1';
+import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=2';
 
 const $ = id => document.getElementById(id);
 let account = null;
@@ -46,8 +46,12 @@ const newsAccount=new ResearchNewsAccount(authClient,{
     const owner=localStorage.getItem('fundingResearchFavoritesImportedBy.v1');
     return owner&&owner!==account?.id?[]:loadResearchCollections().favorites.filter(id=>catalog.some(asset=>asset.id===id));
   },
+  shouldImportLegacy:userId=>!localStorage.getItem(`fundingResearchFavoritesImported.v2.${userId}`),
+  onLegacyImported:userId=>{
+    localStorage.setItem(`fundingResearchFavoritesImported.v2.${userId}`,'1');
+    if(!localStorage.getItem('fundingResearchFavoritesImportedBy.v1'))localStorage.setItem('fundingResearchFavoritesImportedBy.v1',userId);
+  },
   onChange:state=>{
-    if(state.ready&&state.userId&&!localStorage.getItem('fundingResearchFavoritesImportedBy.v1'))localStorage.setItem('fundingResearchFavoritesImportedBy.v1',state.userId);
     collections={...collections,favorites:state.userId?(state.ready?state.favorites:[]):loadResearchCollections().favorites};
     renderResearchCollections();newsPanel.refresh();
   },

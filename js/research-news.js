@@ -15,8 +15,9 @@ export function selectDailyNews({batch,items=[],pins=[],favorite=false,now=new D
 }
 
 export class ResearchNewsAccount {
-  constructor(client,{onChange=()=>{},legacyFavorites=()=>[]}={}) {
+  constructor(client,{onChange=()=>{},legacyFavorites=()=>[],shouldImportLegacy=()=>true,onLegacyImported=()=>{}}={}) {
     this.client=client;this.onChange=onChange;this.legacyFavorites=legacyFavorites;
+    this.shouldImportLegacy=shouldImportLegacy;this.onLegacyImported=onLegacyImported;
     this.generation=0;this.userId=null;this.ready=false;this.busy=false;this.favorites=[];this.error='';
   }
   emit(){this.onChange(this);}
@@ -27,20 +28,31 @@ export class ResearchNewsAccount {
     this.userId=userId;this.ready=false;this.busy=!!userId;this.favorites=[];this.error='';this.emit();
     if(!userId)return;
     try {
-      // Only import browser favorites when this account has no server record.
-      // ignoreDuplicates keeps simultaneous first logins from overwriting each other.
+      // Ensure an account row exists first. Browser favorites are merged below
+      // through the atomic RPC, so an existing empty row cannot block import.
       let result=await this.client.from('research_preferences').select('favorites').eq('user_id',userId).maybeSingle();
       if(result.error)throw result.error;
       if(generation!==this.generation)return;
       if(!result.data) {
-        const favorites=[...new Set(this.legacyFavorites())].filter(id=>/^[a-z0-9][a-z0-9-]*$/.test(id)).slice(0,200);
-        const inserted=await this.client.from('research_preferences').upsert({user_id:userId,favorites},{onConflict:'user_id',ignoreDuplicates:true});
+        const inserted=await this.client.from('research_preferences').upsert({user_id:userId,favorites:[]},{onConflict:'user_id',ignoreDuplicates:true});
         if(inserted.error)throw inserted.error;
         result=await this.client.from('research_preferences').select('favorites').eq('user_id',userId).single();
         if(result.error)throw result.error;
       }
       if(generation!==this.generation)return;
-      this.favorites=result.data.favorites||[];this.ready=true;
+      let favorites=result.data.favorites||[];
+      if(this.shouldImportLegacy(userId)) {
+        const legacy=[...new Set(this.legacyFavorites(userId))].filter(id=>/^[a-z0-9][a-z0-9-]*$/.test(id)).slice(0,200);
+        for(const id of legacy) {
+          if(favorites.includes(id))continue;
+          const imported=await this.client.rpc('research_set_favorite',{p_asset_id:id,p_enabled:true,p_expected_user:userId});
+          if(imported.error)throw imported.error;
+          if(generation!==this.generation)return;
+          favorites=imported.data||favorites;
+        }
+        this.onLegacyImported(userId);
+      }
+      this.favorites=favorites;this.ready=true;
     }catch(error){if(generation===this.generation)this.error='즐겨찾기 동기화 실패 · 다시 시도';}
     finally{if(generation===this.generation){this.busy=false;this.emit();}}
   }
@@ -106,6 +118,10 @@ export class ResearchNewsPanel {
     header.append(node('h3',text('오늘의 주요 뉴스','Daily news')));
     const retry=node('button',text('새로고침','Refresh'),'chip subtle');retry.type='button';retry.disabled=this.loading||this.saving;retry.onclick=()=>this.refresh(true);header.append(retry);this.host.append(header);
     this.host.append(node('p',text('매일 09:00 KST 스크리닝 · 발행 24시간 이내 최대 3개 · 고정 뉴스는 별도 유지','Daily screening at 09:00 KST · up to 3 articles published in the preceding 24 hours · pins retained separately'),'daily-news-note'));
+    const keepHint=node('label','','daily-news-pin daily-news-pin-hint');
+    const keepHintInput=document.createElement('input');keepHintInput.type='checkbox';keepHintInput.disabled=true;
+    keepHint.append(keepHintInput,document.createTextNode(text("뉴스 카드의 '계속 보관'을 체크하면 다음 날에도 유지","Check 'Keep pinned' on a news card to retain it the next day")));
+    this.host.append(keepHint);
     if(!userId){this.host.append(node('p',text('로그인하면 즐겨찾기 종목의 자동 뉴스와 고정 보관을 사용할 수 있어.','Sign in for favorite-asset screening and saved news.')));return;}
     if(this.loading){this.host.append(node('p',text('계정 뉴스 불러오는 중…','Loading account news…')));return;}
     if(this.error){this.host.append(node('p',text(this.error,'News sync failed. Please retry.'),'daily-news-error'));return;}

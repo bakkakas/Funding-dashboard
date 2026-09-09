@@ -41,6 +41,20 @@ test('account mismatch or RPC failure never reports a saved favorite',async()=>{
   assert.equal(await state.toggle('ena',true),false);
   assert.deepEqual(state.favorites,['ethfi']);assert.ok(state.error);
 });
+test('an existing empty account row still imports browser favorites once',async()=>{
+  let imported=0,marked=0;
+  const client={
+    from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{favorites:[]}})})})}),
+    rpc:async(_name,args)=>{imported++;return {data:[args.p_asset_id]};},
+  };
+  const state=new ResearchNewsAccount(client,{
+    legacyFavorites:()=>['ethfi','ethfi'],
+    shouldImportLegacy:()=>true,
+    onLegacyImported:()=>{marked++;},
+  });
+  await state.connect('account-a');
+  assert.deepEqual(state.favorites,['ethfi']);assert.equal(imported,1);assert.equal(marked,1);assert.equal(state.ready,true);
+});
 test('worker validates known assets, caps, source dates, URLs and duplicate batches',()=>{
   const item={title:'Test',summary:'Summary',source_name:'Official',source_url:'https://example.com/news',source_type:'official_blog',published_at:'2026-09-07T23:00:00Z'};
   const valid={edition:'2026-09-08',batches:[{asset_id:'ena',status:'success',items:[item]}]};
