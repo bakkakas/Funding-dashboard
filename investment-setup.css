@@ -1,3 +1,35 @@
+.usde-board[hidden]{display:none!important}
+.usde-board{padding:22px;min-width:0;border-color:rgba(35,231,165,.25)}
+.usde-head,.usde-chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.usde-head h3{margin:6px 0;font-size:21px}
+.usde-head p,.usde-note,.usde-status{color:var(--muted);font-size:12px;line-height:1.65}
+.usde-head p{margin:0}
+.usde-head button{flex-shrink:0}
+.usde-total{font-size:clamp(25px,3.5vw,39px);font-weight:900;letter-spacing:-.04em;margin-top:20px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.usde-status.warning{color:#f5c451}
+.usde-changes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0}
+.usde-change{display:grid;gap:7px;padding:14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025);font-variant-numeric:tabular-nums;min-width:0}
+.usde-change span{font-size:12px;color:var(--muted);font-weight:800}
+.usde-change strong{font-size:23px}
+.usde-change b{font-size:13px;overflow-wrap:anywhere}
+.usde-change small{font-size:10px;color:var(--muted)}
+.usde-change.positive strong,.usde-change.positive b{color:var(--accent)}
+.usde-change.negative strong,.usde-change.negative b{color:#ff7185}
+.usde-chart-head h4{font-size:13px;margin:0}
+.usde-ranges{display:flex;gap:5px}
+.usde-ranges .chip{font-size:11px;padding:5px 9px}
+.usde-chart svg{display:block;width:100%;height:auto;margin-top:12px;overflow:visible}
+.usde-chart text{fill:var(--muted);font-size:11px}
+.usde-gridline{stroke:var(--line);stroke-dasharray:3 5}
+.usde-area{fill:rgba(35,231,165,.08)}
+.usde-line{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+.usde-point{fill:transparent}
+.usde-point:hover{fill:var(--accent)}
+.usde-chart-empty{display:grid;place-items:center;height:140px;color:var(--muted)}
+.usde-source{font-size:11px;color:var(--accent)}
+.usde-note{font-size:11px;margin:12px 0 7px}
+@media(max-width:1050px){.usde-changes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.usde-board{padding:15px}.usde-head h3{font-size:18px}.usde-head p{font-size:11px}.usde-chart-head{align-items:flex-start;flex-direction:column}.usde-change{padding:11px}.usde-change strong{font-size:21px}.usde-chart text{font-size:22px}}
 .setup-tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--line)}
 .setup-tab{appearance:none;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted);padding:11px 16px 13px;font:inherit;font-size:14px;font-weight:850;cursor:pointer}
 .setup-tab:hover{color:var(--text)}

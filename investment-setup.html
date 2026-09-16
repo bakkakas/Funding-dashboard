@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=12">
+  <link rel="stylesheet" href="./investment-setup.css?v=13">
 </head>
 <body>
   <div class="wrap">
@@ -126,6 +126,7 @@
             <div class="market-status" id="marketStatus" data-page-i18n="marketFallback">2026.08.24 기준값 · 실시간 데이터 갱신 중</div>
           </header>
 
+          <section class="card usde-board" id="usdeMarketCap" aria-labelledby="usdeTitle" hidden></section>
           <section class="card daily-news" id="researchDailyNews" aria-label="오늘의 주요 뉴스" aria-live="polite"></section>
           <section class="card decision-beta" aria-labelledby="decisionBetaTitle">
             <div class="decision-beta-head">
@@ -257,6 +258,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=13"></script>
+  <script type="module" src="./js/investment-setup.js?v=14"></script>
 </body>
 </html>

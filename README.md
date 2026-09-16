@@ -113,5 +113,15 @@ TELEGRAM_BOT_TOKEN=... TELEGRAM_CHAT_ID=... python3 send_telegram_alerts.py
 ## GitHub Pages 배포
 이 저장소는 GitHub Pages root 배포를 기준으로 동작합니다.
 
+## Ethena · USDe 시총 보드
+
+`investment-setup.html?asset=ena`에 USDe 전체 체인 USD 시총, 1일·7일·30일·365일 변화액/변화율과 기간별 차트를 표시합니다. ENA 시총·Ethena TVL·sUSDe를 합산하지 않습니다.
+
+- 출처: DefiLlama `stablecoincharts/all?stablecoin=146`의 `totalCirculatingUSD.peggedUSD`. 유통 토큰 수량을 USD 시총으로 대체하지 않습니다.
+- 제공처의 중복 CORS 헤더 때문에 브라우저는 같은 사이트의 `data/usde-market-cap.json`을 읽습니다.
+- `python3 scripts/update_usde_market_cap.py`로 수집합니다. `update-usde.yml`이 6시간마다 수집하고 Pages 빌드를 요청합니다. 화면은 5분마다 갱신을 확인합니다.
+- 변화량은 최신 일별 관측일 기준이며 각 비교 날짜를 표시합니다. 48시간 초과 지연, 실패, 누락된 비교치는 별도 표시하며 0으로 대체하지 않습니다. 수집 실패 시 기존 파일을 유지합니다.
+- 검증: `node --test tests/usde-market-cap.test.mjs tests/research-data.test.mjs` 및 `python3 -m unittest discover -s tests -p test_usde_market_cap.py`.
+
 ## 향후 확장
 `update_data.py`의 `PAIRS`에 거래소와 종목을 추가하면 확장 가능합니다.
