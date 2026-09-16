@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { normalizeUsdeObservation, milestoneProgress, BUYBACK_MILESTONES, CAP_MILESTONES, fetchUsdeObservation } from '../js/usde-observation.js';
 import { evaluateUsdeMilestones } from '../js/usde-alerts.js';
+import { buildUsdeMonitorScript } from '../scripts/usde-monitor-script.mjs';
 
 const now = Date.UTC(2026, 8, 16, 12);
 const observation = cap => ({cap, supply:cap / .99, observedAt:now, fetchedAt:now, source:'CoinGecko'});
@@ -48,4 +49,33 @@ test('stale, invalid or regressed observation cannot change alert state',()=>{
   assert.throws(()=>evaluateUsdeMilestones(observation(5e9),{},now+3600001));
   assert.throws(()=>evaluateUsdeMilestones({...observation(5e9),cap:NaN},{},now));
   assert.throws(()=>evaluateUsdeMilestones(observation(5e9),{lastObservedAt:now+1},now));
+});
+
+test('all 15 requested levels fire once and completion waits for the final threshold',()=>{
+  const levels=[5,6,7,7.5,9,10,11,13,15,17,19,20,22,24,25];
+  let previous=evaluateUsdeMilestones(observation(4.7e9),{},now).state;
+  for(const [index,level] of levels.entries()) {
+    const result=evaluateUsdeMilestones(observation(level*1e9),previous,now);
+    assert.ok(result.notify.includes('$'+level+'B'));
+    assert.equal(result.state.completed,index===levels.length-1);
+    assert.equal(result.state.notified.length,index+1);
+    assert.equal(evaluateUsdeMilestones(observation(level*1e9),result.state,now).notify,undefined);
+    previous=result.state;
+  }
+  assert.deepEqual(previous.notified,levels.map(value=>value*1e9));
+});
+
+test('scheduler retries failed DM, then removes itself only after final delivery, with no more source calls',async()=>{
+  const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
+  const run=new AsyncFunction('trigger','automations','exec','json',buildUsdeMonitorScript('test-job','collector',{initialized:true,notified:[]}));
+  const pending={initialized:true,completed:true,pendingNotify:'final alert'};
+  let result;
+  const noFetch=async()=>{throw Error('Unexpected source call');};
+  await run({state:pending},async()=>({state:{lastDelivered:false}}),noFetch,r=>{result=r;});
+  assert.equal(result.notify,'final alert');
+  assert.deepEqual(pending,{initialized:true,completed:true,pendingNotify:'final alert'});
+  const calls=[];
+  await run({state:pending},async args=>{calls.push(args);return {state:{lastDelivered:true}};},noFetch,r=>{result=r;});
+  assert.deepEqual(calls,[{action:'get',jobId:'test-job'},{action:'remove',jobId:'test-job'}]);
+  assert.deepEqual(result,{});
 });

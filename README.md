@@ -128,7 +128,8 @@ TELEGRAM_BOT_TOKEN=... TELEGRAM_CHAT_ID=... python3 send_telegram_alerts.py
 - Ethena 보고서 최상단에 공식 USDe **유통량** 마일스톤 7.5B/10B/15B/20B/25B+ 및 단계 비율 5/10/15/20/25%를 표시합니다. [공식 제안·투표 통과 확인](https://gov.ethenafoundation.com/t/ena-fee-switch-activation/830), 확인일 2026-09-16. 14일 평균은 위원회 권고로만 표시하며 실제 집행을 자동 판정하지 않습니다.
 - `js/usde-observation.js`는 CoinGecko `ethena-usde`에서 현재 USD 시총과 유통량을 **별도** 필드로 읽고 1시간 초과 지연 데이터를 거절합니다. 관심 시총은 $5B/$6B/$7B/$7.5B. 기존 DefiLlama 일별 차트와 기준 시각 및 출처가 다릅니다.
 - 소유자 알림은 웹 방문자가 아니라 별도 OpenClaw 스크립트 작업으로 실행합니다. `scripts/check_usde_milestones.mjs`는 읽기 전용 수집기, `js/usde-alerts.js`는 부작용 없는 상태 평가기입니다. 수신 채널·상태는 공개 저장소에 저장하지 않습니다.
-- 15분 간격 검사, 각 기준 최초 관측 1회 알림, 한 번에 여러 기준을 넘으면 묶음 발송. 초기 관측 이전의 도달은 재알림하지 않습니다. 실패·오래된 관측은 도달 상태를 변경하지 않습니다. Mac과 OpenClaw Gateway 실행이 필요하며 검사 사이 일시 돌파 및 API 반영 지연은 실시간으로 포착하지 못할 수 있습니다.
+- 소유자 감시: 매일 08:00 Asia/Seoul, Telegram 개인 DM. 시총 기준은 $5B/$6B/$7B/$7.5B/$9B/$10B/$11B/$13B/$15B/$17B/$19B/$20B/$22B/$24B/$25B이며 각 1회만 알립니다. 여러 기준을 넘으면 묶음 발송합니다. 초기 관측 이전의 도달은 재알림하지 않습니다.
+- `scripts/usde-monitor-script.mjs`는 스케줄러 스크립트를 생성합니다. 전송 실패 시 미전송 알림을 재시도하고, 마지막 DM 전달이 확인되면 다음 실행에서 시총 재조회 없이 작업을 삭제합니다. 실패·오래된 관측은 도달 상태를 변경하지 않습니다. Mac과 OpenClaw Gateway 실행이 필요하며 일일 검사 사이의 일시 돌파는 포착하지 못할 수 있습니다.
 - 검증: `node --test tests/usde-milestones.test.mjs`. 최신 조회 실패에도 공식 기준은 계속 표시합니다.
 
 ## 향후 확장

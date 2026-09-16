@@ -1,7 +1,7 @@
 // Self-contained so the same tested evaluator can be embedded in the scheduler.
 // The scheduler owns durable state and delivery; this function has no side effects.
 export function evaluateUsdeMilestones(observation, previous = {}, now = Date.now()) {
-  const levels = [5e9, 6e9, 7e9, 7.5e9];
+  const levels = [5, 6, 7, 7.5, 9, 10, 11, 13, 15, 17, 19, 20, 22, 24, 25].map(value => value * 1e9);
   const o = observation;
   if (!o || o.source !== 'CoinGecko' || ![o.cap, o.supply, o.observedAt].every(Number.isFinite) || o.cap <= 0 || o.supply <= 0 || now - o.observedAt > 3600000 || o.observedAt > now + 300000) throw new Error('Invalid or stale USDe observation; no alert state changed');
   if (previous.lastObservedAt && o.observedAt < previous.lastObservedAt) throw new Error('Regressed USDe source timestamp; no alert state changed');
@@ -10,7 +10,8 @@ export function evaluateUsdeMilestones(observation, previous = {}, now = Date.no
   // Initial levels already exceeded are a baseline, not a new crossing.
   const crossed = levels.filter(level => o.cap >= level && !seen.includes(level));
   const state = { initialized: true, notified: [...new Set([...seen, ...crossed])], lastCap: o.cap,
-    lastSupply: o.supply, lastObservedAt: o.observedAt, lastCheckedAt: now };
+    lastSupply: o.supply, lastObservedAt: o.observedAt, lastCheckedAt: now,
+    completed: levels.every(level => seen.includes(level) || crossed.includes(level)) };
   if (initial || crossed.length === 0) return { state };
   const usd = value => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
   const observed = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Seoul' }).format(o.observedAt);
