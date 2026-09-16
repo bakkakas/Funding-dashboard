@@ -1,4 +1,17 @@
 .usde-board[hidden]{display:none!important}
+.milestone-approved{border:1px solid rgba(35,231,165,.3);padding:6px 10px;border-radius:20px;color:var(--accent);font-size:11px;white-space:nowrap}
+.milestone-current{display:flex;align-items:center;gap:24px;margin:20px 0 8px;flex-wrap:wrap}
+.milestone-current>div{display:grid;gap:7px}.milestone-current span{font-size:12px;color:var(--muted)}
+.milestone-current strong{font-size:27px;font-variant-numeric:tabular-nums}.milestone-current small{font-size:12px;font-weight:600;color:var(--muted)}
+.milestone-current button{margin-left:auto}
+.milestone-goal{display:flex;justify-content:space-between;gap:12px;margin:20px 0 8px;font-size:12px;flex-wrap:wrap}.milestone-goal b{color:var(--accent)}
+.milestone-progress{display:block;width:100%;height:7px;appearance:none;border:0;border-radius:6px;background:var(--line);accent-color:var(--accent)}
+.milestone-progress::-webkit-progress-bar{background:var(--line);border-radius:6px}.milestone-progress::-webkit-progress-value{background:var(--accent);border-radius:6px}.milestone-progress::-moz-progress-bar{background:var(--accent);border-radius:6px}
+.buyback-tiers{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:15px}
+.buyback-tier{display:grid;gap:8px;padding:13px 10px;border:1px solid var(--line);border-radius:9px;min-width:0}.buyback-tier b{font-size:12px}.buyback-tier strong{font-size:22px;color:#b4c7fa}.buyback-tier small{font-size:10px;color:var(--muted)}.buyback-tier.reached{border-color:var(--accent)}
+.milestone-watch-title{font-size:13px;margin:20px 0 10px}.milestone-watch{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.milestone-watch>div{display:grid;gap:6px;padding:10px;background:rgba(255,255,255,.03);border-radius:7px}.milestone-watch b{font-size:13px}.milestone-watch span{font-size:11px;color:var(--muted)}
+@media(max-width:1050px){.buyback-tiers{grid-template-columns:repeat(3,minmax(0,1fr))}.milestone-watch{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){#ethenaMilestones .usde-head{flex-wrap:wrap}.buyback-tiers{gap:6px}.buyback-tier{padding:10px 7px}.buyback-tier b{font-size:11px}.milestone-current{gap:16px}.milestone-current strong{font-size:24px}}
 .usde-board{padding:22px;min-width:0;border-color:rgba(35,231,165,.25)}
 .usde-head,.usde-chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .usde-head h3{margin:6px 0;font-size:21px}

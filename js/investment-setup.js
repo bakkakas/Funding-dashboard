@@ -19,9 +19,11 @@ import { numberOrNull, localize, safeUrl, decisionStorageKey, validateCatalog, v
 import { renderCatalog, renderAssetContent } from './research-renderer.js?v=1';
 import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=2';
 import { UsdeMarketCapPanel } from './usde-market-cap.js?v=1';
+import { EthenaMilestonesPanel } from './ethena-milestones.js?v=1';
 
 const $ = id => document.getElementById(id);
 const usdePanel = new UsdeMarketCapPanel($('usdeMarketCap'));
+const milestonePanel = new EthenaMilestonesPanel($('ethenaMilestones'));
 let account = null;
 let mode = 'login';
 let language = localStorage.getItem('fundingDashboardLanguage') === 'en' ? 'en' : 'ko';
@@ -848,6 +850,7 @@ async function selectAsset(id, updateUrl=true) {
     if(version!==selectionVersion)return;
     currentAsset=validateAsset(data,id);
     usdePanel.setAsset(currentAsset.id,language,signal);
+    milestonePanel.setAsset(currentAsset.id,language,signal);
     currentPrice=null;decisionMetrics=null;decisionMarket=null;decisionMetricsError=false;decisionUpdatedAt=null;metricsLoading=true;marketFailed=false;
     decisionScenario='live';$('decisionScenario').value='live';
     decisionPreferences=loadDecisionPreferences();
@@ -926,7 +929,7 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape') setListPickerOpen(false);
 });
 
-setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); usdePanel.setLanguage(next); if(currentAsset){renderMarketData();mountTradingViewChart();} } });
+setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); usdePanel.setLanguage(next); milestonePanel.setLanguage(next); if(currentAsset){renderMarketData();mountTradingViewChart();} } });
 
 async function submitAuth(event) {
   event.preventDefault();
