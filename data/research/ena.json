@@ -5,7 +5,7 @@
   "symbol": "ENA",
   "category": "stablecoin",
   "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436",
-  "updatedAt": "2026-09-08",
+  "updatedAt": "2026-10-12",
   "market": {
     "coingeckoId": "ethena",
     "maxSupply": 15000000000
@@ -22,12 +22,12 @@
   },
   "copy": {
     "heroSummary": {
-      "ko": "USDe를 중심으로 디지털 달러와 금융 서비스를 제공하는 프로토콜.",
-      "en": "A protocol building digital-dollar products around USDe."
+      "ko": "델타 중립 준비자산으로 합성달러 USDe를 발행하는 프로토콜.",
+      "en": "A protocol issuing the USDe synthetic dollar against delta-neutral reserves."
     },
     "overviewBody": {
-      "ko": "USDe의 담보·운용 전략을 기반으로 디지털 달러 사용처 확장. 담보 구성, 거래상대방·헤지 위험과 ENA 가치 포착은 별도 확인 대상.",
-      "en": "Digital-dollar adoption built around USDe and its backing strategies. Backing, counterparty and hedging risks require separate review from ENA value capture."
+      "ko": "USDe는 법정화폐 예치형 스테이블코인이 아니라 현물 준비자산과 반대 방향 파생상품 포지션을 결합한 합성달러다. 일반 사용자의 시장 매수와 승인된 시장조성자의 직접 발행·상환을 구분해야 하며, USDe 성장과 ENA 가치 포착도 별개다.",
+      "en": "USDe is not a fiat-deposit stablecoin; it is a synthetic dollar combining spot reserve assets with offsetting derivatives. Secondary-market purchases must be separated from direct issuance and redemption by approved market makers, while USDe growth must also be separated from ENA value capture."
     },
     "tokenRoleValue": {
       "ko": "거버넌스와 sENA 스테이킹. 프로토콜 수익 배분은 정책·활성화 조건 확인 필요.",
@@ -73,12 +73,158 @@
     }
   ],
   "overviewSource": {
-    "url": "https://docs.ethena.fi/overview/ena",
+    "url": "https://docs.ethena.fi/",
     "label": {
       "ko": "공식 문서",
       "en": "Official docs"
     },
     "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+  },
+  "mechanism": {
+    "title": {
+      "ko": "USDe 발행·상환 구조",
+      "en": "USDe issuance and redemption"
+    },
+    "intro": {
+      "ko": "핵심은 일반 사용자의 USDe 매수와 신규 발행이 다르다는 점이다. 신규 공급과 직접 상환은 KYC/KYB를 통과한 Mint User가 담당하고, Ethena는 받은 준비자산의 가격 노출을 숏 포지션으로 상쇄한다.",
+      "en": "The key distinction is that buying existing USDe is not the same as creating new supply. New issuance and direct redemption are handled by KYC/KYB-approved Mint Users, while Ethena offsets the price exposure of received reserve assets with short positions."
+    },
+    "steps": [
+      {
+        "title": {
+          "ko": "직접 발행: 승인된 Mint User만",
+          "en": "Direct issuance: approved Mint Users only"
+        },
+        "body": {
+          "ko": "KYC/KYB를 통과한 시장조성자가 API 또는 Mint 화면에서 RFQ를 받고 서명한 주문과 허용된 준비자산을 제출한다. 검증이 끝나면 민팅 계약이 약 1달러 명목가치 기준에서 가스·실행비용을 뺀 수량의 새 USDe를 발행한다. 일반 사용자는 이 경로를 쓸 수 없다.",
+          "en": "A KYC/KYB-approved market maker requests an RFQ through the API or Mint interface, then submits a signed order and accepted reserve assets. After checks pass, the mint contract issues new USDe at roughly one dollar of notional value, less gas and execution costs. Ordinary users cannot use this path."
+        },
+        "sources": [
+          {
+            "url": "https://docs.ethena.fi/api-documentation/overview",
+            "label": {"ko": "민팅 API", "en": "Minting API"},
+            "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+          },
+          {
+            "url": "https://docs.ethena.fi/resources/usde-terms-and-conditions",
+            "label": {"ko": "USDe 약관", "en": "USDe terms"},
+            "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "준비자산과 델타 헤지",
+          "en": "Reserve assets and delta hedging"
+        },
+        "body": {
+          "ko": "준비자산은 BTC·ETH·SOL·LST·USDC·USDT·USDtb 등 거버넌스가 허용한 자산이다. 변동성 자산은 같은 규모의 무기한·만기 선물 숏으로 가격 델타를 상쇄하고, 자산은 주로 거래소 밖 커스터디에 두면서 거래소·DeFi·OTC의 헤지 포지션을 지원한다.",
+          "en": "Reserves may include governance-approved BTC, ETH, SOL, LSTs, USDC, USDT and USDtb. Volatile-asset exposure is offset with matching perpetual or dated-futures shorts, while assets are generally held with off-exchange custodians and used to support hedges across exchanges, DeFi and OTC venues."
+        },
+        "sources": [
+          {
+            "url": "https://docs.ethena.fi/",
+            "label": {"ko": "구조 개요", "en": "Structure overview"},
+            "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+          },
+          {
+            "url": "https://docs.ethena.fi/backing-custody-and-security/overview/off-exchange-settlement-in-detail",
+            "label": {"ko": "커스터디 구조", "en": "Custody structure"},
+            "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "시장 매수는 발행이 아님",
+          "en": "A market purchase is not issuance"
+        },
+        "body": {
+          "ko": "비승인 사용자는 CoW Swap이 연결하는 AMM이나 거래소에서 기존 USDe를 산다. 이 거래 자체는 총공급을 늘리지 않는다. 다만 수요로 USDe가 1달러 위에서 거래되거나 풀이 불균형해지면, 승인된 시장조성자가 준비자산을 넣어 새 USDe를 발행·판매하는 차익거래 유인이 생긴다.",
+          "en": "Non-approved users buy existing USDe through AMMs routed by CoW Swap or on exchanges; that trade alone does not increase total supply. If demand pushes USDe above one dollar or imbalances a pool, approved market makers gain an arbitrage incentive to contribute reserve assets, mint new USDe and sell it."
+        },
+        "sources": [
+          {
+            "url": "https://docs.ethena.fi/video-guides/how-to-buy-usde",
+            "label": {"ko": "매수·민팅 안내", "en": "Buy and mint guide"},
+            "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "상환과 소각",
+          "en": "Redemption and burn"
+        },
+        "body": {
+          "ko": "Mint User가 USDe를 민팅 계약에 보내 상환 주문을 체결하면 해당 USDe는 소각되고, 수수료·비용을 반영한 준비자산을 받는다. 약관상 상환가치는 준비금의 비례 지분이며 1 USDe당 최대 1달러 명목가치다. 일반 보유자는 Mint User가 되지 않으면 Ethena에 직접 상환할 수 없어 2차시장에서 매도해야 한다.",
+          "en": "When a Mint User sends USDe to the mint contract and executes a redemption order, that USDe is burned and reserve assets are returned after fees and costs. Under the terms, redemption is for a pro-rata share of reserves up to one dollar of notional value per USDe. Ordinary holders must become Mint Users to redeem directly or otherwise sell on the secondary market."
+        },
+        "sources": [
+          {
+            "url": "https://docs.ethena.fi/video-guides/how-to-buy-usde",
+            "label": {"ko": "상환 절차", "en": "Redemption flow"},
+            "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+          },
+          {
+            "url": "https://docs.ethena.fi/resources/usde-terms-and-conditions",
+            "label": {"ko": "상환 권리", "en": "Redemption rights"},
+            "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "발행량이 늘고 줄어드는 환경",
+          "en": "When supply expands or contracts"
+        },
+        "body": {
+          "ko": "구조상 공급은 USDe의 담보·결제·DeFi 수요, sUSDe 보상 매력, 유동성 인센티브가 기존 물량을 웃돌고 헤지 수용력이 충분할 때 늘기 쉽다. 양(+)의 펀딩·베이시스와 스테이킹 수익은 수요를 돕는다. 반대로 1달러 아래 가격, 보상 매력 저하, 위험회피·디레버리징은 매수→직접상환→소각 차익거래를 유도해 공급을 줄일 수 있다. 음(-)의 펀딩은 자동 소각이 아니라 성장 유인을 약화시키는 비용 요인이다.",
+          "en": "By inference from the mechanism, supply tends to expand when demand for USDe as collateral, payments or DeFi liquidity—and the appeal of sUSDe rewards—exceeds existing liquidity while hedge capacity remains available. Positive funding, basis and staking yield can support that demand. Below-peg pricing, weaker rewards, risk-off conditions or deleveraging can instead encourage buy-to-redeem arbitrage and burns. Negative funding does not automatically burn USDe; it raises carry costs and weakens growth incentives."
+        },
+        "sources": [
+          {
+            "url": "https://docs.ethena.fi/resources/faq",
+            "label": {"ko": "수익·페그 FAQ", "en": "Revenue and peg FAQ"},
+            "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+          },
+          {
+            "url": "https://docs.ethena.fi/video-guides/how-to-stake-usde",
+            "label": {"ko": "sUSDe 구조", "en": "sUSDe structure"},
+            "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "확장 한계와 ENA 연결",
+          "en": "Scaling limits and ENA linkage"
+        },
+        "body": {
+          "ko": "민팅은 활성 담보쌍, 블록당 한도, 선물 미결제약정·유동성, 커스터디·거래소 가용성, 프로토콜 위험한도의 제약을 받는다. USDe 공급 증가는 운용자산과 잠재 수익원을 키울 수 있지만 ENA에 매출·준비금·상환권이 자동 귀속되지는 않는다. ENA 가치 포착은 별도 거버넌스·정책 실행을 확인해야 한다.",
+          "en": "Minting is constrained by active collateral pairs, per-block limits, futures open interest and liquidity, custodian and venue availability, and protocol risk limits. Greater USDe supply can expand assets under management and potential revenue sources, but it does not automatically grant ENA holders protocol revenue, reserves or redemption rights. ENA value capture depends on separate governance and policy execution."
+        },
+        "sources": [
+          {
+            "url": "https://docs.ethena.fi/api-documentation/overview",
+            "label": {"ko": "민팅 한도", "en": "Mint limits"},
+            "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+          },
+          {
+            "url": "https://docs.ethena.fi/overview/ena/tokenomics",
+            "label": {"ko": "ENA 토크노믹스", "en": "ENA tokenomics"},
+            "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+          }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://docs.ethena.fi/resources/usde-terms-and-conditions",
+        "label": {"ko": "USDe 공식 약관", "en": "Official USDe terms"},
+        "logo": "https://coin-images.coingecko.com/coins/images/36530/large/ethena.png?1711701436"
+      }
+    ]
   },
   "drivers": [
     {

@@ -52,6 +52,29 @@ export function renderAssetContent(asset, language, profile) {
   $('assetUpdatedAt').textContent = asset.updatedAt?.replaceAll('-', '.') || missing;
   $('assetLinks').replaceChildren(...asset.links.map(source => link(source, language)));
   $('overviewSources').replaceChildren(...(asset.overviewSource ? [link(asset.overviewSource, language)] : []));
+  const mechanism = asset.mechanism;
+  const mechanismSection = $('assetMechanismSection');
+  mechanismSection.hidden = !mechanism;
+  if (mechanism) {
+    $('assetMechanismTitle').textContent = localize(mechanism.title, language);
+    $('assetMechanismIntro').textContent = localize(mechanism.intro, language);
+    $('assetMechanismSteps').replaceChildren(...(mechanism.steps ?? []).map((step, index) => {
+      const card = node('div', '', 'driver-card');
+      const sources = node('div', '', 'source-badge-row');
+      sources.append(...(step.sources ?? []).map(source => link(source, language, 'source-badge')));
+      card.append(node('b', String(index + 1).padStart(2,'0')),node('strong',localize(step.title,language)),node('p',localize(step.body,language)),sources);
+      return card;
+    }));
+    $('assetMechanismSources').replaceChildren(...(mechanism.sources ?? []).map(source => link(source, language)));
+  } else {
+    $('assetMechanismTitle').textContent = '';
+    $('assetMechanismIntro').textContent = '';
+    $('assetMechanismSteps').replaceChildren();
+    $('assetMechanismSources').replaceChildren();
+  }
+  $('valueDriversSectionNumber').textContent = mechanism ? '03' : '02';
+  $('recentNewsSectionNumber').textContent = mechanism ? '04' : '03';
+  $('unlockSectionNumber').textContent = mechanism ? '05' : '04';
   $('assetDrivers').replaceChildren(...asset.drivers.map((driver, index) => {
     const card = node('div', '', 'driver-card');
     const sources = node('div', '', 'source-badge-row');

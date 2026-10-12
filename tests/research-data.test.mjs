@@ -36,6 +36,19 @@ test('published catalog and documents validate; ids resolve and legacy key survi
   assert.equal(decisionStorageKey('ethfi'),'fundingInvestmentDecision.ethfi.v1');
   assert.notEqual(decisionStorageKey('ethfi'),decisionStorageKey('second'));
 });
+test('Ethena documents the complete USDe issuance and redemption path with official sources',()=>{
+  const ena=validateAsset(json('ena'),'ena');
+  assert.equal(ena.mechanism.steps.length,6);
+  for(const step of ena.mechanism.steps) {
+    assert.ok(step.title.ko);assert.ok(step.title.en);
+    assert.ok(step.body.ko);assert.ok(step.body.en);
+    assert.ok(step.sources.length);
+    assert.ok(step.sources.every(source=>safeUrl(source.url)));
+  }
+  assert.match(ena.mechanism.steps[0].body.ko,/KYC\/KYB/);
+  assert.match(ena.mechanism.steps[3].body.ko,/소각/);
+  assert.match(ena.mechanism.steps[5].body.ko,/자동/);
+});
 test('ten assets, duplicate identities and traversal paths',()=>{
   const assets=Array.from({length:10},(_,i)=>({id:'asset-'+i,name:'Project '+i,symbol:'T'+i}));
   assert.equal(validateCatalog({schemaVersion:1,assets}).length,10);

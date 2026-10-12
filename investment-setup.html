@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=14">
+  <link rel="stylesheet" href="./investment-setup.css?v=15">
 </head>
 <body>
   <div class="wrap">
@@ -204,8 +204,18 @@
             </div>
           </section>
 
-          <section class="card research-section">
+          <section class="card research-section mechanism-section" id="assetMechanismSection" hidden>
             <div class="section-number">02</div>
+            <div class="research-content">
+              <h3 id="assetMechanismTitle"></h3>
+              <p id="assetMechanismIntro"></p>
+              <div class="driver-grid mechanism-grid" id="assetMechanismSteps"></div>
+              <div class="source-row" id="assetMechanismSources"></div>
+            </div>
+          </section>
+
+          <section class="card research-section">
+            <div class="section-number" id="valueDriversSectionNumber">02</div>
             <div class="research-content">
               <h3 data-page-i18n="valueDrivers">토큰 가치 상승 요인</h3>
               <div class="driver-grid" id="assetDrivers"></div>
@@ -213,7 +223,7 @@
           </section>
 
           <section class="card research-section">
-            <div class="section-number">03</div>
+            <div class="section-number" id="recentNewsSectionNumber">03</div>
             <div class="research-content">
               <h3 data-page-i18n="recentNews">최근 주요 뉴스</h3>
               <div class="news-list" id="assetNews"></div>
@@ -221,7 +231,7 @@
           </section>
 
           <section class="card research-section unlock-section">
-            <div class="section-number">04</div>
+            <div class="section-number" id="unlockSectionNumber">04</div>
             <div class="research-content">
               <h3 data-page-i18n="unlockSchedule">토큰 언락 일정</h3>
               <div class="unlock-highlight">
@@ -259,6 +269,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=15"></script>
+  <script type="module" src="./js/investment-setup.js?v=16"></script>
 </body>
 </html>
