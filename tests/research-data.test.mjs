@@ -8,14 +8,14 @@ const profiles=json('profiles');
 const asset=validateAsset(json('ethfi'),'ethfi');
 const profile=resolveProfile(asset,profiles);
 test('requested assets have distinct verified market mappings, sourced bilingual content and no inherited score',()=>{
-  const mapping={ena:'ethena',mon:'monad',stx:'blockstack',cake:'pancakeswap-token',bnb:'binancecoin',ondo:'ondo-finance',inj:'injective-protocol',xpl:'plasma',pyth:'pyth-network'};
+  const mapping={ena:'ethena',mon:'monad',stx:'blockstack',cake:'pancakeswap-token',bnb:'binancecoin',ondo:'ondo-finance',inj:'injective-protocol',xpl:'plasma',pyth:'pyth-network',hype:'hyperliquid'};
   const catalog=validateCatalog(json('index'));
   for(const [id,cg] of Object.entries(mapping)) {
     assert.ok(catalog.some(item=>item.id===id));
     const doc=validateAsset(json(id),id);
     assert.equal(doc.market.coingeckoId,cg);
     assert.equal(resolveProfile(doc,profiles),null);
-    assert.ok(doc.chart.symbol.endsWith(doc.symbol+'USDT'));
+    assert.ok(doc.chart.symbol.endsWith(doc.symbol+'USDT')||(id==='hype'&&doc.chart.symbol.endsWith('HYPEUSDT.P')));
     for(const key of ['heroSummary','overviewBody','tokenRoleValue','supplyValue','insiderUnlock','unlockNote']) {
       assert.ok(doc.copy[key].ko);assert.ok(doc.copy[key].en);
     }
@@ -72,7 +72,7 @@ test('Stacks documents BTC protocol bonds without hiding pooled custody or emiss
   assert.equal(stx.news[0].date,'2026-10-12');
 });
 test('every value-driver card explains a demand or supply path and its limiting condition',()=>{
-  for(const id of ['ethfi','ena','mon','stx','cake','bnb','ondo','inj','xpl','pyth']) {
+  for(const id of ['ethfi','ena','mon','stx','cake','bnb','ondo','inj','xpl','pyth','hype']) {
     const doc=validateAsset(json(id),id);
     assert.equal(doc.updatedAt,'2026-10-13');
     for(const driver of doc.drivers) {

@@ -134,3 +134,13 @@ TELEGRAM_BOT_TOKEN=... TELEGRAM_CHAT_ID=... python3 send_telegram_alerts.py
 
 ## 향후 확장
 `update_data.py`의 `PAIRS`에 거래소와 종목을 추가하면 확장 가능합니다.
+
+### HYPE Assistance Fund 바이백·소각 추적
+
+`scripts/update_hype_buybacks.py`는 Hyperliquid 공식 API에서 Assistance Fund 시스템 주소의 HYPE 잔액·누적 진입 명목액·최근 30일 체결을 수집한다. `data/hype-buybacks.json`에 누적 매수·소각량, 누적 매수액, 평균 매입가, 1일·7일·30일 활동과 일별 체결액을 저장한다.
+
+```bash
+python3 scripts/update_hype_buybacks.py
+```
+
+GitHub Actions `Update HYPE buyback data`가 2시간마다 갱신한다. 공식 수수료 문서에 따라 Assistance Fund 귀속 HYPE는 소각으로 표시하되, 최근 체결 합계와 시스템 계정의 누적 `entryNtl`을 서로 다른 지표로 유지한다.
