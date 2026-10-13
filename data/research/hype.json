@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "id": "hype",
+  "name": "Hyperliquid",
+  "symbol": "HYPE",
+  "category": "layer1",
+  "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300",
+  "updatedAt": "2026-10-13",
+  "market": { "coingeckoId": "hyperliquid", "maxSupply": 1000000000 },
+  "metrics": { "defillamaSlug": null },
+  "chart": {
+    "symbol": "BINANCE:HYPEUSDT.P",
+    "url": "https://www.tradingview.com/symbols/HYPEUSDT.P/?exchange=BINANCE"
+  },
+  "evaluation": { "profile": null },
+  "copy": {
+    "heroSummary": {
+      "ko": "HyperCore 주문장·HyperEVM·HyperBFT를 하나의 체인에 결합한 네이티브 자산. 거래 수수료가 Assistance Fund의 HYPE 자동 매수·소각으로 연결된다.",
+      "en": "The native asset of a chain combining HyperCore order books, HyperEVM and HyperBFT, with trading fees routed into automated HYPE purchases and burns through the Assistance Fund."
+    },
+    "overviewBody": {
+      "ko": "거래량 자체보다 실제 수수료·Assistance Fund 매수액·소각량과 미래 보상 발행을 함께 추적. HYPE는 스테이킹·수수료 할인·HyperEVM 가스에도 사용되며, Hyperliquid Labs의 지분이나 확정 배당권은 아니다.",
+      "en": "Track realized fees, Assistance Fund purchases and burns against future reward emissions rather than volume alone. HYPE also supports staking, fee discounts and HyperEVM gas, but it is not equity in Hyperliquid Labs or a guaranteed dividend claim."
+    },
+    "tokenRoleValue": {
+      "ko": "HyperBFT 스테이킹·HyperEVM 가스·거래 수수료 할인 자산. 공식 시스템 주소가 거래 수수료를 HYPE로 자동 전환하며, Fund에 귀속된 HYPE는 유통·총공급에서 제거되는 소각으로 처리된다.",
+      "en": "Used for HyperBFT staking, HyperEVM gas and trading-fee discounts. The official system address automatically converts trading fees into HYPE, and HYPE attributed to the Fund is treated as burned and removed from circulating and total supply."
+    },
+    "supplyValue": {
+      "ko": "Genesis 최대공급 10억 HYPE. Assistance Fund 매수·HyperEVM 수수료 소각으로 총공급은 감소할 수 있지만, Future Emissions Reserve의 스테이킹 보상은 유통 공급을 늘린다.",
+      "en": "Genesis maximum supply is 1B HYPE. Assistance Fund purchases and HyperEVM fee burns can reduce total supply, while staking rewards from the Future Emissions Reserve increase circulating supply."
+    },
+    "insiderUnlock": {
+      "ko": "핵심 기여자·재단·미래 보상 물량이 남아 있다. 공식 전체 일자·수량 일정이 한 문서로 검증되지 않아 다음 언락을 확정값으로 표시하지 않는다.",
+      "en": "Core-contributor, foundation and future-reward allocations remain. A complete official date-and-amount schedule has not been reconciled, so no next unlock is shown as a verified figure."
+    },
+    "unlockNote": {
+      "ko": "미등록은 언락 없음이나 매도 압력 0을 뜻하지 않음. Assistance Fund의 누적 소각과 스테이킹 보상·기여자 물량의 순공급 변화를 함께 확인해야 한다.",
+      "en": "Unregistered does not mean no unlocks or zero selling pressure. Compare cumulative Assistance Fund burns with staking rewards and contributor-related additions to liquid supply."
+    }
+  },
+  "links": [
+    {
+      "url": "https://hyperfoundation.org/",
+      "label": { "ko": "공식 사이트", "en": "Official website" },
+      "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+    },
+    {
+      "url": "https://hyperliquid.gitbook.io/hyperliquid-docs",
+      "label": { "ko": "공식 문서", "en": "Official docs" },
+      "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+    },
+    {
+      "url": "https://www.coingecko.com/en/coins/hyperliquid",
+      "label": { "ko": "시장 데이터", "en": "Market data" },
+      "logo": "https://www.coingecko.com/favicon.ico"
+    }
+  ],
+  "overviewSource": {
+    "url": "https://hyperliquid.gitbook.io/hyperliquid-docs/trading/fees",
+    "label": { "ko": "공식 수수료 문서", "en": "Official fee docs" },
+    "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+  },
+  "drivers": [
+    {
+      "title": { "ko": "Assistance Fund 매수·소각", "en": "Assistance Fund buybacks and burns" },
+      "body": {
+        "ko": "Hyperliquid 거래 수수료가 공식 시스템 주소에서 HYPE 공개시장 매수로 자동 전환되고 매입분은 소각 처리됨. 거래량이 아니라 실제 누적 매수액과 HYPE 수량이 직접적인 수요·공급 감소를 보여주며, 이 속도가 보상 발행과 잠재 매도 물량을 넘어설 때 순공급 감소 효과가 커짐.",
+        "en": "Hyperliquid trading fees are automatically converted into open-market HYPE purchases at the official system address, and purchased HYPE is treated as burned. Cumulative spend and HYPE bought—not headline volume—show direct demand and supply removal; the net effect strengthens only when burns exceed reward emissions and potential selling."
+      },
+      "sources": [{
+        "url": "https://hyperliquid.gitbook.io/hyperliquid-docs/trading/fees",
+        "label": { "ko": "공식 수수료 정책", "en": "Official fee policy" },
+        "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+      }]
+    },
+    {
+      "title": { "ko": "거래·제품 수익 성장", "en": "Trading and product revenue growth" },
+      "body": {
+        "ko": "HyperCore 현물·무기한선물과 HIP-3 시장의 유료 거래가 늘면 커뮤니티 귀속 수수료와 잠재 HYPE 매수 재원이 확대될 수 있음. 다만 배포자 수수료 몫·메이커 리베이트·성장 모드 감면이 있어 총 거래량 전부가 Fund로 가지 않으므로 실제 시스템 주소 체결액으로 확인해야 함.",
+        "en": "More paid activity across HyperCore spot, perpetuals and HIP-3 markets can expand community fees and potential HYPE purchase funding. Deployer shares, maker rebates and growth-mode discounts mean gross volume does not all reach the Fund, so value capture must be verified through actual system-address executions."
+      },
+      "sources": [{
+        "url": "https://hyperliquid.gitbook.io/hyperliquid-docs/trading/fees",
+        "label": { "ko": "수수료 구조", "en": "Fee structure" },
+        "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+      }]
+    },
+    {
+      "title": { "ko": "스테이킹·가스 수요와 발행", "en": "Staking, gas demand and emissions" },
+      "body": {
+        "ko": "검증자·위임 스테이킹과 HyperEVM 가스는 HYPE 보유·잠금 수요를 만들고, HyperEVM 기본·우선 수수료도 소각됨. 반면 스테이킹 보상은 Future Emissions Reserve에서 나오므로, 잠긴 HYPE와 수수료 소각이 보상 발행·언락보다 빠르게 늘어야 유통 가능한 순공급이 감소함.",
+        "en": "Validator delegation and HyperEVM gas create HYPE holding and locking demand, while HyperEVM base and priority fees are burned. Staking rewards come from the Future Emissions Reserve, so locked HYPE and fee burns must grow faster than rewards and unlocks for liquid net supply to decline."
+      },
+      "sources": [
+        {
+          "url": "https://hyperliquid.gitbook.io/hyperliquid-docs/hypercore/staking",
+          "label": { "ko": "공식 스테이킹 문서", "en": "Official staking docs" },
+          "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+        },
+        {
+          "url": "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm",
+          "label": { "ko": "HyperEVM 소각", "en": "HyperEVM burns" },
+          "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+        }
+      ]
+    }
+  ],
+  "news": [{
+    "date": "2024-11-29",
+    "title": { "ko": "HYPE Genesis Event", "en": "HYPE Genesis Event" },
+    "body": {
+      "ko": "Hyperliquid의 네이티브 토큰 HYPE가 Genesis Event를 통해 출범. 이후 스테이킹·가스·수수료 할인과 Assistance Fund 매수·소각이 핵심 가치 연결 경로가 됐다.",
+      "en": "HYPE launched as Hyperliquid's native token through the Genesis Event. Staking, gas, fee discounts and Assistance Fund buyback-and-burn flows became its key value links."
+    },
+    "source": {
+      "url": "https://hyperfoundation.org/genesisEventTerms",
+      "label": { "ko": "Hyper Foundation", "en": "Hyper Foundation" },
+      "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+    }
+  }],
+  "unlock": {
+    "status": "unknown",
+    "events": [],
+    "sources": [{
+      "url": "https://hyperfoundation.org/genesisEventTerms",
+      "label": { "ko": "Genesis Event 약관", "en": "Genesis Event terms" },
+      "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+    }],
+    "completeSchedule": false
+  },
+  "ruleSources": {
+    "growth": {
+      "url": "https://hyperliquid.gitbook.io/hyperliquid-docs/trading/fees",
+      "label": { "ko": "공식 수수료 문서", "en": "Official fee docs" },
+      "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+    },
+    "valueCapture": {
+      "url": "https://hyperliquid.gitbook.io/hyperliquid-docs/trading/fees",
+      "label": { "ko": "Assistance Fund", "en": "Assistance Fund" },
+      "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+    },
+    "unlockPressure": {
+      "url": "https://hyperfoundation.org/genesisEventTerms",
+      "label": { "ko": "Genesis Event 약관", "en": "Genesis Event terms" },
+      "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+    },
+    "criticalRisk": {
+      "url": "https://hyperliquid.gitbook.io/hyperliquid-docs/hypercore/staking",
+      "label": { "ko": "공식 스테이킹 문서", "en": "Official staking docs" },
+      "logo": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+    }
+  }
+}
