@@ -90,8 +90,8 @@
           "en": "STX is the capacity asset"
         },
         "body": {
-          "ko": "각 BTC Bond에는 BTC 포지션 가치의 약 5%에 해당하는 STX가 짝지어져 6개월 동안 잠김. 직접 경로는 참가자가 BTC와 STX를 함께 잠그고, 풀 경로는 사용자가 BTC·sBTC만 넣더라도 풀 운영자가 대신 STX 용량을 공급할 수 있음.",
-          "en": "Each BTC bond pairs roughly 5% of the BTC position value in STX, locked for six months. Direct participants lock both assets; in pooled routes, the pool can supply the STX capacity on behalf of users who deposit only BTC or sBTC."
+          "ko": "각 BTC Bond에는 BTC 포지션 가치의 약 5%에 해당하는 STX가 짝지어짐. 따라서 비율·가격이 같다면 BTC Bond 용량이 커질수록 필요한 STX 잠금도 비례해 증가하지만, 실제 STX 수량은 Bond별 비율과 당시 BTC·STX 가격에 따라 달라짐. 직접 경로는 참가자가 두 자산을 잠그고, 풀 운영자가 사용자를 대신해 STX 용량을 공급할 수 있음.",
+          "en": "Each BTC bond pairs STX worth roughly 5% of its BTC position. At unchanged ratios and prices, more BTC capacity therefore requires proportionally more locked STX, while the token count varies with each bond's ratio and BTC/STX prices. Direct participants lock both assets; a pool can supply the STX capacity for its users."
         },
         "sources": [
           {
@@ -134,14 +134,22 @@
       },
       {
         "title": {
-          "ko": "만기·중도 종료·원금 위험",
-          "en": "Maturity, early exit and principal risk"
+          "ko": "왜 6개월인가",
+          "en": "Why six months"
         },
         "body": {
-          "ko": "직접 경로에는 슬래싱이 없고 만기 후 BTC와 STX 잠금이 해제됨. BTC는 조기 회수할 수 있지만 아직 지급되지 않은 수익을 포기하며, 짝지은 STX는 6개월 만기까지 계속 잠김. 이 원금 보호 설명은 L1 직접 경로 기준이며 풀·sBTC 경로에는 별도 운영·서명자 위험이 존재.",
-          "en": "The direct route has no slashing and both assets unlock at maturity. BTC may exit early by forfeiting undistributed yield, while paired STX remains locked for the six-month term. This principal-risk description applies to the native L1 route; pooled and sBTC routes add operational and signer risk."
+          "ko": "Bond 기간은 25,200 Bitcoin 블록(약 6개월)이며 약 1주마다 총 24회 보상을 정산. SIP-045가 정한 최소 약정 기간으로, 6개 Bond 기수가 겹치고 약 한 달마다 새 기수가 열려 만기가 한꺼번에 몰리지 않게 설계됨. 공식 사양은 이 주기 외에 ‘왜 정확히 6개월인가’에 대한 추가 경제적 근거는 제시하지 않음.",
+          "en": "A bond lasts 25,200 Bitcoin blocks (about six months) and settles rewards 24 times at roughly weekly intervals. SIP-045 defines this minimum commitment period with six overlapping cohorts and a new cohort opening about monthly to avoid synchronized maturities. The specification gives no further economic proof for choosing exactly six months beyond this cadence."
         },
         "sources": [
+          {
+            "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
+            "label": {
+              "ko": "SIP-045 · Bond 기간",
+              "en": "SIP-045 · bond term"
+            },
+            "logo": "https://github.githubassets.com/favicons/favicon.svg"
+          },
           {
             "url": "https://www.stacks.co/blog/bitcoin-staking-genesis-bond-how-it-works",
             "label": {
@@ -154,19 +162,19 @@
       },
       {
         "title": {
-          "ko": "PoX-5는 관리형 부트스트랩 단계",
-          "en": "PoX-5 is a managed bootstrap phase"
+          "ko": "만기 해제·재가입·중도 종료",
+          "en": "Unlocks, renewals and early exit"
         },
         "body": {
-          "ko": "현재 직접 참여는 Stacks Endowment가 승인·용량·STX 비율·목표 수익률을 정하고, 일반 사용자는 지정 풀을 이용. 완전한 무허가 경매는 별도 승인이 필요한 PoX-6 목표이며 아직 확정된 현재 기능이 아님. PoX-5 준비금도 적립 중심이라 부족분 보전에는 합의 변경이 필요할 수 있음.",
-          "en": "Today the Stacks Endowment sets direct-participant approval, capacity, the STX ratio and target yield, while public access uses selected pools. A permissionless auction is a PoX-6 goal requiring separate approval, not a current feature. The PoX-5 reserve is also accrual-focused, so covering a shortfall can require a consensus change."
+          "ko": "만기에는 STX가 자동 소각되지 않고 잠금이 풀려 다시 유통 가능해지며, 계속 참여하려면 만기 전 연장·다음 Bond 재가입이 필요. 네이티브 BTC 타임락은 재등록 거래를 만들 시간을 주기 위해 Bond 종료 약 1주 전에 먼저 끝남. BTC 조기 회수 시 미지급 수익은 포기하지만 짝지은 STX는 원래 6개월 만기까지 잠김.",
+          "en": "At maturity, STX is not burned: it unlocks and becomes liquid unless the position is extended or enrolled in the next bond. The native BTC timelock ends about one week before the bond so a new enrollment transaction can be created. An early BTC exit forfeits unpaid yield, while paired STX stays locked through the original six-month term."
         },
         "sources": [
           {
             "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
             "label": {
-              "ko": "SIP-045 · PoX-5/6",
-              "en": "SIP-045 · PoX-5/6"
+              "ko": "SIP-045 · 만기·재가입",
+              "en": "SIP-045 · maturity and renewal"
             },
             "logo": "https://github.githubassets.com/favicons/favicon.svg"
           }
@@ -253,8 +261,8 @@
         "en": "STX lock demand from BTC bonds"
       },
       "body": {
-        "ko": "BTC Bond마다 BTC 가치의 약 5%에 해당하는 STX를 6개월간 잠그므로 Bond 용량 확대는 STX 수요와 유통 물량 감소로 이어질 수 있음. Bond 2는 약 500 BTC와 670만 STX 이상으로 공식 발표됐지만, 효과는 비율·용량·STX 가격에 따라 변하고 PoX-5가 복원한 Bitcoin 블록당 1,000 STX 발행 부담도 함께 봐야 함.",
-        "en": "Each BTC bond locks roughly 5% of the BTC position value in STX for six months, so capacity growth can increase STX demand and reduce liquid supply. Bond 2 was officially reported at about 500 BTC and more than 6.7M STX, but the effect varies with ratios, capacity and STX price and must be weighed against PoX-5's restored emission of 1,000 STX per Bitcoin block."
+      "ko": "BTC Bond는 BTC 포지션 가치의 약 5%를 STX로 짝지어 25,200 Bitcoin 블록(약 6개월) 잠금. Bond 용량 확대는 STX 매수·잠금 수요와 일시적 유통량 감소를 만들지만, 만기 STX는 다시 유동화되므로 신규·재가입 락업이 만기 해제분보다 커야 효과가 지속됨. Bond 2의 약 500 BTC·670만 STX 잠금은 실증 사례지만, 비율·가격 변화와 Bitcoin 블록당 1,000 STX 발행 부담을 함께 봐야 함.",
+      "en": "A BTC bond pairs roughly 5% of its BTC position value in STX for 25,200 Bitcoin blocks (about six months). More capacity can create STX purchase/lock demand and temporarily reduce liquid supply, but matured STX becomes liquid again, so new and renewed locks must exceed expiries for the effect to persist. Bond 2's roughly 500 BTC and 6.7M+ STX demonstrate the mechanism, while changing ratios, prices and 1,000 STX of issuance per Bitcoin block remain offsets."
       },
       "sources": [
         {
@@ -281,8 +289,8 @@
         "en": "Bitcoin utility"
       },
       "body": {
-        "ko": "sBTC 사용 확대가 앱 활동·STX 가스 수요로 연결되는지 추적.",
-        "en": "Track whether sBTC adoption translates into app activity and STX gas demand."
+      "ko": "sBTC 사용이 늘어 Stacks 앱의 거래·대출·DEX 활동이 증가하면 STX 가스비와 스마트계약 실행 수요가 커질 수 있음. 가격 효과가 나려면 단순 sBTC 발행량이 아니라 실제 유료 거래 증가가 STX 발행·매도 압력을 넘어야 함.",
+      "en": "If sBTC adoption increases trading, lending and DEX activity on Stacks, demand for STX gas and contract execution can rise. Price impact requires real paid activity—not sBTC supply alone—to outweigh STX issuance and selling pressure."
       },
       "sources": [
         {
@@ -301,8 +309,8 @@
         "en": "Stacking participation"
       },
       "body": {
-        "ko": "BTC 보상과 STX 잠금 수요의 연결. 보상률·서명자 위험은 별도 검토.",
-        "en": "BTC rewards connect to STX locking demand; review reward rates and signer risks separately."
+      "ko": "STX-only Stacker는 채굴자가 지불한 BTC 중 Bond 우선 배분 뒤 남은 몫의 85%를 받으므로, 경쟁력 있는 BTC 수익률은 STX 매수·잠금 수요를 만들 수 있음. 다만 보상은 채굴자 지출과 참여자 수에 따라 변하고, sBTC 서명자 위험·STX 발행 증가가 수요 효과를 상쇄할 수 있음.",
+      "en": "STX-only stakers receive 85% of miner-paid BTC left after bond priority payments, so a competitive BTC yield can attract STX purchase and locking demand. Rewards vary with miner spend and participation, while signer risk and higher STX issuance can offset that demand."
       },
       "sources": [
         {
