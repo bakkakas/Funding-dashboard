@@ -5,7 +5,7 @@
   "symbol": "STX",
   "category": "bitcoin-layer",
   "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332",
-  "updatedAt": "2026-09-08",
+  "updatedAt": "2026-10-13",
   "market": {
     "coingeckoId": "blockstack",
     "maxSupply": null
@@ -26,12 +26,12 @@
       "en": "A network for Bitcoin-based smart contracts and financial apps."
     },
     "overviewBody": {
-      "ko": "sBTC와 스마트 계약을 통해 비트코인 활용처 확대. sBTC 서명자 구조·보안과 실사용 증가를 함께 확인할 대상.",
-      "en": "Expands Bitcoin utility through sBTC and smart contracts. Track signer security and actual adoption."
+      "ko": "sBTC·스마트 계약과 PoX-5 Bitcoin Staking을 통해 비트코인 활용처를 확대. BTC Protocol Bond가 만드는 STX 잠금 수요와 함께, 발행량·sBTC 서명자·풀 위험·실사용 증가를 확인할 대상.",
+      "en": "Expands Bitcoin utility through sBTC, smart contracts and PoX-5 Bitcoin Staking. Track STX lock demand from BTC protocol bonds alongside emissions, signer and pool risks, and actual adoption."
     },
     "tokenRoleValue": {
-      "ko": "가스와 네트워크 보안. STX를 잠그는 Stacking으로 조건에 따라 BTC 보상.",
-      "en": "Gas and network security; eligible STX Stacking positions receive BTC rewards."
+      "ko": "가스·네트워크 보안·Bitcoin Staking 용량 자산. STX-only Staking은 잔여 BTC 보상을 받고, BTC Protocol Bond는 BTC 가치의 약 5%에 해당하는 STX를 함께 잠금.",
+      "en": "Gas, network security and Bitcoin Staking capacity asset. STX-only staking receives residual BTC rewards, while BTC protocol bonds pair roughly 5% of the BTC position value in locked STX."
     },
     "supplyValue": {
       "ko": "블록 보상으로 공급량 변동. CoinGecko의 고정 Max 미제공으로 비율 미표시.",
@@ -45,6 +45,172 @@
       "ko": "공식 배분 구조 확인. 일자·수량이 검증된 다음 일정은 미등록이며, 언락 없음이나 매도 압력 0을 뜻하지 않음.",
       "en": "Allocation structure reviewed. No reconciled next date/amount registered; this does not mean no unlocks or zero selling pressure."
     }
+  },
+  "mechanism": {
+    "title": {
+      "ko": "Bitcoin Staking · BTC Protocol Bond 구조",
+      "en": "Bitcoin Staking · BTC protocol bond structure"
+    },
+    "intro": {
+      "ko": "전통 채권이나 BTC 대출이 아니라, BTC와 STX를 함께 잠가 Stacks 채굴자가 지불하는 BTC를 우선 배분받는 PoX-5 합의 포지션. 직접 참여와 풀 참여의 보관·위험 구조가 다름.",
+      "en": "Not a traditional bond or a BTC loan: it is a PoX-5 consensus position that pairs locked BTC and STX for priority access to BTC paid by Stacks miners. Direct and pooled routes have different custody and risk models."
+    },
+    "steps": [
+      {
+        "title": {
+          "ko": "BTC를 잠그는 두 경로",
+          "en": "Two routes for locking BTC"
+        },
+        "body": {
+          "ko": "직접 경로는 BTC를 Bitcoin L1의 OP_CHECKLOCKTIMEVERIFY 타임락에 두며 소유자 키 아래 유지. 풀·리퀴드 경로는 Stacks의 sBTC를 사용하고 stBTC 같은 유동화 토큰을 받을 수 있지만 sBTC 서명자·풀·스마트계약 위험을 추가로 부담.",
+          "en": "The direct route places BTC in an OP_CHECKLOCKTIMEVERIFY timelock on Bitcoin L1 under the owner's keys. Pooled and liquid routes use sBTC on Stacks and may issue liquid tokens such as stBTC, adding signer, pool and smart-contract risk."
+        },
+        "sources": [
+          {
+            "url": "https://www.stacks.co/blog/bitcoin-staking-genesis-bond-how-it-works",
+            "label": {
+              "ko": "공식 구조 설명",
+              "en": "Official structure guide"
+            },
+            "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+          },
+          {
+            "url": "https://www.stacks.co/blog/bitcoin-staking-bond-2-filled-by-bitcoin-defi",
+            "label": {
+              "ko": "Bond 2 공식 발표",
+              "en": "Official Bond 2 update"
+            },
+            "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "STX는 BTC 포지션의 용량 자산",
+          "en": "STX is the capacity asset"
+        },
+        "body": {
+          "ko": "각 BTC Bond에는 BTC 포지션 가치의 약 5%에 해당하는 STX가 짝지어져 6개월 동안 잠김. 직접 경로는 참가자가 BTC와 STX를 함께 잠그고, 풀 경로는 사용자가 BTC·sBTC만 넣더라도 풀 운영자가 대신 STX 용량을 공급할 수 있음.",
+          "en": "Each BTC bond pairs roughly 5% of the BTC position value in STX, locked for six months. Direct participants lock both assets; in pooled routes, the pool can supply the STX capacity on behalf of users who deposit only BTC or sBTC."
+        },
+        "sources": [
+          {
+            "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
+            "label": {
+              "ko": "SIP-045 · 합의 사양",
+              "en": "SIP-045 · consensus spec"
+            },
+            "logo": "https://github.githubassets.com/favicons/favicon.svg"
+          },
+          {
+            "url": "https://www.stacks.co/blog/bitcoin-staking-genesis-bond-how-it-works",
+            "label": {
+              "ko": "공식 구조 설명",
+              "en": "Official structure guide"
+            },
+            "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "BTC 보상의 재원과 지급 순서",
+          "en": "BTC reward source and waterfall"
+        },
+        "body": {
+          "ko": "Stacks 채굴자는 STX 블록 보상과 수수료를 얻기 위해 BTC를 지불. 이 BTC는 약 1주 단위로 ① 활성 BTC Bond의 목표 수익률, ② 남은 금액의 85%를 STX-only Staker, ③ 15%를 준비금 순서로 배분. 목표 수익률은 보장 이자가 아니며 채굴자 경제와 준비금에 의존.",
+          "en": "Stacks miners spend BTC to compete for STX block rewards and fees. Roughly weekly, that BTC pays active bonds first at the target yield, then routes 85% of the excess to STX-only stakers and 15% to the reserve. The target yield is not guaranteed and depends on miner economics and the reserve."
+        },
+        "sources": [
+          {
+            "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
+            "label": {
+              "ko": "SIP-045 · 보상 워터폴",
+              "en": "SIP-045 · reward waterfall"
+            },
+            "logo": "https://github.githubassets.com/favicons/favicon.svg"
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "만기·중도 종료·원금 위험",
+          "en": "Maturity, early exit and principal risk"
+        },
+        "body": {
+          "ko": "직접 경로에는 슬래싱이 없고 만기 후 BTC와 STX 잠금이 해제됨. BTC는 조기 회수할 수 있지만 아직 지급되지 않은 수익을 포기하며, 짝지은 STX는 6개월 만기까지 계속 잠김. 이 원금 보호 설명은 L1 직접 경로 기준이며 풀·sBTC 경로에는 별도 운영·서명자 위험이 존재.",
+          "en": "The direct route has no slashing and both assets unlock at maturity. BTC may exit early by forfeiting undistributed yield, while paired STX remains locked for the six-month term. This principal-risk description applies to the native L1 route; pooled and sBTC routes add operational and signer risk."
+        },
+        "sources": [
+          {
+            "url": "https://www.stacks.co/blog/bitcoin-staking-genesis-bond-how-it-works",
+            "label": {
+              "ko": "공식 만기·위험 설명",
+              "en": "Official maturity and risk guide"
+            },
+            "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "PoX-5는 관리형 부트스트랩 단계",
+          "en": "PoX-5 is a managed bootstrap phase"
+        },
+        "body": {
+          "ko": "현재 직접 참여는 Stacks Endowment가 승인·용량·STX 비율·목표 수익률을 정하고, 일반 사용자는 지정 풀을 이용. 완전한 무허가 경매는 별도 승인이 필요한 PoX-6 목표이며 아직 확정된 현재 기능이 아님. PoX-5 준비금도 적립 중심이라 부족분 보전에는 합의 변경이 필요할 수 있음.",
+          "en": "Today the Stacks Endowment sets direct-participant approval, capacity, the STX ratio and target yield, while public access uses selected pools. A permissionless auction is a PoX-6 goal requiring separate approval, not a current feature. The PoX-5 reserve is also accrual-focused, so covering a shortfall can require a consensus change."
+        },
+        "sources": [
+          {
+            "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
+            "label": {
+              "ko": "SIP-045 · PoX-5/6",
+              "en": "SIP-045 · PoX-5/6"
+            },
+            "logo": "https://github.githubassets.com/favicons/favicon.svg"
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "현재 채택: Bond 2",
+          "en": "Current adoption: Bond 2"
+        },
+        "body": {
+          "ko": "2026년 10월 12일 공식 발표 기준 Bond 2의 약 500 BTC 용량이 모두 채워졌고 670만 STX 이상이 함께 잠김. BTC 목표 수익률은 3%. 채택과 STX 잠금의 실증이지만, 공식 발표 수치이며 향후 Bond 용량·비율·STX 가격에 따라 토큰 수요 효과는 달라짐.",
+          "en": "As of the official October 12, 2026 update, Bond 2 filled roughly 500 BTC of capacity with more than 6.7M STX bonded alongside it, targeting 3% BTC yield. This demonstrates adoption and STX lock demand, but future token impact varies with bond capacity, pairing ratios and STX price."
+        },
+        "sources": [
+          {
+            "url": "https://www.stacks.co/blog/bitcoin-staking-bond-2-filled-by-bitcoin-defi",
+            "label": {
+              "ko": "Bond 2 공식 발표",
+              "en": "Official Bond 2 update"
+            },
+            "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+          }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
+        "label": {
+          "ko": "SIP-045 전체 사양",
+          "en": "Full SIP-045 spec"
+        },
+        "logo": "https://github.githubassets.com/favicons/favicon.svg"
+      },
+      {
+        "url": "https://www.stacks.co/blog/bitcoin-staking-bond-2-filled-by-bitcoin-defi",
+        "label": {
+          "ko": "Bond 2 공식 발표",
+          "en": "Official Bond 2 update"
+        },
+        "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+      }
+    ]
   },
   "links": [
     {
@@ -81,6 +247,34 @@
     "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
   },
   "drivers": [
+    {
+      "title": {
+        "ko": "BTC Bond의 STX 잠금 수요",
+        "en": "STX lock demand from BTC bonds"
+      },
+      "body": {
+        "ko": "BTC Bond마다 BTC 가치의 약 5%에 해당하는 STX를 6개월간 잠그므로 Bond 용량 확대는 STX 수요와 유통 물량 감소로 이어질 수 있음. Bond 2는 약 500 BTC와 670만 STX 이상으로 공식 발표됐지만, 효과는 비율·용량·STX 가격에 따라 변하고 PoX-5가 복원한 Bitcoin 블록당 1,000 STX 발행 부담도 함께 봐야 함.",
+        "en": "Each BTC bond locks roughly 5% of the BTC position value in STX for six months, so capacity growth can increase STX demand and reduce liquid supply. Bond 2 was officially reported at about 500 BTC and more than 6.7M STX, but the effect varies with ratios, capacity and STX price and must be weighed against PoX-5's restored emission of 1,000 STX per Bitcoin block."
+      },
+      "sources": [
+        {
+          "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
+          "label": {
+            "ko": "SIP-045 · STX 수요·발행",
+            "en": "SIP-045 · STX demand and emissions"
+          },
+          "logo": "https://github.githubassets.com/favicons/favicon.svg"
+        },
+        {
+          "url": "https://www.stacks.co/blog/bitcoin-staking-bond-2-filled-by-bitcoin-defi",
+          "label": {
+            "ko": "Bond 2 공식 발표",
+            "en": "Official Bond 2 update"
+          },
+          "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+        }
+      ]
+    },
     {
       "title": {
         "ko": "비트코인 활용 확대",
@@ -123,6 +317,25 @@
     }
   ],
   "news": [
+    {
+      "date": "2026-10-12",
+      "title": {
+        "ko": "Bitcoin Staking Bond 2 용량 충족",
+        "en": "Bitcoin Staking Bond 2 fills capacity"
+      },
+      "body": {
+        "ko": "공식 발표 기준 약 500 BTC 전량과 670만 STX 이상이 결합. 대부분 StackingDAO·Xverse의 sBTC 기반 풀·리퀴드 경로로 참여했으며 BTC 목표 수익률은 3%.",
+        "en": "The official update reported roughly 500 BTC filled alongside more than 6.7M STX, mostly through sBTC-based pooled and liquid routes via StackingDAO and Xverse, targeting 3% BTC yield."
+      },
+      "source": {
+        "url": "https://www.stacks.co/blog/bitcoin-staking-bond-2-filled-by-bitcoin-defi",
+        "label": {
+          "ko": "공식 블로그",
+          "en": "Official blog"
+        },
+        "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+      }
+    },
     {
       "date": "2026-09-04",
       "title": {
@@ -168,12 +381,12 @@
       "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
     },
     "valueCapture": {
-      "url": "https://www.stacks.co/blog/what-is-stx",
+      "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
       "label": {
-        "ko": "공식 문서",
-        "en": "Official docs"
+        "ko": "SIP-045",
+        "en": "SIP-045"
       },
-      "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+      "logo": "https://github.githubassets.com/favicons/favicon.svg"
     },
     "unlockPressure": {
       "url": "https://www.stacks.co/blog/what-is-stx",
