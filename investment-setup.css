@@ -1,4 +1,19 @@
 .usde-board[hidden]{display:none!important}
+.pyth-reserve-board[hidden]{display:none!important}
+.pyth-reserve-board{padding:22px;min-width:0;border-color:rgba(152,109,255,.32)}
+.pyth-reserve-head,.pyth-revenue-title{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.pyth-reserve-head h3{margin:4px 0 5px;font-size:20px}.pyth-reserve-head p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
+.pyth-reserve-head>a,.pyth-revenue-title>a{color:#c9b7ff;font-size:11px;font-weight:800;text-decoration:none;white-space:nowrap}
+.pyth-reserve-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:17px}
+.pyth-reserve-metric{display:grid;gap:6px;padding:13px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.018)}
+.pyth-reserve-metric span{color:#c7d5cd;font-size:11px;font-weight:800}.pyth-reserve-metric strong{font-size:19px;font-variant-numeric:tabular-nums}.pyth-reserve-metric small{color:var(--muted);font-size:9px;line-height:1.45}
+.pyth-revenue-history{margin-top:17px;padding-top:15px;border-top:1px solid var(--line)}.pyth-revenue-title{margin-bottom:10px}.pyth-revenue-title strong{font-size:12px}
+.pyth-revenue-row{display:grid;grid-template-columns:54px minmax(100px,1fr) 165px;align-items:center;gap:10px;padding:5px 0;color:inherit;text-decoration:none}
+.pyth-revenue-month,.pyth-revenue-values{color:var(--muted);font-size:10px;font-variant-numeric:tabular-nums}.pyth-revenue-values{text-align:right}
+.pyth-revenue-bars{position:relative;display:block;height:13px}.pyth-revenue-bars i{position:absolute;left:0;height:5px;border-radius:4px}.pyth-revenue-bars .gross{top:0;background:#23e7a5}.pyth-revenue-bars .dao{bottom:0;background:#f4c95d}
+.pyth-reserve-note,.pyth-reserve-loading{margin:9px 0 0;color:var(--muted);font-size:10px;line-height:1.55}
+@media(max-width:900px){.pyth-reserve-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.pyth-reserve-metric:last-child{grid-column:1/-1}}
+@media(max-width:520px){.pyth-reserve-board{padding:15px}.pyth-reserve-head{display:grid}.pyth-reserve-metrics{grid-template-columns:1fr 1fr}.pyth-reserve-metric{padding:11px}.pyth-reserve-metric strong{font-size:17px}.pyth-revenue-row{grid-template-columns:45px minmax(70px,1fr);gap:7px}.pyth-revenue-values{grid-column:2;text-align:left}.pyth-revenue-bars{grid-column:2;grid-row:1}.pyth-revenue-month{grid-row:1}}
 .milestone-approved{border:1px solid rgba(35,231,165,.3);padding:6px 10px;border-radius:20px;color:var(--accent);font-size:11px;white-space:nowrap}
 .milestone-current{display:flex;align-items:center;gap:24px;margin:20px 0 8px;flex-wrap:wrap}
 .milestone-current>div{display:grid;gap:7px}.milestone-current span{font-size:12px;color:var(--muted)}

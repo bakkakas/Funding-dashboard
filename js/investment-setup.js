@@ -20,10 +20,12 @@ import { renderCatalog, renderAssetContent } from './research-renderer.js?v=2';
 import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=2';
 import { UsdeMarketCapPanel } from './usde-market-cap.js?v=1';
 import { EthenaMilestonesPanel } from './ethena-milestones.js?v=1';
+import { PythReservePanel } from './pyth-reserve.js?v=2';
 
 const $ = id => document.getElementById(id);
 const usdePanel = new UsdeMarketCapPanel($('usdeMarketCap'));
 const milestonePanel = new EthenaMilestonesPanel($('ethenaMilestones'));
+const pythReservePanel = new PythReservePanel($('pythReserveBoard'), fetchJson);
 let account = null;
 let mode = 'login';
 let language = localStorage.getItem('fundingDashboardLanguage') === 'en' ? 'en' : 'ko';
@@ -816,6 +818,7 @@ async function refreshAssetMarket(asset, version, signal) {
     const price=numberOrNull(market.current_price?.usd);
     currentPrice=price>0?price:null;
     decisionMarket={price:currentPrice,change24h:numberOrNull(market.price_change_percentage_24h),marketCap:numberOrNull(market.market_cap?.usd),fdv:numberOrNull(market.fully_diluted_valuation?.usd),rank:numberOrNull(data.market_cap_rank),circulatingSupply:numberOrNull(market.circulating_supply),maxSupply:numberOrNull(market.max_supply) ?? numberOrNull(asset.market.maxSupply),updatedAt};
+    pythReservePanel.setMarketCap(decisionMarket.marketCap);
     renderMarketData();
     renderUnlockSchedule(currentPrice);
     renderDecisionPanel();
@@ -851,6 +854,7 @@ async function selectAsset(id, updateUrl=true) {
     currentAsset=validateAsset(data,id);
     usdePanel.setAsset(currentAsset.id,language,signal);
     milestonePanel.setAsset(currentAsset.id,language,signal);
+    pythReservePanel.setAsset(currentAsset.id,language,signal);
     currentPrice=null;decisionMetrics=null;decisionMarket=null;decisionMetricsError=false;decisionUpdatedAt=null;metricsLoading=true;marketFailed=false;
     decisionScenario='live';$('decisionScenario').value='live';
     decisionPreferences=loadDecisionPreferences();

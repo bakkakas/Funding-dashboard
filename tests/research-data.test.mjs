@@ -56,17 +56,32 @@ test('Stacks documents BTC protocol bonds without hiding pooled custody or emiss
   assert.match(stx.mechanism.intro.ko,/전통 채권이나 BTC 대출이 아니라/);
   assert.match(stx.mechanism.steps[0].body.ko,/OP_CHECKLOCKTIMEVERIFY/);
   assert.match(stx.mechanism.steps[1].body.ko,/약 5%/);
-  assert.match(stx.mechanism.steps[1].body.ko,/풀 운영자가 대신 STX/);
+  assert.match(stx.mechanism.steps[1].body.ko,/풀 운영자가.*대신.*STX/);
   assert.match(stx.mechanism.steps[2].body.ko,/85%/);
   assert.match(stx.mechanism.steps[2].body.ko,/보장 이자가 아니며/);
-  assert.match(stx.mechanism.steps[3].body.ko,/sBTC 경로에는 별도/);
-  assert.match(stx.mechanism.steps[4].body.ko,/PoX-6 목표/);
+  assert.match(stx.mechanism.steps[3].body.ko,/25,200 Bitcoin 블록/);
+  assert.match(stx.mechanism.steps[3].body.ko,/24회/);
+  assert.match(stx.mechanism.steps[4].body.ko,/다시 유통 가능/);
+  assert.match(stx.mechanism.steps[4].body.ko,/약 1주 전에/);
   assert.match(stx.mechanism.steps[5].body.ko,/670만 STX/);
   assert.ok(stx.mechanism.steps.every(step=>step.sources.length && step.sources.every(source=>safeUrl(source.url))));
   const bondDriver=stx.drivers.find(driver=>driver.title.ko.includes('BTC Bond'));
   assert.ok(bondDriver);
   assert.match(bondDriver.body.ko,/1,000 STX 발행 부담/);
+  assert.match(bondDriver.body.ko,/신규·재가입 락업이 만기 해제분보다 커야/);
   assert.equal(stx.news[0].date,'2026-10-12');
+});
+test('every value-driver card explains a demand or supply path and its limiting condition',()=>{
+  for(const id of ['ethfi','ena','mon','stx','cake','bnb','ondo','inj','xpl','pyth']) {
+    const doc=validateAsset(json(id),id);
+    assert.equal(doc.updatedAt,'2026-10-13');
+    for(const driver of doc.drivers) {
+      assert.ok(driver.body.ko.length>=95,`${id} Korean driver is too terse`);
+      assert.ok(driver.body.en.length>=120,`${id} English driver is too terse`);
+      assert.ok(driver.sources.length>0,`${id} driver lost its source`);
+      assert.ok(driver.sources.every(source=>safeUrl(source.url)),`${id} driver has unsafe source`);
+    }
+  }
 });
 test('ten assets, duplicate identities and traversal paths',()=>{
   const assets=Array.from({length:10},(_,i)=>({id:'asset-'+i,name:'Project '+i,symbol:'T'+i}));
