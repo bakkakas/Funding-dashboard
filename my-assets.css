@@ -18,6 +18,16 @@
 .class-card{height:330px}
 .class-card canvas{height:298px!important}
 .portfolio-history{margin-bottom:16px}
+.history-chart-wrap{position:relative;height:400px;margin-top:10px}
+.history-range{padding:7px 10px;border:1px solid rgba(35,231,165,.24);border-radius:999px;background:rgba(35,231,165,.06);color:var(--accent);font-size:12px;font-weight:850;white-space:nowrap}
+.monthly-history-card{margin-top:16px}
+.monthly-history-wrap table{min-width:760px}
+.monthly-history-wrap td{font-variant-numeric:tabular-nums}
+.monthly-history-wrap .history-value{font-weight:850}
+.monthly-history-wrap .history-date{display:block;margin-top:3px;color:var(--muted);font-size:11px;font-weight:700}
+.monthly-history-wrap .change-positive{color:var(--accent);font-weight:850}
+.monthly-history-wrap .change-negative{color:var(--bad);font-weight:850}
+.monthly-history-wrap .change-flat{color:var(--muted);font-weight:850}
 .crypto-portfolio-card{margin-bottom:16px}
 .crypto-source-panel{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px;margin-bottom:14px;border:1px solid rgba(142,162,255,.24);border-radius:10px;background:rgba(142,162,255,.065)}
 .crypto-source-label{margin-bottom:4px;font-size:13px;font-weight:850;color:var(--text)}
@@ -89,6 +99,11 @@
   .crypto-source-panel{align-items:flex-start;flex-direction:column}
   .crypto-source-toggle{justify-content:flex-start}
   .crypto-location-summary{grid-template-columns:1fr}
+  .history-chart-wrap{height:330px}
+  .monthly-history-card .section-head{flex-direction:column;align-items:flex-start;gap:10px}
+  .monthly-history-card .history-range{align-self:flex-start}
+  .history-range{white-space:normal}
   .table-wrap table{min-width:1180px}
   .crypto-table-wrap table{min-width:780px}
+  .monthly-history-wrap table{min-width:760px}
 }
