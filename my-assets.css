@@ -72,6 +72,15 @@
 .asset-main{font-weight:850}
 .asset-sub{color:var(--muted);font-size:12px;margin-top:3px}
 .asset-value{font-weight:850;font-variant-numeric:tabular-nums}
+.cash-balance-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cash-balance-fields[hidden]{display:none}
+.cash-balance-fields label{display:grid;gap:6px;color:var(--muted);font-size:12px;font-weight:800}
+.cash-input-wrap{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px;padding-left:12px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--text);font-size:16px;font-weight:850}
+.cash-input-wrap:focus-within{border-color:var(--accent)}
+.cash-input-wrap .field{min-width:0;border:0;background:transparent;padding-left:0}
+.cash-balance-stack{display:grid;gap:2px;font-variant-numeric:tabular-nums}
+.cash-balance-stack strong{font-size:13px}
+.cash-balance-stack span,.cash-rate{color:var(--muted);font-size:12px;font-weight:750;white-space:nowrap}
 .table-sort{display:inline-flex;align-items:center;gap:5px;margin:-6px;padding:6px;border:0;border-radius:6px;background:transparent;color:inherit;font:inherit;cursor:pointer}
 .table-sort:hover,.table-sort:focus-visible,.table-sort.active{background:rgba(255,255,255,.07);color:var(--text);outline:none}
 .table-sort-icon{display:inline-block;min-width:12px;color:var(--accent);font-size:14px;line-height:1;text-align:center}
@@ -103,6 +112,7 @@
   .monthly-history-card .section-head{flex-direction:column;align-items:flex-start;gap:10px}
   .monthly-history-card .history-range{align-self:flex-start}
   .history-range{white-space:normal}
+  .cash-balance-fields{grid-template-columns:1fr}
   .table-wrap table{min-width:1180px}
   .crypto-table-wrap table{min-width:780px}
   .monthly-history-wrap table{min-width:760px}
