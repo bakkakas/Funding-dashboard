@@ -73,3 +73,46 @@ Run `node --test tests/*.test.mjs`, Python unittest discovery and
 portfolio navigation, ETF/ADR identity, explicit save/reload, account/asset isolation
 and year selection. Fixture-auth UI checks are distinct from real database RLS
 checks; never insert trial notes into a real user's portfolio.
+
+## Earnings comparison and last four quarters
+
+Company logos come from the issuer's Naver logo URL (never the leverage wrapper's
+logo), in both the catalogue and stock header. On-demand stock/crypto selections
+also update the catalogue's identity/logo after the source response.
+
+The top of the earnings section charts the latest four **final reported** quarters
+from Naver, chronologically, with a revenue/operating-profit/net-income selector
+and exact values plus quarter-on-quarter changes. Overseas figures now use the
+actual income-statement endpoint: EBIT is not relabelled operating profit. A
+missing quarter, zero or negative base is not assigned a misleading growth rate.
+The statement's own currency/scale is shown (including DKK for Novo Nordisk).
+
+Comparison data is separate from this finalized series:
+- Domestic: WiseReport/FnGuide quarterly IFRS-consolidated earnings surprise table,
+  with the **immediately-pre-announcement consensus** and **first announced result
+  (including preliminary results)**, with each metric's announcement date. Net
+  income is parent-company attributable. Current unannounced estimates are marked
+  as such and never treated as actual zero. Partial metric retrieval is disclosed.
+- Overseas: the publicly rendered Yahoo Finance Earnings History table, preserving
+  its actual selected GAAP/Normalized switch, currency and matching fiscal period
+  columns. EPS estimate and actual come from that same table. Revenue/operating
+  profit pre-announcement consensus is not supplied by this source. Example: NVO
+  can report Normalized EPS in DKK although its market quote is the USD ADR.
+
+Difference percentages are computed from displayed (rounded) values, using the
+absolute estimate as denominator. Zero/missing estimates yield no percentage.
+Cross-provider or GAAP-vs-adjusted numbers are never combined into surprise values.
+Parser failures leave comparison unavailable without discarding independent stock
+price/final-financial data. Retrieval time is not an announcement or estimate date.
+Fixtures retain only public numerical table facts and source markup needed to
+verify parsing; no user data or credentials.
+
+Cloud-runtime Yahoo retrieval can fail independently of public browser access.
+For the initial four overseas issuers, a public `data/earnings-comparison` snapshot
+is used only when the live comparison is unavailable. Its original collection time
+and “정기 수집 자료” label remain visible. Seven-day-old data or comparison quarters
+older than the latest finalized statement trigger an update-delay notice.
+`scripts/update_earnings_comparison.py` refreshes these tables with the same JS
+parser, through a separate weekday GitHub workflow; transient 429/5xx responses
+are retried up to three times. Failed collections do not publish or erase the last
+successful snapshot. The collector reads no portfolio, account or AI configuration.

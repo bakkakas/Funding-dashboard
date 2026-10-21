@@ -1,7 +1,7 @@
-import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=1';
+import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=2';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=1';
 import { ResearchThesis } from './research-thesis.js?v=1';
-import { StockResearch } from './stock-research.js?v=1';
+import { StockResearch } from './stock-research.js?v=2';
 import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1';
 import { setupHeaderWidgets } from './header-widgets.js?v=1';
 import { applyPageTranslations } from './page-i18n.js?v=1';
@@ -29,7 +29,10 @@ import { HypeBuybackPanel } from './hype-buybacks.js?v=1';
 
 const $ = id => document.getElementById(id);
 const thesisPanel=new ResearchThesis(authClient,$('researchThesis'));
-const stockPanel=new StockResearch(authClient,$('stockResearch'));
+const stockPanel=new StockResearch(authClient,$('stockResearch'),issuer=>{
+ const entry=catalog.find(a=>a.id===currentAsset?.id);
+ if(entry&&currentAsset?.kind==='stock'){Object.assign(entry,{logo:issuer.logo,name:issuer.name,symbol:issuer.symbol});renderResearchCollections();}
+});
 function syncThesis(){
  const key=currentAsset?.kind==='stock'?currentAsset.id:currentAsset?.market?.coingeckoId?'crypto:'+currentAsset.market.coingeckoId:null;
  $('researchThesis').hidden=!key;
@@ -887,6 +890,7 @@ async function selectAsset(id, updateUrl=true) {
     }else data=await fetchJson('./data/research/'+encodeURIComponent(id)+'.json',{signal});
     if(version!==selectionVersion)return;
     currentAsset=validateAsset(data,id);
+    if(selectedEntry.dynamicCoin)Object.assign(selectedEntry,{name:currentAsset.name,symbol:currentAsset.symbol,logo:currentAsset.logo});
     usdePanel.setAsset(currentAsset.id,language,signal);
     milestonePanel.setAsset(currentAsset.id,language,signal);
     pythReservePanel.setAsset(currentAsset.id,language,signal);
