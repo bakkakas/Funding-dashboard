@@ -46,6 +46,7 @@ export const TREND_METRICS = [
   {id:'revenue',label:'매출액',names:['매출액','매출']},
   {id:'operating',label:'영업이익',names:['영업이익']},
   {id:'net',label:'순이익',names:['당기순이익','순이익']},
+  {id:'parentNet',label:'지배주주 순이익',names:['지배주주순이익','지배주주 순이익']},
 ];
 export function fourQuarterTrend(quarters, metric) {
   const all = [...(quarters || [])].sort((a,b)=>a.key.localeCompare(b.key));
@@ -58,5 +59,27 @@ export function fourQuarterTrend(quarters, metric) {
     const consecutive = index && month(q.key)-month(all[index-1].key)===3;
     const delta = consecutive ? earningsDelta(value,prior) : {amount:null,percent:null};
     return {period:q.period,key:q.key,value,previous:consecutive?prior:null,delta:delta.amount,percent:prior>0?delta.percent:null};
+  });
+}
+
+// Domestic finalized IFRS consolidated amounts and pre-announcement consensus.
+// Do not match total net income to the parent-shareholders' net-income forecast.
+export function comparisonTrend(quarters, records, metric, financialUnit = '') {
+  if (metric === 'eps') {
+    const series = records.filter(r => r.metrics.some(m => m.label === 'EPS' && m.actual != null));
+    const latest = [...series].sort((a,b) => b.period.localeCompare(a.period))[0];
+    const unit = latest?.metrics.find(m=>m.label==='EPS')?.unit;
+    return series.filter(r=>r.basis===latest.basis && r.metrics.some(m=>m.label==='EPS'&&m.unit===unit))
+      .sort((a,b)=>a.period.localeCompare(b.period)).slice(-4).map(r=>{
+        const m=r.metrics.find(m=>m.label==='EPS'&&m.unit===unit);
+        return {period:r.period.slice(0,7),value:m.actual,estimate:m.estimate,unit,basis:r.basis};
+      });
+  }
+  const label = {revenue:'매출액',operating:'영업이익',parentNet:'지배주주 순이익'}[metric];
+  return fourQuarterTrend(quarters,metric).map(r=>{
+    const month=r.key.replace(/\D/g,'').slice(0,6);
+    const record=records.find(x=>x.period.replace(/\D/g,'').slice(0,6)===month && x.basis?.startsWith('IFRS 연결'));
+    const match=record?.metrics.find(m=>m.label===label && m.unit==='억 KRW');
+    return {...r,estimate:/억 KRW/.test(financialUnit)?match?.estimate??null:null,unit:financialUnit,basis:'확정 실적'};
   });
 }
