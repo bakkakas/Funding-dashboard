@@ -6,7 +6,7 @@ export const STOCKS = [
   {id:'stock-amzn',code:'AMZN.O',name:'Amazon',symbol:'AMZN',currency:'USD',market:'US',cik:'1018724',ir:'https://ir.aboutamazon.com/quarterly-results/default.aspx'},
   {id:'stock-nke',code:'NKE',name:'Nike',symbol:'NKE',currency:'USD',market:'US',cik:'320187',ir:'https://investors.nike.com/investors/news-events-and-reports/'},
   {id:'stock-novo-nordisk',code:'NVO',name:'Novo Nordisk A/S',symbol:'NOVO B',currency:'USD',market:'US',primaryListing:'Nasdaq Copenhagen · NOVO B',quoteNote:'기업 분석·투자 메모는 원주 기업 Novo Nordisk 기준. 아래 가격·변화율은 미국 ADR NVO / USD 참고 시세이며 덴마크 원주 DKK 시세가 아닙니다.',ir:'https://www.novonordisk.com/investors/financial-results.html'},
-];
+].map(stock=>({...stock,logo:`https://ssl.pstatic.net/imgstock/fn/real/logo/png/stock/Stock${stock.code}.png`}));
 export const INSTRUMENT_ALIASES = {'0193W0':'005930','0195S0':'000660','TSLL':'TSLA.O','TSLQ':'TSLA.O','NVDL':'NVDA.O','NVDU':'NVDA.O','NVDQ':'NVDA.O','AAPU':'AAPL.O','AAPD':'AAPL.O','AMZU':'AMZN.O','AMZD':'AMZN.O','GOOX':'GOOGL.O','GGLL':'GOOGL.O','GGLS':'GOOGL.O'};
 const STABLE = new Set(['USDT','USDC','USDE','SUSDE','DAI','USDS','SUSDS','FDUSD','TUSD','USDP','BUSD','FRAX','PYUSD','GUSD','LUSD','USD1','USDD','RLUSD','USDF','USD0','USDG','EURC','EURS','EURCV','EURI','USDBC','CRVUSD','DOLA','MIM','GHO','USDY','USDT0','USDC.E','USDT.E']);
 const COMMODITIES = new Set(['PAXG','XAUT','GOLD','SILVER']);

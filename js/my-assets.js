@@ -1,4 +1,4 @@
-import { researchTarget, researchHref } from './asset-identity.js?v=1';
+import { researchTarget, researchHref } from './asset-identity.js?v=2';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=1';
 import { authClient as db, signInWithGoogle } from './auth.js?v=1';
 import { setupHeaderWidgets } from './header-widgets.js?v=1';
