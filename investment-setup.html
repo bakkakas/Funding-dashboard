@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=16">
+  <link rel="stylesheet" href="./investment-setup.css?v=17">
 </head>
 <body>
   <div class="wrap">
@@ -77,7 +77,10 @@
           <div class="report-index-note" data-page-i18n="moreReports">분석 보고서 계속 추가 예정.</div>
         </aside>
 
-        <div id="researchLoading" class="card research-loading" role="status">종목 불러오는 중…</div>
+        <div class="research-detail">
+<section class="card research-thesis" id="researchThesis" hidden></section>
+<div class="stock-research" id="stockResearch" hidden></div>
+<div id="researchLoading" class="card research-loading" role="status">종목 불러오는 중…</div>
         <article class="research-report" hidden>
           <section class="card usde-board" id="ethenaMilestones" aria-labelledby="ethenaMilestoneTitle" hidden></section>
           <header class="card report-hero">
@@ -252,6 +255,7 @@
 
           <footer class="report-disclaimer" data-page-i18n="disclaimer">정보 제공 목적의 리서치 · 투자 권유 아님. 시장 데이터와 일정은 변동 가능.</footer>
         </article>
+</div>
       </div>
     </section>
   </div>
@@ -271,6 +275,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=19"></script>
+  <script type="module" src="./js/investment-setup.js?v=20"></script>
 </body>
 </html>

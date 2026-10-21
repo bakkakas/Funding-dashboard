@@ -1,3 +1,7 @@
+import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=1';
+import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=1';
+import { ResearchThesis } from './research-thesis.js?v=1';
+import { StockResearch } from './stock-research.js?v=1';
 import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1';
 import { setupHeaderWidgets } from './header-widgets.js?v=1';
 import { applyPageTranslations } from './page-i18n.js?v=1';
@@ -24,6 +28,14 @@ import { PythReservePanel } from './pyth-reserve.js?v=2';
 import { HypeBuybackPanel } from './hype-buybacks.js?v=1';
 
 const $ = id => document.getElementById(id);
+const thesisPanel=new ResearchThesis(authClient,$('researchThesis'));
+const stockPanel=new StockResearch(authClient,$('stockResearch'));
+function syncThesis(){
+ const key=currentAsset?.kind==='stock'?currentAsset.id:currentAsset?.market?.coingeckoId?'crypto:'+currentAsset.market.coingeckoId:null;
+ $('researchThesis').hidden=!key;
+ void thesisPanel.connect(account?.id||null,key,currentAsset?`${currentAsset.name} · ${currentAsset.symbol}`:'');
+}
+
 const usdePanel = new UsdeMarketCapPanel($('usdeMarketCap'));
 const milestonePanel = new EthenaMilestonesPanel($('ethenaMilestones'));
 const pythReservePanel = new PythReservePanel($('pythReserveBoard'), fetchJson);
@@ -33,6 +45,7 @@ let mode = 'login';
 let language = localStorage.getItem('fundingDashboardLanguage') === 'en' ? 'en' : 'ko';
 const COLLECTIONS_STORAGE_KEY = 'fundingResearchCollections.v1';
 let currentAsset = null;
+let selectedResearchUrl=location.href;
 let catalog = [];
 let profiles = {};
 let currentPrice = null;
@@ -505,6 +518,8 @@ function render() {
     ? `${account.email} ${c('connected')}`
     : c('accountNotice');
   if (!currentAsset) return;
+  syncThesis();
+  if(currentAsset.kind==='stock'){renderResearchCollections();document.title=`${currentAsset.name} · 투자 셋업`;return;}
   renderAssetContent(currentAsset, language, resolveProfile(currentAsset, profiles));
   renderResearchCollections();
   renderMarketData();
@@ -844,6 +859,17 @@ function showLoadError(retry) {
 
 async function selectAsset(id, updateUrl=true) {
   if(!catalog.some(asset=>asset.id===id))return;
+  if(currentAsset?.id!==id&&!thesisPanel.canLeave()){if(!updateUrl)history.replaceState({},'',selectedResearchUrl);return;}
+  stockPanel.cancel();
+  $('researchThesis').hidden=true;
+  const selectedEntry=catalog.find(a=>a.id===id);
+  if(selectedEntry.kind==='stock'){
+    ++selectionVersion;assetController?.abort();currentAsset=selectedEntry;
+    document.querySelector('.research-report').hidden=true;$('researchLoading').hidden=true;
+    if(updateUrl){const url=new URL(location.href);url.search=researchHref({...selectedEntry,kind:'stock'}).split('?')[1];history.pushState({},'',url);}
+    selectedResearchUrl=location.href;render();if(updateUrl&&innerWidth<901)$('researchThesis').scrollIntoView({block:'start'});await stockPanel.show(selectedEntry,new URL(location.href).searchParams.get('via')||selectedEntry.via||'');return;
+  }
+
   const version=++selectionVersion;
   assetController?.abort();
   assetController=new AbortController();
@@ -852,7 +878,13 @@ async function selectAsset(id, updateUrl=true) {
   $('researchLoading').hidden=false;
   $('researchLoading').textContent=language==='en'?'Loading research…':'종목 불러오는 중…';
   try {
-    const data=await fetchJson('./data/research/'+encodeURIComponent(id)+'.json',{signal});
+    let data;
+    if(selectedEntry.dynamicCoin){
+      const {data:coin,error}=await authClient.functions.invoke('asset-research',{body:{kind:'crypto',id:selectedEntry.dynamicCoin}});
+      if(error||coin?.error||coin?.excluded)throw Error(coin?.message||coin?.error||'코인 자료 조회 실패');
+      const text=new DOMParser().parseFromString(coin.description||'','text/html').body;
+      data={schemaVersion:1,id,name:coin.name,symbol:coin.symbol,logo:coin.logo,updatedAt:coin.updatedAt?.slice(0,10),category:'crypto',market:{coingeckoId:coin.id,maxSupply:coin.market?.max_supply??null},metrics:{},copy:{heroSummary:'CoinGecko 기반 종목 개요 · 상세 리서치 미등록',overviewBody:text.textContent,tokenRoleValue:'상세 리서치 미등록',supplyValue:'공급량은 시장 데이터 기준',insiderUnlock:'언락 일정 미확인',unlockNote:'일정 미등록을 언락 완료로 해석하지 않습니다.'},links:[{label:'공식 홈페이지',url:coin.website}],drivers:[],news:[],unlock:{status:'unknown'},ruleSources:{}};
+    }else data=await fetchJson('./data/research/'+encodeURIComponent(id)+'.json',{signal});
     if(version!==selectionVersion)return;
     currentAsset=validateAsset(data,id);
     usdePanel.setAsset(currentAsset.id,language,signal);
@@ -870,7 +902,8 @@ async function selectAsset(id, updateUrl=true) {
     render();renderMarketData();mountTradingViewChart();
     $('researchLoading').hidden=true;
     document.querySelector('.research-report').hidden=false;
-    if(updateUrl){const url=new URL(location.href);url.searchParams.set('asset',id);history.pushState({},'',url);}
+    if(updateUrl){const url=new URL(location.href);url.search='';url.searchParams.set('asset',id);if(selectedEntry.dynamicCoin)url.searchParams.set('coin',selectedEntry.dynamicCoin);history.pushState({},'',url);}
+    selectedResearchUrl=location.href;
     refreshAssetMarket(currentAsset,version,signal);
     refreshDecisionMetrics(currentAsset,version,signal);
   }catch(error){
@@ -882,12 +915,24 @@ async function selectAsset(id, updateUrl=true) {
 async function initializeResearch() {
   try {
     const [index,settings]=await Promise.all([fetchJson('./data/research/index.json'),fetchJson('./data/research/profiles.json')]);
-    catalog=validateCatalog(index);profiles=settings;
+    catalog=[...validateCatalog(index),...STOCKS.map(s=>({...s,archiveAvailable:true,kind:'stock',category:'stock'}))];profiles=settings;
+    const params=new URL(location.href).searchParams,stock=params.get('stock'),coin=params.get('coin');
+    if(stock&&/^[A-Za-z0-9][A-Za-z0-9.-]{0,25}$/.test(stock)){
+      const resolved=canonicalStock(stock);
+      if(!catalog.some(a=>a.id===resolved.id))catalog.push({...resolved,kind:'stock',category:'stock'});
+      params.set('asset',resolved.id);const url=new URL(location.href);url.search=params.toString();history.replaceState({},'',url);
+    }else if(coin&&/^[a-z0-9-]{1,80}$/.test(coin)){
+      const known=CRYPTO_RESEARCH.find(a=>a.coingeckoId===coin);
+      const id=known?.id||'coin-'+coin;
+      if(!known)catalog.push({id,name:coin,symbol:coin.toUpperCase(),category:'crypto',dynamicCoin:coin});
+      const url=new URL(location.href);url.searchParams.set('asset',id);history.replaceState({},'',url);
+    }
     renderCatalog(catalog,null,collections.favorites,language);
     const requested=new URL(location.href).searchParams.get('asset');
     const selected=selectAssetId(catalog,requested);
     if(requested!==selected){const url=new URL(location.href);url.searchParams.set('asset',selected);history.replaceState({},'',url);}
     await selectAsset(selected,false);
+    if(requested&&innerWidth<901)$('researchThesis').scrollIntoView({block:'start'});
   }catch(error){showLoadError(initializeResearch);}
 }
 window.addEventListener('popstate',()=>selectAsset(selectAssetId(catalog,new URL(location.href).searchParams.get('asset')),false));
@@ -937,7 +982,7 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape') setListPickerOpen(false);
 });
 
-setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); usdePanel.setLanguage(next); milestonePanel.setLanguage(next); hypeBuybackPanel.setLanguage(next); if(currentAsset){renderMarketData();mountTradingViewChart();} } });
+setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); usdePanel.setLanguage(next); milestonePanel.setLanguage(next); hypeBuybackPanel.setLanguage(next); if(currentAsset&&currentAsset.kind!=='stock'){renderMarketData();mountTradingViewChart();} } });
 
 async function submitAuth(event) {
   event.preventDefault();
@@ -971,7 +1016,9 @@ account = accountFromSession(data?.session);
 render();
 void newsAccount.connect(account?.id||null);
 authClient.auth.onAuthStateChange((_event, session) => {
+  const previousUser=account?.id;
   account = accountFromSession(session);
+  if(previousUser!==account?.id)void thesisPanel.connect(null,null,'');
   if(newsAccount.userId!==(account?.id||null)) {
     newsAccount.reset(account?.id||null);
     collections={...collections,favorites:account?[]:loadResearchCollections().favorites};
