@@ -34,18 +34,25 @@ export function filterPlans(items,{category='',target='',scope='',state='active'
  .sort((a,b)=>Number(isDue(b,today))-Number(isDue(a,today))||String(b.created_at).localeCompare(String(a.created_at)));
 }
 
-// Preserve existing signed impact storage while exposing a 1–6 point scale.
-export function impactScore(impact) {const index=IMPACTS.findIndex(([value])=>value===impact);return index<0?null:index+1;}
+// Signed impacts are both the stored value and displayed score.
+export function impactScore(impact) {const index=IMPACTS.findIndex(([value])=>value===impact);return index<0?null:impact;}
 export function planScores(items,today=seoulDate()) {
  const fresh=items.filter(i=>i.state==='active'&&!isDue(i,today)&&impactScore(i.impact)!==null);
  const global=fresh.filter(i=>i.scope==='all');
  const summarize=(scope,target,specific)=>{
   const rows=scope==='all'?global:[...global,...specific];
   const total=rows.reduce((sum,i)=>sum+impactScore(i.impact),0),count=rows.length;
-  return {scope,target,count,total,max:count*6,average:count?total/count:null,globalCount:global.length,specificCount:specific.length};
+  return {scope,target,count,total,min:-count*3,max:count*3,average:count?total/count:null,globalCount:global.length,specificCount:specific.length};
  };
  const groups=new Map();
  // Keep scopes with expired/resolved records visible, without scoring those records.
  for(const i of items){if(i.scope==='all')continue;const key=JSON.stringify([i.scope,i.target]);if(!groups.has(key))groups.set(key,{scope:i.scope,target:i.target});}
  return [summarize('all','전체 공통',[]),...[...groups.values()].sort((a,b)=>a.scope.localeCompare(b.scope)||a.target.localeCompare(b.target,'ko')).map(g=>summarize(g.scope,g.target,fresh.filter(i=>i.scope===g.scope&&i.target===g.target)))];
+}
+
+export function overallScore(items,today=seoulDate()) {
+ const rows=items.filter(i=>i.state==='active'&&!isDue(i,today)&&impactScore(i.impact)!==null);
+ const total=rows.reduce((sum,i)=>sum+i.impact,0),count=rows.length;
+ const average=count?total/count:null;
+ return {total,count,average,position:average===null?50:(average+3)/6*100,intensity:average===null?0:Math.abs(average)/3};
 }

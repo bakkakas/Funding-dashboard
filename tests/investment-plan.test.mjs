@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {normalizePlan,seoulDate,isDue,filterPlans,validDate,impactScore,planScores} from '../js/investment-plan-model.js';
+import {normalizePlan,seoulDate,isDue,filterPlans,validDate,impactScore,planScores,overallScore} from '../js/investment-plan-model.js';
 const base={title:'금리 상승',category:'macro',kind:'fact',impact:-2};
 test('six signed levels only; default entire portfolio; fact and forecast explicit',()=>{
  for(const impact of [-3,-2,-1,1,2,3])assert.equal(normalizePlan({...base,impact}).impact,impact);
@@ -45,8 +45,8 @@ test('target filtering includes global context; due first, then newest; resolved
  assert.deepEqual(filterPlans([a,b,c,d],{state:'resolved'},'2026-10-23').map(x=>x.id),['done']);
 });
 
-test('scores map old signed impacts to exactly 1 through 6; importance ignored',()=>{
- assert.deepEqual([-3,-2,-1,1,2,3].map(impactScore),[1,2,3,4,5,6]);
+test('scores use signed impacts from -3 through +3; importance ignored',()=>{
+ assert.deepEqual([-3,-2,-1,1,2,3].map(impactScore),[-3,-2,-1,1,2,3]);
  assert.equal(impactScore(0),null);
  assert.equal('importance' in normalizePlan({...base,importance:5}),false);
  const make=importance=>({...normalizePlan(base),importance});
@@ -56,11 +56,11 @@ test('global plus exact target; industries do not contaminate others or global',
  const make=(impact,scope='all',target='',extra={})=>({...normalizePlan({...base,impact,scope,target}),...extra});
  const rows=[make(2),make(1),make(-3,'industry','반도체'),make(3,'industry','에너지'),make(-2,'asset_class','반도체')];
  const scores=planScores(rows,'2026-10-23');const global=scores[0];
- assert.equal(global.total,9);assert.equal(global.count,2);assert.equal(global.average,4.5);
+ assert.equal(global.total,3);assert.equal(global.count,2);assert.equal(global.average,1.5);
  const semi=scores.find(s=>s.scope==='industry'&&s.target==='반도체');
- assert.equal(semi.total,10);assert.equal(semi.count,3);assert.equal(semi.average,10/3);assert.equal(semi.max,18);
- assert.equal(scores.find(s=>s.target==='에너지').total,15);
- assert.equal(scores.find(s=>s.scope==='asset_class').total,11);
+ assert.equal(semi.total,0);assert.equal(semi.count,3);assert.equal(semi.average,0);assert.equal(semi.max,9);
+ assert.equal(scores.find(s=>s.target==='에너지').total,6);
+ assert.equal(scores.find(s=>s.scope==='asset_class').total,1);
  assert.deepEqual(filterPlans(rows,{target:'반도체',scope:'industry'}).map(x=>x.scope).sort(),['all','all','industry']);
 });
 test('zero inputs show no average; expired/resolved excluded; personal context included',()=>{
@@ -68,6 +68,18 @@ test('zero inputs show no average; expired/resolved excluded; personal context i
  const row={...normalizePlan({...base,category:'personal',impact:3})};
  const excluded=[{...row,expires_on:'2026-10-23'},{...row,state:'resolved'}];
  const score=planScores([row,...excluded],'2026-10-23')[0];
- assert.equal(score.total,6);assert.equal(score.count,1);assert.equal(score.average,6);
+ assert.equal(score.total,3);assert.equal(score.count,1);assert.equal(score.average,3);
  const invalid={...row,impact:0};assert.equal(planScores([invalid])[0].count,0);
+});
+
+test('overall counts each eligible item once across scopes, balanced and empty differ',()=>{
+ const make=(impact,extra={})=>({...normalizePlan({...base,impact}),...extra});
+ const rows=[make(3),make(-3,{scope:'industry',target:'반도체'}),make(2,{category:'personal'}),make(-2,{state:'resolved'}),make(-3,{expires_on:'2026-10-23'})];
+ const score=overallScore(rows,'2026-10-23');
+ assert.equal(score.total,2);assert.equal(score.count,3);assert.equal(score.average,2/3);
+ assert.equal(overallScore([make(-3)]).position,0);assert.equal(overallScore([make(3)]).position,100);
+ assert.equal(overallScore([make(-3)]).intensity,1);
+ assert.equal(overallScore([make(-1)]).intensity,1/3);
+ assert.equal(overallScore([make(3),make(-3)]).average,0);
+ assert.equal(overallScore([]).average,null);assert.equal(overallScore([]).position,50);
 });

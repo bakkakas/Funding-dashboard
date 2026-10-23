@@ -2,7 +2,7 @@
 
 The Investment Setup → Investment Plan tab records context, not trade orders or a probability of profitable investment. No examples or real user data are seeded.
 
-- Six impact scores (very negative 1 through very positive 6); mandatory fact/forecast selection. Importance is removed from UI, normalization, ranking and scoring. Existing signed storage (-3, -2, -1, +1, +2, +3) maps deterministically to 1–6 to preserve saved records. The deprecated importance DB column has default 3 for compatibility with old clients; it is ignored.
+- Six impact scores (−3, −2, −1, +1, +2, +3); mandatory fact/forecast selection. Importance is removed from UI, normalization, ranking and scoring. Existing signed storage (-3, -2, -1, +1, +2, +3) is used directly without rewriting saved records. The deprecated importance DB column has default 3 for compatibility with old clients; it is ignored.
 - Scope defaults to entire portfolio; optional asset class, industry, or individual asset target. Target filtering also includes global context.
 - Personal cash context includes qualitative liquidity (room/balanced/tight/unsure), optional required KRW amount and date, and freeform horizon/evidence. No presumed house purchase, fabricated budget, automatic investment-ratio recommendation or sum of heterogeneous obligations.
 - Optional expiry dates are interpreted as calendar dates in Asia/Seoul. Starting at that date an active entry is marked for review, remains visible, and is excluded from score totals and averages. Resolve the entry or explicitly edit its expiry after review. Page checks the date every minute and on visibility return; expired entries also badge the parent tab. No background push/Telegram notification.
@@ -17,3 +17,6 @@ The Investment Setup → Investment Plan tab records context, not trade orders o
 - Personal-cash context participates according to scope. Every record is equally weighted; facts and forecasts are not weighted differently. `total`, `count`, `maximum = 6 × count`, and `average = total / count` shown together. Empty sets have no average, shown as a dash, not a neutral score. Scores ignore list filters.
 - Scores include active, unexpired records only. Existing scope cards remain visible after expiry/resolution with any still-valid global context. Same target text in different scope types is kept separate in scoring and filtering.
 - New migration `20261023023000_deprecate_plan_importance.sql`; rolled-back DB checks now insert without importance.
+
+## Signed scoring update
+Impact uses −3, −2, −1, +1, +2, +3 without changing stored records. The top overall summary counts every eligible record once across all scopes; expired/resolved records are excluded. Its diverging bar position and color intensity use the mean on −3..+3, while the total is shown as a number. Empty input has no score or marker; zero mean is balanced. Global-only and global-plus-exact-target cards remain separate. This supersedes the earlier 1–6 display scale.
