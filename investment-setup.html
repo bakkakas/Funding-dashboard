@@ -9,6 +9,7 @@
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
   <link rel="stylesheet" href="./investment-setup.css?v=19">
+  <link rel="stylesheet" href="./investment-plan.css?v=1">
 </head>
 <body>
   <div class="wrap">
@@ -41,9 +42,8 @@
       <button class="setup-tab active" id="analysisTab" type="button" role="tab" aria-selected="true" data-panel="analysisPanel" data-page-i18n="analysisTab">종목 분석</button>
     </div>
     <section class="card wide setup-panel" id="planPanel" role="tabpanel" hidden>
-      <h3 class="section-title" data-page-i18n="comingSoon">준비 중</h3>
-      <div class="note" data-page-i18n="comingSoonNote">투자 계획·목표 비중 관리 화면 추가 예정.</div>
-      <div class="mini" id="accountNotice" style="margin-top:14px">계정 확인 중…</div>
+      <div class="mini" id="accountNotice" hidden></div>
+      <div id="investmentPlan" class="investment-plan"></div>
     </section>
     <section class="setup-panel" id="analysisPanel" role="tabpanel">
       <div class="analysis-shell">
@@ -275,6 +275,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=22"></script>
+  <script type="module" src="./js/investment-setup.js?v=23"></script>
 </body>
 </html>

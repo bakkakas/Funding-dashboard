@@ -1,3 +1,4 @@
+import { InvestmentPlan } from './investment-plan.js?v=1';
 import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=2';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=1';
 import { ResearchThesis } from './research-thesis.js?v=1';
@@ -28,6 +29,7 @@ import { PythReservePanel } from './pyth-reserve.js?v=2';
 import { HypeBuybackPanel } from './hype-buybacks.js?v=1';
 
 const $ = id => document.getElementById(id);
+const planPanel=new InvestmentPlan(authClient,$('investmentPlan'));
 const thesisPanel=new ResearchThesis(authClient,$('researchThesis'));
 const stockPanel=new StockResearch(authClient,$('stockResearch'),issuer=>{
  const entry=catalog.find(a=>a.id===currentAsset?.id);
@@ -512,6 +514,7 @@ function closeAuth() {
 
 function render() {
   applyPageTranslations(COPY,language);
+  planPanel.render();
   $('loginButton').textContent = account?.email || c('login');
   $('signupButton').textContent = account ? c('logout') : c('signup');
   $('authCloseButton').textContent=c('close');
@@ -1017,12 +1020,15 @@ await initializeResearch();
 const { data, error } = await authClient.auth.getSession();
 if (error) $('authStatus').textContent = error.message;
 account = accountFromSession(data?.session);
+void planPanel.connect(account?.id||null);
 render();
 void newsAccount.connect(account?.id||null);
 authClient.auth.onAuthStateChange((_event, session) => {
   const previousUser=account?.id;
   account = accountFromSession(session);
-  if(previousUser!==account?.id)void thesisPanel.connect(null,null,'');
+  if(previousUser!==account?.id){void thesisPanel.connect(null,null,'');planPanel.reset(account?.id||null);}
+  const planUser=account?.id||null;
+  setTimeout(()=>{if((account?.id||null)===planUser)void planPanel.connect(planUser);},0);
   if(newsAccount.userId!==(account?.id||null)) {
     newsAccount.reset(account?.id||null);
     collections={...collections,favorites:account?[]:loadResearchCollections().favorites};
@@ -1035,3 +1041,5 @@ authClient.auth.onAuthStateChange((_event, session) => {
 $('researchSyncRetry').onclick=()=>{if(!newsAccount.busy){newsAccount.ready=false;void newsAccount.connect(account?.id||null);}};
 setInterval(()=>newsPanel.refresh(true),60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){newsPanel.refresh(true);if(account&&!newsAccount.busy){newsAccount.ready=false;void newsAccount.connect(account.id);}}});
+
+if(location.hash==='#plan')$('planTab').click();
