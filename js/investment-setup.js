@@ -1,5 +1,5 @@
 import { InvestmentPlan } from './investment-plan.js?v=3';
-import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=2';
+import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=3';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=1';
 import { ResearchThesis } from './research-thesis.js?v=1';
 import { StockResearch } from './stock-research.js?v=3';
@@ -922,7 +922,7 @@ async function selectAsset(id, updateUrl=true) {
 async function initializeResearch() {
   try {
     const [index,settings]=await Promise.all([fetchJson('./data/research/index.json'),fetchJson('./data/research/profiles.json')]);
-    catalog=[...validateCatalog(index),...STOCKS.map(s=>({...s,archiveAvailable:true,kind:'stock',category:'stock'}))];profiles=settings;
+    catalog=[...validateCatalog(index),...STOCKS.map(s=>({...s,archiveAvailable:s.archiveAvailable??true,kind:'stock',category:'stock'}))];profiles=settings;
     const params=new URL(location.href).searchParams,stock=params.get('stock'),coin=params.get('coin');
     if(stock&&/^[A-Za-z0-9][A-Za-z0-9.-]{0,25}$/.test(stock)){
       const resolved=canonicalStock(stock);

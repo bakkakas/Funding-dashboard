@@ -1,5 +1,7 @@
 // Issuer identity is independent of the instrument used to value holdings.
 export const STOCKS = [
+  {id:'stock-005380',code:'005380',name:'현대자동차',symbol:'005380',currency:'KRW',market:'KR',archiveAvailable:false},
+  {id:'stock-263750',code:'263750',name:'펄어비스',symbol:'263750',currency:'KRW',market:'KR',archiveAvailable:false},
   {id:'stock-005930',code:'005930',name:'삼성전자',symbol:'005930',currency:'KRW',market:'KR',website:'https://www.samsung.com/',overview:'반도체·디스플레이·스마트폰·가전 등을 영위하는 삼성전자. 연결 실적과 사업부별 실적을 함께 확인합니다.',ir:'https://www.samsung.com/global/ir/financial-information/earnings-release/'},
   {id:'stock-000660',code:'000660',name:'SK하이닉스',symbol:'000660',currency:'KRW',market:'KR',website:'https://www.skhynix.com/',overview:'DRAM·NAND Flash 등 메모리 반도체를 개발·생산하는 기업. HBM을 포함한 제품 구성과 메모리 업황을 함께 확인합니다.',ir:'https://www.skhynix.com/ir/UI-FR-IR05/'},
   {id:'stock-googl',code:'GOOGL.O',name:'Alphabet',symbol:'GOOGL',currency:'USD',market:'US',cik:'1652044',ir:'https://abc.xyz/investor/'},
@@ -15,7 +17,7 @@ export function canonicalStock(code, name='') {
  code=String(code||'').replace(/^NAVER:/,'');
  const base=INSTRUMENT_ALIASES[code]||INSTRUMENT_ALIASES[code.replace(/\.[A-Z]+$/,'')]||code;
  const known=STOCKS.find(s=>s.code===base||s.symbol===base);
- return known?{...known,archiveAvailable:true,via:base!==code?code:null}:{id:`stock-${base.toLowerCase().replace(/\./g,'-')}`,code:base,name:name||base,symbol:base.split('.')[0],market:/^[0-9][0-9A-Z]{5}$/.test(base)?'KR':'US',via:base!==code?code:null};
+ return known?{...known,archiveAvailable:known.archiveAvailable??true,via:base!==code?code:null}:{id:`stock-${base.toLowerCase().replace(/\./g,'-')}`,code:base,name:name||base,symbol:base.split('.')[0],market:/^[0-9][0-9A-Z]{5}$/.test(base)?'KR':'US',via:base!==code?code:null};
 }
 export function researchTarget(asset, cryptoCatalog=[]) {
  const type=asset.asset_class||'crypto',symbol=String(asset.symbol||'').toUpperCase(),name=String(asset.name||''),quote=String(asset.quote_symbol||'');
