@@ -2,7 +2,7 @@ import { InvestmentPlan } from './investment-plan.js?v=3';
 import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=3';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=1';
 import { ResearchThesis } from './research-thesis.js?v=1';
-import { StockResearch } from './stock-research.js?v=5';
+import { StockResearch } from './stock-research.js?v=6';
 import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1';
 import { setupHeaderWidgets } from './header-widgets.js?v=1';
 import { applyPageTranslations } from './page-i18n.js?v=1';
@@ -21,7 +21,7 @@ import {
   seriesChange,
 } from './investment-score.js?v=2';
 import { numberOrNull, localize, safeUrl, decisionStorageKey, validateCatalog, validateAsset, selectAssetId, unlockSummary, resolveProfile, fetchJson, loadProtocolMetrics } from './research-data.js?v=1';
-import { renderCatalog, renderAssetContent } from './research-renderer.js?v=2';
+import { renderCatalog, renderAssetContent } from './research-renderer.js?v=3';
 import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=2';
 import { UsdeMarketCapPanel } from './usde-market-cap.js?v=1';
 import { EthenaMilestonesPanel } from './ethena-milestones.js?v=1';

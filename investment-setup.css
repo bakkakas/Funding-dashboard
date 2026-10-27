@@ -410,3 +410,11 @@
 .earnings-chart .earnings-difference{font-size:12px;font-variant-numeric:tabular-nums}
 .earnings-scroll-hint{display:none}
 @media(max-width:900px){.earnings-scroll-hint{display:block}}
+
+/* Same-period bars touch; their groups keep a clear gutter. */
+.earnings-period-tabs{display:flex;gap:8px;margin:14px 0}
+.earnings-chart .positive{fill:#32d69a}.earnings-chart .negative{fill:#ff7575}
+.earnings-table td.positive{color:#32d69a}.earnings-table td.negative{color:#ff7575}
+.stock-company-logo{border-radius:50%;background:transparent;border:0;padding:0;object-fit:contain}
+.report-token-mark.stock-logo-mark{border:0;border-radius:50%;background:transparent;padding:0}
+.report-token-mark.stock-logo-mark img{border-radius:50%;object-fit:contain}

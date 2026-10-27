@@ -83,3 +83,23 @@ test('KR cache has real forecasts for every supported issuer without treating un
   }
  }
 });
+
+test('hundred-million formatting preserves currency scale and EPS per-share semantics',async()=>{
+ const {earningsAmount,earningsUnit,earningsPercent}=await import('../js/earnings-data.js');
+ assert.equal(earningsAmount(1000,'억 KRW'),'1,000억');assert.equal(earningsAmount(148,'억 KRW',true),'+148억');
+ assert.equal(earningsAmount(100000,'USD(백만)'),'1,000억');assert.equal(earningsAmount(-14800,'DKK(백만)',true),'-148억');
+ assert.equal(earningsAmount(3.2,'USD / 주'),'3.2');assert.equal(earningsAmount(null,'억 KRW'),'미제공');assert.equal(earningsAmount(0,'억 KRW',true),'0억');
+ assert.equal(earningsPercent(12.54),'+12.5%');assert.equal(earningsPercent(-12.54),'-12.5%');assert.equal(earningsPercent(null),'—');assert.equal(earningsUnit('USD(백만)'),'금액: 억 USD');
+});
+test('annual data uses annual actual/consensus, never sums an incomplete quarter series',()=>{
+ for(const id of ['005380','263750','005930','000660']) {
+  const cache=JSON.parse(readFileSync(new URL(`../data/earnings-comparison/stock-${id}-annual.json`,import.meta.url)));
+  const rows=comparisonTrend(cache.quarters,comparisonRecords(cache),'revenue',cache.financialUnit);
+  assert.ok(rows.every(r=>/^20\d{2}$/.test(r.period)));assert.ok(rows.some(r=>r.value!=null&&r.estimate!=null));assert.ok(rows.some(r=>r.value==null&&r.estimate!=null));
+  assert.ok(fourQuarterTrend(cache.quarters,'revenue').at(-1).delta!=null);
+ }
+ const nike=JSON.parse(readFileSync(new URL('../data/earnings-comparison/stock-nke-fundamentals.json',import.meta.url))).annual;
+ const annual=comparisonTrend([],comparisonRecords(nike),'revenue','USD(백만)');
+ assert.equal(annual.find(r=>r.period==='2026').value,46398);assert.match(annual[0].fiscalPeriod,/5월 결산/);
+ assert.equal(comparisonTrend([],comparisonRecords(nike),'eps')[0].unit,'USD / 주');
+});
