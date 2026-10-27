@@ -20,6 +20,14 @@ class Fundamentals(unittest.TestCase):
         self.assertEqual(result['rows'][-1]['metrics'][0]['estimate'],140)
         self.assertEqual(result['asOf'],capture()['asOf'])
         self.assertEqual([m['label'] for m in result['rows'][0]['metrics']],['매출액','EBIT','순이익'])
+    def test_annual_fiscal_years_and_rounded_eps(self):
+        d=capture()
+        d['text']=d['text'].replace('### Quarterly results\n2026 Q4\n2027 Q1\n2027 Q2\n2027 Q3','2024\n2025\n2026\n2027')
+        d['text']+=' USDReleased\nForecast\n Spread\n3,73\n3,60\n3.56%2,16\n2,15\n0.47%\n2,10\n1,25\nAnnouncement Date\n### Quarterly results'
+        result=module.parse_capture(d,'nke',True)
+        self.assertEqual([r['period'] for r in result['rows']],['2024','2025','2026','2027'])
+        self.assertEqual(result['rows'][0]['metrics'][-1]['unit'],'USD / 주')
+        self.assertEqual(result['rows'][0]['metrics'][-1]['actual'],3.73)
     def test_reject_wrong_issuer_and_misaligned_table(self):
         with self.assertRaises(ValueError):module.parse_capture(capture(),'googl')
         bad=capture();bad['text']=bad['text'].replace('110\n100\n10%','110\n100\n50%')

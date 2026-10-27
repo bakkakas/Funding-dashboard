@@ -30,7 +30,7 @@ export function renderCatalog(catalog, selectedId, favorites, language) {
     const button = node('button', '', 'report-list-item');
     button.type = 'button'; button.dataset.selectAsset = asset.id;
     button.setAttribute('aria-current', String(asset.id === selectedId));
-    const mark = node('span', '', 'report-token-mark');mark.append(icon(asset.logo));
+    const mark = node('span', '', 'report-token-mark'+(asset.kind==='stock'?' stock-logo-mark':''));mark.append(icon(asset.logo));
     const title = node('span');title.append(node('strong', asset.name), node('small', `${asset.symbol} · ${asset.category ?? ''}`));
     button.append(mark, title);
     const favorite = node('button', favorites.includes(asset.id) ? '★' : '☆', 'report-favorite');

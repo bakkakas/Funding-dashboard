@@ -18,3 +18,10 @@ python3 scripts/import_earnings_fundamentals.py googl /path/to/reviewed-capture.
 ```
 
 Use issuer `googl`, `amzn`, `nke` or `novo-nordisk`. The importer checks source/issuer, fiscal year-end and released/forecast/spread alignment (allowing source integer rounding). It retains only the next two visibly checked forecast columns because later blank columns can lose alignment in readable text. Confirm those column positions against the source before importing. Failures must not replace valid snapshots. Do not advance `asOf` without a new source capture.
+
+## Annual view and display units
+
+- The period switch loads separate annual data, never sums a partial set of quarters. `*-annual.json` contains Naver's finalized annual financials for all eight stocks and WiseReport annual pre-release consensus for KR. The existing collector refreshes these independently of quarterly/EPS sources (`--annual-only` is available).
+- Supplemental MarketScreener captures now retain the annual table separately, including annual EPS with its own provider basis. This is not treated as Yahoo's normalized quarterly EPS. Fiscal year is the year ending in the issuer's reported month (Nike: May; the other supported issuers: December). Snapshot timestamps and manual-refresh limitations remain unchanged.
+- Financial totals are displayed in hundred-million units (억), retaining source currency: KRW 억 stays unchanged; USD/DKK millions are divided by 100 to become 억 USD/DKK. No FX conversion is performed. EPS remains per-share. Amounts display up to two decimals, surprises up to one decimal, calculated from unrounded source values.
+- Paired actual/estimate bars share a boundary; each period group has a separate gutter. Surprises share one line and use signed green/red percentages; table deltas use the same sign colors. Missing/zero estimates never produce invented percentages.

@@ -5,16 +5,16 @@ export function earningsDelta(actual, estimate) {
   if (actual == null || estimate == null) return { amount: null, percent: null };
   return { amount: actual - estimate, percent: estimate === 0 ? null : (actual - estimate) / Math.abs(estimate) * 100 };
 }
-export function wiseEarnings(payloads) {
+export function wiseEarnings(payloads, annual = false) {
   const periods = new Map();
   for (const { label, data } of payloads) {
     const table = data?.tableData;
     const rows = table?.tableData || [], headers = table?.tableHeaderData?.[0] || {};
-    const actual = rows.find(r => r.QTR === '분기실적(A)');
+    const actual = rows.find(r => r.QTR === (annual?'연간실적(A)':'분기실적(A)'));
     const estimate = rows.find(r => r.QTR === '발표직전(E)');
     for (const field of ['FY_2', 'FY_1', 'FY0', 'FY1']) {
       const raw = headers['CNS_' + field];
-      if (!/^\d{4}\/\d{2}$/.test(raw || '')) continue;
+      if (!(annual?/^\d{4}$/:/^\d{4}\/\d{2}$/).test(raw || '')) continue;
       const period = raw.replace('/', '-');
       if (!periods.has(period)) periods.set(period, { period, basis: 'IFRS 연결 · 최초 발표치(잠정 포함)', metrics: [] });
       const value = numeric(actual?.[field]), expected = numeric(estimate?.[field]);
@@ -57,7 +57,8 @@ export function fourQuarterTrend(quarters, metric) {
     const prior = index ? all[index-1].metrics.find(m=>names.includes(m.label))?.value ?? null : null;
     // A gap is not quarter-on-quarter. Quarter keys can be YYYYMM or YYYY.MM.DD.
     const month = key => {const s=key.replace(/\D/g,'');return Number(s.slice(0,4))*12+Number(s.slice(4,6));};
-    const consecutive = index && month(q.key)-month(all[index-1].key)===3;
+    const annual=q.key.length===4;
+    const consecutive = index && (annual?Number(q.key)-Number(all[index-1].key)===1:month(q.key)-month(all[index-1].key)===3);
     const delta = consecutive ? earningsDelta(value,prior) : {amount:null,percent:null};
     return {period:q.period,key:q.key,value,previous:consecutive?prior:null,delta:delta.amount,percent:prior>0?delta.percent:null};
   });
@@ -107,7 +108,7 @@ export function comparisonTrend(quarters, records, metric, financialUnit = '') {
   const rows=fourQuarterTrend(quarters,metric).map(r=>{
     const record=matching.find(x=>monthKey(x.period)===monthKey(r.key));
     const match=record?.metrics.find(m=>m.label===label && m.unit==='억 KRW');
-    return {...match,...r,period:r.key.replace(/\D/g,'').slice(0,4)+'-'+r.key.replace(/\D/g,'').slice(4,6),estimate:match?.estimate??null,unit:financialUnit,basis:'확정 실적 / 발표 전 예상'};
+    return {...match,...r,period:r.key.length===4?r.key:r.key.replace(/\D/g,'').slice(0,4)+'-'+r.key.replace(/\D/g,'').slice(4,6),estimate:match?.estimate??null,unit:financialUnit,basis:'확정 실적 / 발표 전 예상'};
   });
   const latest=rows.at(-1);
   for(const record of matching) {
@@ -116,4 +117,21 @@ export function comparisonTrend(quarters, records, metric, financialUnit = '') {
     if(m)rows.push({...m,period:record.period,value:m.actual,basis:record.basis});
   }
   return chartWindow(rows);
+}
+
+export const wiseAnnualEarnings = payloads => wiseEarnings(payloads,true);
+// Financial amounts retain their source currency; million -> hundred million (억).
+export function earningsAmount(value, unit='', signed=false) {
+ if(value==null)return '미제공';
+ const perShare=/주/.test(unit), scale=!perShare && /백만/.test(unit)?100:1;
+ const number=new Intl.NumberFormat('ko-KR',{maximumFractionDigits:2}).format(value/scale);
+ return (signed&&value>0?'+':'')+number+(perShare?'':'억');
+}
+export function earningsPercent(value) {
+ if(value==null)return '—';
+ return (value>0?'+':'')+new Intl.NumberFormat('ko-KR',{maximumFractionDigits:1}).format(value)+'%';
+}
+export function earningsUnit(unit='') {
+ if(/주/.test(unit))return unit;
+ return '금액: 억 '+(unit.match(/KRW|USD|DKK/)?.[0]||'원문 통화');
 }
