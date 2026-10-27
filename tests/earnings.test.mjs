@@ -89,7 +89,7 @@ test('hundred-million formatting preserves currency scale and EPS per-share sema
  assert.equal(earningsAmount(1000,'억 KRW'),'1,000억');assert.equal(earningsAmount(148,'억 KRW',true),'+148억');
  assert.equal(earningsAmount(100000,'USD(백만)'),'1,000억');assert.equal(earningsAmount(-14800,'DKK(백만)',true),'-148억');
  assert.equal(earningsAmount(3.2,'USD / 주'),'3.2');assert.equal(earningsAmount(null,'억 KRW'),'미제공');assert.equal(earningsAmount(0,'억 KRW',true),'0억');
- assert.equal(earningsPercent(12.54),'+12.5%');assert.equal(earningsPercent(-12.54),'-12.5%');assert.equal(earningsPercent(null),'—');assert.equal(earningsUnit('USD(백만)'),'금액: 억 USD');
+ assert.equal(earningsPercent(12.54),'+12.5%');assert.equal(earningsPercent(-12.54),'-12.5%');assert.equal(earningsPercent(null),'—');assert.equal(earningsUnit('USD(백만)'),'금액: 억·조 USD');
 });
 test('annual data uses annual actual/consensus, never sums an incomplete quarter series',()=>{
  for(const id of ['005380','263750','005930','000660']) {
@@ -102,4 +102,26 @@ test('annual data uses annual actual/consensus, never sums an incomplete quarter
  const annual=comparisonTrend([],comparisonRecords(nike),'revenue','USD(백만)');
  assert.equal(annual.find(r=>r.period==='2026').value,46398);assert.match(annual[0].fiscalPeriod,/5월 결산/);
  assert.equal(comparisonTrend([],comparisonRecords(nike),'eps')[0].unit,'USD / 주');
+});
+
+test('amounts truncate eok toward zero and switch to trillion only at the threshold',async()=>{
+ const {earningsAmount}=await import('../js/earnings-data.js');
+ for(const [value,expected] of [[100.5,'100억'],[-100.5,'-100억'],[-.9,'0억'],[9999.99,'9,999억'],[10000,'1.00조'],[18900,'1.89조'],[-18900,'-1.89조'],[18956,'1.90조']])assert.equal(earningsAmount(value,'억 KRW'),expected);
+ assert.equal(earningsAmount(1890000,'USD(백만)'),'1.89조');assert.equal(earningsAmount(100.5,'USD / 주'),'100.5');assert.equal(earningsAmount(148.9,'억 KRW',true),'+148억');assert.equal(earningsAmount(null,'억 KRW'),'미제공');
+});
+test('annual axes contain exactly five shared consecutive years and never fabricate missing amounts',async()=>{
+ const {fiveYearWindow}=await import('../js/earnings-data.js');
+ const rows=[{period:'2025',value:100,estimate:90,unit:'억 KRW'},{period:'2026',value:null,estimate:110,unit:'억 KRW'}];
+ const window=fiveYearWindow(rows,['2023','2024','2025','2026'],'억 KRW');
+ assert.deepEqual(window.map(r=>r.period),['2022','2023','2024','2025','2026']);assert.equal(window[0].missing,true);assert.equal(window[0].value,null);assert.equal(window[0].estimate,null);assert.equal(window.at(-1).missing,false);
+ assert.deepEqual(fiveYearWindow([],[]),[]);
+ const q=Array.from({length:7},(_,i)=>({key:String(2019+i),period:String(2019+i),metrics:[{label:'영업이익',value:i+1}]}));
+ assert.deepEqual(comparisonTrend(q,[],'operating','억 KRW',true).map(r=>r.value),[3,4,5,6,7]);
+ for(const id of ['005380','263750','005930','000660','googl','amzn','nke','novo-nordisk']){
+  const cache=JSON.parse(readFileSync(new URL(`../data/earnings-comparison/stock-${id}-annual.json`,import.meta.url)));
+  const extra=/^\d/.test(id)?null:JSON.parse(readFileSync(new URL(`../data/earnings-comparison/stock-${id}-fundamentals.json`,import.meta.url))).annual;
+  const records=comparisonRecords(cache,null,extra);
+  const revenue=comparisonTrend(cache.quarters,records,'revenue',cache.financialUnit,true),operating=comparisonTrend(cache.quarters,records,'operating',cache.financialUnit,true);
+  assert.equal(revenue.length,5);assert.deepEqual(revenue.map(r=>r.period),operating.map(r=>r.period));
+ }
 });
