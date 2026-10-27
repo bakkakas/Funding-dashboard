@@ -1,4 +1,4 @@
-import { earningsDelta, comparisonTrend, TREND_METRICS, earningsAmount, earningsPercent, earningsUnit } from './earnings-data.js?v=4';
+import { earningsDelta, comparisonTrend, TREND_METRICS, earningsAmount, earningsPercent, earningsUnit } from './earnings-data.js?v=5';
 import { safeUrl } from './research-data.js?v=1';
 const e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tone=v=>v>0?'positive':v<0?'negative':'';
@@ -15,13 +15,13 @@ export function renderEarnings(host,data){
   const hasEPS=records.some(r=>r.metrics.some(m=>m.label==='EPS')),hasEBIT=records.some(r=>r.metrics.some(m=>m.label==='EBIT'));
   const metrics=[...TREND_METRICS.filter(m=>(domestic||m.id!=='parentNet')&&(hasEBIT||m.id!=='ebit')),...(hasEPS?[{id:'eps',label:'EPS'}]:[])];
   if(!metrics.some(m=>m.id===metric))metric='revenue';
-  const rows=comparisonTrend(quarters,records,metric,unit),label=metrics.find(m=>m.id===metric).label;
+  const rows=comparisonTrend(quarters,records,metric,unit,annual),label=metrics.find(m=>m.id===metric).label;
   const sources=[...new Map(rows.filter(r=>r.source).map(r=>[r.source+'|'+r.asOf,r])).values()];
   const missing=!rows.some(r=>r.estimate!=null);
   const missingNote=missing?(metric==='operating'&&!domestic?'영업이익 예상치는 현재 출처에서 미제공입니다. EBIT는 별도 지표입니다.':metric==='net'&&domestic?'전체 순이익 예상치는 미제공입니다. 지배주주 순이익 탭에서 해당 기준의 예상치를 확인하세요.':'이 지표의 예상치는 현재 미제공입니다.') : '';
   host.innerHTML=`<h3>${periodName}별 예상·실제 실적</h3>
    <div class="earnings-period-tabs" role="group" aria-label="실적 기간">${[['quarter','분기별'],['annual','연도별']].map(([id,name])=>`<button class="chip ${period===id?'active':''}" type="button" data-earnings-frequency="${id}" aria-pressed="${period===id}">${name}</button>`).join('')}</div>
-   <p class="data-note">파란색은 예상, 초록색은 실제 실적. 최근 발표 ${periodName}와 제공되는 다음 ${periodName} 예상치를 표시합니다. ${annual?`연간 자료 기준 · ${data.fiscalYearEnd||12}월 결산 회계연도 (분기 일부의 합산 아님).`:''} ${domestic?'확정 실적 우선, 더 최근의 잠정치는 구분합니다.':'같은 제공처의 예상·발표 수치를 비교하며 확정 재무제표·조정 EPS와 다를 수 있습니다.'}</p>
+   <p class="data-note">파란색은 예상, 초록색은 실제 실적. 최근 발표 ${periodName}와 제공되는 다음 ${periodName} 예상치를 표시합니다. ${annual?`연속 5개년 · 자료가 없는 연도는 미제공. 연간 자료 기준 · ${data.fiscalYearEnd||12}월 결산 회계연도 (분기 일부의 합산 아님).`:''} ${domestic?'확정 실적 우선, 더 최근의 잠정치는 구분합니다.':'같은 제공처의 예상·발표 수치를 비교하며 확정 재무제표·조정 EPS와 다를 수 있습니다.'}</p>
    <div class="earnings-metric-tabs" role="group" aria-label="실적 지표">${metrics.map(m=>`<button class="chip ${metric===m.id?'active':''}" type="button" data-earnings-metric="${m.id}" aria-pressed="${metric===m.id}">${m.label}</button>`).join('')}</div>
    <div data-earnings-trend><p class="data-note">${e(earningsUnit(rows[0]?.unit||unit))} · ${e(rows[0]?.basis||'확정 실적')}${metric==='ebit'?' · EBIT는 영업이익과 다를 수 있습니다.':''}</p>
    ${sources.map(r=>`<p class="data-note">${source(r)}</p>`).join('')}${annual&&!sources.length?`<p class="data-note">연간 자료 확인 ${e(data.annualAsOf?.slice(0,10)||'미제공')}</p>`:''}
@@ -30,11 +30,11 @@ export function renderEarnings(host,data){
    <div class="earnings-comparison"><h3>시장 예상치 vs 실제 발표치</h3><label>비교 ${periodName} <select aria-label="예상 실제 비교 기간" data-earnings-period>${records.map((r,i)=>`<option value="${i}">${e(r.period)} · ${e(r.metrics.map(m=>m.label).join('/'))}${r.metrics.some(m=>m.actual!=null)?' · 발표':' · 미발표 예상'}</option>`).join('')}</select></label><div data-earnings-comparison></div></div>`;
   const values=rows.flatMap(r=>[r.value,r.estimate]).filter(v=>v!=null);
   const min=Math.min(0,...values),max=Math.max(0,...values),span=max-min||1,y=v=>180-(v-min)/span*130,zero=y(0);
-  const step=220,width=Math.max(660,rows.length*step),barWidth=70;
+  const step=annual?180:220,width=Math.max(660,rows.length*step),barWidth=70*2/3;
   const bars=rows.map((r,i)=>{
-   const x=110+i*step,d=earningsDelta(r.value,r.estimate);
-   const difference=d.amount==null?(r.value==null?'미발표 · 차액 미산출':'예상 미제공'):`차액 ${earningsAmount(d.amount,r.unit,true)}`;
-   return `<g data-quarter="${e(r.period)}"><text x="${x}" y="218" text-anchor="middle">${e(r.period)}${annual?'년':''}${r.value==null?' 예상':''}</text>
+   const x=step/2+i*step,d=earningsDelta(r.value,r.estimate);
+   const difference=d.amount==null?(r.missing?'자료 미제공':r.value==null?'미발표 · 차액 미산출':'예상 미제공'):`차액 ${earningsAmount(d.amount,r.unit,true)}`;
+   return `<g data-quarter="${e(r.period)}"><text x="${x}" y="218" text-anchor="middle">${e(r.period)}${annual?'년':''}${r.missing?' 미제공':r.value==null?' 예상':''}</text>
     ${[['estimate',r.estimate,-barWidth,'#7fb4ff','예상'],['actual',r.value,0,'#32d69a','실제']].map(([kind,value,offset,color,title])=>{
      const left=x+offset,anchor=kind==='estimate'?'end':'start',textX=x+(kind==='estimate'?-4:4);
      if(value==null)return `<text class="earnings-value" x="${textX}" y="198" text-anchor="${anchor}">${title} —</text>`;
@@ -43,9 +43,9 @@ export function renderEarnings(host,data){
     <text class="earnings-difference" x="${x}" y="244" text-anchor="middle">${e(difference)}${d.amount!=null?` <tspan class="${tone(d.percent)}">(${d.percent==null?'차이율 —':percent(d.percent)})</tspan>`:''}</text></g>`;
   }).join('');
   host.querySelector('[data-earnings-chart]').innerHTML=values.length?`<p class="data-note earnings-scroll-hint">최근 발표 ${periodName}부터 표시합니다. 좌우로 밀어 다른 ${periodName}도 확인하세요.</p><div class="earnings-chart-scroll" tabindex="0" role="region" aria-label="${e(label)} ${periodName}별 그래프 · 좌우 스크롤"><svg class="earnings-chart" style="min-width:${width}px" viewBox="0 0 ${width} 270" role="img" aria-label="${e(label)} ${periodName}별 예상·실제·차액·차이율"><line x1="25" x2="${width-25}" y1="${zero}" y2="${zero}" stroke="#537463"/>${bars}</svg></div>`:'<p class="data-note">이 기간의 수치는 제공되지 않습니다.</p>';
-  host.querySelector('[data-earnings-table]').innerHTML=`<div class="earnings-table-wrap"><table class="earnings-table"><caption>${e(label)} · ${periodName}별 예상 / 실제 · ${e(earningsUnit(rows[0]?.unit||unit))}</caption><thead><tr><th>${periodName}</th><th>시장 예상</th><th>실제 실적</th><th>차액 (예상 대비)</th></tr></thead><tbody>${rows.map(r=>{const d=earningsDelta(r.value,r.estimate);return `<tr><th>${e(r.period)}${r.fiscalPeriod?`<small>${e(r.fiscalPeriod)}</small>`:''}${r.value==null?' · 미발표':r.basis?.includes('잠정')?' · 잠정/최초 발표':''}</th><td>${amount(r.estimate,r.unit)}</td><td>${amount(r.value,r.unit)}</td><td class="${tone(d.amount)}">${d.amount==null?'—':`${amount(d.amount,r.unit,true)} (${percent(d.percent)})`}</td></tr>`;}).join('')}</tbody></table></div>
+  host.querySelector('[data-earnings-table]').innerHTML=`<div class="earnings-table-wrap"><table class="earnings-table"><caption>${e(label)} · ${periodName}별 예상 / 실제 · ${e(earningsUnit(rows[0]?.unit||unit))}</caption><thead><tr><th>${periodName}</th><th>시장 예상</th><th>실제 실적</th><th>차액 (예상 대비)</th></tr></thead><tbody>${rows.map(r=>{const d=earningsDelta(r.value,r.estimate);return `<tr><th>${e(r.period)}${r.fiscalPeriod?`<small>${e(r.fiscalPeriod)}</small>`:''}${r.missing?' · 미제공':r.value==null?' · 미발표':r.basis?.includes('잠정')?' · 잠정/최초 발표':''}</th><td>${amount(r.estimate,r.unit)}</td><td>${amount(r.value,r.unit)}</td><td class="${tone(d.amount)}">${d.amount==null?'—':`${amount(d.amount,r.unit,true)} (${percent(d.percent)})`}</td></tr>`;}).join('')}</tbody></table></div>
    ${rows.some(r=>r.directComparison)?'':`<div class="earnings-table-wrap"><table class="earnings-table"><caption>실제 실적 · ${annual?'전년':'전분기'} 대비</caption><thead><tr><th>${periodName}</th><th>증감액 (증감률)</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${e(r.period)}</th><td class="${tone(r.delta)}">${r.delta==null?'—':`${amount(r.delta,r.unit,true)} (${percent(r.percent)})`}</td></tr>`).join('')}</tbody></table></div>`}
-   <p class="data-note">차액 = 실제 − 예상. 차이율 = 차액 ÷ |예상| × 100. 예상보다 높으면 +·초록색, 낮으면 −·빨간색. 미제공은 차액을 계산하지 않고, 예상이 0이면 차이율을 계산하지 않습니다. 금액은 표시 단위로 환산·반올림하며 차이율은 원자료로 계산합니다.</p>`;
+   <p class="data-note">차액 = 실제 − 예상. 차이율 = 차액 ÷ |예상| × 100. 예상보다 높으면 +·초록색, 낮으면 −·빨간색. 미제공은 차액을 계산하지 않고, 예상이 0이면 차이율을 계산하지 않습니다. 금액은 억 단위 소수점을 절삭하고, 1조 이상은 조 단위 소수점 두 자리로 반올림합니다. EPS는 주당 단위를 유지합니다. 차이율은 절삭 전 원자료로 계산합니다.</p>`;
   const scroller=host.querySelector('.earnings-chart-scroll');if(scroller)scroller.scrollLeft=Math.max(0,rows.findLastIndex(r=>r.value!=null)*step);
   for(const button of host.querySelectorAll('[data-earnings-frequency]'))button.onclick=()=>{period=button.dataset.earningsFrequency;render();};
   for(const button of host.querySelectorAll('[data-earnings-metric]'))button.onclick=()=>{metric=button.dataset.earningsMetric;render();};

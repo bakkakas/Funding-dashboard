@@ -1,5 +1,5 @@
-import { comparisonRecords } from './earnings-data.js?v=4';
-import { renderEarnings } from './stock-earnings.js?v=5';
+import { comparisonRecords } from './earnings-data.js?v=5';
+import { renderEarnings } from './stock-earnings.js?v=6';
 import { safeUrl } from './research-data.js?v=1';
 export const escapeText=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const e=escapeText,n=v=>v==null?'미제공':new Intl.NumberFormat('ko-KR',{maximumFractionDigits:2}).format(v);
