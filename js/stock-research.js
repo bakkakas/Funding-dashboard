@@ -1,4 +1,5 @@
-import { renderEarnings } from './stock-earnings.js?v=3';
+import { comparisonRecords } from './earnings-data.js?v=3';
+import { renderEarnings } from './stock-earnings.js?v=4';
 import { safeUrl } from './research-data.js?v=1';
 export const escapeText=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const e=escapeText,n=v=>v==null?'미제공':new Intl.NumberFormat('ko-KR',{maximumFractionDigits:2}).format(v);
@@ -10,10 +11,11 @@ export class StockResearch {
  async show(issuer,via=''){
   const version=++this.version;this.host.hidden=false;this.host.innerHTML='<section class="card" role="status">기업 자료 불러오는 중…</section>';
   try{
-   const [{data,error},archive,comparisonCache]=await Promise.all([this.db.functions.invoke('asset-research',{body:{kind:'stock',id:issuer.code}}),issuer.archiveAvailable?fetch(`./data/stock-research/${encodeURIComponent(issuer.id)}.json`).then(r=>r.ok?r.json():null).catch(()=>null):Promise.resolve(null),['stock-googl','stock-amzn','stock-nke','stock-novo-nordisk'].includes(issuer.id)?fetch(`./data/earnings-comparison/${issuer.id}.json`).then(r=>r.ok?r.json():null).catch(()=>null):Promise.resolve(null)]);
+   const [{data,error},archive,comparisonCache,fundamentals]=await Promise.all([this.db.functions.invoke('asset-research',{body:{kind:'stock',id:issuer.code}}),issuer.archiveAvailable?fetch(`./data/stock-research/${encodeURIComponent(issuer.id)}.json`).then(r=>r.ok?r.json():null).catch(()=>null):Promise.resolve(null),['stock-005380','stock-263750','stock-005930','stock-000660','stock-googl','stock-amzn','stock-nke','stock-novo-nordisk'].includes(issuer.id)?fetch(`./data/earnings-comparison/${issuer.id}.json`,{cache:'no-cache'}).then(r=>r.ok?r.json():null).catch(()=>null):Promise.resolve(null),['stock-googl','stock-amzn','stock-nke','stock-novo-nordisk'].includes(issuer.id)?fetch(`./data/earnings-comparison/${issuer.id}-fundamentals.json`,{cache:'no-cache'}).then(r=>r.ok?r.json():null).catch(()=>null):Promise.resolve(null)]);
    if(version!==this.version)return;if(error||data?.error)throw error||Error(data.error);
    if(data.excluded){this.host.innerHTML=`<section class="card">${e(data.message)}</section>`;return;}
    if(!data.comparison?.rows?.length&&comparisonCache?.rows?.length){data.comparison={...comparisonCache,cached:true};data.partial=(data.partial||[]).filter(x=>x!=='consensus');}
+   data.earningsRecords=comparisonRecords(data.comparison,comparisonCache,fundamentals);
    this.data=data;this.archive=archive;this.onIssuer(data.issuer);this.render(via);document.title=`${data.issuer.name} · 투자 셋업`;
   }catch{if(version!==this.version)return;this.host.innerHTML='<section class="card"><p>기업 자료를 불러오지 못했어요. 기존 투자 메모는 위에서 별도로 확인할 수 있어요.</p><button class="chip" type="button">다시 시도</button></section>';this.host.querySelector('button').onclick=()=>this.show(issuer,via);}
  }

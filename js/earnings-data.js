@@ -46,6 +46,7 @@ export const TREND_METRICS = [
   {id:'revenue',label:'매출액',names:['매출액','매출']},
   {id:'operating',label:'영업이익',names:['영업이익']},
   {id:'net',label:'순이익',names:['당기순이익','순이익']},
+  {id:'ebit',label:'EBIT',names:['EBIT']},
   {id:'parentNet',label:'지배주주 순이익',names:['지배주주순이익','지배주주 순이익']},
 ];
 export function fourQuarterTrend(quarters, metric) {
@@ -62,24 +63,57 @@ export function fourQuarterTrend(quarters, metric) {
   });
 }
 
-// Domestic finalized IFRS consolidated amounts and pre-announcement consensus.
-// Do not match total net income to the parent-shareholders' net-income forecast.
-export function comparisonTrend(quarters, records, metric, financialUnit = '') {
-  if (metric === 'eps') {
-    const series = records.filter(r => r.metrics.some(m => m.label === 'EPS' && m.actual != null));
-    const latest = [...series].sort((a,b) => b.period.localeCompare(a.period))[0];
-    const unit = latest?.metrics.find(m=>m.label==='EPS')?.unit;
-    return series.filter(r=>r.basis===latest.basis && r.metrics.some(m=>m.label==='EPS'&&m.unit===unit))
-      .sort((a,b)=>a.period.localeCompare(b.period)).slice(-4).map(r=>{
-        const m=r.metrics.find(m=>m.label==='EPS'&&m.unit===unit);
-        return {period:r.period.slice(0,7),value:m.actual,estimate:m.estimate,unit,basis:r.basis};
-      });
+// Prefer live values, but fill missing periods/metrics from a dated snapshot.
+// Metadata stays on each metric so a live response cannot make cached data look fresh.
+export function comparisonRecords(live, cache, fundamentals) {
+  const result = new Map();
+  for (const dataset of [cache, live, fundamentals]) {
+    for (const row of dataset?.rows || []) {
+      const key = [row.period, row.basis, !!row.directComparison].join('|');
+      const old = result.get(key);
+      const metrics = new Map((old?.metrics || []).map(m => [m.label+'|'+m.unit,m]));
+      for (const m of row.metrics) {
+        const id=m.label+'|'+m.unit, prior=metrics.get(id);
+        // Keep an intact source pair instead of mixing one provider's actual and another's estimate.
+        if (prior?.estimate != null && m.estimate == null) continue;
+        metrics.set(id, {...m, source:dataset.source, url:dataset.url, asOf:dataset.asOf, refreshMode:dataset.refreshMode});
+      }
+      result.set(key, {...row, metrics:[...metrics.values()]});
+    }
   }
-  const label = {revenue:'매출액',operating:'영업이익',parentNet:'지배주주 순이익'}[metric];
-  return fourQuarterTrend(quarters,metric).map(r=>{
-    const month=r.key.replace(/\D/g,'').slice(0,6);
-    const record=records.find(x=>x.period.replace(/\D/g,'').slice(0,6)===month && x.basis?.startsWith('IFRS 연결'));
+  return [...result.values()].sort((a,b)=>b.period.localeCompare(a.period));
+}
+const monthKey = period => period.replace(/\D/g,'').slice(0,6);
+function chartWindow(rows) {
+  const ordered=[...rows].sort((a,b)=>monthKey(a.period).localeCompare(monthKey(b.period)));
+  const announced=ordered.filter(r=>r.value!=null).slice(-4);
+  const last=announced.at(-1);
+  return [...announced,...ordered.filter(r=>r.value==null && r.estimate!=null && (!last || monthKey(r.period)>monthKey(last.period))).slice(0,2)];
+}
+export function comparisonTrend(quarters, records, metric, financialUnit = '') {
+  const label = {revenue:'매출액',operating:'영업이익',parentNet:'지배주주 순이익',net:'순이익',ebit:'EBIT',eps:'EPS'}[metric];
+  const direct=records.filter(r=>(metric==='eps' || r.directComparison) && r.metrics.some(m=>m.label===label));
+  if (direct.length) {
+    const latest=[...direct].sort((a,b)=>b.period.localeCompare(a.period)).find(r=>r.metrics.some(m=>m.label===label && m.actual!=null)) || direct[0];
+    const unit=latest.metrics.find(m=>m.label===label).unit;
+    return chartWindow(direct.filter(r=>r.basis===latest.basis).flatMap(r=>{
+      const m=r.metrics.find(m=>m.label===label && m.unit===unit);
+      return m?[{...m,period:r.period.slice(0,7),fiscalPeriod:r.fiscalPeriod,value:m.actual,basis:r.basis,directComparison:true}]:[];
+    }));
+  }
+  // Total net income must never be matched to parent-shareholders' net income.
+  const domestic=/억 KRW/.test(financialUnit) && ['revenue','operating','parentNet'].includes(metric);
+  const matching=domestic?records.filter(r=>r.basis?.startsWith('IFRS 연결')):[];
+  const rows=fourQuarterTrend(quarters,metric).map(r=>{
+    const record=matching.find(x=>monthKey(x.period)===monthKey(r.key));
     const match=record?.metrics.find(m=>m.label===label && m.unit==='억 KRW');
-    return {...r,estimate:/억 KRW/.test(financialUnit)?match?.estimate??null:null,unit:financialUnit,basis:'확정 실적'};
+    return {...match,...r,period:r.key.replace(/\D/g,'').slice(0,4)+'-'+r.key.replace(/\D/g,'').slice(4,6),estimate:match?.estimate??null,unit:financialUnit,basis:'확정 실적 / 발표 전 예상'};
   });
+  const latest=rows.at(-1);
+  for(const record of matching) {
+    if(latest && monthKey(record.period)<=monthKey(latest.period))continue;
+    const m=record.metrics.find(m=>m.label===label && m.unit==='억 KRW');
+    if(m)rows.push({...m,period:record.period,value:m.actual,basis:record.basis});
+  }
+  return chartWindow(rows);
 }

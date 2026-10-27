@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Cache public EPS history where cloud-runtime HTML retrieval is unreliable."""
+"""Refresh public KR consensus / US EPS caches; retain prior files on source failure."""
+import argparse
 import datetime as dt
 import json
 from pathlib import Path
@@ -7,33 +8,54 @@ import subprocess
 import urllib.request
 import urllib.error
 import time
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 ISSUERS = {'stock-googl':'GOOGL','stock-amzn':'AMZN','stock-nke':'NKE','stock-novo-nordisk':'NVO'}
-PARSER = """import {yahooEarnings} from './js/earnings-data.js';
-let html='';for await(const chunk of process.stdin)html+=chunk;
-console.log(JSON.stringify(yahooEarnings(html)));"""
+DOMESTIC = ['005380','263750','005930','000660']
+
+def get(url):
+    request=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Accept':'*/*'})
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(request,timeout=25) as response:return response.read().decode()
+        except urllib.error.HTTPError as error:
+            if error.code not in (429,500,502,503,504) or attempt==2:raise
+            time.sleep(attempt+1)
+
+def parse(function, payload):
+    parser=f"import {{{function}}} from './js/earnings-data.js';let input='';for await(const chunk of process.stdin)input+=chunk;console.log(JSON.stringify({function}({ 'JSON.parse(input)' if function=='wiseEarnings' else 'input' })));"
+    return json.loads(subprocess.run(['node','--input-type=module','-e',parser],input=payload,text=True,capture_output=True,check=True,cwd=ROOT).stdout)
+
+def collect_kr(code):
+    date=dt.datetime.now(ZoneInfo('Asia/Seoul')).strftime('%Y%m%d')
+    payloads=[]
+    for label,acc in [('매출액','121000'),('영업이익','121500'),('지배주주 순이익','122700')]:
+        url=f'https://comp.wisereport.co.kr/company/ajax/c1050001_data.aspx?flag=5&cmp_cd={code}&finGubun=IFRSL&frq=1&sDT={date}&acc_cd={acc}&chartType=svg'
+        payloads.append({'label':label,'data':json.loads(get(url))})
+    rows=parse('wiseEarnings',json.dumps(payloads))
+    if any(not any(m['label']==label and m['estimate'] is not None for r in rows for m in r['metrics']) for label in ['매출액','영업이익','지배주주 순이익']):
+        raise ValueError('Incomplete consensus; retaining previous snapshot')
+    return {'source':'WiseReport · FnGuide','url':f'https://comp.wisereport.co.kr/company/c1050001.aspx?cmp_cd={code}&cn=','rows':rows,'note':'발표직전 예상치와 최초 잠정/실적 발표치를 제공합니다. 미발표 분기는 현재 예상치이며, 확정 실적과 잠정치는 다를 수 있습니다.'}
+
+def collect_us(ticker):
+    url=f'https://finance.yahoo.com/quote/{ticker}/analysis/'
+    return {'source':'Yahoo Finance · Earnings History','url':url,'rows':parse('yahooEarnings',get(url)),'note':'동일 출처·동일 통화·GAAP/조정 기준의 예상 EPS와 실제 EPS를 비교합니다. 매출·순이익·EBIT는 별도 출처의 저장 자료를 사용합니다.'}
 
 def main():
+    parser=argparse.ArgumentParser();parser.add_argument('--market',choices=['KR','US','all'],default='all');args=parser.parse_args()
     directory=ROOT/'data/earnings-comparison';directory.mkdir(parents=True,exist_ok=True)
+    jobs=[]
+    if args.market!='US':jobs += [('stock-'+code,collect_kr,code) for code in DOMESTIC]
+    if args.market!='KR':jobs += [(issuer,collect_us,ticker) for issuer,ticker in ISSUERS.items()]
     failed=[]
-    for issuer,ticker in ISSUERS.items():
+    for issuer,collect,ticker in jobs:
         try:
-            url=f'https://finance.yahoo.com/quote/{ticker}/analysis/'
-            request=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Accept':'text/html'})
-            for attempt in range(3):
-                try:
-                    with urllib.request.urlopen(request,timeout=25) as response:html=response.read().decode()
-                    break
-                except urllib.error.HTTPError as error:
-                    if error.code not in (429,500,502,503,504) or attempt==2:raise
-                    time.sleep(attempt+1)
-            parsed=subprocess.run(['node','--input-type=module','-e',PARSER],input=html,text=True,capture_output=True,check=True,cwd=ROOT)
-            rows=json.loads(parsed.stdout)
-            if len(rows)<2:raise ValueError('Too few comparable quarters')
-            data={'schemaVersion':1,'source':'Yahoo Finance · Earnings History','url':url,'asOf':dt.datetime.now(dt.timezone.utc).isoformat(),'rows':rows,'note':'동일 출처의 같은 분기 예상 EPS와 실제 EPS를 비교합니다. 통화·GAAP/조정 기준은 아래 표에 표시해요. 매출·영업이익의 발표 전 예상치는 이 출처에서 미제공입니다. 분기말은 발표일이 아닙니다.'}
+            data=collect(ticker)
+            if len(data['rows'])<2:raise ValueError('Too few comparable quarters')
+            data.update(schemaVersion=1,asOf=dt.datetime.now(dt.timezone.utc).isoformat())
             (directory/f'{issuer}.json').write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
-            print(issuer,len(rows),rows[0]['period'])
+            print(issuer,len(data['rows']),data['rows'][0]['period'])
         except Exception as error:
             print(issuer,'FAILED',str(error));failed.append(issuer)
     if failed:raise SystemExit(1)
