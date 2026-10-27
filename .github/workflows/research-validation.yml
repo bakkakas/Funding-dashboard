@@ -16,5 +16,5 @@ jobs:
         with: {python-version: '3.11'}
       - run: node --test tests/*.test.mjs
       - run: python3 -m unittest discover -s tests -p 'test_*.py'
-      - run: python3 -m py_compile scripts/update_stock_research.py scripts/update_earnings_comparison.py
+      - run: python3 -m py_compile scripts/update_stock_research.py scripts/update_earnings_comparison.py scripts/import_earnings_fundamentals.py
       - run: git diff --check

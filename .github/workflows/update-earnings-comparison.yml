@@ -18,7 +18,9 @@ jobs:
         with: {node-version: '22'}
       - uses: actions/setup-python@v5
         with: {python-version: '3.11'}
-      - run: python3 scripts/update_earnings_comparison.py
+      - id: collect
+        continue-on-error: true
+        run: python3 scripts/update_earnings_comparison.py
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -36,3 +38,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh api --method POST "repos/${{ github.repository }}/pages/builds"
+      - name: Report partial source failure
+        if: steps.collect.outcome == 'failure'
+        run: exit 1
