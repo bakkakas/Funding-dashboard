@@ -1,73 +1,80 @@
 #!/usr/bin/env python3
 import json, re, time
-from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta, timezone
-from html.parser import HTMLParser
 from pathlib import Path
 from urllib.request import Request, urlopen
+from urllib.parse import urlencode
 
 START_DATE=date(2016,1,1); OUTPUT=Path(__file__).with_name('foreign_flow_data.json')
 STOCKS={'005930':'삼성전자','000660':'SK하이닉스'}
 MARKETS=('KOSPI','KOSDAQ')
 KST=timezone(timedelta(hours=9))
 
-class Parser(HTMLParser):
-    def __init__(self):
-        super().__init__(); self.target=self.caption=self.row=self.cell=False; self.cap=''; self.cells=[]; self.buf=[]; self.rows=[]
-    def handle_starttag(self,tag,attrs):
-        if tag=='caption' and not self.target: self.caption=True; self.cap=''
-        elif tag=='tr' and self.target: self.row=True; self.cells=[]
-        elif tag=='td' and self.row: self.cell=True; self.buf=[]
-    def handle_endtag(self,tag):
-        if tag=='caption' and self.caption:
-            self.caption=False; self.target='외국인 기관 순매매 거래량' in self.cap
-        elif tag=='td' and self.cell:
-            self.cells.append(' '.join(''.join(self.buf).split())); self.cell=False
-        elif tag=='tr' and self.row:
-            if len(self.cells)==9 and re.fullmatch(r'\d{4}\.\d{2}\.\d{2}',self.cells[0]): self.rows.append(self.cells)
-            self.row=False
-        elif tag=='table' and self.target: self.target=False
-    def handle_data(self,data):
-        if self.caption: self.cap+=data
-        if self.cell: self.buf.append(data)
+FLOW_BASIS = 'KRX+NXT'
+TREND_URL = 'https://m.stock.naver.com/front-api/stock/domestic/trend'
 
-def num(value,pct=False):
-    value=value.replace(',','').replace('%','').replace('+','').strip()
-    return (float(value) if pct else int(value)) if value and value!='N/A' else None
 
-def fetch(code,page):
-    req=Request(f'https://finance.naver.com/item/frgn.naver?code={code}&page={page}',headers={'User-Agent':'Mozilla/5.0 FundingDashboard/1.0'})
-    with urlopen(req,timeout=20) as res: html=res.read().decode('euc-kr',errors='replace')
-    parser=Parser(); parser.feed(html); return parser.rows
+def num(value, pct=False):
+    if value is None: return None
+    value = str(value).replace(',', '').replace('%', '').replace('+', '').strip()
+    return (float(value) if pct else int(value)) if value and value != 'N/A' else None
 
-def fetch_live_snapshot(code):
-    req=Request(f'https://m.stock.naver.com/api/stock/{code}/integration',headers={'User-Agent':'Mozilla/5.0 FundingDashboard/1.0','Referer':'https://m.stock.naver.com/'})
-    with urlopen(req,timeout=20) as res: payload=json.load(res)
-    infos={item.get('code'):item.get('value') for item in payload.get('totalInfos',[])}
-    ownership=num(infos.get('foreignRate',''),True)
-    return {'foreignOwnershipPct':ownership,'fetchedAt':datetime.now(timezone.utc).isoformat()}
 
 def parse_stock_trend_row(row):
-    bizdate=str(row.get('bizdate',''))
-    if not re.fullmatch(r'\d{8}',bizdate): raise ValueError('Missing stock flow business date')
-    institution=num(row.get('organPureBuyQuant',''))
-    foreign=num(row.get('foreignerPureBuyQuant',''))
-    if institution is None or foreign is None: raise ValueError('Incomplete stock flow values')
+    day = str(row.get('localTradedAt', ''))
+    if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', day):
+        raise ValueError('Missing stock flow business date')
+    date.fromisoformat(day)
+    markets = {name: row.get(name.lower()) for name in ('KRX', 'NXT') if row.get(name.lower()) is not None}
+    if not markets: raise ValueError('Missing exchange data')
+    totals = {'foreignNetVolume': 0, 'organizationNetVolume': 0, 'individualNetVolume': 0, 'tradingVolume': 0}
+    exchange_foreign = {}
+    for name, market in markets.items():
+        volume = num(market.get('tradingVolume'))
+        if volume is None or volume < 0: raise ValueError('Incomplete exchange volume')
+        totals['tradingVolume'] += volume
+        for key in ('foreignNetVolume', 'organizationNetVolume', 'individualNetVolume'):
+            value = num(market.get(key))
+            # Naver publishes a zero-volume NXT placeholder before trading begins.
+            # Only an explicit zero traded volume makes a missing net quantity zero.
+            if value is None and volume == 0: value = 0
+            if value is None: raise ValueError('Incomplete exchange flow')
+            totals[key] += value
+            if key == 'foreignNetVolume': exchange_foreign[name] = value
+    reference = markets.get('KRX') or markets.get('NXT')
+    close = num(reference.get('closingPrice'))
+    ownership = num(row.get('foreignHoldingRatio'), True)
+    if close is None or ownership is None: raise ValueError('Incomplete price/ownership')
     return {
-        'date':datetime.strptime(bizdate,'%Y%m%d').date().isoformat(),
-        'close':num(row.get('closePrice','')),
-        'volume':num(str(row.get('accumulatedTradingVolume',''))),
-        'institutionNetShares':institution,
-        'foreignNetShares':foreign,
-        'individualNetSharesEstimated':-(institution+foreign),
-        'foreignHeldShares':None,
-        'foreignOwnershipPct':num(row.get('foreignerHoldRatio',''),True),
+        'date': day, 'close': close, 'volume': totals['tradingVolume'],
+        'institutionNetShares': totals['organizationNetVolume'],
+        'foreignNetShares': totals['foreignNetVolume'],
+        'individualNetShares': totals['individualNetVolume'],
+        'foreignHeldShares': num(row.get('foreignHoldingStockQuantity')),
+        # This is an issuer-level published ratio, never a sum of exchange ratios
+        # or an estimate derived from cumulative net purchases.
+        'foreignOwnershipPct': ownership,
+        'flowBasis': FLOW_BASIS, 'exchangeForeignNetShares': exchange_foreign,
     }
 
-def fetch_recent_stock_trends(code):
-    req=Request(f'https://m.stock.naver.com/api/stock/{code}/trend?pageSize=60',headers={'User-Agent':'Mozilla/5.0 FundingDashboard/1.0','Referer':f'https://m.stock.naver.com/domestic/stock/{code}/total'})
-    with urlopen(req,timeout=20) as res: payload=json.load(res)
-    return [parse_stock_trend_row(row) for row in payload]
+
+def fetch_stock_page(code, cursor=None):
+    params = {'code': code, 'exchangeType': 'ALL', 'size': 100}
+    if cursor: params['cursor'] = cursor
+    req = Request(TREND_URL + '?' + urlencode(params), headers={
+        'User-Agent': 'Mozilla/5.0 FundingDashboard/1.0',
+        'Referer': f'https://m.stock.naver.com/domestic/stock/{code}/total',
+    })
+    for attempt in range(3):
+        try:
+            with urlopen(req, timeout=20) as res: payload = json.load(res)
+            if payload.get('isSuccess') is not True or not isinstance(payload.get('result', {}).get('items'), list):
+                raise ValueError('Invalid consolidated flow response')
+            return payload['result']
+        except Exception:
+            if attempt == 2: raise
+            time.sleep(attempt + 1)
+
 
 def parse_index_snapshot(trend,basic,now_kst=None):
     now_kst=now_kst or datetime.now(KST)
@@ -93,31 +100,29 @@ def fetch_index_snapshot(market):
     return parse_index_snapshot(*payloads)
 
 def collect(code, existing=None):
-    records={r['date']:r for r in (existing or [])}
-    fully_backfilled=bool(records) and min(records)<=START_DATE.isoformat()
-    newest_existing=max(records) if records else None
-    if fully_backfilled:
-        pages=[]
-    else:
-        with ThreadPoolExecutor(max_workers=8) as pool:
-            pages=list(enumerate(pool.map(lambda page:fetch(code,page),range(1,181)),start=1))
-    for page,rows in pages:
-        if not rows: break
-        days=[]
-        for r in rows:
-            day=datetime.strptime(r[0],'%Y.%m.%d').date(); days.append(day)
-            if day<START_DATE: continue
-            institution=num(r[5]); foreign=num(r[6])
-            records[day.isoformat()]={'date':day.isoformat(),'close':num(r[1]),'volume':num(r[4]),'institutionNetShares':institution,'foreignNetShares':foreign,'individualNetSharesEstimated':-(institution+foreign),'foreignHeldShares':num(r[7]),'foreignOwnershipPct':num(r[8],True)}
-        if min(days)<START_DATE: break
-        if fully_backfilled and newest_existing and min(days).isoformat()<=newest_existing: break
-    for row in fetch_recent_stock_trends(code):
-        existing_row=records.get(row['date'],{})
-        if row['foreignHeldShares'] is None and existing_row.get('foreignHeldShares') is not None:
-            row['foreignHeldShares']=existing_row['foreignHeldShares']
-        records[row['date']]=row
+    existing = existing or []
+    migrated = bool(existing) and all(r.get('flowBasis') == FLOW_BASIS for r in existing)
+    # First migration re-fetches the complete archive, not only the recent 60 days.
+    records = {r['date']: r for r in existing} if migrated else {}
+    refresh_since = (date.fromisoformat(max(records)) - timedelta(days=90)).isoformat() if migrated else START_DATE.isoformat()
+    cursor = None
+    seen = set()
+    for _ in range(100):
+        page = fetch_stock_page(code, cursor)
+        rows = [parse_stock_trend_row(row) for row in page['items']]
+        if not rows: raise ValueError('Empty stock history page')
+        records.update({r['date']: r for r in rows if r['date'] >= START_DATE.isoformat()})
+        if min(r['date'] for r in rows) <= refresh_since or not page.get('hasNext'): break
+        cursor = page.get('cursor')
+        if not cursor or cursor in seen: raise ValueError('Invalid stock history cursor')
+        seen.add(cursor)
+    else: raise ValueError('Stock history pagination limit reached')
     if not records: raise RuntimeError(f'No rows collected for {code}')
+    if not migrated:
+        missing = {r['date'] for r in existing} - records.keys()
+        if missing: raise ValueError(f'Incomplete history migration: {len(missing)} existing dates missing')
     return [records[k] for k in sorted(records)]
+
 
 def collect_intraday(previous):
     now_kst=datetime.now(KST)
@@ -146,19 +151,19 @@ def main():
     if OUTPUT.exists():
         try: previous_intraday=json.loads(OUTPUT.read_text(encoding='utf-8')).get('marketIntraday',{})
         except (OSError,json.JSONDecodeError): pass
-    data={'updatedAt':datetime.now(timezone.utc).isoformat(),'startDate':START_DATE.isoformat(),'source':'Naver Finance mobile API (KRX-based daily and intraday data)','stocks':{}}
+    data={'updatedAt':datetime.now(timezone.utc).isoformat(),'startDate':START_DATE.isoformat(),'schemaVersion':2,'stockFlowBasis':FLOW_BASIS,'marketFlowBasis':'KRX','source':'Naver Finance: stock flow KRX+NXT; market intraday KRX; published issuer ownership ratio','stocks':{}}
     warnings=[]
     for code,name in STOCKS.items():
         previous_records=previous.get(code,{}).get('records',[])
         try: records=collect(code,previous_records)
         except Exception as exc:
-            if not previous_records: raise
+            if not previous_records or any(r.get('flowBasis') != FLOW_BASIS for r in previous_records): raise
             records=previous_records
             warnings.append(f'{code}: {type(exc).__name__}')
             print(f'stock flow unavailable for {code}: {exc}')
         stock={'code':code,'name':name,'records':records}
-        try: stock['liveSnapshot']=fetch_live_snapshot(code)
-        except Exception as exc: print(f'live snapshot unavailable for {code}: {exc}')
+        stock['historyStart'] = records[0]['date']
+        stock['historyEnd'] = records[-1]['date']
         data['stocks'][code]=stock
     data['marketIntraday'],intraday_warnings=collect_intraday(previous_intraday)
     warnings.extend(intraday_warnings)
