@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-28T09:28:21.391182+00:00",
+  "updatedAt": "2026-10-28T09:32:46.356184+00:00",
   "timezone": "Asia/Seoul",
   "windowDays": 30,
   "sources": {
     "fed": {
-      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
+      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
       "status": "ok",
       "events": [
         {
@@ -143,7 +143,7 @@
       ]
     },
     "bls": {
-      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
+      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
       "status": "fallback",
       "primaryError": "HTTPError",
       "provider": "TradingView economic calendar",
@@ -265,7 +265,7 @@
       ]
     },
     "bea": {
-      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
+      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
       "status": "ok",
       "events": [
         {
@@ -469,7 +469,7 @@
       ]
     },
     "ecb": {
-      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
+      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
       "status": "ok",
       "events": [
         {
@@ -673,7 +673,7 @@
       ]
     },
     "boj": {
-      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
+      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
       "status": "ok",
       "events": [
         {
@@ -811,7 +811,7 @@
       ]
     },
     "bok": {
-      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
+      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
       "status": "ok",
       "events": [
         {
@@ -850,7 +850,7 @@
       ]
     },
     "samsung": {
-      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
+      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
       "status": "ok",
       "events": [
         {
@@ -878,14 +878,26 @@
       ]
     },
     "hynix": {
-      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
+      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
       "status": "ok",
       "events": []
     },
     "nasdaq": {
-      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
+      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
       "status": "ok",
       "events": [
+        {
+          "id": "AMZN:2026-10-29",
+          "series": "AMZN",
+          "name": "아마존 실적",
+          "date": "2026-10-30",
+          "sourceDate": "2026-10-29",
+          "startsAt": null,
+          "status": "estimated",
+          "sourceUrl": "https://api.nasdaq.com/api/calendar/earnings?date=2026-10-29",
+          "dateNote": "미국 장 마감 후 → 한국 다음 날 (정확한 시각 미공개)",
+          "dateBasis": "Asia/Seoul"
+        },
         {
           "id": "MSFT:2026-10-28",
           "series": "MSFT",
@@ -907,18 +919,6 @@
           "startsAt": null,
           "status": "estimated",
           "sourceUrl": "https://api.nasdaq.com/api/calendar/earnings?date=2026-10-28",
-          "dateNote": "미국 장 마감 후 → 한국 다음 날 (정확한 시각 미공개)",
-          "dateBasis": "Asia/Seoul"
-        },
-        {
-          "id": "AMZN:2026-10-29",
-          "series": "AMZN",
-          "name": "아마존 실적",
-          "date": "2026-10-30",
-          "sourceDate": "2026-10-29",
-          "startsAt": null,
-          "status": "estimated",
-          "sourceUrl": "https://api.nasdaq.com/api/calendar/earnings?date=2026-10-29",
           "dateNote": "미국 장 마감 후 → 한국 다음 날 (정확한 시각 미공개)",
           "dateBasis": "Asia/Seoul"
         },
@@ -949,7 +949,7 @@
       ]
     },
     "elections": {
-      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
+      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
       "status": "ok",
       "events": [
         {
