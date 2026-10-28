@@ -1,3 +1,4 @@
+import { attachChartHover, dateTickRows } from './chart-hover.js?v=1';
 import { fetchJson, numberOrNull } from './research-data.js?v=1';
 
 export const USDE_HISTORY_URL = 'https://stablecoins.llama.fi/stablecoincharts/all?stablecoin=146';
@@ -139,13 +140,15 @@ export class UsdeMarketCapPanel {
         const pct = change.percent === null ? '—' : `${change.percent > 0 ? '+' : ''}${change.percent.toFixed(2)}%`;
         return `<div class="usde-change ${tone}"><span>${change.days === 365 ? t.year : change.days + t.day}</span><strong>${pct}</strong><b>${signed(change.amount)}</b><small>${change.baseline ? `${t.previous} ${date(change.baseline.time)}` : t.missing}</small></div>`;
       }).join('')}</div>
-      <div class="usde-chart-head"><h4>${t.chart}</h4><div class="usde-ranges" role="group" aria-label="${t.chart}">${[30, 90, 365, 0].map(days => `<button type="button" class="chip ${days === this.range ? 'active' : ''}" data-usde-range="${days}" aria-pressed="${days === this.range}">${days === 0 ? t.all : days === 365 ? t.year : days + t.day}</button>`).join('')}</div></div>
+      <div class="usde-chart-head"><h4>${t.chart}</h4><div class="usde-ranges" role="group" aria-label="${t.chart}">${[7, 30, 90, 365, 0].map(days => `<button type="button" class="chip ${days === this.range ? 'active' : ''}" data-usde-range="${days}" aria-pressed="${days === this.range}">${days === 0 ? t.all : days === 365 ? t.year : days + t.day}</button>`).join('')}</div></div>
       <div class="usde-chart">${this.chart(t, date, usd)}</div>
       <p class="usde-note">${t.note}<br>${t.method}</p>
       <a class="usde-source" href="https://defillama.com/stablecoin/ethena-usde" target="_blank" rel="noopener noreferrer">DefiLlama · USDe ↗</a>`;
+    attachChartHover(this.host.querySelector('.usde-chart svg'), this.hoverPoints || []);
   }
 
   chart(t, date, usd) {
+    this.hoverPoints = [];
     const latest = this.history.at(-1);
     if (!latest) return '<div class="usde-chart-empty">—</div>';
     const rows = this.history.filter(row => !this.range || row.time >= latest.time - this.range * DAY);
@@ -158,13 +161,13 @@ export class UsdeMarketCapPanel {
     const y = row => 20 + (max - row.cap) / (max - min) * 190;
     const points = rows.map(row => `${x(row).toFixed(2)},${y(row).toFixed(2)}`).join(' ');
     const shortUsd = value => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 2 }).format(value);
+    this.hoverPoints = rows.map(row => ({ x: x(row), text: `${date(row.time)} (UTC)\n${t.title}: ${usd(row.cap)}` }));
     return `<svg viewBox="0 0 800 245" role="img" aria-label="${t.chart}: ${date(rows[0].time)} – ${date(latest.time)}; ${usd(latest.cap)}">
       <title>${t.chart} (USD)</title>
       ${[0, .5, 1].map(ratio => `<line x1="80" y1="${20 + 190 * ratio}" x2="780" y2="${20 + 190 * ratio}" class="usde-gridline"/><text x="70" y="${24 + 190 * ratio}" text-anchor="end">${shortUsd(max - (max - min) * ratio)}</text>`).join('')}
       <polygon points="80,210 ${points} 780,210" class="usde-area"/>
       <polyline points="${points}" class="usde-line"/>
-      ${rows.map(row => `<circle cx="${x(row).toFixed(2)}" cy="${y(row).toFixed(2)}" r="5" class="usde-point"><title>${date(row.time)} · ${usd(row.cap)}</title></circle>`).join('')}
-      <text x="80" y="237">${date(rows[0].time)}</text><text x="780" y="237" text-anchor="end">${date(latest.time)} (UTC)</text>
+      ${dateTickRows(rows).map((row, i, ticks) => `<line x1="${x(row)}" x2="${x(row)}" y1="210" y2="216" class="usde-gridline"/><text data-date-tick x="${x(row)}" y="237" text-anchor="${i === 0 ? 'start' : i === ticks.length - 1 ? 'end' : 'middle'}">${this.range && this.range <= 90 ? date(row.time).slice(5) : date(row.time).slice(0,7)}</text>`).join('')}
     </svg>`;
   }
 }
