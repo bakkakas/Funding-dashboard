@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import re
 from urllib.request import Request, urlopen
+from urllib.parse import urlencode
 from zoneinfo import ZoneInfo
 from bs4 import BeautifulSoup
 from icalendar import Calendar
@@ -33,7 +34,7 @@ US_SYMBOLS = {'NVDA','MSFT','AAPL','AMZN','GOOGL','META','TSM'}
 MONTHS = {m[:3].lower():i for i,m in enumerate(['January','February','March','April','May','June','July','August','September','October','November','December'],1)}
 
 def fetch(url):
-    req = Request(url, headers={'User-Agent':'Mozilla/5.0', 'Accept':'application/json,text/html,text/calendar,*/*'})
+    req = Request(url, headers={'User-Agent':'Mozilla/5.0', 'Accept':'application/json,text/html,text/calendar,*/*', **({'Origin':'https://www.tradingview.com'} if 'economic-calendar.tradingview.com/' in url else {})})
     with urlopen(req, timeout=25) as response:
         return response.read().decode('utf-8-sig')
 
@@ -179,9 +180,51 @@ def elections(today):
         item['date']=(day+timedelta(days=1)).isoformat(); result.append(item)
     return result
 
+
+def collect_macro_fallback(today):
+    start=today-timedelta(days=1); end=today+timedelta(days=90)
+    url='https://economic-calendar.tradingview.com/events?'+urlencode({'from':start.isoformat()+'T00:00:00.000Z','to':end.isoformat()+'T23:59:59.000Z','countries':'US,KR'})
+    return parse_macro_fallback(fetch(url),today)
+
+def parse_macro_fallback(raw,today):
+    payload=json.loads(raw)
+    if payload.get('status')!='ok' or not isinstance(payload.get('result'),list) or not payload['result']: raise ValueError('Economic calendar unavailable')
+    mapping={'ECONOMICS:USNFP':('jobs','US','bls'),'ECONOMICS:USIRYY':('cpi','US','bls'),'ECONOMICS:KRINTR':('bok','KR','bok')}
+    rows=[]; dates=[]
+    for row in payload['result']:
+        stamp=row.get('date','')
+        if not stamp: continue
+        start=datetime.fromisoformat(stamp.replace('Z','+00:00'))
+        if start.tzinfo is None: raise ValueError('Economic calendar date lacks timezone')
+        dates.append(start.astimezone(KST).date())
+        match=mapping.get(row.get('ticker'))
+        if not match or row.get('country')!=match[1]: continue
+        series,_,source=match
+        source_day=start.astimezone(NY if source=='bls' else KST).date()
+        item=event(series,source_day,source,starts=start,status='reported',note='TradingView 경제 캘린더 재공표 일정 / 한국 날짜')
+        item.update(sourceUrl='https://www.tradingview.com/economic-calendar/',originalSourceUrl=URLS[source],sourceProvider='TradingView economic calendar')
+        rows.append(item)
+    if not dates: raise ValueError('Economic calendar has no dated coverage')
+    return rows,min(max(dates),today+timedelta(days=90))
+
+def apply_macro_fallback(groups,warnings,today,collector,now):
+    targets=[key for key in ('bls','bok') if key in warnings]
+    if not targets:return
+    try: rows,coverage_end=collector(today)
+    except Exception:return
+    for key in targets:
+        required={'cpi','jobs'} if key=='bls' else {'bok'}
+        upcoming=[e for e in rows if e['series'] in required and date.fromisoformat(e['date'])>=today]
+        # An empty/partial response must never erase the last verified schedule.
+        if {e['series'] for e in upcoming}!=required:continue
+        prior=groups[key]
+        retained=[e for e in prior['events'] if date.fromisoformat(e['date'])<today-timedelta(days=1) or date.fromisoformat(e['date'])>coverage_end]
+        groups[key]={'checkedAt':now,'status':'fallback','primaryError':prior.get('error'),'provider':'TradingView economic calendar','events':retained+[e for e in rows if e['series'] in required and today-timedelta(days=1)<=date.fromisoformat(e['date'])<=coverage_end]}
+        warnings.remove(key)
+
 PARSERS={'fed':parse_fed,'bls':lambda raw:parse_ics(raw,'bls'),'bea':lambda raw:parse_ics(raw,'bea'),'ecb':parse_ecb,'boj':parse_boj,'bok':parse_bok,'samsung':parse_samsung,'hynix':parse_hynix}
 
-def refresh(previous, today, fetcher=fetch, nasdaq_collector=collect_nasdaq):
+def refresh(previous, today, fetcher=fetch, nasdaq_collector=collect_nasdaq, fallback_collector=collect_macro_fallback):
     now=datetime.now(timezone.utc).isoformat(); groups={}; warnings=[]
     for key,parser in PARSERS.items():
         try:
@@ -194,12 +237,13 @@ def refresh(previous, today, fetcher=fetch, nasdaq_collector=collect_nasdaq):
     except Exception as exc:
         prior=previous.get('sources',{}).get('nasdaq',{})
         groups['nasdaq']={**prior,'status':'stale','error':type(exc).__name__,'events':prior.get('events',[])};warnings.append('nasdaq')
+    apply_macro_fallback(groups,warnings,today,fallback_collector,now)
     groups['elections']={'checkedAt':now,'status':'ok','events':elections(today)}
     # Keep modest history for audit; D+1 removal is a client calendar-day rule.
     all_events={}
     for key,group in groups.items():
         group['events']=[e for e in group['events'] if today-timedelta(days=90)<=date.fromisoformat(e['date'])<=today+timedelta(days=1500)]
-        for e in group['events']: all_events[e['id']]={**e,'sourceKey':key,'stale':group['status']!='ok'}
+        for e in group['events']: all_events[e['id']]={**e,'sourceKey':key,'stale':group['status']=='stale'}
     return {'schemaVersion':1,'updatedAt':now,'timezone':'Asia/Seoul','windowDays':30,'sources':groups,'warnings':warnings,'events':sorted(all_events.values(),key=lambda e:(e['date'],e['id']))}
 
 def main():
