@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {koreaDate,upcomingEvents,eventLabel,nextKoreanMidnight} from '../js/market-events.js';
+import {koreaDate,upcomingEvents,eventLabel,nextKoreanMidnight,groupedEvents} from '../js/market-events.js';
 const item=(date,id=date)=>({id,series:id,name:'미국 CPI',date,status:'confirmed'});
 test('D-30 inclusive, D-31 hidden, event day retained, D+1 removed in Korea',()=>{
  const now=new Date('2026-10-28T09:00:00Z');
@@ -19,4 +19,12 @@ test('invalid dates rejected and same event not duplicated, same day different e
  const a=item('2026-10-29','cpi');const b={...a,id:'cpi-second-source'};
  assert.equal(upcomingEvents([a,b,item('2026-10-29','ecb')],new Date('2026-10-28T00:00:00Z')).length,2);
  assert.match(eventLabel({...a,daysLeft:1,status:'estimated'}),/예정/);
+});
+
+test('same date groups earnings without losing individual sources or expiry',()=>{
+ const events=[{...item('2026-10-29','005930'),name:'삼성전자 실적',sourceUrl:'https://samsung.com'}, {...item('2026-10-29','MSFT'),name:'마이크로소프트 실적',status:'estimated'},item('2026-10-29','fomc'),item('2026-10-30','pce')];
+ const grouped=groupedEvents(events,new Date('2026-10-28T00:00:00Z'));
+ assert.equal(grouped.length,2);assert.deepEqual(grouped[0].categories.map(g=>g.name),['실적','금리']);
+ assert.equal(grouped[0].categories[0].events.length,2);assert.equal(grouped[0].categories[0].events[0].sourceUrl,'https://samsung.com');
+ assert.equal(groupedEvents(events,new Date('2026-10-29T15:00:00Z')).length,1);
 });

@@ -3,7 +3,7 @@
 ## Scope and display
 Only FOMC, US CPI/employment/PCE, ECB, BOJ, BOK policy decisions; US presidential/congressional general elections (midterms represented once); NVDA, MSFT, AAPL, AMZN, GOOGL, META, TSM, Samsung Electronics and SK hynix earnings.
 
-Public compact badges above the judgment-board heading. D-30 through D-0 inclusive, sorted by date, no count cap. Expired events are hidden from the UI at Korean midnight, not deleted from the audit data. No sign-in needed and no changes to private judgment items or scores. Desktop wraps inline; narrow mobile shows two columns. A badge opens its source and exposes date/status details in its title.
+Public compact badges above the judgment-board heading. D-30 through D-0 inclusive, sorted by date, no count cap. Expired events are hidden from the UI at Korean midnight, not deleted from the audit data. No sign-in needed and no changes to private judgment items or scores. One outlined date box groups category rows (earnings list issuer names together); individual source links and estimated/local labels stay attached to each event. Desktop wraps inline; narrow mobile uses two columns with multi-event dates spanning both. Badge text is 2pt larger than the original 12px desktop / 11px mobile. A badge opens its source and exposes date/status details in its title.
 
 ## Sources and date semantics
 - Federal Reserve official meeting HTML, final meeting day at 14:00 America/New_York; DST-aware conversion to Korean date. No separate dot-plot or press-conference duplicate.

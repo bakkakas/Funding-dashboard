@@ -10,6 +10,26 @@ export function upcomingEvents(events,now=new Date()){
 }
 export function eventLabel(event){const [,m,d]=event.date.split('-');return `D-${event.daysLeft} ${event.name}${event.status==='estimated'?'·예정':''}${event.dateBasis==='US-local'?'·현지':''}(${Number(m)}월${Number(d)}일)`;}
 export function nextKoreanMidnight(now=new Date()){return Date.parse(koreaDate(now)+'T00:00:00+09:00')+DAY;}
+const earnings=new Set(['NVDA','MSFT','AAPL','AMZN','GOOGL','META','TSM','005930','000660']);
+function category(event){
+ if(earnings.has(event.series))return '실적';
+ if(['fomc','ecb','boj','bok'].includes(event.series))return '금리';
+ if(['cpi','pce'].includes(event.series))return '물가';
+ if(event.series==='jobs')return '고용';
+ if(event.series==='us-election')return '선거';
+ return '주요 일정';
+}
+export function groupedEvents(events,now=new Date()){
+ const days=new Map();
+ for(const event of upcomingEvents(events,now)){
+  if(!days.has(event.date))days.set(event.date,{date:event.date,daysLeft:event.daysLeft,categories:[]});
+  const day=days.get(event.date),name=category(event);
+  let group=day.categories.find(group=>group.name===name);
+  if(!group){group={name,events:[]};day.categories.push(group);}
+  group.events.push(event);
+ }
+ return [...days.values()];
+}
 const sourceNames={fed:'FOMC',bls:'미국 CPI·고용',bea:'PCE',ecb:'ECB',boj:'BOJ',bok:'한국은행',samsung:'삼성전자',hynix:'SK하이닉스',nasdaq:'해외 기업 실적',elections:'미국 선거'};
 export class MarketEvents {
  constructor(host){
@@ -29,11 +49,22 @@ export class MarketEvents {
  }
  render(now=new Date()){
   this.list.replaceChildren();const events=upcomingEvents(this.data?.events,now);
-  for(const event of events){
-   const badge=document.createElement('a');badge.className='market-event-badge'+(event.daysLeft===0?' is-today':event.daysLeft<=3?' is-soon':'');
-   const label=eventLabel(event),split=label.lastIndexOf('(');const name=document.createElement('span'),when=document.createElement('span');name.textContent=label.slice(0,split);when.textContent=label.slice(split);when.className='market-event-date';badge.append(name,when);badge.dataset.eventId=event.id;badge.dataset.date=event.date;
-   try{const url=new URL(event.sourceUrl);if(url.protocol==='https:'){badge.href=url.href;badge.target='_blank';badge.rel='noopener noreferrer';}}catch{}
-   badge.title=[event.name,event.date+' · '+(event.dateNote||'한국 날짜'),event.status==='estimated'?'일정 제공처의 예정일 · 확정/변경 가능':event.status==='reported'?'공개 일정 · TradingView 대체 출처':'공식 일정',event.stale?'최근 조회 실패 · 마지막 확인 일정':'','클릭하면 출처 열기'].filter(Boolean).join('\n');
+  for(const day of groupedEvents(this.data?.events,now)){
+   const badge=document.createElement('div');badge.className='market-event-badge'+(day.daysLeft===0?' is-today':day.daysLeft<=3?' is-soon':'');badge.dataset.date=day.date;if(day.categories.length>1||day.categories.some(group=>group.events.length>1))badge.classList.add('is-wide');
+   for(const group of day.categories){
+    const row=document.createElement('div');row.className='market-event-row';
+    const label=document.createElement('span');label.className='market-event-category';label.textContent=`D-${day.daysLeft} ${group.name} : `;row.append(label);
+    group.events.forEach((event,index)=>{
+     if(index)row.append(document.createTextNode(', '));
+     const link=document.createElement('a');link.className='market-event-link';link.dataset.eventId=event.id;
+     link.textContent=(group.name==='실적'?event.name.replace(/ 실적$/, ''):event.name)+(event.status==='estimated'?'·예정':'')+(event.dateBasis==='US-local'?'·현지':'');
+     try{const url=new URL(event.sourceUrl);if(url.protocol==='https:'){link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';}}catch{}
+     link.title=[event.name,event.date+' · '+(event.dateNote||'한국 날짜'),event.status==='estimated'?'일정 제공처의 예정일 · 확정/변경 가능':event.status==='reported'?'공개 일정 · TradingView 대체 출처':'공식 일정',event.stale?'최근 조회 실패 · 마지막 확인 일정':'','클릭하면 출처 열기'].filter(Boolean).join('\n');
+     row.append(link);
+    });
+    badge.append(row);
+   }
+   const when=document.createElement('span');when.className='market-event-date';const [,m,d]=day.date.split('-');when.textContent=`(${Number(m)}월${Number(d)}일)`;badge.append(when);
    this.list.append(badge);
   }
   const outdated=this.data&&Date.now()-Date.parse(this.data.updatedAt)>48*60*60*1000;
