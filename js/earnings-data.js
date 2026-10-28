@@ -132,11 +132,16 @@ export function fiveYearWindow(rows, periods, unit='') {
 }
 
 export const wiseAnnualEarnings = payloads => wiseEarnings(payloads,true);
-// Financial amounts retain their source currency; million -> hundred million (억).
+// Keep source values intact: USD uses millions; other currencies retain 억/조 display.
 export function earningsAmount(value, unit='', signed=false) {
  if(value==null)return '미제공';
  const perShare=/주/.test(unit);
  if(perShare)return (signed&&value>0?'+':'')+new Intl.NumberFormat('ko-KR',{maximumFractionDigits:2}).format(value);
+ if(/\bUSD\b/.test(unit)){
+  const millions=value*(/백만/.test(unit)?1:/조/.test(unit)?1000000:/억/.test(unit)?100:1/1000000);
+  const displayed=Number(millions.toFixed(2))||0;
+  return (signed&&displayed>0?'+':'')+new Intl.NumberFormat('ko-KR',{maximumFractionDigits:2}).format(displayed)+'백만';
+ }
  const eok=value/(/백만/.test(unit)?100:1),trillion=Math.abs(eok)>=10000;
  const displayed=trillion?eok/10000:(Math.trunc(eok)||0);
  const number=new Intl.NumberFormat('ko-KR',trillion?{minimumFractionDigits:2,maximumFractionDigits:2}:{maximumFractionDigits:0}).format(displayed);
@@ -148,5 +153,6 @@ export function earningsPercent(value) {
 }
 export function earningsUnit(unit='') {
  if(/주/.test(unit))return unit;
+ if(/\bUSD\b/.test(unit))return '금액: 백만 USD';
  return '금액: 억·조 '+(unit.match(/KRW|USD|DKK/)?.[0]||'원문 통화');
 }

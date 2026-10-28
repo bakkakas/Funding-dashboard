@@ -87,9 +87,9 @@ test('KR cache has real forecasts for every supported issuer without treating un
 test('hundred-million formatting preserves currency scale and EPS per-share semantics',async()=>{
  const {earningsAmount,earningsUnit,earningsPercent}=await import('../js/earnings-data.js');
  assert.equal(earningsAmount(1000,'억 KRW'),'1,000억');assert.equal(earningsAmount(148,'억 KRW',true),'+148억');
- assert.equal(earningsAmount(100000,'USD(백만)'),'1,000억');assert.equal(earningsAmount(-14800,'DKK(백만)',true),'-148억');
+ assert.equal(earningsAmount(100000,'USD(백만)'),'100,000백만');assert.equal(earningsAmount(-14800,'DKK(백만)',true),'-148억');
  assert.equal(earningsAmount(3.2,'USD / 주'),'3.2');assert.equal(earningsAmount(null,'억 KRW'),'미제공');assert.equal(earningsAmount(0,'억 KRW',true),'0억');
- assert.equal(earningsPercent(12.54),'+12.5%');assert.equal(earningsPercent(-12.54),'-12.5%');assert.equal(earningsPercent(null),'—');assert.equal(earningsUnit('USD(백만)'),'금액: 억·조 USD');
+ assert.equal(earningsPercent(12.54),'+12.5%');assert.equal(earningsPercent(-12.54),'-12.5%');assert.equal(earningsPercent(null),'—');assert.equal(earningsUnit('USD(백만)'),'금액: 백만 USD');
 });
 test('annual data uses annual actual/consensus, never sums an incomplete quarter series',()=>{
  for(const id of ['005380','263750','005930','000660']) {
@@ -107,7 +107,7 @@ test('annual data uses annual actual/consensus, never sums an incomplete quarter
 test('amounts truncate eok toward zero and switch to trillion only at the threshold',async()=>{
  const {earningsAmount}=await import('../js/earnings-data.js');
  for(const [value,expected] of [[100.5,'100억'],[-100.5,'-100억'],[-.9,'0억'],[9999.99,'9,999억'],[10000,'1.00조'],[18900,'1.89조'],[-18900,'-1.89조'],[18956,'1.90조']])assert.equal(earningsAmount(value,'억 KRW'),expected);
- assert.equal(earningsAmount(1890000,'USD(백만)'),'1.89조');assert.equal(earningsAmount(100.5,'USD / 주'),'100.5');assert.equal(earningsAmount(148.9,'억 KRW',true),'+148억');assert.equal(earningsAmount(null,'억 KRW'),'미제공');
+ assert.equal(earningsAmount(1890000,'USD(백만)'),'1,890,000백만');assert.equal(earningsAmount(100.5,'USD / 주'),'100.5');assert.equal(earningsAmount(148.9,'억 KRW',true),'+148억');assert.equal(earningsAmount(null,'억 KRW'),'미제공');
 });
 test('annual axes contain exactly five shared consecutive years and never fabricate missing amounts',async()=>{
  const {fiveYearWindow}=await import('../js/earnings-data.js');
@@ -124,4 +124,13 @@ test('annual axes contain exactly five shared consecutive years and never fabric
   const revenue=comparisonTrend(cache.quarters,records,'revenue',cache.financialUnit,true),operating=comparisonTrend(cache.quarters,records,'operating',cache.financialUnit,true);
   assert.equal(revenue.length,5);assert.deepEqual(revenue.map(r=>r.period),operating.map(r=>r.period));
  }
+});
+
+test('USD millions preserve small values, raw currency scale, signed deltas and per-share exclusions',async()=>{
+ const {earningsAmount,earningsUnit}=await import('../js/earnings-data.js');
+ for(const [value,unit,want] of [[100.5,'USD(백만)','100.5백만'],[.5,'USD(백만)','0.5백만'],[-.009,'USD(백만)','-0.01백만'],[-.001,'USD(백만)','0백만'],[100500000,'USD','100.5백만'],[1.005,'억 USD','100.5백만'],[1,'조 USD','1,000,000백만']])assert.equal(earningsAmount(value,unit),want);
+ assert.equal(earningsAmount(1.234,'USD(백만)',true),'+1.23백만');assert.equal(earningsAmount(-1.234,'USD(백만)',true),'-1.23백만');
+ assert.equal(earningsAmount(null,'USD(백만)'),'미제공');assert.equal(earningsAmount(.5,'USD / 주'),'0.5');assert.equal(earningsUnit('USD / 주'),'USD / 주');
+ assert.equal(earningsAmount(100.5,'억 KRW'),'100억');assert.equal(earningsAmount(1890000,'DKK(백만)'),'1.89조');
+ assert.equal(earningsDelta(100.5,100).percent,.5);
 });
