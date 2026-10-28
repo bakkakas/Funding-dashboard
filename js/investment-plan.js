@@ -1,4 +1,4 @@
-import {MarketEvents} from './market-events.js?v=2';
+import {MarketEvents} from './market-events.js?v=3';
 import {IMPACTS,CATEGORIES,SCOPES,seoulDate,isDue,normalizePlan,filterPlans,impactScore,planScores,overallScore} from './investment-plan-model.js?v=3';
 const signed=n=>n>0?`+${n}`:String(n);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
