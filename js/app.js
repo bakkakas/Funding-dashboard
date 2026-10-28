@@ -32,7 +32,7 @@ import {
   periodFundingFee,
 } from './metrics.js?v=10';
 import { renderAssetSummary as renderAssetSummaryView } from './render/asset-summary.js';
-import { renderChart, renderPriceChart } from './render/charts.js?v=2';
+import { renderChart, renderPriceChart } from './render/charts.js?v=3';
 import { renderComparisons as renderComparisonsView, renderExchangeTabs as renderExchangeTabsView } from './render/comparisons.js?v=4';
 import {
   renderCurrentFundingInsights,

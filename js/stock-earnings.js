@@ -1,3 +1,4 @@
+import { attachChartHover } from './chart-hover.js?v=1';
 import { earningsDelta, comparisonTrend, TREND_METRICS, earningsAmount, earningsPercent, earningsUnit } from './earnings-data.js?v=5';
 import { safeUrl } from './research-data.js?v=1';
 const e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -43,6 +44,10 @@ export function renderEarnings(host,data){
     <text class="earnings-difference" x="${x}" y="244" text-anchor="middle">${e(difference)}${d.amount!=null?` <tspan class="${tone(d.percent)}">(${d.percent==null?'차이율 —':percent(d.percent)})</tspan>`:''}</text></g>`;
   }).join('');
   host.querySelector('[data-earnings-chart]').innerHTML=values.length?`<p class="data-note earnings-scroll-hint">최근 발표 ${periodName}부터 표시합니다. 좌우로 밀어 다른 ${periodName}도 확인하세요.</p><div class="earnings-chart-scroll" tabindex="0" role="region" aria-label="${e(label)} ${periodName}별 그래프 · 좌우 스크롤"><svg class="earnings-chart" style="min-width:${width}px" viewBox="0 0 ${width} 270" role="img" aria-label="${e(label)} ${periodName}별 예상·실제·차액·차이율"><line x1="25" x2="${width-25}" y1="${zero}" y2="${zero}" stroke="#537463"/>${bars}</svg></div>`:'<p class="data-note">이 기간의 수치는 제공되지 않습니다.</p>';
+  attachChartHover(host.querySelector('.earnings-chart'), rows.map((r,i) => {
+   const d=earningsDelta(r.value,r.estimate);
+   return {x:step/2+i*step,text:`${r.period}${annual?'년':''} · ${label} · ${earningsUnit(r.unit)}\n예상 ${earningsAmount(r.estimate,r.unit)}\n실제 ${r.value==null?(r.missing?'미제공':'미발표'):earningsAmount(r.value,r.unit)}\n차액 ${d.amount==null?'—':earningsAmount(d.amount,r.unit,true)} (${earningsPercent(d.percent)})`};
+  }), {top:20,bottom:200});
   host.querySelector('[data-earnings-table]').innerHTML=`<div class="earnings-table-wrap"><table class="earnings-table"><caption>${e(label)} · ${periodName}별 예상 / 실제 · ${e(earningsUnit(rows[0]?.unit||unit))}</caption><thead><tr><th>${periodName}</th><th>시장 예상</th><th>실제 실적</th><th>차액 (예상 대비)</th></tr></thead><tbody>${rows.map(r=>{const d=earningsDelta(r.value,r.estimate);return `<tr><th>${e(r.period)}${r.fiscalPeriod?`<small>${e(r.fiscalPeriod)}</small>`:''}${r.missing?' · 미제공':r.value==null?' · 미발표':r.basis?.includes('잠정')?' · 잠정/최초 발표':''}</th><td>${amount(r.estimate,r.unit)}</td><td>${amount(r.value,r.unit)}</td><td class="${tone(d.amount)}">${d.amount==null?'—':`${amount(d.amount,r.unit,true)} (${percent(d.percent)})`}</td></tr>`;}).join('')}</tbody></table></div>
    ${rows.some(r=>r.directComparison)?'':`<div class="earnings-table-wrap"><table class="earnings-table"><caption>실제 실적 · ${annual?'전년':'전분기'} 대비</caption><thead><tr><th>${periodName}</th><th>증감액 (증감률)</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${e(r.period)}</th><td class="${tone(r.delta)}">${r.delta==null?'—':`${amount(r.delta,r.unit,true)} (${percent(r.percent)})`}</td></tr>`).join('')}</tbody></table></div>`}
    <p class="data-note">차액 = 실제 − 예상. 차이율 = 차액 ÷ |예상| × 100. 예상보다 높으면 +·초록색, 낮으면 −·빨간색. 미제공은 차액을 계산하지 않고, 예상이 0이면 차이율을 계산하지 않습니다. 금액은 억 단위 소수점을 절삭하고, 1조 이상은 조 단위 소수점 두 자리로 반올림합니다. EPS는 주당 단위를 유지합니다. 차이율은 절삭 전 원자료로 계산합니다.</p>`;
