@@ -17,3 +17,15 @@
 @media(max-width:480px){.plan-scores{grid-template-columns:minmax(0,1fr)}.plan-choice span{padding:10px;font-size:12px}.plan-options{gap:7px}}
 
 .plan-overall{margin:20px 0;padding:20px;border:1px solid var(--line);border-radius:14px;min-width:0}.plan-overall-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}.plan-overall h3{font-size:16px;margin:0 0 12px}.plan-overall strong{font-size:32px}.plan-overall-heading>span{font-size:14px}.plan-overall>p{font-size:13px}.plan-meter{position:relative;height:28px;border-radius:8px;overflow:hidden;background:linear-gradient(90deg,rgba(220,38,38,.15),rgba(128,128,128,.12) 50%,rgba(22,163,74,.15))}.plan-meter-fill{position:absolute;top:0;bottom:0;background:var(--score-tint)}.plan-meter-zero{position:absolute;left:50%;top:0;bottom:0;width:1px;background:#cbd5e1}.plan-meter-marker{position:absolute;top:3px;bottom:3px;width:5px;border-radius:3px;background:#fff;box-shadow:0 0 0 1px #111;transform:translateX(-50%)}.plan-meter-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--muted)}
+
+/* Compact public event calendar, independent of private judgment items. */
+.market-events{margin:0 0 16px;min-width:0}
+.market-event-list{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.market-event-badge{display:inline-flex;align-items:center;max-width:100%;box-sizing:border-box;border:1px solid rgba(151,185,173,.4);border-radius:999px;padding:5px 10px;color:var(--text,#e4eee9);background:transparent;font-size:12px;font-weight:500;line-height:1.5;text-decoration:none;white-space:normal;overflow-wrap:anywhere}
+.market-event-badge:hover,.market-event-badge:focus-visible{border-color:#51d2a2;background:rgba(52,211,153,.08);outline-offset:3px}
+.market-event-badge.is-today{border-color:#f5be62;color:#f5ce8f}
+.market-event-badge.is-soon{border-color:rgba(70,211,157,.7)}
+.market-event-status{margin-top:7px;font-size:11px;color:var(--muted,#9bb5a8);line-height:1.5}
+@media(max-width:520px){.market-event-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.market-event-badge{justify-content:center;text-align:center;padding:4px 7px;font-size:11px;line-height:1.45;min-height:28px}}
+
+.market-event-badge{flex-wrap:wrap}.market-event-date{white-space:nowrap}
