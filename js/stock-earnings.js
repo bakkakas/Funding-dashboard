@@ -1,5 +1,5 @@
 import { attachChartHover } from './chart-hover.js?v=1';
-import { earningsDelta, comparisonTrend, TREND_METRICS, earningsAmount, earningsPercent, earningsUnit } from './earnings-data.js?v=5';
+import { earningsDelta, comparisonTrend, TREND_METRICS, earningsAmount, earningsPercent, earningsUnit } from './earnings-data.js?v=6';
 import { safeUrl } from './research-data.js?v=1';
 const e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tone=v=>v>0?'positive':v<0?'negative':'';
@@ -50,7 +50,7 @@ export function renderEarnings(host,data){
   }), {top:20,bottom:200});
   host.querySelector('[data-earnings-table]').innerHTML=`<div class="earnings-table-wrap"><table class="earnings-table"><caption>${e(label)} · ${periodName}별 예상 / 실제 · ${e(earningsUnit(rows[0]?.unit||unit))}</caption><thead><tr><th>${periodName}</th><th>시장 예상</th><th>실제 실적</th><th>차액 (예상 대비)</th></tr></thead><tbody>${rows.map(r=>{const d=earningsDelta(r.value,r.estimate);return `<tr><th>${e(r.period)}${r.fiscalPeriod?`<small>${e(r.fiscalPeriod)}</small>`:''}${r.missing?' · 미제공':r.value==null?' · 미발표':r.basis?.includes('잠정')?' · 잠정/최초 발표':''}</th><td>${amount(r.estimate,r.unit)}</td><td>${amount(r.value,r.unit)}</td><td class="${tone(d.amount)}">${d.amount==null?'—':`${amount(d.amount,r.unit,true)} (${percent(d.percent)})`}</td></tr>`;}).join('')}</tbody></table></div>
    ${rows.some(r=>r.directComparison)?'':`<div class="earnings-table-wrap"><table class="earnings-table"><caption>실제 실적 · ${annual?'전년':'전분기'} 대비</caption><thead><tr><th>${periodName}</th><th>증감액 (증감률)</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${e(r.period)}</th><td class="${tone(r.delta)}">${r.delta==null?'—':`${amount(r.delta,r.unit,true)} (${percent(r.percent)})`}</td></tr>`).join('')}</tbody></table></div>`}
-   <p class="data-note">차액 = 실제 − 예상. 차이율 = 차액 ÷ |예상| × 100. 예상보다 높으면 +·초록색, 낮으면 −·빨간색. 미제공은 차액을 계산하지 않고, 예상이 0이면 차이율을 계산하지 않습니다. 금액은 억 단위 소수점을 절삭하고, 1조 이상은 조 단위 소수점 두 자리로 반올림합니다. EPS는 주당 단위를 유지합니다. 차이율은 절삭 전 원자료로 계산합니다.</p>`;
+   <p class="data-note">차액 = 실제 − 예상. 차이율 = 차액 ÷ |예상| × 100. 예상보다 높으면 +·초록색, 낮으면 −·빨간색. 미제공은 차액을 계산하지 않고, 예상이 0이면 차이율을 계산하지 않습니다. USD 금액은 백만 달러 단위로 소수점 두 자리까지 표시합니다. 그 외 금액은 억 단위 소수점을 절삭하고, 1조 이상은 조 단위 소수점 두 자리로 반올림합니다. EPS는 주당 단위를 유지합니다. 차이율은 표시 단위 환산·반올림 전 원자료로 계산합니다.</p>`;
   const scroller=host.querySelector('.earnings-chart-scroll');if(scroller)scroller.scrollLeft=Math.max(0,rows.findLastIndex(r=>r.value!=null)*step);
   for(const button of host.querySelectorAll('[data-earnings-frequency]'))button.onclick=()=>{period=button.dataset.earningsFrequency;render();};
   for(const button of host.querySelectorAll('[data-earnings-metric]'))button.onclick=()=>{metric=button.dataset.earningsMetric;render();};
