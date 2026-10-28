@@ -1,3 +1,4 @@
+import {MarketEvents} from './market-events.js?v=1';
 import {IMPACTS,CATEGORIES,SCOPES,seoulDate,isDue,normalizePlan,filterPlans,impactScore,planScores,overallScore} from './investment-plan-model.js?v=3';
 const signed=n=>n>0?`+${n}`:String(n);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -7,7 +8,7 @@ const liquidityNames={room:'자금 여유 있음',balanced:'보통',tight:'자�
 export class InvestmentPlan {
  constructor(db,host){
  this.db=db;this.host=host;this.user=null;this.version=0;this.items=[];this.ready=false;this.busy=false;this.dirty=false;this.editing=null;this.today=seoulDate();this.filters={category:'',target:'',state:'active'};
- host.innerHTML=`<div class="plan-heading"><div><div class="eyebrow">INVESTMENT CONTEXT</div><h2>투자 판단 보드</h2><p>시장의 기회와 위험, 내 자금 여유를 함께 보고 판단해요.</p></div><button class="chip active" data-new disabled>+ 판단 추가</button></div>
+ host.innerHTML=`<section class="market-events" data-market-events aria-label="주요 시장 이벤트"></section><div class="plan-heading"><div><div class="eyebrow">INVESTMENT CONTEXT</div><h2>투자 판단 보드</h2><p>시장의 기회와 위험, 내 자금 여유를 함께 보고 판단해요.</p></div><button class="chip active" data-new disabled>+ 판단 추가</button></div>
  <div class="plan-status" role="status" data-status>계정 확인 중…</div><button class="chip subtle" data-retry hidden>다시 불러오기</button>
  <section class="plan-overall" data-overall aria-label="현재 종합 점수"></section><div class="plan-summary" data-summary></div><section class="plan-score-section"><h3>매수 영향 점수</h3><div class="plan-scores" data-scores></div><p class="plan-note">매우 부정 −3 · 부정 −2 · 약간 부정 −1 · 약간 긍정 +1 · 긍정 +2 · 매우 긍정 +3점. 각 항목을 같은 비중으로 합산해요. 항목 수가 다르므로 평균도 함께 보세요.</p><p class="plan-note">전체 공통은 ‘전체 적용’ 항목만, 대상별 점수는 전체 공통 + 해당 대상 항목이에요. 개인 자금 판단도 포함하며, 만료·해소 항목은 제외해요. 자산군·산업군·종목 간 소속 관계는 자동 추정하지 않아요. 점수는 아래 목록 필터와 무관해요.</p></section><div class="plan-due" data-due role="status" hidden></div>
  <section class="plan-editor" data-editor hidden><h3 data-editor-title>판단 추가</h3><form data-form><fieldset>
@@ -27,6 +28,7 @@ export class InvestmentPlan {
  <p class="plan-note">대상 필터에는 ‘전체’에 적용되는 판단도 함께 표시돼요. 점수는 입력한 판단의 요약이며 매수 확률이나 자동 매매 신호가 아니에요.</p>
  <div class="plan-columns"><section><h3>시장·산업 상황 <span data-market-count></span></h3><div data-market></div></section><section><h3>개인 자금 계획 <span data-personal-count></span></h3><div data-cash></div></section></div>
  <p class="plan-note">만료 안내는 이 페이지와 ‘투자 계획’ 탭에 표시돼요. 앱 밖 푸시·텔레그램 알림은 보내지 않아요.</p>`;
+ this.marketEvents=new MarketEvents(host.querySelector('[data-market-events]'));
  this.form=host.querySelector('[data-form]');this.fieldset=this.form.querySelector('fieldset');
  this.q('[data-new]').onclick=()=>this.open();this.q('[data-retry]').onclick=()=>{if(!this.dirty||confirm('작성 중인 내용을 버리고 다시 불러올까요?'))void this.connect(this.user,true);};
  this.q('[data-cancel]').onclick=()=>this.cancel();
