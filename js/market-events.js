@@ -33,7 +33,7 @@ export class MarketEvents {
    const badge=document.createElement('a');badge.className='market-event-badge'+(event.daysLeft===0?' is-today':event.daysLeft<=3?' is-soon':'');
    const label=eventLabel(event),split=label.lastIndexOf('(');const name=document.createElement('span'),when=document.createElement('span');name.textContent=label.slice(0,split);when.textContent=label.slice(split);when.className='market-event-date';badge.append(name,when);badge.dataset.eventId=event.id;badge.dataset.date=event.date;
    try{const url=new URL(event.sourceUrl);if(url.protocol==='https:'){badge.href=url.href;badge.target='_blank';badge.rel='noopener noreferrer';}}catch{}
-   badge.title=[event.name,event.date+' · '+(event.dateNote||'한국 날짜'),event.status==='estimated'?'일정 제공처의 예정일 · 확정/변경 가능':'공식 일정',event.stale?'최근 조회 실패 · 마지막 확인 일정':'','클릭하면 출처 열기'].filter(Boolean).join('\n');
+   badge.title=[event.name,event.date+' · '+(event.dateNote||'한국 날짜'),event.status==='estimated'?'일정 제공처의 예정일 · 확정/변경 가능':event.status==='reported'?'공개 일정 · TradingView 대체 출처':'공식 일정',event.stale?'최근 조회 실패 · 마지막 확인 일정':'','클릭하면 출처 열기'].filter(Boolean).join('\n');
    this.list.append(badge);
   }
   const outdated=this.data&&Date.now()-Date.parse(this.data.updatedAt)>48*60*60*1000;

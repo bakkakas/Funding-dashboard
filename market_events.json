@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-28T09:22:03.250795+00:00",
+  "updatedAt": "2026-10-28T09:28:21.391182+00:00",
   "timezone": "Asia/Seoul",
   "windowDays": 30,
   "sources": {
     "fed": {
-      "checkedAt": "2026-10-28T09:22:03.250795+00:00",
+      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
       "status": "ok",
       "events": [
         {
@@ -143,8 +143,10 @@
       ]
     },
     "bls": {
-      "checkedAt": "2026-10-28T09:13:11.727348+00:00",
-      "status": "stale",
+      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
+      "status": "fallback",
+      "primaryError": "HTTPError",
+      "provider": "TradingView economic calendar",
       "events": [
         {
           "id": "jobs:2026-08-07",
@@ -213,28 +215,6 @@
           "dateNote": "Consumer Price Index"
         },
         {
-          "id": "jobs:2026-11-06",
-          "series": "jobs",
-          "name": "미국 고용보고서",
-          "date": "2026-11-06",
-          "sourceDate": "2026-11-06",
-          "startsAt": "2026-11-06T08:30:00-05:00",
-          "status": "confirmed",
-          "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
-          "dateNote": "Employment Situation"
-        },
-        {
-          "id": "cpi:2026-11-10",
-          "series": "cpi",
-          "name": "미국 CPI",
-          "date": "2026-11-10",
-          "sourceDate": "2026-11-10",
-          "startsAt": "2026-11-10T08:30:00-05:00",
-          "status": "confirmed",
-          "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
-          "dateNote": "Consumer Price Index"
-        },
-        {
           "id": "jobs:2026-12-04",
           "series": "jobs",
           "name": "미국 고용보고서",
@@ -255,12 +235,37 @@
           "status": "confirmed",
           "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
           "dateNote": "Consumer Price Index"
+        },
+        {
+          "id": "jobs:2026-11-06",
+          "series": "jobs",
+          "name": "미국 고용보고서",
+          "date": "2026-11-06",
+          "sourceDate": "2026-11-06",
+          "startsAt": "2026-11-06T13:30:00+00:00",
+          "status": "reported",
+          "sourceUrl": "https://www.tradingview.com/economic-calendar/",
+          "dateNote": "TradingView 경제 캘린더 재공표 일정 / 한국 날짜",
+          "originalSourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
+          "sourceProvider": "TradingView economic calendar"
+        },
+        {
+          "id": "cpi:2026-11-10",
+          "series": "cpi",
+          "name": "미국 CPI",
+          "date": "2026-11-10",
+          "sourceDate": "2026-11-10",
+          "startsAt": "2026-11-10T13:30:00+00:00",
+          "status": "reported",
+          "sourceUrl": "https://www.tradingview.com/economic-calendar/",
+          "dateNote": "TradingView 경제 캘린더 재공표 일정 / 한국 날짜",
+          "originalSourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
+          "sourceProvider": "TradingView economic calendar"
         }
-      ],
-      "error": "HTTPError"
+      ]
     },
     "bea": {
-      "checkedAt": "2026-10-28T09:22:03.250795+00:00",
+      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
       "status": "ok",
       "events": [
         {
@@ -464,7 +469,7 @@
       ]
     },
     "ecb": {
-      "checkedAt": "2026-10-28T09:22:03.250795+00:00",
+      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
       "status": "ok",
       "events": [
         {
@@ -668,7 +673,7 @@
       ]
     },
     "boj": {
-      "checkedAt": "2026-10-28T09:22:03.250795+00:00",
+      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
       "status": "ok",
       "events": [
         {
@@ -806,8 +811,8 @@
       ]
     },
     "bok": {
-      "checkedAt": "2026-10-28T09:18:20.090854+00:00",
-      "status": "stale",
+      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
+      "status": "ok",
       "events": [
         {
           "id": "bok:2026-08-27",
@@ -842,11 +847,10 @@
           "sourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
           "dateNote": "기준금리 결정 회의 / 한국 날짜"
         }
-      ],
-      "error": "TimeoutError"
+      ]
     },
     "samsung": {
-      "checkedAt": "2026-10-28T09:22:03.250795+00:00",
+      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
       "status": "ok",
       "events": [
         {
@@ -874,12 +878,12 @@
       ]
     },
     "hynix": {
-      "checkedAt": "2026-10-28T09:22:03.250795+00:00",
+      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
       "status": "ok",
       "events": []
     },
     "nasdaq": {
-      "checkedAt": "2026-10-28T09:22:03.250795+00:00",
+      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
       "status": "ok",
       "events": [
         {
@@ -945,7 +949,7 @@
       ]
     },
     "elections": {
-      "checkedAt": "2026-10-28T09:22:03.250795+00:00",
+      "checkedAt": "2026-10-28T09:28:21.391182+00:00",
       "status": "ok",
       "events": [
         {
@@ -984,10 +988,7 @@
       ]
     }
   },
-  "warnings": [
-    "bls",
-    "bok"
-  ],
+  "warnings": [],
   "events": [
     {
       "id": "005930:2026-07-30",
@@ -1052,7 +1053,7 @@
       "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
       "dateNote": "Employment Situation",
       "sourceKey": "bls",
-      "stale": true
+      "stale": false
     },
     {
       "id": "cpi:2026-08-12",
@@ -1065,7 +1066,7 @@
       "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
       "dateNote": "Consumer Price Index",
       "sourceKey": "bls",
-      "stale": true
+      "stale": false
     },
     {
       "id": "pce:2026-08-26",
@@ -1091,7 +1092,7 @@
       "sourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
       "dateNote": "기준금리 결정 회의 / 한국 날짜",
       "sourceKey": "bok",
-      "stale": true
+      "stale": false
     },
     {
       "id": "jobs:2026-09-04",
@@ -1104,7 +1105,7 @@
       "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
       "dateNote": "Employment Situation",
       "sourceKey": "bls",
-      "stale": true
+      "stale": false
     },
     {
       "id": "cpi:2026-09-11",
@@ -1117,7 +1118,7 @@
       "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
       "dateNote": "Consumer Price Index",
       "sourceKey": "bls",
-      "stale": true
+      "stale": false
     },
     {
       "id": "fomc:2026-09-16",
@@ -1169,7 +1170,7 @@
       "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
       "dateNote": "Employment Situation",
       "sourceKey": "bls",
-      "stale": true
+      "stale": false
     },
     {
       "id": "cpi:2026-10-14",
@@ -1182,7 +1183,7 @@
       "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
       "dateNote": "Consumer Price Index",
       "sourceKey": "bls",
-      "stale": true
+      "stale": false
     },
     {
       "id": "bok:2026-10-22",
@@ -1195,7 +1196,7 @@
       "sourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
       "dateNote": "기준금리 결정 회의 / 한국 날짜",
       "sourceKey": "bok",
-      "stale": true
+      "stale": false
     },
     {
       "id": "005930:2026-10-29",
@@ -1337,12 +1338,14 @@
       "name": "미국 고용보고서",
       "date": "2026-11-06",
       "sourceDate": "2026-11-06",
-      "startsAt": "2026-11-06T08:30:00-05:00",
-      "status": "confirmed",
-      "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
-      "dateNote": "Employment Situation",
+      "startsAt": "2026-11-06T13:30:00+00:00",
+      "status": "reported",
+      "sourceUrl": "https://www.tradingview.com/economic-calendar/",
+      "dateNote": "TradingView 경제 캘린더 재공표 일정 / 한국 날짜",
+      "originalSourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
+      "sourceProvider": "TradingView economic calendar",
       "sourceKey": "bls",
-      "stale": true
+      "stale": false
     },
     {
       "id": "cpi:2026-11-10",
@@ -1350,12 +1353,14 @@
       "name": "미국 CPI",
       "date": "2026-11-10",
       "sourceDate": "2026-11-10",
-      "startsAt": "2026-11-10T08:30:00-05:00",
-      "status": "confirmed",
-      "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
-      "dateNote": "Consumer Price Index",
+      "startsAt": "2026-11-10T13:30:00+00:00",
+      "status": "reported",
+      "sourceUrl": "https://www.tradingview.com/economic-calendar/",
+      "dateNote": "TradingView 경제 캘린더 재공표 일정 / 한국 날짜",
+      "originalSourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
+      "sourceProvider": "TradingView economic calendar",
       "sourceKey": "bls",
-      "stale": true
+      "stale": false
     },
     {
       "id": "NVDA:2026-11-18",
@@ -1395,7 +1400,7 @@
       "sourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
       "dateNote": "기준금리 결정 회의 / 한국 날짜",
       "sourceKey": "bok",
-      "stale": true
+      "stale": false
     },
     {
       "id": "jobs:2026-12-04",
@@ -1408,7 +1413,7 @@
       "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
       "dateNote": "Employment Situation",
       "sourceKey": "bls",
-      "stale": true
+      "stale": false
     },
     {
       "id": "cpi:2026-12-10",
@@ -1421,7 +1426,7 @@
       "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
       "dateNote": "Consumer Price Index",
       "sourceKey": "bls",
-      "stale": true
+      "stale": false
     },
     {
       "id": "fomc:2026-12-09",

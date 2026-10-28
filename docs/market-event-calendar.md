@@ -20,3 +20,9 @@ Each source refresh replaces its own schedule, so removed/rescheduled source eve
 
 ## Verification
 Tests cover D-30/D-31, D-0/D+1 midnight, month/year/leap transitions, malformed dates, deduplication, FOMC final day and DST, central-bank selection, announcement categories, Nasdaq session conversion/allowlist, US election deduplication, and preserving failed-source data versus replacing revised schedules.
+
+
+### Hosted-source fallback verification
+The first GitHub run confirmed BLS HTTP403 and BOK timeouts. On primary failure, the collector queries TradingView's public economic calendar for exact allowlisted `USNFP`, `USIRYY`, `KRINTR` events (US/KR only). Korea dates/timestamps match the initially verified official November6 jobs, November10 CPI, November26 BOK dates. Reposted events retain original official-source URL plus TradingView source URL/provider and reported status; they are not mislabeled as a fresh official fetch.
+
+Fallback is accepted separately per group only if every required series has a future dated event. It replaces covered dates (including reschedules), retains the verified official schedule beyond returned coverage, and rejects empty/partial/error responses. Both-source failure still retains last good schedules with visible delayed-update status. Primary errors remain in source metadata even when fallback is healthy.

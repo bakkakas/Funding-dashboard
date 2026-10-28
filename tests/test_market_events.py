@@ -36,7 +36,19 @@ class CalendarTests(unittest.TestCase):
   old=m.event('fomc',date(2026,11,1),'fed');new=m.event('fomc',date(2026,11,2),'fed')
   previous={'sources':{'fed':{'checkedAt':'2026-10-27T00:00:00Z','events':[old]}}}
   with patch.dict(m.PARSERS,{'fed':lambda raw:[new]},clear=True):
-   data=m.refresh(previous,date(2026,10,28),lambda url:'ok',lambda d:[]);self.assertEqual(data['sources']['fed']['events'],[new])
+   data=m.refresh(previous,date(2026,10,28),lambda url:'ok',lambda d:[],lambda d:([],date(2026,11,30)));self.assertEqual(data['sources']['fed']['events'],[new])
    def fail(url):raise ValueError('offline')
-   data=m.refresh(previous,date(2026,10,28),fail,lambda d:[]);self.assertEqual(data['sources']['fed']['events'],[old]);self.assertEqual(data['warnings'],['fed']);self.assertEqual(data['sources']['fed']['checkedAt'],'2026-10-27T00:00:00Z')
+   data=m.refresh(previous,date(2026,10,28),fail,lambda d:[],lambda d:([],date(2026,11,30)));self.assertEqual(data['sources']['fed']['events'],[old]);self.assertEqual(data['warnings'],['fed']);self.assertEqual(data['sources']['fed']['checkedAt'],'2026-10-27T00:00:00Z')
+ def test_macro_fallback_allowlist_and_timezone(self):
+  rows=[{'ticker':'ECONOMICS:USNFP','country':'US','date':'2026-11-06T13:30:00.000Z'},{'ticker':'ECONOMICS:USIRYY','country':'US','date':'2026-11-10T13:30:00.000Z'},{'ticker':'ECONOMICS:KRINTR','country':'KR','date':'2026-11-26T01:00:00.000Z'},{'ticker':'ECONOMICS:USNPP','country':'US','date':'2026-11-06T13:30:00.000Z'}]
+  events,end=m.parse_macro_fallback(json.dumps({'status':'ok','result':rows}),date(2026,10,28))
+  self.assertEqual([e['series'] for e in events],['jobs','cpi','bok']);self.assertEqual(end,date(2026,11,26));self.assertTrue(all(e['status']=='reported' and 'tradingview' in e['sourceUrl'] for e in events))
+ def test_fallback_replaces_covered_dates_preserves_future_and_rejects_partial(self):
+  today=date(2026,10,28);old=m.event('cpi',date(2026,11,9),'bls');far=m.event('cpi',date(2026,12,10),'bls')
+  groups={'bls':{'status':'stale','events':[old,far]}};warnings=['bls']
+  cpi=m.event('cpi',date(2026,11,10),'bls');jobs=m.event('jobs',date(2026,11,6),'bls')
+  m.apply_macro_fallback(groups,warnings,today,lambda d:([cpi],date(2026,11,30)),'now')
+  self.assertEqual(warnings,['bls']);self.assertEqual(groups['bls']['events'],[old,far])
+  m.apply_macro_fallback(groups,warnings,today,lambda d:([cpi,jobs],date(2026,11,30)),'now')
+  self.assertEqual(warnings,[]);self.assertEqual(groups['bls']['status'],'fallback');self.assertEqual(groups['bls']['events'],[far,cpi,jobs])
 if __name__=='__main__':unittest.main()
