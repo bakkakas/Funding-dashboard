@@ -1,5 +1,6 @@
 // Issuer identity is independent of the instrument used to value holdings.
 export const STOCKS = [
+  {id:'stock-otly',code:'OTLY.O',name:'오틀리 그룹',symbol:'OTLY',currency:'USD',market:'US',archiveAvailable:false,primaryListing:'Nasdaq · OTLY (ADS)',quoteNote:'오틀리 그룹(Oatly Group AB) 기업 분석입니다. 가격·변화율은 나스닥 상장 ADS(OTLY) / USD 기준입니다.',website:'https://www.oatly.com/',ir:'https://investors.oatly.com/'},
   {id:'stock-005380',code:'005380',name:'현대자동차',symbol:'005380',currency:'KRW',market:'KR',archiveAvailable:false},
   {id:'stock-263750',code:'263750',name:'펄어비스',symbol:'263750',currency:'KRW',market:'KR',archiveAvailable:false},
   {id:'stock-005930',code:'005930',name:'삼성전자',symbol:'005930',currency:'KRW',market:'KR',website:'https://www.samsung.com/',overview:'반도체·디스플레이·스마트폰·가전 등을 영위하는 삼성전자. 연결 실적과 사업부별 실적을 함께 확인합니다.',ir:'https://www.samsung.com/global/ir/financial-information/earnings-release/'},

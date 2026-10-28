@@ -1,5 +1,5 @@
 import { InvestmentPlan } from './investment-plan.js?v=6';
-import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=3';
+import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=4';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=1';
 import { ResearchThesis } from './research-thesis.js?v=1';
 import { StockResearch } from './stock-research.js?v=8';
