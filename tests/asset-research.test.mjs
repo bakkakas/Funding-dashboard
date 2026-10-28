@@ -43,3 +43,8 @@ test('published issuer archives cover five prior years, contain safe links and n
   for(const r of a.reports){assert.equal(new URL(r.url).protocol,'https:');if(r.filed)assert.ok(r.filed<=a.updatedAt.slice(0,10));if(r.type==='10-Q')assert.match(r.period,/-\d{2}-(28|29|30|31)$/);}
  }
 });
+
+test('OTLY ticker and Naver ADS code resolve to the same issuer without a nonexistent archive',()=>{
+ const a=canonicalStock('OTLY'),b=researchTarget(stock('OTLY.O','오틀리 그룹 ADR'));
+ assert.equal(a.id,'stock-otly');assert.equal(a.id,b.id);assert.equal(a.code,'OTLY.O');assert.equal(a.archiveAvailable,false);assert.match(a.primaryListing,/ADS/);assert.match(a.quoteNote,/USD/);
+});
