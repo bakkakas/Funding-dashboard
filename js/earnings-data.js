@@ -92,7 +92,7 @@ function chartWindow(rows) {
   return [...announced,...ordered.filter(r=>r.value==null && r.estimate!=null && (!last || monthKey(r.period)>monthKey(last.period))).slice(0,2)];
 }
 export function comparisonTrend(quarters, records, metric, financialUnit = '', annual = false) {
-  const selectWindow=rows=>annual?fiveYearWindow(rows,[...(quarters||[]).map(q=>q.key),...records.map(r=>r.period)],financialUnit):chartWindow(rows);
+  const selectWindow=rows=>{const compared=actualComparisons(rows,annual);return annual?fiveYearWindow(compared,[...(quarters||[]).map(q=>q.key),...records.map(r=>r.period)],financialUnit):chartWindow(compared);};
   const label = {revenue:'매출액',operating:'영업이익',parentNet:'지배주주 순이익',net:'순이익',ebit:'EBIT',eps:'EPS'}[metric];
   const direct=records.filter(r=>(metric==='eps' || r.directComparison) && r.metrics.some(m=>m.label===label));
   if (direct.length) {
@@ -106,10 +106,10 @@ export function comparisonTrend(quarters, records, metric, financialUnit = '', a
   // Total net income must never be matched to parent-shareholders' net income.
   const domestic=/억 KRW/.test(financialUnit) && ['revenue','operating','parentNet'].includes(metric);
   const matching=domestic?records.filter(r=>r.basis?.startsWith('IFRS 연결')):[];
-  const rows=fourQuarterTrend(quarters,metric,annual?5:4).map(r=>{
+  const rows=fourQuarterTrend(quarters,metric,(quarters||[]).length).map(r=>{
     const record=matching.find(x=>monthKey(x.period)===monthKey(r.key));
     const match=record?.metrics.find(m=>m.label===label && m.unit==='억 KRW');
-    return {...match,...r,period:r.key.length===4?r.key:r.key.replace(/\D/g,'').slice(0,4)+'-'+r.key.replace(/\D/g,'').slice(4,6),estimate:match?.estimate??null,unit:financialUnit,basis:'확정 실적 / 발표 전 예상'};
+    return {...match,...r,period:r.key.length===4?r.key:r.key.replace(/\D/g,'').slice(0,4)+'-'+r.key.replace(/\D/g,'').slice(4,6),estimate:match?.estimate??null,unit:financialUnit,actualSource:'naver-financials',basis:'확정 실적 / 발표 전 예상'};
   });
   const latest=rows.at(-1);
   for(const record of matching) {
@@ -155,4 +155,23 @@ export function earningsUnit(unit='') {
  if(/주/.test(unit))return unit;
  if(/\bUSD\b/.test(unit))return '금액: 백만 USD';
  return '금액: 억·조 '+(unit.match(/KRW|USD|DKK/)?.[0]||'원문 통화');
+}
+
+// Exact fiscal-period offsets, before selecting the visible window. No gap bridging.
+export function actualComparisons(rows, annual=false) {
+ const index=r=>{const p=r.period.replace(/\D/g,'');return annual?Number(p.slice(0,4))*12:Number(p.slice(0,4))*12+Number(p.slice(4,6))-1;};
+ const match=(a,b)=>a.unit===b.unit && a.basis===b.basis && (a.actualSource||a.source)===(b.actualSource||b.source);
+ return rows.map(row=>{
+  const previous=months=>rows.find(r=>index(r)===index(row)-months&&match(row,r));
+  return {...row,qoq:annual?{amount:null,percent:null}:earningsDelta(row.value,previous(3)?.value),yoy:earningsDelta(row.value,previous(12)?.value)};
+ });
+}
+export function earningsPeriodLabel(row, annual=false, fiscalYearEnd=12) {
+ if(annual)return row.period+'년';
+ const fiscal=row.fiscalPeriod?.match(/^(\d{4})-Q([1-4])$/);
+ if(fiscal)return fiscal[1].slice(2)+'.'+fiscal[2]+'Q';
+ const digits=row.period.replace(/\D/g,''),year=Number(digits.slice(0,4)),month=Number(digits.slice(4,6));
+ if(!month)return row.period;
+ const end=Number(fiscalYearEnd)||12,quarter=Math.ceil(((month-end+11)%12+1)/3),fiscalYear=year+(month>end?1:0);
+ return String(fiscalYear).slice(2)+'.'+quarter+'Q';
 }
