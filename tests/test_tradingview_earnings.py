@@ -28,5 +28,8 @@ class TradingViewEarnings(unittest.TestCase):
     def test_invalid_currency_and_missing_history_fail_closed(self):
         bad=copy.deepcopy(self.payload);bad['data'][0]['d'][0]='SEK'
         with self.assertRaises(ValueError):tv.parse_otly(bad)
+        bad=copy.deepcopy(self.payload)
+        for row in bad['data'][0]['d'][1]:row['Estimate']=None
+        with self.assertRaises(ValueError):tv.parse_otly(bad)
         bad=copy.deepcopy(self.payload);bad['data'][0]['d'][1]=None
         with self.assertRaises(ValueError):tv.parse_otly(bad)

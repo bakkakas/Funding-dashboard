@@ -22,7 +22,7 @@ def parse_otly(payload):
         rows = {}
         for field, label, scale, unit in [('revenues', '매출액', 1e6, 'USD(백만)'), ('earnings', 'EPS', 1, 'USD / 주 (ADS)')]:
             values = data[f'{field}_{frequency}_h']
-            if not isinstance(values, list):
+            if not isinstance(values, list) or not any(finite(r.get('Estimate')) is not None for r in values):
                 raise ValueError('Earnings history missing')
             reported = [r['FiscalPeriod'] for r in values if r.get('IsReported') and finite(r.get('Actual')) is not None]
             if not reported:
