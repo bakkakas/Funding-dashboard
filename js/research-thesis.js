@@ -1,13 +1,19 @@
-import {THESIS_KINDS,normalizeThesisItem,seoulDate,activeIssues,issueState,issueDays} from './research-thesis-model.js?v=1';
+import {THESIS_KINDS,normalizeThesisItem,seoulDate,activeIssues,issueState,issueDays} from './research-thesis-model.js?v=2';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shortDate=d=>`${Number(d.slice(5,7))}월${Number(d.slice(8,10))}일`;
+const sentimentClass=i=>i.sentiment==='positive'?' thesis-positive':i.sentiment==='negative'?' thesis-negative':'';
+const sentimentLabel=i=>i.sentiment==='positive'?'긍정':i.sentiment==='negative'?'부정':'미분류';
 const icons={edit:'<path d="m16 3 5 5M3 21l5-1L21 7a2 2 0 0 0-5-5L3 15z"/>',delete:'<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/>'};
 export class ResearchThesis {
  constructor(db,host){
   Object.assign(this,{db,host,version:0,user:null,key:null,dirty:false,busy:false,ready:false,items:[],editing:null,today:seoulDate()});
-  host.innerHTML=`<section class="thesis-issues" aria-label="종목별 이슈"><div class="thesis-section-heading"><h3>종목 이슈</h3><button type="button" class="chip" data-add="issue">+ 이슈</button></div><div class="thesis-issue-badges" data-live-issues></div><div data-form-slot="issue"></div><details class="thesis-issue-manager"><summary>전체 이슈 관리 <span data-issue-count></span></summary><div data-items="issue"></div></details></section><div class="thesis-section-heading"><h3>나의 투자 원칙</h3><small data-asset-label></small></div><div class="thesis-columns">${['reason','conditions'].map(kind=>`<section><div class="thesis-section-heading"><h4>${THESIS_KINDS[kind]}</h4><button type="button" class="chip" data-add="${kind}">+ 추가</button></div><div data-items="${kind}"></div><div data-form-slot="${kind}"></div></section>`).join('')}</div><div class="thesis-editor" data-editor hidden><form><fieldset><h4 data-editor-title></h4><label>내용<textarea name="body" rows="2" maxlength="6000" required></textarea></label><div class="thesis-dates" data-dates hidden><label>표시 시작일<input type="date" name="starts_on" min="1900-01-01" max="2199-12-31"></label><label>표시 종료일<input type="date" name="ends_on" min="1900-01-01" max="2199-12-31"></label><small>한국시간 기준 · 종료일 다음 날 상단에서 숨겨져요.</small></div><div class="thesis-actions"><button type="submit" class="chip active">저장</button><button type="button" class="chip" data-cancel>취소</button></div></fieldset></form></div><div class="thesis-actions thesis-status"><span role="status"></span><button type="button" class="chip" data-retry hidden>다시 불러오기</button></div>`;
+  host.innerHTML=`<section class="thesis-issues" aria-label="종목별 이슈"><div class="thesis-section-heading"><h3>종목 이슈</h3><button type="button" class="chip" data-add="issue">+ 이슈</button></div><div class="thesis-issue-badges" data-live-issues></div><div data-form-slot="issue"></div><details class="thesis-issue-manager"><summary>전체 이슈 관리 <span data-issue-count></span></summary><div data-items="issue"></div></details></section><div class="thesis-section-heading"><h3>나의 투자 원칙</h3><small data-asset-label></small></div><div class="thesis-columns">${['reason','conditions'].map(kind=>`<section><div class="thesis-section-heading"><h4>${THESIS_KINDS[kind]}</h4><button type="button" class="chip" data-add="${kind}">+ 추가</button></div><div data-items="${kind}"></div><div data-form-slot="${kind}"></div></section>`).join('')}</div><div class="thesis-editor" data-editor hidden><form><fieldset><h4 data-editor-title></h4><label>내용<textarea name="body" rows="2" maxlength="6000" required></textarea></label><small class="thesis-input-hint">Enter 저장 · Shift+Enter 줄바꿈</small><label class="thesis-sentiment" data-sentiment hidden>이슈 성격<select name="sentiment"><option value="">선택해 주세요</option><option value="positive">긍정</option><option value="negative">부정</option></select></label><div class="thesis-dates" data-dates hidden><label>표시 시작일<input type="date" name="starts_on" min="1900-01-01" max="2199-12-31"></label><label>표시 종료일<input type="date" name="ends_on" min="1900-01-01" max="2199-12-31"></label><small>한국시간 기준 · 종료일 다음 날 상단에서 숨겨져요.</small></div><div class="thesis-actions"><button type="submit" class="chip active">저장</button><button type="button" class="chip" data-cancel>취소</button></div></fieldset></form></div><div class="thesis-actions thesis-status"><span role="status"></span><button type="button" class="chip" data-retry hidden>다시 불러오기</button></div>`;
   this.form=this.q('form');this.editor=this.q('[data-editor]');this.status=this.q('[role=status]');this.retry=this.q('[data-retry]');
   this.form.oninput=()=>{this.dirty=true;this.status.textContent='저장하지 않은 변경사항';};
+  this.form.elements.body.addEventListener('keydown',e=>{
+   if(e.key!=='Enter'||e.shiftKey||e.isComposing||e.keyCode===229)return;
+   e.preventDefault();if(!e.repeat&&!this.busy)this.form.requestSubmit();
+  });
   this.form.onsubmit=e=>{e.preventDefault();void this.save();};
   this.retry.onclick=()=>{if(this.canLeave())void this.connect(this.user,this.key,this.label,true);};
   host.addEventListener('click',e=>{const add=e.target.closest('[data-add]'),edit=e.target.closest('[data-thesis-edit]'),del=e.target.closest('[data-thesis-delete]');if(add)this.open(add.dataset.add);if(edit){const item=this.items.find(i=>i.id===edit.dataset.thesisEdit);if(item)this.open(item.kind,item);}if(del)void this.remove(this.items.find(i=>i.id===del.dataset.thesisDelete));});
@@ -34,10 +40,10 @@ export class ResearchThesis {
  render(){
   for(const kind of Object.keys(THESIS_KINDS)){
    const items=this.items.filter(i=>i.kind===kind);
-   this.q(`[data-items="${kind}"]`).innerHTML=items.map(i=>`<div class="thesis-item"><button type="button" class="thesis-item-text" data-thesis-edit="${esc(i.id)}" title="${esc(i.body)}">${kind==='issue'?`<small>${issueState(i,this.today)} · ${esc(i.starts_on)}~${esc(i.ends_on)}</small>`:''}<span>${esc(i.body)}</span></button>${this.tools(i)}</div>`).join('')||'<p class="thesis-empty">등록된 항목이 없어요.</p>';
+   this.q(`[data-items="${kind}"]`).innerHTML=items.map(i=>`<div class="thesis-item${kind==='issue'?sentimentClass(i):''}"><button type="button" class="thesis-item-text" data-thesis-edit="${esc(i.id)}" title="${esc(i.body)}">${kind==='issue'?`<small>${sentimentLabel(i)} · ${issueState(i,this.today)} · ${esc(i.starts_on)}~${esc(i.ends_on)}</small>`:''}<span>${esc(i.body)}</span></button>${this.tools(i)}</div>`).join('')||'<p class="thesis-empty">등록된 항목이 없어요.</p>';
   }
   const issues=activeIssues(this.items,this.today);
-  this.q('[data-live-issues]').innerHTML=issues.map(i=>`<div class="thesis-issue-badge"><button type="button" class="thesis-issue-text" data-thesis-edit="${esc(i.id)}" title="${esc(i.body)} · 표시 ${esc(i.starts_on)}~${esc(i.ends_on)} · 종료일까지 D-${issueDays(i,this.today)}">D-${issueDays(i,this.today)} ${esc(i.body)} (${shortDate(i.ends_on)})</button>${this.tools(i)}</div>`).join('')||'<p class="thesis-empty">표시 기간에 해당하는 이슈가 없어요.</p>';
+  this.q('[data-live-issues]').innerHTML=issues.map(i=>`<div class="thesis-issue-badge${sentimentClass(i)}"><button type="button" class="thesis-issue-text" data-thesis-edit="${esc(i.id)}" title="${esc(i.body)} · 표시 ${esc(i.starts_on)}~${esc(i.ends_on)} · 종료일까지 D-${issueDays(i,this.today)}"><span class="thesis-sentiment-label">${sentimentLabel(i)}</span> D-${issueDays(i,this.today)} ${esc(i.body)} (${shortDate(i.ends_on)})</button>${this.tools(i)}</div>`).join('')||'<p class="thesis-empty">표시 기간에 해당하는 이슈가 없어요.</p>';
   this.q('[data-issue-count]').textContent=`(${this.items.filter(i=>i.kind==='issue').length})`;this.controls();
  }
  open(kind,item=null){
@@ -46,6 +52,11 @@ export class ResearchThesis {
   this.q('[data-editor-title]').textContent=`${THESIS_KINDS[kind]} ${item?'수정':'추가'}`;
   this.form.elements.body.value=item?.body||'';this.form.elements.body.maxLength=kind==='issue'?300:6000;
   this.q('[data-dates]').hidden=kind!=='issue';
+  this.q('[data-sentiment]').hidden=kind!=='issue';
+  this.form.elements.sentiment.disabled=kind!=='issue';
+  this.form.elements.sentiment.required=kind==='issue'&&!item;
+  this.form.elements.sentiment.options[0].textContent=item?'미분류':'선택해 주세요';
+  this.form.elements.sentiment.value=item?.sentiment||'';
   for(const field of ['starts_on','ends_on']){this.form.elements[field].required=kind==='issue';this.form.elements[field].disabled=kind!=='issue';this.form.elements[field].value=item?.[field]||(kind==='issue'?this.today:'');}
   this.editor.hidden=false;this.form.elements.body.focus();
  }

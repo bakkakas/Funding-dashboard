@@ -1,7 +1,7 @@
 import { InvestmentPlan } from './investment-plan.js?v=7';
 import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=4';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=1';
-import { ResearchThesis } from './research-thesis.js?v=2';
+import { ResearchThesis } from './research-thesis.js?v=3';
 import { StockResearch } from './stock-research.js?v=13';
 import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1';
 import { setupHeaderWidgets } from './header-widgets.js?v=1';
