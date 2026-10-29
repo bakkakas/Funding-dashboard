@@ -81,7 +81,8 @@ export class BoardEditor {
     for(let i=0;i<children.length;i++){
      const el=children[i],id=el.dataset.boardBlock,b=content.blocks[id];
      const width=b?.width==='auto'||!b?el.dataset.boardWidth||'full':b.width;
-     el.style.setProperty('--board-span',String({full:12,half:6,third:4,quarter:3}[width]||12));
+     const span=(!b||b.width==='auto')&&el.dataset.boardSpan?Number(el.dataset.boardSpan):({full:12,half:6,third:4,quarter:3}[width]||12);
+     el.style.setProperty('--board-span',String(span));
      el.style.setProperty('--board-height',`${b?.height||0}px`);el.style.setProperty('--board-order',String(b?.order??i*10));
      el.dataset.boardHidden=String(!!b?.hidden);el.classList.toggle('board-editable-block',this.editing&&!this.preview);
      el.classList.toggle('board-show-hidden',!!b?.hidden&&this.editing&&!this.preview);
