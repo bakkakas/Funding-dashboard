@@ -1,3 +1,4 @@
+import { valuePortfolio, snapshotDate } from './portfolio-snapshot.js?v=1';
 import { researchTarget, researchHref } from './asset-identity.js?v=4';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=1';
 import { authClient as db, signInWithGoogle } from './auth.js?v=1';
@@ -16,6 +17,7 @@ const CATALOG=[
   ['BTC','비트코인','crypto','CG:bitcoin','USD'],['ETH','이더리움','crypto','CG:ethereum','USD'],['SOL','솔라나','crypto','CG:solana','USD'],['BNB','BNB','crypto','CG:binancecoin','USD'],['ORBS','Orbs','crypto','CG:orbs','USD'],
   ['USDT','테더 (1달러 고정)','crypto','FIXED:USD','USD'],['GOLD','금 (PAXG 현물 기준)','commodity','BINANCE:PAXGUSDT','USD'],['CASH','현금 계정','cash','CASH:MIXED','KRW','KRW + USD']
 ].map(([symbol,name,asset_class,quote_symbol,currency,market])=>({symbol,name,asset_class,quote_symbol,currency,market}));
+let snapshotSaveError='',fxValid=false;
 let session=null,assets=[],prices={},priceErrors=new Set(),fx=1380,filter='all',valueSort=null,classChart,historyChart;
 let cryptoEntries=[],cryptoPrices={},cryptoPriceErrors=new Set(),cryptoTotalSource='assets',cryptoLocationFilter='all';
 let searchTimer=null,searchResults=[],selectedSearchAsset=null,editingAssetId=null;
@@ -87,7 +89,8 @@ async function loadPortfolio(){
 }
 async function refresh(){
   $('totalMeta').textContent=c('refreshing');
-  try{const f=await fetch('https://open.er-api.com/v6/latest/USD').then(r=>r.json());fx=Number(f.rates?.KRW)||fx}catch{}
+  fxValid=false;
+  try{const f=await fetch('https://open.er-api.com/v6/latest/USD',{signal:AbortSignal.timeout(12000)}).then(r=>r.json());const next=Number(f.rates?.KRW);if(f.result==='success'&&Number.isFinite(next)&&next>0&&f.time_last_update_unix&&Date.now()/1000-f.time_last_update_unix<3*86400){fx=next;fxValid=true}}catch{}
   priceErrors=new Set();cryptoPriceErrors=new Set();
   const quoteTasks=new Map();
   const loadPrice=async(item,targetPrices,targetErrors)=>{const key=`${item.asset_class||'crypto'}:${item.quote_symbol}:${item.currency}:${item.manual_price??''}`;if(!quoteTasks.has(key))quoteTasks.set(key,quote(item));try{targetPrices[item.id]=await quoteTasks.get(key)}catch{targetErrors.add(item.id);targetPrices[item.id]=Number(item.manual_price)||0}};
@@ -275,8 +278,28 @@ async function deleteCryptoEntry(id){
   const remaining=cryptoEntries.filter(entry=>String(entry.id)!==String(id));if(!remaining.length&&cryptoTotalSource==='details')await db.from('portfolio_settings').upsert({user_id:session.user.id,crypto_total_source:'assets'});
   await loadPortfolio();
 }
-async function saveSnapshot(){if(!session||(!assets.length&&!cryptoEntries.length))return;const totals=portfolioTotals(),class_values={};Object.keys(CLASS_LABELS.ko).forEach(k=>class_values[k]=k==='crypto'?totals.cryptoTotal:assets.filter(a=>a.asset_class===k).reduce((s,a)=>s+valueKrw(a),0));const total_value_krw=totals.total;class_values.stable=assets.reduce((sum,asset)=>sum+stableValueKrw(asset),0);const snapshot_date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());await db.from('portfolio_snapshots').upsert({user_id:session.user.id,snapshot_date,total_value_krw,class_values})}
-async function loadSnapshots(){const {data}=await db.from('portfolio_snapshots').select('*').order('snapshot_date');window.portfolioSnapshots=data||[];renderHistory(document.querySelector('#historyTabs .active')?.dataset.period||'day');renderMonthlyHistory()}
+async function saveSnapshot(){
+ snapshotSaveError='';
+ if(!session||(!assets.length&&!cryptoEntries.length))return;
+ try{
+  if(!fxValid||priceErrors.size||cryptoPriceErrors.size)throw Error('시세·환율 조회가 불완전해 저장하지 않았습니다.');
+  const snapshot=await valuePortfolio({assets,cryptoEntries,cryptoTotalSource,fx,quote:a=>a.asset_class?prices[a.id]:cryptoPrices[a.id]});
+  const {error}=await db.from('portfolio_snapshots').upsert({user_id:session.user.id,snapshot_date:snapshotDate(),...snapshot});
+  if(error)throw Error('현재 자산 기록 저장에 실패했습니다.');
+ }catch(error){snapshotSaveError=error.message;}
+ await loadSnapshotStatus();
+}
+async function loadSnapshotStatus(){
+ const el=$('snapshotStatus');if(!el||!session)return;
+ const {data,error}=await db.from('portfolio_snapshot_runs').select('snapshot_date,status,finished_at,error').order('snapshot_date',{ascending:false}).limit(31);
+ const lastSuccess=data?.find(r=>r.status==='success'),lastFailure=data?.find(r=>r.status==='failed'),latest=data?.[0];
+ const delayed=latest&&['pending','running'].includes(latest.status)&&latest.snapshot_date<snapshotDate();
+ const problem=snapshotSaveError||(error?'자동 저장 상태 조회 실패':delayed?'자동 저장 완료가 확인되지 않았습니다.':lastFailure?`${lastFailure.snapshot_date} 자동 저장 실패: ${lastFailure.error||'미완료'}`:'');
+ el.textContent=`매일 23:40 자동 저장 (한국시간) · 실패 시 23:50 재시도 · ${lastSuccess?`최근 성공 ${lastSuccess.snapshot_date}`:'첫 자동 저장 대기'}${problem?' · '+problem:''}`;
+ el.style.color=problem?'var(--bad)':'var(--muted)';el.setAttribute('role',problem?'alert':'status');
+}
+
+async function loadSnapshots(){await loadSnapshotStatus();const {data}=await db.from('portfolio_snapshots').select('*').order('snapshot_date');window.portfolioSnapshots=data||[];renderHistory(document.querySelector('#historyTabs .active')?.dataset.period||'day');renderMonthlyHistory()}
 function renderHistory(period){
   let rows=[...(window.portfolioSnapshots||[])];if(period!=='day'){const keyed=new Map();rows.forEach(r=>{const d=new Date(r.snapshot_date+'T00:00:00');const key=period==='month'?r.snapshot_date.slice(0,7):`${d.getFullYear()}-${Math.ceil((((d-new Date(d.getFullYear(),0,1))/86400000)+new Date(d.getFullYear(),0,1).getDay()+1)/7)}`;keyed.set(key,r)});rows=[...keyed.values()]}
   const first=Number(rows[0]?.total_value_krw)||0,last=Number(rows.at(-1)?.total_value_krw)||0,change=first?(last/first-1)*100:0;$('historyChange').textContent=rows.length>1?`${change>0?'+':''}${change.toFixed(2)}% · ${rows.length}${c('observations')} · ${rows[0].snapshot_date} → ${rows.at(-1).snapshot_date}`:c('historyEmpty');
