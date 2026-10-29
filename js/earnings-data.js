@@ -67,6 +67,7 @@ export function fourQuarterTrend(quarters, metric, limit = 4) {
 // Prefer live values, but fill missing periods/metrics from a dated snapshot.
 // Metadata stays on each metric so a live response cannot make cached data look fresh.
 export function comparisonRecords(live, cache, fundamentals) {
+  if(fundamentals?.kind==='reported-supplement')return reportedSupplementRecords(comparisonRecords(live,cache),fundamentals);
   const result = new Map();
   for (const dataset of [cache, live, fundamentals]) {
     for (const row of dataset?.rows || []) {
@@ -174,4 +175,22 @@ export function earningsPeriodLabel(row, annual=false, fiscalYearEnd=12) {
  if(!month)return row.period;
  const end=Number(fiscalYearEnd)||12,quarter=Math.ceil(((month-end+11)%12+1)/3),fiscalYear=year+(month>end?1:0);
  return String(fiscalYear).slice(2)+'.'+quarter+'Q';
+}
+
+// Reviewed reported values supplement, not overwrite, the independently refreshed feed.
+// Match labels exactly: total net income is never filled from parent-shareholder income.
+export function reportedSupplementRecords(records, supplement) {
+ const basis=supplement.basis,labels=new Set(supplement.rows.flatMap(r=>r.metrics.map(m=>m.label)));
+ const existing=records.filter(r=>r.basis?.startsWith('IFRS 연결'));
+ const latest=supplement.rows.map(r=>r.period).sort().at(-1);
+ const supplements=supplement.rows.map(r=>({...r,basis,directComparison:true,metrics:r.metrics.map(m=>{
+  const prior=existing.filter(x=>monthKey(x.period)===monthKey(r.period)).flatMap(x=>x.metrics).find(x=>x.label===m.label&&x.unit===m.unit&&x.estimate!=null);
+  const usePrior=m.estimate==null&&prior;
+  return {...m,estimate:usePrior?prior.estimate:m.estimate,source:supplement.source,url:supplement.url,asOf:supplement.asOf,refreshMode:supplement.refreshMode,actualSource:supplement.source,estimateSource:usePrior?prior.source:supplement.source,estimateUrl:usePrior?prior.url:null,estimateAsOf:usePrior?prior.asOf:supplement.asOf};
+ })}));
+ // Keep newer forecasts (and later reported periods) from the ongoing feed visible.
+ const future=existing.filter(r=>monthKey(r.period)>monthKey(latest)).map(r=>({...r,basis,directComparison:true,metrics:r.metrics.filter(m=>labels.has(m.label)&&m.unit==='억 KRW')})).filter(r=>r.metrics.length);
+ const replacements=[...supplements,...future];
+ const remaining=records.map(r=>({...r,metrics:r.metrics.filter(m=>!replacements.some(x=>monthKey(x.period)===monthKey(r.period)&&x.metrics.some(n=>n.label===m.label&&n.unit===m.unit)))})).filter(r=>r.metrics.length);
+ return [...replacements,...remaining].sort((a,b)=>b.period.localeCompare(a.period));
 }
