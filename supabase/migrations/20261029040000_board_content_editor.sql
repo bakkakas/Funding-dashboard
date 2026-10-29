@@ -2,8 +2,8 @@
 create table public.board_editors(user_id uuid primary key references auth.users(id) on delete cascade);
 alter table public.board_editors enable row level security;
 revoke all on public.board_editors from anon,authenticated;
-insert into public.board_editors(user_id)
- select id from auth.users where lower(email)='bakkakas@gmail.com' and email_confirmed_at is not null;
+-- Enroll the verified owner separately through the trusted database administrator.
+-- Never publish account identifiers or allow client-side self-enrollment.
 create function public.board_is_editor() returns boolean language sql stable security definer set search_path=public
  as $$ select exists(select 1 from public.board_editors where user_id=auth.uid()); $$;
 revoke all on function public.board_is_editor() from public;
