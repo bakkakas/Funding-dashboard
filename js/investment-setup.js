@@ -1,4 +1,4 @@
-import { InvestmentPlan } from './investment-plan.js?v=6';
+import { InvestmentPlan } from './investment-plan.js?v=7';
 import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=4';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=1';
 import { ResearchThesis } from './research-thesis.js?v=1';
