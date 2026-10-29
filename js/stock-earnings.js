@@ -5,7 +5,7 @@ const e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt
 const tone=v=>v>0?'positive':v<0?'negative':'';
 const amount=(v,unit,signed=false)=>e(earningsAmount(v,unit,signed));
 const percent=v=>e(earningsPercent(v));
-const source=r=>`${safeUrl(r.url)?`<a href="${e(safeUrl(r.url))}" target="_blank" rel="noopener noreferrer">${e(r.source)} 원문 ↗</a>`:e(r.source||'확정 재무제표')} · 자료 확인 ${e(r.asOf?.slice(0,16).replace('T',' ')||'시각 미제공')}${r.asOf?' UTC':''}${r.refreshMode==='verified-snapshot'?' · 저장 자료 (실시간 아님)':''}${r.asOf&&Date.now()-Date.parse(r.asOf)>7*86400000?' · 업데이트 지연':''}`;
+const source=r=>`${safeUrl(r.url)?`<a href="${e(safeUrl(r.url))}" target="_blank" rel="noopener noreferrer">${e(r.source)} 원문 ↗</a>`:e(r.source||'확정 재무제표')} · 자료 확인 ${e(r.asOf?.slice(0,16).replace('T',' ')||'시각 미제공')}${r.asOf?' UTC':''}${['verified-snapshot','scheduled-cache'].includes(r.refreshMode)?' · 저장 자료 (실시간 아님)':''}${r.asOf&&Date.now()-Date.parse(r.asOf)>7*86400000?' · 업데이트 지연':''}`;
 export function renderEarnings(host,data){
  let period='quarter',metric='revenue';
  const domestic=/억 KRW/.test(data.financialUnit||'');
@@ -19,7 +19,7 @@ export function renderEarnings(host,data){
   const rows=comparisonTrend(quarters,records,metric,unit,annual),label=metrics.find(m=>m.id===metric).label;
   const sources=[...new Map(rows.filter(r=>r.source).map(r=>[r.source+'|'+r.asOf,r])).values()];
   const missing=!rows.some(r=>r.estimate!=null);
-  const missingNote=missing?(metric==='operating'&&!domestic?'영업이익 예상치는 현재 출처에서 미제공입니다. EBIT는 별도 지표입니다.':metric==='net'&&domestic?'전체 순이익 예상치는 미제공입니다. 지배주주 순이익 탭에서 해당 기준의 예상치를 확인하세요.':'이 지표의 예상치는 현재 미제공입니다.') : '';
+  const missingNote=missing?(metric==='operating'&&!domestic?'영업이익 예상치는 현재 연결된 자료에 없습니다. EBIT는 별도 지표입니다.':metric==='net'&&domestic?'전체 순이익 예상치는 미제공입니다. 지배주주 순이익 탭에서 해당 기준의 예상치를 확인하세요.':'이 지표의 예상치는 현재 연결된 자료에 없습니다.') : '';
   host.innerHTML=`<h3>${periodName}별 예상·실제 실적</h3>
    <div class="earnings-period-tabs" role="group" aria-label="실적 기간">${[['quarter','분기별'],['annual','연도별']].map(([id,name])=>`<button class="chip ${period===id?'active':''}" type="button" data-earnings-frequency="${id}" aria-pressed="${period===id}">${name}</button>`).join('')}</div>
    <p class="data-note">파란색은 예상, 초록색은 실제 실적. 최근 발표 ${periodName}와 제공되는 다음 ${periodName} 예상치를 표시합니다. ${annual?`연속 5개년 · 자료가 없는 연도는 미제공. 연간 자료 기준 · ${data.fiscalYearEnd||12}월 결산 회계연도 (분기 일부의 합산 아님).`:''} ${domestic?'확정 실적 우선, 더 최근의 잠정치는 구분합니다.':'같은 제공처의 예상·발표 수치를 비교하며 확정 재무제표·조정 EPS와 다를 수 있습니다.'}</p>

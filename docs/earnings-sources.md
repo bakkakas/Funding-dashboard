@@ -27,3 +27,14 @@ Use issuer `googl`, `amzn`, `nke` or `novo-nordisk`. The importer checks source/
 - Paired actual/estimate bars share a boundary; each period group has a separate gutter. Surprises share one line and use signed green/red percentages; table deltas use the same sign colors. Missing/zero estimates never produce invented percentages.
 
 Annual charts use five consecutive years ending at the latest year present in that issuer’s annual data (including provided forecasts). All metric tabs share this axis. Missing years/metrics remain null and are labeled 미제공, distinct from forecast-only 미발표. Bars are two-thirds their previous width; paired boundaries remain joined.
+
+## OTLY — TradingView (2026-10-29)
+- Public [Earnings table](https://www.tradingview.com/symbols/NASDAQ-OTLY/financials-earnings/) provides dated revenue and EPS actual/consensus pairs. Only these public metrics are imported; locked Estimates-page metrics are not used.
+- `scripts/tradingview_earnings.py` queries the public scanner's quarterly revenue/EPS history during the existing weekday collector. Failure retains the previous cache. Report periods are fiscal quarter ends (December year-end), not earnings-announcement dates.
+- Dollar revenue is normalized to millions; EPS retains the provider's ADS per-share values, including historical adjustments, without multiplying by an assumed share ratio. Source actual and estimate remain paired; no Naver actual is spliced into a TradingView estimate.
+- Annual Earnings-page pairs were verified in the public browser table on 2026-10-29 and saved with `refreshMode: verified-snapshot`. The scanner currently returns no annual history. The daily collector preserves the annual snapshot and its original timestamp, rather than marking it freshly collected. Naver annual statements refresh separately.
+- Chart windows remain four reported quarters plus two forthcoming quarters, and five consecutive annual periods. Operating-income/net-income estimates are not connected; absence is labeled as a connected-data limitation, not proof that no estimates exist.
+- The page's static prose can lag its detailed table (2026-Q3 revenue estimate: prose 241.73 vs table 241.74 million USD). The dated detailed table is authoritative for this integration.
+
+## Portfolio monthly periods
+Calendar labels cover the first through final day of the month (including leap years). The first and last **recorded** balances retain their actual snapshot dates; monthly balance changes are record-to-record, not fabricated month-boundary valuations or investment returns. Current months are marked in progress. Missing boundary snapshots are not backfilled with invented balances.

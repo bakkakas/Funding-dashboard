@@ -134,3 +134,15 @@ test('USD millions preserve small values, raw currency scale, signed deltas and 
  assert.equal(earningsAmount(100.5,'억 KRW'),'100억');assert.equal(earningsAmount(1890000,'DKK(백만)'),'1.89조');
  assert.equal(earningsDelta(100.5,100).percent,.5);
 });
+
+test('OTLY TradingView pairs render quarterly and five annual years without mixing Naver basis',()=>{
+ const source=JSON.parse(fixture('otly-comparison.json'));
+ const records=comparisonRecords(null,null,source);
+ const revenue=comparisonTrend([],records,'revenue','USD(백만)');
+ assert.equal(revenue.length,6);assert.ok(revenue.every(r=>r.estimate!=null));
+ assert.equal(revenue.find(r=>r.period==='2026-09').value,243.054);
+ const eps=comparisonTrend([],records,'eps','USD(백만)');assert.ok(eps.every(r=>/ADS/.test(r.unit)));
+ const annual=comparisonTrend([],comparisonRecords(null,null,source.annual),'revenue','USD(백만)',true);
+ assert.equal(annual.length,5);assert.ok(annual.every(r=>r.estimate!=null));
+ assert.ok(comparisonTrend([],records,'operating').every(r=>r.estimate==null));
+});
