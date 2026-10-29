@@ -1,24 +1,13 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-28T09:32:46.356184+00:00",
+  "updatedAt": "2026-10-29T00:59:52.669659+00:00",
   "timezone": "Asia/Seoul",
   "windowDays": 30,
   "sources": {
     "fed": {
-      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
+      "checkedAt": "2026-10-29T00:59:52.669659+00:00",
       "status": "ok",
       "events": [
-        {
-          "id": "fomc:2026-07-29",
-          "series": "fomc",
-          "name": "미국 FOMC",
-          "date": "2026-07-30",
-          "sourceDate": "2026-07-29",
-          "startsAt": "2026-07-29T14:00:00-04:00",
-          "status": "confirmed",
-          "sourceUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
-          "dateNote": "금리 결정·기자회견 일정 / 한국 날짜"
-        },
         {
           "id": "fomc:2026-09-16",
           "series": "fomc",
@@ -143,7 +132,7 @@
       ]
     },
     "bls": {
-      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
+      "checkedAt": "2026-10-29T00:59:52.669659+00:00",
       "status": "fallback",
       "primaryError": "HTTPError",
       "provider": "TradingView economic calendar",
@@ -265,20 +254,9 @@
       ]
     },
     "bea": {
-      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
+      "checkedAt": "2026-10-29T00:59:52.669659+00:00",
       "status": "ok",
       "events": [
-        {
-          "id": "pce:2026-07-30",
-          "series": "pce",
-          "name": "미국 PCE",
-          "date": "2026-07-30",
-          "sourceDate": "2026-07-30",
-          "startsAt": "2026-07-30T12:30:00+00:00",
-          "status": "confirmed",
-          "sourceUrl": "https://www.bea.gov/news/schedule/ics/online-calendar-subscription.ics",
-          "dateNote": "Personal Income and Outlays, June 2026"
-        },
         {
           "id": "pce:2026-08-26",
           "series": "pce",
@@ -469,7 +447,7 @@
       ]
     },
     "ecb": {
-      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
+      "checkedAt": "2026-10-29T00:59:52.669659+00:00",
       "status": "ok",
       "events": [
         {
@@ -673,7 +651,7 @@
       ]
     },
     "boj": {
-      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
+      "checkedAt": "2026-10-29T00:59:52.669659+00:00",
       "status": "ok",
       "events": [
         {
@@ -811,8 +789,10 @@
       ]
     },
     "bok": {
-      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
-      "status": "ok",
+      "checkedAt": "2026-10-29T00:59:52.669659+00:00",
+      "status": "fallback",
+      "primaryError": "URLError",
+      "provider": "TradingView economic calendar",
       "events": [
         {
           "id": "bok:2026-08-27",
@@ -842,15 +822,17 @@
           "name": "한국은행 금통위",
           "date": "2026-11-26",
           "sourceDate": "2026-11-26",
-          "startsAt": null,
-          "status": "confirmed",
-          "sourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
-          "dateNote": "기준금리 결정 회의 / 한국 날짜"
+          "startsAt": "2026-11-26T01:00:00+00:00",
+          "status": "reported",
+          "sourceUrl": "https://www.tradingview.com/economic-calendar/",
+          "dateNote": "TradingView 경제 캘린더 재공표 일정 / 한국 날짜",
+          "originalSourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
+          "sourceProvider": "TradingView economic calendar"
         }
       ]
     },
     "samsung": {
-      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
+      "checkedAt": "2026-10-29T00:59:52.669659+00:00",
       "status": "ok",
       "events": [
         {
@@ -863,27 +845,16 @@
           "status": "confirmed",
           "sourceUrl": "https://www.samsung.com/global/ir/ir-events-presentations/events/",
           "dateNote": "3Q26 Earnings Conference Call / 한국 날짜"
-        },
-        {
-          "id": "005930:2026-07-30",
-          "series": "005930",
-          "name": "삼성전자 실적",
-          "date": "2026-07-30",
-          "sourceDate": "2026-07-30",
-          "startsAt": null,
-          "status": "confirmed",
-          "sourceUrl": "https://www.samsung.com/global/ir/ir-events-presentations/events/",
-          "dateNote": "2Q26 Earnings Conference Call / 한국 날짜"
         }
       ]
     },
     "hynix": {
-      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
+      "checkedAt": "2026-10-29T00:59:52.669659+00:00",
       "status": "ok",
       "events": []
     },
     "nasdaq": {
-      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
+      "checkedAt": "2026-10-29T00:59:52.669659+00:00",
       "status": "ok",
       "events": [
         {
@@ -949,7 +920,7 @@
       ]
     },
     "elections": {
-      "checkedAt": "2026-10-28T09:32:46.356184+00:00",
+      "checkedAt": "2026-10-29T00:59:52.669659+00:00",
       "status": "ok",
       "events": [
         {
@@ -990,45 +961,6 @@
   },
   "warnings": [],
   "events": [
-    {
-      "id": "005930:2026-07-30",
-      "series": "005930",
-      "name": "삼성전자 실적",
-      "date": "2026-07-30",
-      "sourceDate": "2026-07-30",
-      "startsAt": null,
-      "status": "confirmed",
-      "sourceUrl": "https://www.samsung.com/global/ir/ir-events-presentations/events/",
-      "dateNote": "2Q26 Earnings Conference Call / 한국 날짜",
-      "sourceKey": "samsung",
-      "stale": false
-    },
-    {
-      "id": "fomc:2026-07-29",
-      "series": "fomc",
-      "name": "미국 FOMC",
-      "date": "2026-07-30",
-      "sourceDate": "2026-07-29",
-      "startsAt": "2026-07-29T14:00:00-04:00",
-      "status": "confirmed",
-      "sourceUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
-      "dateNote": "금리 결정·기자회견 일정 / 한국 날짜",
-      "sourceKey": "fed",
-      "stale": false
-    },
-    {
-      "id": "pce:2026-07-30",
-      "series": "pce",
-      "name": "미국 PCE",
-      "date": "2026-07-30",
-      "sourceDate": "2026-07-30",
-      "startsAt": "2026-07-30T12:30:00+00:00",
-      "status": "confirmed",
-      "sourceUrl": "https://www.bea.gov/news/schedule/ics/online-calendar-subscription.ics",
-      "dateNote": "Personal Income and Outlays, June 2026",
-      "sourceKey": "bea",
-      "stale": false
-    },
     {
       "id": "boj:2026-07-31",
       "series": "boj",
@@ -1395,10 +1327,12 @@
       "name": "한국은행 금통위",
       "date": "2026-11-26",
       "sourceDate": "2026-11-26",
-      "startsAt": null,
-      "status": "confirmed",
-      "sourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
-      "dateNote": "기준금리 결정 회의 / 한국 날짜",
+      "startsAt": "2026-11-26T01:00:00+00:00",
+      "status": "reported",
+      "sourceUrl": "https://www.tradingview.com/economic-calendar/",
+      "dateNote": "TradingView 경제 캘린더 재공표 일정 / 한국 날짜",
+      "originalSourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
+      "sourceProvider": "TradingView economic calendar",
       "sourceKey": "bok",
       "stale": false
     },
