@@ -38,3 +38,9 @@ Annual charts use five consecutive years ending at the latest year present in th
 
 ## Portfolio monthly periods
 Calendar labels cover the first through final day of the month (including leap years). The first and last **recorded** balances retain their actual snapshot dates; monthly balance changes are record-to-record, not fabricated month-boundary valuations or investment returns. Current months are marked in progress. Missing boundary snapshots are not backfilled with invented balances.
+
+## Samsung / SK hynix 2026-Q3 reported supplement
+- `stock-005930-fundamentals.json` and `stock-000660-fundamentals.json` preserve the user-supplied disclosure summary received 2026-10-29. This is explicitly labeled user-provided, pending original-filing cross-check, not an independently verified DART import.
+- Five reported quarters (2025-Q3 through 2026-Q3) cover revenue, operating income and **total** net income. Only 2026-Q3 is marked preliminary. Current-quarter consensus is taken from the same supplied summary; all surprise/QoQ/YoY percentages are recalculated from the amounts, not copied from rounded prose.
+- `reportedSupplementRecords` preserves prior exact-label/currency-matched consensus and newer forecast rows from the ordinary feed, with separate estimate-source/timestamp metadata. Replaced metrics are removed from the ordinary comparison list so its default does not display older initial guidance. Parent-shareholder net income is kept separate and never used to fill total net income.
+- The daily WiseReport refresh does not overwrite these dated supplements. Annual financials and unrelated issuer datasets are unchanged. The fifth older quarter is retained for YoY calculations even when outside the four-reported-quarter chart window.
