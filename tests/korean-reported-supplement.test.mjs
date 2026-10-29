@@ -19,7 +19,9 @@ for(const code of Object.keys(expected))test(`${code} reported 2026Q3 values and
  }
 });
 test('prior forecasts and live future forecasts survive while current supplied estimate wins',()=>{
- const supplement=load('005930','-fundamentals'),cache=load('005930');
+ const supplement=load('005930','-fundamentals');
+ // Fixed historical fixture: the production feed rolls forward as quarters pass.
+ const cache={source:'WiseReport · FnGuide',asOf:'2026-10-28',rows:[{period:'2026-06',basis:'IFRS 연결 · 최초 발표치(잠정 포함)',metrics:[{label:'매출액',unit:'억 KRW',estimate:1743470.5,actual:1710000}]},{period:'2026-12',basis:'IFRS 연결 · 최초 발표치(잠정 포함)',metrics:[{label:'매출액',unit:'억 KRW',estimate:2065160.6,actual:null}]}]};
  const live={source:'Live',asOf:'2026-10-30',rows:[{period:'2026-12',basis:'IFRS 연결 · 최초 발표치(잠정 포함)',metrics:[{label:'매출액',unit:'억 KRW',estimate:3000000,actual:null}]},{period:'2026-09',basis:'IFRS 연결',metrics:[{label:'매출액',unit:'억 KRW',estimate:1,actual:1}]}]};
  const records=comparisonRecords(live,cache,supplement),rows=comparisonTrend([],records,'revenue','억 KRW');
  assert.equal(rows.find(r=>r.period==='2026-06').estimate,1743470.5);
