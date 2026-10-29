@@ -8,10 +8,11 @@ import subprocess
 import urllib.request
 import urllib.error
 import time
+from tradingview_earnings import collect_otly
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
-ISSUERS = {'stock-googl':'GOOGL','stock-amzn':'AMZN','stock-nke':'NKE','stock-novo-nordisk':'NVO'}
+ISSUERS = {'stock-googl':'GOOGL','stock-amzn':'AMZN','stock-nke':'NKE','stock-novo-nordisk':'NVO','stock-otly':'OTLY'}
 DOMESTIC = ['005380','263750','005930','000660']
 
 def get(url):
@@ -67,14 +68,18 @@ def main():
     directory=ROOT/'data/earnings-comparison';directory.mkdir(parents=True,exist_ok=True)
     jobs=[]
     if args.market!='US':jobs += [('stock-'+code,collect_kr,code) for code in DOMESTIC]
-    if args.market!='KR':jobs += [(issuer,collect_us,ticker) for issuer,ticker in ISSUERS.items()]
+    if args.market!='KR':jobs += [(issuer,collect_us,ticker) for issuer,ticker in ISSUERS.items() if ticker!='OTLY'] + [('stock-otly-fundamentals',collect_otly,'OTLY')]
     if args.annual_only:jobs=[]
     if args.market!='US':jobs += [('stock-'+code+'-annual',collect_annual,code) for code in DOMESTIC]
-    if args.market!='KR':jobs += [(issuer+'-annual',collect_annual,ticker+('.O' if ticker in ('GOOGL','AMZN') else '')) for issuer,ticker in ISSUERS.items()]
+    if args.market!='KR':jobs += [(issuer+'-annual',collect_annual,ticker+('.O' if ticker in ('GOOGL','AMZN','OTLY') else '')) for issuer,ticker in ISSUERS.items()]
     failed=[]
     for issuer,collect,ticker in jobs:
         try:
             data=collect(ticker)
+            previous=directory/f'{issuer}.json'
+            if issuer=='stock-otly-fundamentals' and 'annual' not in data and previous.exists():
+                annual=json.loads(previous.read_text()).get('annual')
+                if annual:data['annual']=annual # preserve original timestamp; annual is a reviewed snapshot
             if len(data.get('quarters',data['rows']))<2:raise ValueError('Too few comparable quarters')
             data.update(schemaVersion=1,asOf=dt.datetime.now(dt.timezone.utc).isoformat())
             (directory/f'{issuer}.json').write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
