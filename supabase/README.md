@@ -69,3 +69,16 @@ Then `admin.html` can show:
 - Member count
 - Daily visitors/pageviews
 - Country visitors/pageviews
+
+## Private investment principles and manual issues
+
+`research_thesis_items` stores individual `reason`, `conditions`, and `issue`
+records per `(user_id, asset_key)` with owner-only RLS. Issue start/end dates
+are inclusive Seoul calendar dates; expired items remain in the management
+list but are hidden from the top badges. Updates/deletes compare `updated_at`
+to avoid silently overwriting another device's changes.
+
+Migration `20261029023000_research_thesis_items.sql` copies each nonempty
+legacy `research_theses` field into one item without splitting or truncating
+its text. The legacy table is retained as a backup; the new UI writes only to
+`research_thesis_items`. Apply this migration before deploying the new UI.
