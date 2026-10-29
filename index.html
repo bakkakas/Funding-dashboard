@@ -9,12 +9,12 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=2" />
-</head>
+<link rel="stylesheet" href="./board-editor.css?v=1"></head>
 <body>
   <div class="wrap">
     <div class="header">
       <div>
-        <h1>Multi-Exchange Funding Dashboard</h1>
+        <h1 data-board-text="index-text-0">Multi-Exchange Funding Dashboard</h1>
       </div>
       <div class="header-side">
         <div class="header-market-row">
@@ -25,19 +25,20 @@
             </div>
             <button class="chip subtle" id="loginButton" type="button">로그인</button>
             <button class="chip subtle" id="signupButton" type="button">회원가입</button>
-            <a class="chip subtle" href="./admin.html" style="text-decoration:none;" data-i18n="admin">관리자</a>
+            <a class="chip subtle" href="./admin.html" style="text-decoration:none;" data-i18n="admin" data-board-text="index-text-1">관리자</a>
           </div>
           <div class="fx-ticker warn" id="usdKrwTicker">USD/KRW 조회 중</div>
           <div class="stamp" id="updatedAt">Updated: -</div>
         </div>
-        <a class="alt-link" href="./v2.html" data-i18n="viewV2">V2 보기</a>
+        <a class="alt-link" href="./v2.html" data-i18n="viewV2" data-board-text="index-text-2">V2 보기</a>
       </div>
     </div>
-    <nav class="dashboard-nav" aria-label="Dashboard sections"><a class="dashboard-nav-link active" href="./" data-i18n="navFunding">Funding</a><a class="dashboard-nav-link" href="./foreign-flow.html" data-i18n="navForeignFlow">외국인 수급</a><a class="dashboard-nav-link" href="./my-assets.html" data-i18n="navMyAssets">내 자산</a><a class="dashboard-nav-link" href="./investment-setup.html" data-i18n="navInvestmentSetup">투자 셋업</a></nav>
+    <nav class="dashboard-nav" aria-label="Dashboard sections"><a class="dashboard-nav-link active" href="./" data-i18n="navFunding" data-board-text="index-text-3">Funding</a><a class="dashboard-nav-link" href="./foreign-flow.html" data-i18n="navForeignFlow" data-board-text="index-text-4">외국인 수급</a><a class="dashboard-nav-link" href="./my-assets.html" data-i18n="navMyAssets" data-board-text="index-text-5">내 자산</a><a class="dashboard-nav-link" href="./investment-setup.html" data-i18n="navInvestmentSetup" data-board-text="index-text-6">투자 셋업</a></nav>
 
     <div class="toolbar"><div class="asset-search-wrap"><input id="assetSearch" class="field pair-select" data-i18n-placeholder="assetSearchPlaceholder" placeholder="종목명 검색" autocomplete="off" /><div id="assetDropdown" class="asset-dropdown"></div></div><select id="sortMode" class="field"><option value="symbol" data-i18n="sortName">이름순</option><option value="annualized_desc" data-i18n="sortAnnualHigh">Annualized 높은순</option><option value="annualized_asc" data-i18n="sortAnnualLow">Annualized 낮은순</option></select><button id="favoriteToggle" class="chip">☆ 즐겨찾기</button></div>
     <div class="toolbar" id="favoriteTabs"></div>
-    <div class="card asset-summary-card">
+    <div data-board-group="funding-main">
+    <div class="card asset-summary-card" data-board-block="funding-summary" data-board-label="종목 요약">
       <div class="exchange-tabs asset-exchange-tabs" id="exchangeTabs"></div>
       <div class="asset-summary-main">
         <div class="asset-identity">
@@ -56,41 +57,41 @@
         </div>
         <div class="asset-metrics">
           <div class="asset-metric">
-            <div class="asset-metric-label" data-i18n="currentPrice">현재 가격</div>
+            <div class="asset-metric-label" data-i18n="currentPrice" data-board-text="index-text-7">현재 가격</div>
             <div class="asset-price" id="assetHeaderPrice">-</div>
             <div class="asset-price-meta" id="assetHeaderPriceMeta">-</div>
           </div>
           <div class="asset-metric">
-            <div class="asset-metric-label" data-i18n="nextFunding">다음 Funding</div>
+            <div class="asset-metric-label" data-i18n="nextFunding" data-board-text="index-text-8">다음 Funding</div>
             <div class="asset-metric-value countdown" id="nextFunding">-</div>
             <div class="asset-metric-meta" id="nextFundingAt">다음 정산까지 남은 시간</div>
           </div>
           <div class="asset-metric">
-            <div class="asset-metric-label" data-i18n="avgFundingPerRound">평균 Funding Fee / 회</div>
+            <div class="asset-metric-label" data-i18n="avgFundingPerRound" data-board-text="index-text-9">평균 Funding Fee / 회</div>
             <div class="asset-metric-value" id="avgFunding">-</div>
-            <div class="asset-metric-meta" data-i18n="recentWindowAvg">최근 선택 구간 평균</div>
+            <div class="asset-metric-meta" data-i18n="recentWindowAvg" data-board-text="index-text-10">최근 선택 구간 평균</div>
           </div>
           <div class="asset-metric">
-            <div class="asset-metric-label" data-i18n="sumFunding">누적 funding 합계</div>
+            <div class="asset-metric-label" data-i18n="sumFunding" data-board-text="index-text-11">누적 funding 합계</div>
             <div class="asset-metric-value" id="sumFunding">-</div>
             <div class="asset-metric-meta" id="sumFundingMeta"></div>
           </div>
           <div class="asset-metric">
-            <div class="asset-metric-label" data-i18n="interpretation">해석</div>
+            <div class="asset-metric-label" data-i18n="interpretation" data-board-text="index-text-12">해석</div>
             <div class="asset-metric-value" id="interpretation">-</div>
             <div class="asset-metric-meta" id="interpretationMeta"></div>
           </div>
         </div>
       </div>
     </div>
-    <div class="top-grid">
-      <div class="card top-panel">
+    <div class="top-grid" data-board-group="funding-top" data-board-block="funding-top-section" data-board-label="펀딩 요약 전체">
+      <div class="card top-panel" data-board-block="funding-top-0" data-board-label="지원 거래소" data-board-width="half">
         <div class="section-head">
           <h3 class="section-title" id="supportTitle">지원 거래소</h3>
-          <button class="chip support-sort-button" id="supportSortFavored" type="button" data-i18n="sortLongFavored">Long 유리순</button>
+          <button class="chip support-sort-button" id="supportSortFavored" type="button" data-i18n="sortLongFavored" data-board-text="index-text-13">Long 유리순</button>
         </div>
         <table class="comparison-table">
-          <thead><tr><th data-i18n="supportExchange">지원 거래소</th><th data-i18n="pair">페어</th><th data-i18n="currentFundingFee">현재 펀딩피(주기)</th><th>Annualized</th></tr></thead>
+          <thead><tr><th data-i18n="supportExchange" data-board-text="index-text-14">지원 거래소</th><th data-i18n="pair" data-board-text="index-text-15">페어</th><th data-i18n="currentFundingFee" data-board-text="index-text-16">현재 펀딩피(주기)</th><th>Annualized</th></tr></thead>
           <tbody id="comparisonBody"></tbody>
         </table>
         <div class="favored-grid">
@@ -99,44 +100,44 @@
         </div>
         <div class="support-insights">
           <div class="support-insight-box">
-            <div class="label" data-i18n="fundingSpread">Funding Spread</div>
+            <div class="label" data-i18n="fundingSpread" data-board-text="index-text-17">Funding Spread</div>
             <div class="value" id="fundingSpreadValue">-</div>
             <div class="mini" id="fundingSpreadMeta">-</div>
           </div>
           <div class="support-insight-box">
-            <div class="label" data-i18n="spreadAlert">Spread Alert</div>
+            <div class="label" data-i18n="spreadAlert" data-board-text="index-text-18">Spread Alert</div>
             <div class="value" id="spreadAlertValue">-</div>
             <div class="mini" id="spreadAlertMeta">-</div>
           </div>
         </div>
         <div class="funding-bars-block">
-          <div class="compact-title" data-i18n="currentFundingComparison">현재 Funding Fee 비교</div>
+          <div class="compact-title" data-i18n="currentFundingComparison" data-board-text="index-text-19">현재 Funding Fee 비교</div>
           <div class="funding-bars" id="fundingBars"></div>
-          <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend">양수 = Long -> Short</span><span class="legend-bad" data-i18n="negativeLegend">음수 = Short -> Long</span></div>
+          <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend" data-board-text="index-text-20">양수 = Long -> Short</span><span class="legend-bad" data-i18n="negativeLegend" data-board-text="index-text-21">음수 = Short -> Long</span></div>
         </div>
       </div>
-      <div class="card top-panel insight-panel">
+      <div class="card top-panel insight-panel" data-board-block="funding-top-1" data-board-label="선택 기간 Funding Fee 방향 : -" data-board-width="half">
         <h3 class="section-title" id="coreTitle">선택 기간 Funding Fee 방향 : -</h3>
         <div class="rate-combo">
-          <div class="rate-item"><div class="label" data-i18n="selectedAvgFundingFee">선택 기간 평균 Funding Fee</div><div class="value" id="latestFunding">-</div></div>
-          <div class="rate-item"><div class="label" data-i18n="avgAnnualized">평균 Annualized</div><div class="value" id="annualized">-</div></div>
+          <div class="rate-item"><div class="label" data-i18n="selectedAvgFundingFee" data-board-text="index-text-22">선택 기간 평균 Funding Fee</div><div class="value" id="latestFunding">-</div></div>
+          <div class="rate-item"><div class="label" data-i18n="avgAnnualized" data-board-text="index-text-23">평균 Annualized</div><div class="value" id="annualized">-</div></div>
         </div>
         <div class="support-insights">
           <div class="support-insight-box">
-            <div class="label" data-i18n="fundingSpread">Funding Spread</div>
+            <div class="label" data-i18n="fundingSpread" data-board-text="index-text-24">Funding Spread</div>
             <div class="value" id="periodFundingSpreadValue">-</div>
             <div class="mini" id="periodFundingSpreadMeta">-</div>
           </div>
           <div class="support-insight-box">
-            <div class="label" data-i18n="spreadAlert">Spread Alert</div>
+            <div class="label" data-i18n="spreadAlert" data-board-text="index-text-25">Spread Alert</div>
             <div class="value" id="periodSpreadAlertValue">-</div>
             <div class="mini" id="periodSpreadAlertMeta">-</div>
           </div>
         </div>
         <div class="funding-detail-grid">
-          <div class="detail-box"><div class="label" data-i18n="markIndexGap">Mark / Index 차이</div><div class="detail-value" id="markIndexGap">-</div></div>
+          <div class="detail-box"><div class="label" data-i18n="markIndexGap" data-board-text="index-text-26">Mark / Index 차이</div><div class="detail-value" id="markIndexGap">-</div></div>
           <div class="detail-box">
-            <div class="label" data-i18n="paymentCounts">지급 횟수</div>
+            <div class="label" data-i18n="paymentCounts" data-board-text="index-text-27">지급 횟수</div>
             <div class="payment-counts">
               <div class="payment-count-row"><span>Long → Short</span><span class="good" id="longToShortCount">-</span></div>
               <div class="payment-count-row"><span>Short → Long</span><span class="bad" id="shortToLongCount">-</span></div>
@@ -145,23 +146,23 @@
         </div>
         <div class="period-summary-grid" id="periodBestWorst"></div>
         <div class="funding-bars-block">
-          <div class="compact-title" id="periodFundingBarsTitle" data-i18n="selectedPeriodFundingComparison">선택 기간 Funding Fee 비교</div>
+          <div class="compact-title" id="periodFundingBarsTitle" data-i18n="selectedPeriodFundingComparison" data-board-text="index-text-28">선택 기간 Funding Fee 비교</div>
           <div class="funding-bars" id="periodFundingBars"></div>
-          <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend">양수 = Long -> Short</span><span class="legend-bad" data-i18n="negativeLegend">음수 = Short -> Long</span></div>
+          <div class="rate-legend"><span class="legend-good" data-i18n="positiveLegend" data-board-text="index-text-29">양수 = Long -> Short</span><span class="legend-bad" data-i18n="negativeLegend" data-board-text="index-text-30">음수 = Short -> Long</span></div>
         </div>
       </div>
     </div>
 
-    <div class="grid">
-      <div class="card wide"><h3 class="section-title" data-i18n="fundingRateChart">Funding Rate Chart</h3><canvas id="fundingChart"></canvas></div>
+    <div class="grid" data-board-group="funding-charts" data-board-block="funding-chart-section" data-board-label="차트·내역 전체">
+      <div class="card wide" data-board-block="funding-charts-0" data-board-label="Funding Rate Chart" data-board-width="full"><h3 class="section-title" data-i18n="fundingRateChart" data-board-text="index-text-31">Funding Rate Chart</h3><canvas id="fundingChart"></canvas></div>
 
-      <div class="card wide"><h3 class="section-title" data-i18n="priceChart">Price Chart</h3><div class="toolbar2" id="priceCandleTabs"></div><canvas id="priceChart"></canvas></div>
+      <div class="card wide" data-board-block="funding-charts-1" data-board-label="Price Chart" data-board-width="full"><h3 class="section-title" data-i18n="priceChart" data-board-text="index-text-32">Price Chart</h3><div class="toolbar2" id="priceCandleTabs"></div><canvas id="priceChart"></canvas></div>
 
-      <div class="card wide">
-        <h3 class="section-title" data-i18n="fundingHistory">회차별 Funding History</h3>
+      <div class="card wide" data-board-block="funding-charts-2" data-board-label="회차별 Funding History" data-board-width="full">
+        <h3 class="section-title" data-i18n="fundingHistory" data-board-text="index-text-33">회차별 Funding History</h3>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>#</th><th>Funding Time (UTC)</th><th>Funding Rate</th><th>Mark Price</th><th data-i18n="direction">Direction</th></tr></thead>
+            <thead><tr><th>#</th><th>Funding Time (UTC)</th><th>Funding Rate</th><th>Mark Price</th><th data-i18n="direction" data-board-text="index-text-34">Direction</th></tr></thead>
             <tbody id="historyBody"></tbody>
           </table>
         </div>
@@ -169,6 +170,7 @@
     </div>
   </div>
 
+  </div>
   <div class="modal-backdrop" id="authModal" aria-hidden="true">
     <div class="modal">
       <div class="modal-head">
@@ -186,5 +188,5 @@
   </div>
 
   <script type="module" src="./js/app.js?v=18"></script>
-</body>
+<script type="module" src="./js/board-editor.js?v=1"></script></body>
 </html>
