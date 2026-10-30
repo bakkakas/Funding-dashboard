@@ -74,12 +74,18 @@ test('all four overseas snapshots provide coherent source pairs, never replace o
  const nike=JSON.parse(readFileSync(new URL('../data/earnings-comparison/stock-nke-fundamentals.json',import.meta.url)));
  assert.equal(nike.rows.find(r=>r.fiscalPeriod==='FY2027 Q1').period,'2026-08');
 });
-test('KR cache has real forecasts for every supported issuer without treating unannounced as zero',()=>{
+test('KR cache preserves available consensus; an all-announced cache needs no future forecast',()=>{
  for(const code of ['005380','263750','005930','000660']) {
   const cache=JSON.parse(readFileSync(new URL(`../data/earnings-comparison/stock-${code}.json`,import.meta.url)));
   const records=comparisonRecords({rows:[]},cache);
   for(const metric of ['revenue','operating','parentNet']) {
-   const rows=comparisonTrend([],records,metric,'억 KRW');assert.ok(rows.some(r=>r.estimate!=null));assert.ok(rows.some(r=>r.value==null && r.estimate!=null));
+   const rows=comparisonTrend([],records,metric,'억 KRW');assert.ok(rows.some(r=>r.estimate!=null));
+   // A refreshed cache can contain only announced quarters. Never invent a future row.
+   const label={revenue:'매출액',operating:'영업이익',parentNet:'지배주주 순이익'}[metric];
+   for(const row of rows) {
+    const source=records.find(r=>r.period===row.period)?.metrics.find(m=>m.label===label);
+    assert.ok(source);assert.equal(row.value,source.actual);assert.equal(row.estimate,source.estimate);
+   }
   }
  }
 });
@@ -95,7 +101,11 @@ test('annual data uses annual actual/consensus, never sums an incomplete quarter
  for(const id of ['005380','263750','005930','000660']) {
   const cache=JSON.parse(readFileSync(new URL(`../data/earnings-comparison/stock-${id}-annual.json`,import.meta.url)));
   const rows=comparisonTrend(cache.quarters,comparisonRecords(cache),'revenue',cache.financialUnit);
-  assert.ok(rows.every(r=>/^20\d{2}$/.test(r.period)));assert.ok(rows.some(r=>r.value!=null&&r.estimate!=null));assert.ok(rows.some(r=>r.value==null&&r.estimate!=null));
+  assert.ok(rows.every(r=>/^20\d{2}$/.test(r.period)));assert.ok(rows.some(r=>r.value!=null&&r.estimate!=null));
+  // A source refresh need not retain an unannounced year; test null handling with a stable fixture below.
+  const future={period:'2099',basis:'IFRS 연결',metrics:[{label:'매출액',actual:null,estimate:123,unit:'억 KRW'}]};
+  const futureRow=comparisonTrend([], [future], 'revenue', '억 KRW', true).find(r=>r.period==='2099');
+  assert.equal(futureRow.value,null);assert.equal(futureRow.estimate,123);
   assert.ok(fourQuarterTrend(cache.quarters,'revenue').at(-1).delta!=null);
  }
  const nike=JSON.parse(readFileSync(new URL('../data/earnings-comparison/stock-nke-fundamentals.json',import.meta.url))).annual;

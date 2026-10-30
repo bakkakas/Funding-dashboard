@@ -1,6 +1,6 @@
 import { InvestmentPlan } from './investment-plan.js?v=8';
 import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=4';
-import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=1';
+import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=2';
 import { ResearchThesis } from './research-thesis.js?v=4';
 import { StockResearch } from './stock-research.js?v=14';
 import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1';
