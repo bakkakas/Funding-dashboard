@@ -42,5 +42,13 @@ export const CRYPTO_RESEARCH = [
   {
     "id": "hype",
     "coingeckoId": "hyperliquid"
+  },
+  {
+    "id": "blur",
+    "coingeckoId": "blur"
+  },
+  {
+    "id": "lsk",
+    "coingeckoId": "lisk"
   }
 ];

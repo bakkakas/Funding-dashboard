@@ -8,7 +8,7 @@ const profiles=json('profiles');
 const asset=validateAsset(json('ethfi'),'ethfi');
 const profile=resolveProfile(asset,profiles);
 test('requested assets have distinct verified market mappings, sourced bilingual content and no inherited score',()=>{
-  const mapping={ena:'ethena',mon:'monad',stx:'blockstack',cake:'pancakeswap-token',bnb:'binancecoin',ondo:'ondo-finance',inj:'injective-protocol',xpl:'plasma',pyth:'pyth-network',hype:'hyperliquid'};
+  const mapping={ena:'ethena',mon:'monad',stx:'blockstack',cake:'pancakeswap-token',bnb:'binancecoin',ondo:'ondo-finance',inj:'injective-protocol',xpl:'plasma',pyth:'pyth-network',hype:'hyperliquid',blur:'blur',lsk:'lisk'};
   const catalog=validateCatalog(json('index'));
   for(const [id,cg] of Object.entries(mapping)) {
     assert.ok(catalog.some(item=>item.id===id));
@@ -133,4 +133,19 @@ test('links reject script URLs',()=>{
 test('short history is not misrepresented as 30 day growth',()=>{
   const now=Math.floor(Date.now()/1000);
   assert.equal(seriesChange([{date:now-86400,totalLiquidityUSD:100},{date:now,totalLiquidityUSD:120}],30),null);
+});
+test('BLUR and LSK retain distinct routes and never infer revenue, unlock completion or an investment score',async()=>{
+  const {CRYPTO_RESEARCH}=await import('../js/crypto-research-map.js');
+  for(const [id,cg,total] of [['blur','blur',3000000000],['lsk','lisk',300000000]]) {
+    const doc=validateAsset(json(id),id);
+    assert.equal(CRYPTO_RESEARCH.find(row=>row.coingeckoId===cg)?.id,id);
+    assert.equal(doc.market.maxSupply,total);
+    assert.equal(resolveProfile(doc,profiles),null);
+    assert.equal((await loadProtocolMetrics(doc,{fetchImpl:()=>{throw Error('No unrelated protocol metrics should be fetched');}})).metrics,null);
+    assert.equal(unlockSummary(doc,'2026-10-30').known,false);
+    for(const item of doc.mechanism.steps) {
+      assert.ok(item.title.ko&&item.title.en&&item.body.ko&&item.body.en);
+      assert.ok(item.sources.length&&item.sources.every(source=>safeUrl(source.url)));
+    }
+  }
 });
