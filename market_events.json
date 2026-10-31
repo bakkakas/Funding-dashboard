@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-30T01:02:19.344182+00:00",
+  "updatedAt": "2026-10-31T00:48:39.462744+00:00",
   "timezone": "Asia/Seoul",
   "windowDays": 30,
   "sources": {
     "fed": {
-      "checkedAt": "2026-10-30T01:02:19.344182+00:00",
+      "checkedAt": "2026-10-31T00:48:39.462744+00:00",
       "status": "ok",
       "events": [
         {
@@ -132,7 +132,7 @@
       ]
     },
     "bls": {
-      "checkedAt": "2026-10-30T01:02:19.344182+00:00",
+      "checkedAt": "2026-10-31T00:48:39.462744+00:00",
       "status": "fallback",
       "primaryError": "HTTPError",
       "provider": "TradingView economic calendar",
@@ -254,7 +254,7 @@
       ]
     },
     "bea": {
-      "checkedAt": "2026-10-30T01:02:19.344182+00:00",
+      "checkedAt": "2026-10-31T00:48:39.462744+00:00",
       "status": "ok",
       "events": [
         {
@@ -447,7 +447,7 @@
       ]
     },
     "ecb": {
-      "checkedAt": "2026-10-30T01:02:19.344182+00:00",
+      "checkedAt": "2026-10-31T00:48:39.462744+00:00",
       "status": "ok",
       "events": [
         {
@@ -640,7 +640,7 @@
       ]
     },
     "boj": {
-      "checkedAt": "2026-10-30T01:02:19.344182+00:00",
+      "checkedAt": "2026-10-31T00:48:39.462744+00:00",
       "status": "ok",
       "events": [
         {
@@ -767,7 +767,7 @@
       ]
     },
     "bok": {
-      "checkedAt": "2026-10-30T01:02:19.344182+00:00",
+      "checkedAt": "2026-10-31T00:48:39.462744+00:00",
       "status": "ok",
       "events": [
         {
@@ -806,7 +806,7 @@
       ]
     },
     "samsung": {
-      "checkedAt": "2026-10-30T01:02:19.344182+00:00",
+      "checkedAt": "2026-10-31T00:48:39.462744+00:00",
       "status": "ok",
       "events": [
         {
@@ -823,26 +823,14 @@
       ]
     },
     "hynix": {
-      "checkedAt": "2026-10-30T01:02:19.344182+00:00",
+      "checkedAt": "2026-10-31T00:48:39.462744+00:00",
       "status": "ok",
       "events": []
     },
     "nasdaq": {
-      "checkedAt": "2026-10-30T01:02:19.344182+00:00",
+      "checkedAt": "2026-10-31T00:48:39.462744+00:00",
       "status": "ok",
       "events": [
-        {
-          "id": "AMZN:2026-10-29",
-          "series": "AMZN",
-          "name": "아마존 실적",
-          "date": "2026-10-30",
-          "sourceDate": "2026-10-29",
-          "startsAt": null,
-          "status": "estimated",
-          "sourceUrl": "https://api.nasdaq.com/api/calendar/earnings?date=2026-10-29",
-          "dateNote": "미국 장 마감 후 → 한국 다음 날 (정확한 시각 미공개)",
-          "dateBasis": "Asia/Seoul"
-        },
         {
           "id": "AAPL:2026-11-02",
           "series": "AAPL",
@@ -856,21 +844,21 @@
           "dateBasis": "Asia/Seoul"
         },
         {
-          "id": "NVDA:2026-11-18",
+          "id": "NVDA:2026-11-17",
           "series": "NVDA",
           "name": "엔비디아 실적",
           "date": "2026-11-18",
-          "sourceDate": "2026-11-18",
+          "sourceDate": "2026-11-17",
           "startsAt": null,
           "status": "estimated",
-          "sourceUrl": "https://api.nasdaq.com/api/calendar/earnings?date=2026-11-18",
-          "dateNote": "발표 시각 미공개 · 날짜는 제공처의 미국 현지일 기준",
-          "dateBasis": "US-local"
+          "sourceUrl": "https://api.nasdaq.com/api/calendar/earnings?date=2026-11-17",
+          "dateNote": "미국 장 마감 후 → 한국 다음 날 (정확한 시각 미공개)",
+          "dateBasis": "Asia/Seoul"
         }
       ]
     },
     "elections": {
-      "checkedAt": "2026-10-30T01:02:19.344182+00:00",
+      "checkedAt": "2026-10-31T00:48:39.462744+00:00",
       "status": "ok",
       "events": [
         {
@@ -1107,20 +1095,6 @@
       "stale": false
     },
     {
-      "id": "AMZN:2026-10-29",
-      "series": "AMZN",
-      "name": "아마존 실적",
-      "date": "2026-10-30",
-      "sourceDate": "2026-10-29",
-      "startsAt": null,
-      "status": "estimated",
-      "sourceUrl": "https://api.nasdaq.com/api/calendar/earnings?date=2026-10-29",
-      "dateNote": "미국 장 마감 후 → 한국 다음 날 (정확한 시각 미공개)",
-      "dateBasis": "Asia/Seoul",
-      "sourceKey": "nasdaq",
-      "stale": false
-    },
-    {
       "id": "boj:2026-10-30",
       "series": "boj",
       "name": "BOJ 금리 결정",
@@ -1191,16 +1165,16 @@
       "stale": false
     },
     {
-      "id": "NVDA:2026-11-18",
+      "id": "NVDA:2026-11-17",
       "series": "NVDA",
       "name": "엔비디아 실적",
       "date": "2026-11-18",
-      "sourceDate": "2026-11-18",
+      "sourceDate": "2026-11-17",
       "startsAt": null,
       "status": "estimated",
-      "sourceUrl": "https://api.nasdaq.com/api/calendar/earnings?date=2026-11-18",
-      "dateNote": "발표 시각 미공개 · 날짜는 제공처의 미국 현지일 기준",
-      "dateBasis": "US-local",
+      "sourceUrl": "https://api.nasdaq.com/api/calendar/earnings?date=2026-11-17",
+      "dateNote": "미국 장 마감 후 → 한국 다음 날 (정확한 시각 미공개)",
+      "dateBasis": "Asia/Seoul",
       "sourceKey": "nasdaq",
       "stale": false
     },
