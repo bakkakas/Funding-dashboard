@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=27">
+  <link rel="stylesheet" href="./investment-setup.css?v=28">
   <link rel="stylesheet" href="./investment-plan.css?v=6">
 <link rel="stylesheet" href="./board-editor.css?v=1"></head>
 <body>
@@ -100,6 +100,7 @@
                       </div>
                       <div class="circulation-bar" role="progressbar" aria-label="Max 대비 유통률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="assetCirculatingBar"></i></div>
                     </div>
+                    <div class="market-fact next-unlock-fact"><small>다음 언락 · Next unlock</small><div id="nextUnlockInline">—</div><small id="unlockedSummary">—</small></div>
                   </div>
                 </div>
               </div>
@@ -240,7 +241,7 @@
             <div class="research-content">
               <h3 data-page-i18n="unlockSchedule" data-board-text="investment-setup-text-59">토큰 언락 일정</h3>
               <div class="unlock-highlight">
-                <div class="unlock-card primary"><div class="unlock-card-head"><span data-page-i18n="nextUnlock" data-board-text="investment-setup-text-60">다음 언락</span><b id="nextUnlockCountdown">—</b></div><time id="nextUnlockDate">—</time><strong id="nextUnlockAmount">—</strong><em id="nextUnlockUsd">—</em><small id="nextUnlockDetail">—</small></div>
+                <div class="unlock-card primary" hidden><div class="unlock-card-head"><span data-page-i18n="nextUnlock" data-board-text="investment-setup-text-60">다음 언락</span><b id="nextUnlockCountdown">—</b></div><time id="nextUnlockDate">—</time><strong id="nextUnlockAmount">—</strong><em id="nextUnlockUsd">—</em><small id="nextUnlockDetail">—</small></div>
                 <div class="unlock-card"><span data-page-i18n="remainingUnlock" data-board-text="investment-setup-text-61">잔여 언락</span><strong id="remainingUnlockAmount">—</strong><em id="remainingUnlockUsd">—</em><small id="remainingUnlockDetail">—</small></div>
                 <div class="unlock-card"><span data-page-i18n="vestingEnd" data-board-text="investment-setup-text-62">최종 베스팅 종료</span><strong id="vestingEndDate"></strong><small data-asset-copy="insiderUnlock"></small></div>
               </div>
@@ -249,10 +250,12 @@
               </div>
               <div class="unlock-legend"><span><i></i><span id="unlockedLegend">—</span></span><span><i></i><span id="lockedLegend">—</span></span></div>
               <p class="data-note" data-asset-copy="unlockNote"></p>
+              <div id="unlockScheduleRows" class="token-table-wrap"></div>
               <div class="source-row" id="unlockSources"></div>
             </div>
           </section>
 
+          <section class="card research-section" id="bnbBurnBoard" hidden data-board-block="crypto-bnb-burns" data-board-label="BNB 소각" data-board-width="full"></section>
           <footer class="report-disclaimer" data-page-i18n="disclaimer" data-board-text="investment-setup-text-63">정보 제공 목적의 리서치 · 투자 권유 아님. 시장 데이터와 일정은 변동 가능.</footer>
         </article>
 </div>
@@ -275,6 +278,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=48"></script>
+  <script type="module" src="./js/investment-setup.js?v=49"></script>
 <script type="module" src="./js/board-editor.js?v=1"></script></body>
 </html>
