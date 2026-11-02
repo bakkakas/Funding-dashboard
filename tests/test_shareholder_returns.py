@@ -26,3 +26,16 @@ class HynixTests(unittest.TestCase):
   self.assertEqual(d['dps'],20000);self.assertEqual(d['period'],'2026년 3분기')
  def test_no_quarter_declaration_no_inference(self):
   self.assertIsNone(m.hynix_dividend('<p>연간 고정배당 1,500원</p>','https://news.skhynix.co.kr/q3-2026-business-results/'))
+
+class DividendRefreshTests(unittest.TestCase):
+ def test_new_quarter_automatically_replaces_old_and_failure_preserves_it(self):
+  import tempfile,json
+  from unittest.mock import patch
+  with tempfile.TemporaryDirectory() as tmp:
+   path=Path(tmp)/'samsung.json'
+   path.write_text(json.dumps({'issuerId':'stock-005930','source':m.SAMSUNG,'history':[], 'dividend':{'period':'2026년 3분기','dps':4601,'recordDate':'2026-09-30'}}))
+   html='<article><p>2026년 4분기 배당 주당배당금 : 보통주 500원 / 우선주 500원 배당 기준일 : 2026년 12월31일 배당금 총액 : 약 3.0조원</p></article>'
+   with patch.object(m,'fetch',return_value=html),patch.dict(m.DISCOVERY,{},clear=True):m.update(path)
+   refreshed=json.loads(path.read_text());self.assertEqual(refreshed['dividend']['period'],'2026년 4분기');self.assertEqual(refreshed['dividend']['dps'],500)
+   with patch.object(m,'fetch',side_effect=OSError('network')),patch.dict(m.DISCOVERY,{},clear=True):m.update(path)
+   failed=json.loads(path.read_text());self.assertEqual(failed['dividend'],refreshed['dividend']);self.assertEqual(failed['monitor']['status'],'failed')
