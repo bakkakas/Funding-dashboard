@@ -5,7 +5,7 @@ import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=2';
 import { ResearchThesis } from './research-thesis.js?v=4';
 import { StockResearch } from './stock-research.js?v=16';
 import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1';
-import { setupHeaderWidgets } from './header-widgets.js?v=2';
+import { setupHeaderWidgets } from './header-widgets.js?v=3';
 import { applyPageTranslations } from './page-i18n.js?v=1';
 import {
   assetsForResearchFilter,

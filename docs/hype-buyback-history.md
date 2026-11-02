@@ -14,3 +14,8 @@ Sources:
 - https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint
 - https://hyperliquid.gitbook.io/hyperliquid-docs/trading/fees
 - https://app.hyperliquid.xyz/explorer/address/0xfefefefefefefefefefefefefefefefefefefefe
+
+## Direct recheck, 2026-11-02
+`docs/hype-official-audit-2026-11-02.json` records an independent Decimal recomputation of official @107 buy fills by UTC day. The complete available days Oct13–Nov1 (20 days) match stored quantity, notional and fill counts within numeric precision. Oct12 is the retention boundary (partial); Oct3–11 and test dates Nov29 2024, Jan1 2025, Sep1 2026 returned no history. These do not prove zero trades, and no archived day was overwritten.
+
+Official historical-data guide: https://hyperliquid.gitbook.io/hyperliquid-docs/historical-data. It links the independently maintained exporter https://trade-export.hypedexer.com/?v=1 and requester-paid S3 node fills. The export for May2–Nov2 2026 was attempted via normal UI but stopped at human verification. Anonymous S3 access returned403; no AWS credentials or paid transfer was initiated. Older history is still unacquired. Buyback launch date is not inferred from archive start or token launch date. A future export must be validated against overlapping official fills before importing, with provider provenance retained.

@@ -1,4 +1,4 @@
-import { setupFxTicker } from './fx-rate.js?v=1';
+import { setupFxTicker } from './fx-rate.js?v=2';
 import {
   ANALYTICS_BACKEND_CONFIGURED,
   ASSET_LOGO_DOMAINS,

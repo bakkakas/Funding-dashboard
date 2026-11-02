@@ -1,4 +1,4 @@
-import { setupFxTicker } from './fx-rate.js?v=1';
+import { setupFxTicker } from './fx-rate.js?v=2';
 const COPY = {
   ko: { admin: '관리자', updated: 'Updated', fxLoading: 'USD/KRW 조회 중', fxFailed: 'USD/KRW 조회 실패' },
   en: { admin: 'Admin', updated: 'Updated', fxLoading: 'Loading USD/KRW', fxFailed: 'USD/KRW unavailable' },

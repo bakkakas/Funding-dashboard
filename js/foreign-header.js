@@ -1,6 +1,6 @@
 import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1';
 
-import { setupFxTicker } from './fx-rate.js?v=1';
+import { setupFxTicker } from './fx-rate.js?v=2';
 
 export function setupForeignHeader({ onLanguageChange } = {}) {
   let lang = localStorage.getItem('fundingDashboardLanguage') === 'en' ? 'en' : 'ko';
