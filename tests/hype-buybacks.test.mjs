@@ -20,3 +20,25 @@ test('annualized HYPE buyback yield uses the live market cap denominator',()=>{
   assert.equal(annualizedBuybackYield(30_000_000,0),null);
   assert.equal(annualizedBuybackYield(null,3_650_000_000),null);
 });
+
+import { selectHypeDays, summarizeHypePeriods } from '../js/hype-buybacks.js';
+test('period windows include the current UTC day and do not fabricate missing days',()=>{
+  const rows=['2025-11-02','2025-11-03','2026-08-05','2026-10-04','2026-11-02','2026-11-03'].map(date=>({date,usd:10,hype:2,partial:false}));
+  assert.deepEqual(selectHypeDays(rows,30,'2026-11-02T03:00:00Z').map(r=>r.date),['2026-10-04','2026-11-02']);
+  assert.equal(selectHypeDays(rows,90,'2026-11-02T03:00:00Z').length,3);
+  assert.equal(selectHypeDays(rows,365,'2026-11-02T03:00:00Z')[0].date,'2025-11-03');
+  assert.equal(selectHypeDays(rows,null,'2026-11-02T03:00:00Z').length,5);
+});
+test('weekly and monthly totals use volume-weighted price and UTC Monday boundaries',()=>{
+  const rows=[{date:'2026-10-31',usd:100,hype:1,partial:false},{date:'2026-11-01',usd:900,hype:3,partial:false},{date:'2026-11-02',usd:0,hype:0,partial:true}];
+  const week=summarizeHypePeriods(rows,'week');
+  assert.equal(week[0].key,'2026-11-02');assert.equal(week[0].average,null);
+  assert.equal(week[1].key,'2026-10-26');assert.equal(week[1].usd,1000);assert.equal(week[1].hype,4);assert.equal(week[1].average,250);assert.equal(week[1].partial,true);
+  const months=summarizeHypePeriods(rows,'month');assert.equal(months[0].average,300);assert.equal(months[1].average,100);
+  for(const unit of ['week','month'])assert.equal(summarizeHypePeriods(rows,unit).reduce((sum,r)=>sum+r.usd,0),1000);
+});
+test('complete leap month and cross-year week are not marked partial',()=>{
+  const rows=Array.from({length:29},(_,i)=>({date:`2024-02-${String(i+1).padStart(2,'0')}`,usd:10,hype:1,partial:false}));
+  assert.equal(summarizeHypePeriods(rows,'month')[0].partial,false);
+  assert.equal(summarizeHypePeriods([{...rows[0],date:'2027-01-01'}],'week')[0].key,'2026-12-28');
+});

@@ -48,6 +48,18 @@ class HypeBuybackTests(unittest.TestCase):
         MODULE.collect_daily_fills(now, request_json=capped_then_empty, days=1)
         self.assertGreater(len(calls), 2)
 
+    def test_archive_preserves_days_outside_retention_and_full_days(self):
+        old = [{"date": "2026-09-01", "hype": 1, "usd": 10, "fills": 1, "partial": False},
+               {"date": "2026-10-01", "hype": 20, "usd": 200, "fills": 20, "partial": False}]
+        fresh = [{"date": "2026-10-01", "hype": 5, "usd": 50, "fills": 5},
+                 {"date": "2026-10-02", "hype": 30, "usd": 300, "fills": 30}]
+        merged = MODULE.merge_daily_activity(old, fresh, "2026-10-02")
+        self.assertEqual(len(merged), 3)
+        self.assertEqual(merged[1]["usd"], 200)
+        self.assertTrue(merged[2]["partial"])
+        self.assertEqual(MODULE.merge_daily_activity(merged, fresh, "2026-10-02"), merged)
+        self.assertEqual(MODULE.merge_daily_activity(merged, [], "2026-10-03"), merged)
+
     def test_invalid_assistance_fund_state_is_rejected(self):
         with self.assertRaises(ValueError):
             MODULE.build_snapshot({"balances": []}, [], 1)

@@ -77,6 +77,19 @@ def collect_daily_fills(now_ms, request_json=post_info, days=30):
     return sorted(fills.values(), key=lambda row: row["time"])
 
 
+def merge_daily_activity(existing_rows, current_rows, observed_date):
+    """Keep archived days; the API retention boundary must never shrink a full day."""
+    merged = {row["date"]: dict(row) for row in existing_rows}
+    earliest = min((row["date"] for row in current_rows), default=None)
+    for item in current_rows:
+        row = dict(item)
+        row["partial"] = row["date"] == earliest or row["date"] >= observed_date
+        old = merged.get(row["date"])
+        if old is None or not row["partial"] or (old.get("partial", True) and row["fills"] >= old.get("fills", 0)):
+            merged[row["date"]] = row
+    return [merged[key] for key in sorted(merged)]
+
+
 def build_snapshot(state, fills, now_ms, existing=None):
     if not isinstance(state, dict) or not isinstance(state.get("balances"), list):
         raise ValueError("Invalid Assistance Fund state")
@@ -122,7 +135,9 @@ def build_snapshot(state, fills, now_ms, existing=None):
         "maxSupply": MAX_SUPPLY,
         "burnedMaxSupplyPct": burned / MAX_SUPPLY * 100,
         "recent": {"1d": activity(1), "7d": activity(7), "30d": activity(30)},
-        "dailyActivity": [daily[key] for key in sorted(daily)],
+        "dailyActivity": merge_daily_activity(
+            existing.get("dailyActivity", []) if isinstance(existing, dict) else [],
+            [daily[key] for key in sorted(daily)], observed_at[:10]),
         "history": history,
         "sources": {
             "api": API_URL,
