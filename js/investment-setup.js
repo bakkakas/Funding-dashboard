@@ -2,9 +2,9 @@ import { InvestmentPlan } from './investment-plan.js?v=8';
 import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=4';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=2';
 import { ResearchThesis } from './research-thesis.js?v=4';
-import { StockResearch } from './stock-research.js?v=15';
+import { StockResearch } from './stock-research.js?v=16';
 import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1';
-import { setupHeaderWidgets } from './header-widgets.js?v=1';
+import { setupHeaderWidgets } from './header-widgets.js?v=2';
 import { applyPageTranslations } from './page-i18n.js?v=1';
 import {
   assetsForResearchFilter,
@@ -809,7 +809,7 @@ function renderPrice(value, change24h) {
   if (change === null) return;
   const changeNode = document.createElement('em');
   changeNode.className = `market-change ${change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral'}`;
-  changeNode.textContent = `(${change >= 0 ? '+' : ''}${change.toFixed(2)}%)`;
+  changeNode.textContent = `(${change >= 0 ? '+' : ''}${change.toFixed(2)}% · 24h)`;
   host.append(' ', changeNode);
 }
 

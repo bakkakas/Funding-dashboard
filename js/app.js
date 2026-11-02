@@ -1,9 +1,8 @@
+import { setupFxTicker } from './fx-rate.js?v=1';
 import {
   ANALYTICS_BACKEND_CONFIGURED,
   ASSET_LOGO_DOMAINS,
   ASSET_NAME_OVERRIDES,
-  FX_LATEST_URL,
-  FX_REFERENCE_URL,
   LIVE_REFRESH_MS,
   PRICE_CANDLE_WINDOWS,
   STANDARD_USDT_DISPLAY_ASSETS,
@@ -312,29 +311,6 @@ import { state } from './state.js';
       const modal=document.getElementById('authModal');
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden','true');
-    }
-    async function fetchUsdKrw(){
-      const ticker=document.getElementById('usdKrwTicker');
-      try {
-        const [latestRes, refRes] = await Promise.all([
-          fetch(FX_LATEST_URL, { cache:'no-store' }),
-          fetch(FX_REFERENCE_URL, { cache:'no-store' }),
-        ]);
-        const latestJson = await latestRes.json();
-        const refJson = await refRes.json();
-        const latest = Number(latestJson.rates && latestJson.rates.KRW);
-        const reference = Number(refJson.usd && refJson.usd.krw);
-        if(!latest || !reference) throw new Error('USD/KRW rate unavailable');
-        const change = (latest - reference) / reference;
-        const tone = change > 0 ? 'bad' : change < 0 ? 'good' : 'warn';
-        ticker.innerHTML = `USD/KRW ${fmtFx(latest)} <span class="fx-change ${tone}">(${change >= 0 ? '+' : ''}${(change * 100).toFixed(2)}%)</span>`;
-        ticker.className = 'fx-ticker';
-        ticker.title = `latest: ${latestJson.time_last_update_utc || 'open.er-api'}, reference date: ${refJson.date || '-'}`;
-      } catch(err) {
-        console.error(err);
-        ticker.textContent = t('usdKrwFailed');
-        ticker.className = 'fx-ticker warn';
-      }
     }
     function getAssetGroups(){
       const groups = new Map();
@@ -741,7 +717,7 @@ import { state } from './state.js';
       });
       setLanguage(state.lang);
       renderAuth();
-      fetchUsdKrw();
+      setupFxTicker(document.getElementById('usdKrwTicker'));
       document.getElementById('updatedAt').textContent=t('updated')+': '+toKST(data.updatedAt);
       renderAssetPicker();
       renderExchangePicker();

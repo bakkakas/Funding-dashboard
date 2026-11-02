@@ -1,0 +1,43 @@
+name: Update official shareholder-return announcements
+on:
+  schedule:
+    - cron: '17 0,6,12,18 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: update-shareholder-returns
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -r scripts/requirements-market-events.txt
+      - id: collect
+        continue-on-error: true
+        run: python3 scripts/update_shareholder_returns.py
+      - name: Publish collected data and failure status
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/shareholder-returns
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: refresh official shareholder-return sources"
+            for attempt in 1 2 3; do
+              git pull --rebase origin main
+              if git push origin HEAD:main; then exit 0; fi
+              sleep 2
+            done
+            exit 1
+          fi
+      - name: Rebuild Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${{ github.repository }}/pages/builds"
+      - name: Surface collection failures
+        if: steps.collect.outcome == 'failure'
+        run: exit 1
