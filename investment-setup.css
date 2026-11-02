@@ -431,3 +431,19 @@
 
 /* Long policy tables scroll locally, never widen the page. */
 .shareholder-returns{min-width:0}.shareholder-returns h4{margin:18px 0 10px}.policy-table-scroll{overflow-x:auto;max-width:100%}.policy-table{width:100%;min-width:820px;border-collapse:collapse;font-size:13px}.policy-table th,.policy-table td{padding:10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line,#283342);min-width:120px}.policy-table td small{display:block;opacity:.7;margin-top:6px}.policy-documents details{border-bottom:1px solid var(--line,#283342);padding:10px 0}.policy-documents summary{cursor:pointer;overflow-wrap:anywhere}.policy-documents p{line-height:1.6;overflow-wrap:anywhere}.stock-stats strong .market-change{font-size:12px;white-space:nowrap;font-style:normal}.fx-ticker{overflow-wrap:anywhere}
+
+/* Keep live unlock metrics compact without widening the page. */
+.next-unlock-fact{display:flex;flex-direction:column;align-items:flex-start;gap:5px;max-width:100%;flex:1 1 260px;min-width:0;overflow-wrap:anywhere}
+.next-unlock-fact small{color:var(--muted,#94a3b8);font-size:11px}
+#nextUnlockInline{font-size:12px;line-height:1.6;font-weight:600}
+.token-table-wrap{max-width:100%;overflow:auto;margin-top:12px}
+.token-table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
+.token-table th,.token-table td{text-align:left;padding:9px;border-bottom:1px solid var(--border,#263544)}
+#bnbBurnBoard{display:block}#bnbBurnBoard[hidden]{display:none}
+#bnbBurnBoard h3{margin-top:0}#bnbBurnBoard p{font-size:12px;line-height:1.7;color:var(--muted,#94a3b8)}
+.unlock-highlight .unlock-card[hidden]{display:none}
+@media(max-width:600px){.next-unlock-fact{flex-basis:100%}.hero-market-facts{flex-wrap:wrap}}
+#bnbBurnBoard{min-width:0;max-width:100%;overflow:hidden}
+.hero-market-facts{grid-template-columns:auto minmax(170px,1fr) minmax(230px,1.5fr);max-width:850px}
+@media(max-width:1100px){.hero-market-facts{grid-template-columns:auto minmax(0,1fr)}.next-unlock-fact{grid-column:1/-1}}
+@media(max-width:600px){.hero-market-facts{max-width:100%}}

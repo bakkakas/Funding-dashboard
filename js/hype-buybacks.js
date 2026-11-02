@@ -106,7 +106,7 @@ export class HypeBuybackPanel {
       const tr=el('tr');tr.append(el('td',`${this.periodUnit==='month'?row.key.slice(0,7):row.key+' ~ '+row.end}${row.partial?(en?' · partial':' · 일부'):''}`),el('td',price(row.usd)),el('td',row.hype.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})),el('td',row.average===null?'—':price(row.average)));tbody.append(tr);
     }
     table.append(tbody);tableScroll.append(table);history.append(tableScroll);
-    history.append(el('p',en?'Selected-period recorded executions only. Weeks start Monday (UTC). Average = USD spent ÷ HYPE bought. Partial marks unfinished or missing days. The API exposes only the latest 10,000 fills; All means all archived records, not lifetime purchases. Missing history is not zero.':'선택 기간의 보관된 체결 기준 · UTC 월요일 시작 · 평균 단가 = 매수액 ÷ HYPE 수량. 미완료·누락일이 있는 주·월은 ‘일부’ 표시. 공식 API는 최근 1만 건만 제공하므로 전체는 보관된 기록 전체이며, 미확보 기간은 0원이 아닙니다.','hype-buyback-note'));
+    history.append(el('p',en?'Selected-period recorded executions only. Weeks start Monday (UTC). Average = USD spent ÷ HYPE bought. Partial marks unfinished or missing days. The API exposes only the latest 10,000 fills; All means all archived records, not lifetime purchases. Missing history is not zero. Archive start is not the buyback launch date.':'선택 기간의 보관된 체결 기준 · UTC 월요일 시작 · 평균 단가 = 매수액 ÷ HYPE 수량. 미완료·누락일이 있는 주·월은 ‘일부’ 표시. 공식 API는 최근 1만 건만 제공하므로 전체는 보관된 기록 전체이며, 미확보 기간은 0원이 아닙니다. 기록 시작일은 실제 바이백 시작일이 아닙니다.','hype-buyback-note'));
     this.host.replaceChildren(head,grid,history);
   }
 }

@@ -1,3 +1,4 @@
+import { renderTokenDetails } from './token-details.js?v=1';
 import { InvestmentPlan } from './investment-plan.js?v=8';
 import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=4';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=2';
@@ -26,7 +27,7 @@ import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=2';
 import { UsdeMarketCapPanel } from './usde-market-cap.js?v=2';
 import { EthenaMilestonesPanel } from './ethena-milestones.js?v=1';
 import { PythReservePanel } from './pyth-reserve.js?v=2';
-import { HypeBuybackPanel } from './hype-buybacks.js?v=2';
+import { HypeBuybackPanel } from './hype-buybacks.js?v=3';
 
 const $ = id => document.getElementById(id);
 const planPanel=new InvestmentPlan(authClient,$('investmentPlan'));
@@ -768,6 +769,7 @@ function kstDateKey(date = new Date()) {
 
 function renderUnlockSchedule(price) {
   const today=kstDateKey();
+  renderTokenDetails(currentAsset, decisionMarket, today, language);
   const {upcoming,next,known,completed,remaining}=unlockSummary(currentAsset,today);
   const total=numberOrNull(currentAsset.market.maxSupply);
   const ratio=known && total>0 ? remaining/total*100 : null;
@@ -1043,3 +1045,6 @@ setInterval(()=>newsPanel.refresh(true),60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){newsPanel.refresh(true);if(account&&!newsAccount.busy){newsAccount.ready=false;void newsAccount.connect(account.id);}}});
 
 if(location.hash==='#plan')$('planTab').click();
+
+let unlockDay=kstDateKey();
+setInterval(()=>{const day=kstDateKey();if(day!==unlockDay){unlockDay=day;if(currentAsset&&currentAsset.kind!=='stock')renderUnlockSchedule(decisionMarket?.price??null);}},60000);
