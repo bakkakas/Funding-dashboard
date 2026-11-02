@@ -1,7 +1,6 @@
 import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1';
 
-const FX_LATEST_URL = 'https://open.er-api.com/v6/latest/USD';
-const FX_REFERENCE_URL = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
+import { setupFxTicker } from './fx-rate.js?v=1';
 
 export function setupForeignHeader({ onLanguageChange } = {}) {
   let lang = localStorage.getItem('fundingDashboardLanguage') === 'en' ? 'en' : 'ko';
@@ -101,15 +100,5 @@ export function setupForeignHeader({ onLanguageChange } = {}) {
     auth = accountFromSession(session);
     render();
   });
-  Promise.all([fetch(FX_LATEST_URL, { cache: 'no-store' }), fetch(FX_REFERENCE_URL, { cache: 'no-store' })])
-    .then(async ([latestResponse, referenceResponse]) => [await latestResponse.json(), await referenceResponse.json()])
-    .then(([latestJson, referenceJson]) => {
-      const latest = Number(latestJson.rates?.KRW);
-      const reference = Number(referenceJson.usd?.krw);
-      if (!latest || !reference) throw Error('rate unavailable');
-      const change = (latest - reference) / reference;
-      const tone = change > 0 ? 'bad' : change < 0 ? 'good' : 'warn';
-      document.getElementById('usdKrwTicker').innerHTML = `USD/KRW ${latest.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span class="fx-change ${tone}">(${change >= 0 ? '+' : ''}${(change * 100).toFixed(2)}%)</span>`;
-    })
-    .catch(() => { document.getElementById('usdKrwTicker').textContent = copy[lang].failed; });
+  setupFxTicker(document.getElementById('usdKrwTicker'));
 }

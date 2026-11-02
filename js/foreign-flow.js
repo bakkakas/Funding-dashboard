@@ -1,4 +1,4 @@
-import { setupForeignHeader } from './foreign-header.js?v=3';
+import { setupForeignHeader } from './foreign-header.js?v=4';
 import { applyPageTranslations } from './page-i18n.js?v=1';
 
 const nf = new Intl.NumberFormat('ko-KR');
