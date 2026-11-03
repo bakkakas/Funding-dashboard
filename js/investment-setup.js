@@ -28,7 +28,7 @@ import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=2';
 import { UsdeMarketCapPanel } from './usde-market-cap.js?v=3';
 import { EthenaMilestonesPanel } from './ethena-milestones.js?v=1';
 import { PythReservePanel } from './pyth-reserve.js?v=2';
-import { HypeBuybackPanel } from './hype-buybacks.js?v=4';
+import { HypeBuybackPanel } from './hype-buybacks.js?v=5';
 
 const $ = id => document.getElementById(id);
 const planPanel=new InvestmentPlan(authClient,$('investmentPlan'));

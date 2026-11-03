@@ -3,16 +3,17 @@
 ## Sources and units
 - HYPE Console: https://hype-console.serhiifotex.dev/?period=all (public server-rendered dataset). USD reported by this secondary index; closing HYPE price (current day provisional).
 - Crypto Burn Tracker: https://cryptoburntracker.com/burns/hyperliquid/ (public `/api/v1/assets/hype/daily-burns?limit=6000`, `/summary`). Separate AF, HyperCore protocol/null-address and HyperEVM gas mechanisms.
-- Official complete-day AF fills retained in `data/hype-buybacks.json` take priority for day amounts. The new separate `data/hype-history.json` archive is refreshed by existing two-hour collector workflow; failed supplemental collection retains the last snapshot without blocking official updates. Snapshot older than 48 hours is labeled delayed.
+- Chart source selected by user on 2026-11-03: **HYPE Console only**, including USD, HYPE quantity and closing price. Official summary cards remain separate; never override Console daily chart rows with official fills or Crypto Burn Tracker amounts.
+- `data/hype-history.json` schemaVersion 2 / chartSource hype-console is refreshed every two hours. A failed Console fetch retains last snapshot; separate burn-detail fetch failure retains earlier mechanism details without blocking the Console chart.
 
-## Reconciliation
-2026-11-03 initial import contains 592 AF dated quantity observations starting 2025-03-22, 265 with USD after direct official overrides. Console exposes 610 rows starting 2024-11-29, but historical quantity discrepancies are material. Do not simply concatenate or present all USD as official audited executions.
+## Historical source limitations
+The former cross-source quantity-matching rule intentionally left disputed USD null. User requested a single source instead; these artificial disagreement gaps are removed. This is not a claim of independently auditing Console's values.
 
-- Include secondary USD only when same UTC day's AF HYPE quantity agrees within 0.02 HYPE; retain source tag. Agreement on quantity does NOT independently audit USD; it remains Console reported spend. Official archived complete days supersede both.
-- Missing/disputed USD is null, never zero. Weekly/monthly USD totals label 'known only'; weighted price unavailable if any quantity lacks USD.
-- The pre-2025-03-22 reconciled AF opening balance (~17.987M HYPE) is not a dated buyback and has no verified spend; excluded from charts, periods and moving averages.
-- Price is Console's closing series, not execution VWAP; missing dates break paths. 7/30-day simple mean of daily USD requires all calendar days complete and known, calculated before applying display range. Current day provisional, excluded from complete rolling means.
-- Aggregate mechanism totals are secondary-source cumulative snapshots. AF amount is not added twice. Monthly 'other burns' uses observed non-AF daily records only, not any prior opening balance; not market-buy expenditures.
+The Console source currently has 607 dated rows, with real missing records including 2026-07-21 through 2026-10-17 (also marked no data on its own calendar). Do not interpolate or replace those with zero. Price/average paths break on calendar gaps. Current day is provisional; 7/30-day mean requires complete days. Early source amounts and totals may differ from official balances; do not force them to reconcile.
+
+The top spend bar chart now precedes the composite price chart and supports day/week/month buckets within the selected 30/90/365/all window. A week starts Monday UTC; months are calendar months. Boundary/incomplete buckets explicitly show partial sums. Tables remain separately selectable by week/month. Dollar totals and HYPE quantities use the same Console observations.
+
+Crypto Burn Tracker is used only for the separate burn-mechanism section, not the daily buyback series. Gas/protocol burns are not market-buy expenditure and AF must not be added twice.
 
 ## USDe
 Original historical series: DefiLlama daily all-chain USD market cap, server collection every six hours; visible page checks same-origin snapshot every five minutes. This cadence does not turn daily observations into intraday market quotes.
