@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-02T00:46:41.756584+00:00",
+  "updatedAt": "2026-11-03T02:56:01.952491+00:00",
   "timezone": "Asia/Seoul",
   "windowDays": 30,
   "sources": {
     "fed": {
-      "checkedAt": "2026-11-02T00:46:41.756584+00:00",
+      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
       "status": "ok",
       "events": [
         {
@@ -132,7 +132,7 @@
       ]
     },
     "bls": {
-      "checkedAt": "2026-11-02T00:46:41.756584+00:00",
+      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
       "status": "fallback",
       "primaryError": "HTTPError",
       "provider": "TradingView economic calendar",
@@ -204,17 +204,6 @@
           "dateNote": "Consumer Price Index"
         },
         {
-          "id": "jobs:2026-12-04",
-          "series": "jobs",
-          "name": "미국 고용보고서",
-          "date": "2026-12-04",
-          "sourceDate": "2026-12-04",
-          "startsAt": "2026-12-04T08:30:00-05:00",
-          "status": "confirmed",
-          "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
-          "dateNote": "Employment Situation"
-        },
-        {
           "id": "cpi:2026-12-10",
           "series": "cpi",
           "name": "미국 CPI",
@@ -254,7 +243,7 @@
       ]
     },
     "bea": {
-      "checkedAt": "2026-11-02T00:46:41.756584+00:00",
+      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
       "status": "ok",
       "events": [
         {
@@ -447,7 +436,7 @@
       ]
     },
     "ecb": {
-      "checkedAt": "2026-11-02T00:46:41.756584+00:00",
+      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
       "status": "ok",
       "events": [
         {
@@ -640,7 +629,7 @@
       ]
     },
     "boj": {
-      "checkedAt": "2026-11-02T00:46:41.756584+00:00",
+      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
       "status": "ok",
       "events": [
         {
@@ -767,7 +756,7 @@
       ]
     },
     "bok": {
-      "checkedAt": "2026-11-02T00:46:41.756584+00:00",
+      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
       "status": "ok",
       "events": [
         {
@@ -806,7 +795,7 @@
       ]
     },
     "samsung": {
-      "checkedAt": "2026-11-02T00:46:41.756584+00:00",
+      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
       "status": "ok",
       "events": [
         {
@@ -823,12 +812,24 @@
       ]
     },
     "hynix": {
-      "checkedAt": "2026-11-02T00:46:41.756584+00:00",
+      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
       "status": "ok",
-      "events": []
+      "events": [
+        {
+          "id": "000660:2026-10-28",
+          "series": "000660",
+          "name": "SK하이닉스 실적",
+          "date": "2026-10-28",
+          "sourceDate": "2026-10-28",
+          "startsAt": "2026-10-28T00:00:00+00:00",
+          "status": "confirmed",
+          "sourceUrl": "https://asia.tools.euroland.com/tools/FinCalendar2/Home/AllEvents?companyCode=kr-000660&eventTypeId=&lang=en-gb&selectedYear=&v=redesign&CurrentPage=1&RowPerPage=100&SortOrder=DESC",
+          "dateNote": "Q3&#39;FY26 Earnings Release"
+        }
+      ]
     },
     "nasdaq": {
-      "checkedAt": "2026-11-02T00:46:41.756584+00:00",
+      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
       "status": "ok",
       "events": [
         {
@@ -858,7 +859,7 @@
       ]
     },
     "elections": {
-      "checkedAt": "2026-11-02T00:46:41.756584+00:00",
+      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
       "status": "ok",
       "events": [
         {
@@ -1056,6 +1057,19 @@
       "stale": false
     },
     {
+      "id": "000660:2026-10-28",
+      "series": "000660",
+      "name": "SK하이닉스 실적",
+      "date": "2026-10-28",
+      "sourceDate": "2026-10-28",
+      "startsAt": "2026-10-28T00:00:00+00:00",
+      "status": "confirmed",
+      "sourceUrl": "https://asia.tools.euroland.com/tools/FinCalendar2/Home/AllEvents?companyCode=kr-000660&eventTypeId=&lang=en-gb&selectedYear=&v=redesign&CurrentPage=1&RowPerPage=100&SortOrder=DESC",
+      "dateNote": "Q3&#39;FY26 Earnings Release",
+      "sourceKey": "hynix",
+      "stale": false
+    },
+    {
       "id": "005930:2026-10-29",
       "series": "005930",
       "name": "삼성전자 실적",
@@ -1202,19 +1216,6 @@
       "sourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
       "dateNote": "기준금리 결정 회의 / 한국 날짜",
       "sourceKey": "bok",
-      "stale": false
-    },
-    {
-      "id": "jobs:2026-12-04",
-      "series": "jobs",
-      "name": "미국 고용보고서",
-      "date": "2026-12-04",
-      "sourceDate": "2026-12-04",
-      "startsAt": "2026-12-04T08:30:00-05:00",
-      "status": "confirmed",
-      "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
-      "dateNote": "Employment Situation",
-      "sourceKey": "bls",
       "stale": false
     },
     {
