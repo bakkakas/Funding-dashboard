@@ -1,4 +1,4 @@
-import { StxBondsPanel } from './stx-bonds.js?v=1';
+import { StxBondsPanel } from './stx-bonds.js?v=2';
 import { renderTokenDetails } from './token-details.js?v=1';
 import { InvestmentPlan } from './investment-plan.js?v=8';
 import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=4';
@@ -845,6 +845,7 @@ async function refreshAssetMarket(asset, version, signal) {
     const price=numberOrNull(market.current_price?.usd);
     currentPrice=price>0?price:null;
     decisionMarket={price:currentPrice,change24h:numberOrNull(market.price_change_percentage_24h),marketCap:numberOrNull(market.market_cap?.usd),fdv:numberOrNull(market.fully_diluted_valuation?.usd),rank:numberOrNull(data.market_cap_rank),circulatingSupply:numberOrNull(market.circulating_supply),maxSupply:numberOrNull(market.max_supply) ?? numberOrNull(asset.market.maxSupply),updatedAt};
+    if(asset.id==='stx')stxBondsPanel.setStxQuote(currentPrice,updatedAt.getTime());
     pythReservePanel.setMarketCap(decisionMarket.marketCap);
     hypeBuybackPanel.setMarketCap(decisionMarket.marketCap);
     renderMarketData();

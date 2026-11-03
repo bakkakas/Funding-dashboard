@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {atomicAmount,bondTiming,activeBondTotals,validateStxBonds} from '../js/stx-bonds.js';
+import {bondFunding,bondUsd,atomicAmount,bondTiming,activeBondTotals,validateStxBonds} from '../js/stx-bonds.js';
 const data=JSON.parse(readFileSync(new URL('../data/stx-bonds.json',import.meta.url)));
 test('bond units distinguish satoshis, micro-STX and missing values',()=>{
  assert.equal(atomicAmount('50509730314',8),505.09730314);
@@ -24,4 +24,17 @@ test('published bond snapshot validates and rejects duplicate or missing data',(
  assert.equal(validateStxBonds(data),data);
  const bad=structuredClone(data);bad.bonds.push(bad.bonds[0]);assert.throws(()=>validateStxBonds(bad));
  const missing=structuredClone(data);missing.bonds[0].balances.locked.btc=null;assert.throws(()=>validateStxBonds(missing));
+});
+
+test('funding uses actual deposits and cap, never rewards or registration count',()=>{
+ const b=structuredClone(data.bonds[0]);b.balances.locked.btc='2500000000';b.parameters.btc_capacity='10000000000';
+ assert.equal(bondFunding(b).percent,25);
+ b.balances.locked.btc='10000000000';assert.equal(bondFunding(b).percent,100);
+ b.balances.locked.btc='11000000000';assert.equal(bondFunding(b).percent,100);
+ b.parameters.btc_capacity='0';assert.equal(bondFunding(b).percent,null);
+});
+test('USD valuation rejects missing, stale and invalid prices but keeps true zero balances',()=>{
+ const now=Date.now(),q={price:100000,time:now};
+ assert.equal(bondUsd(2,q,now),200000);assert.equal(bondUsd(0,q,now),0);
+ for(const quote of [null,{price:0,time:now},{price:NaN,time:now},{price:1,time:now-3600001},{price:1,time:now+120000}])assert.equal(bondUsd(2,quote,now),null);
 });
