@@ -1,3 +1,4 @@
+import {loadUsdeDetails,renderUsdeDetails} from './usde-details.js?v=1';
 import { attachChartHover, dateTickRows } from './chart-hover.js?v=1';
 import { fetchJson, numberOrNull } from './research-data.js?v=1';
 
@@ -66,6 +67,7 @@ export class UsdeMarketCapPanel {
     this.fetchedAt = 0;
     this.loading = false;
     this.failed = false;
+    this.details=null;this.detailsFailed=false;
     host.addEventListener('click', event => {
       const range = event.target.closest('[data-usde-range]');
       if (range) { this.range = Number(range.dataset.usdeRange); this.render(); }
@@ -103,7 +105,11 @@ export class UsdeMarketCapPanel {
     this.render();
     try {
       // Same-origin snapshot avoids the provider's duplicate CORS headers.
-      const snapshot = await fetchJson(`./data/usde-market-cap.json?v=${Math.floor(Date.now() / 300000)}`, { signal });
+      const [historyResult,liveResult] = await Promise.allSettled([fetchJson(`./data/usde-market-cap.json?v=${Math.floor(Date.now() / 300000)}`, { signal }),loadUsdeDetails(signal)]);
+      if(version!==this.version||signal.aborted)return;
+      this.detailsFailed=liveResult.status!=='fulfilled';if(!this.detailsFailed)this.details=liveResult.value;
+      if(historyResult.status!=='fulfilled')throw historyResult.reason;
+      const snapshot=historyResult.value;
       const history = normalizeUsdeHistory(snapshot.history);
       if (!history.length) throw new Error('Empty USDe history');
       if (version !== this.version || signal.aborted) return;
@@ -133,6 +139,7 @@ export class UsdeMarketCapPanel {
     this.host.innerHTML = `
       <div class="usde-head"><div><div class="eyebrow">ETHENA · USDe</div><h3 id="usdeTitle">${t.title}</h3><p>${t.subtitle}</p></div>
         <button class="chip" type="button" data-usde-refresh ${this.loading ? 'disabled' : ''}>${t.refresh}</button></div>
+      ${renderUsdeDetails(this.details,this.language==='en',this.detailsFailed)}
       <div class="usde-total">${usd(summary.latest?.cap ?? null)}</div>
       <div class="usde-status ${this.failed || (summary.latest && summary.stale) ? 'warning' : ''}" role="status">${status}${summary.latest ? ` · ${t.basis} ${date(summary.latest.time)} 00:00 UTC` : ''}</div>
       <div class="usde-changes">${summary.changes.map(change => {

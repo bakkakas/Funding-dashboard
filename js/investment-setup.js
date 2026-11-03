@@ -25,10 +25,10 @@ import {
 import { numberOrNull, localize, safeUrl, decisionStorageKey, validateCatalog, validateAsset, selectAssetId, unlockSummary, resolveProfile, fetchJson, loadProtocolMetrics } from './research-data.js?v=1';
 import { renderCatalog, renderAssetContent } from './research-renderer.js?v=3';
 import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=2';
-import { UsdeMarketCapPanel } from './usde-market-cap.js?v=2';
+import { UsdeMarketCapPanel } from './usde-market-cap.js?v=3';
 import { EthenaMilestonesPanel } from './ethena-milestones.js?v=1';
 import { PythReservePanel } from './pyth-reserve.js?v=2';
-import { HypeBuybackPanel } from './hype-buybacks.js?v=3';
+import { HypeBuybackPanel } from './hype-buybacks.js?v=4';
 
 const $ = id => document.getElementById(id);
 const planPanel=new InvestmentPlan(authClient,$('investmentPlan'));
