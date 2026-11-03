@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=28">
+  <link rel="stylesheet" href="./investment-setup.css?v=29">
   <link rel="stylesheet" href="./investment-plan.css?v=6">
 <link rel="stylesheet" href="./board-editor.css?v=1"></head>
 <body>
@@ -129,6 +129,7 @@
               <div class="hero-market-stat"><span>FDV</span><strong id="assetFdv">—</strong><small data-page-i18n="liveData" data-board-text="investment-setup-text-27">CoinGecko 실시간</small></div>
             </section>
             <div class="market-status" id="marketStatus" data-page-i18n="marketFallback" data-board-text="investment-setup-text-28">2026.08.24 기준값 · 실시간 데이터 갱신 중</div>
+            <section id="stxBondsSummary" class="stx-bonds-summary-panel" aria-label="Bitcoin Bonds" hidden></section>
           </header>
 
           <section class="card usde-board" id="usdeMarketCap" aria-labelledby="usdeTitle" hidden data-board-block="crypto-sections-usdeMarketCap" data-board-label="박스 3" data-board-width="full"></section>
@@ -278,6 +279,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=50"></script>
+  <script type="module" src="./js/investment-setup.js?v=51"></script>
 <script type="module" src="./js/board-editor.js?v=1"></script></body>
 </html>

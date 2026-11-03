@@ -447,3 +447,16 @@
 .hero-market-facts{grid-template-columns:auto minmax(170px,1fr) minmax(230px,1.5fr);max-width:850px}
 @media(max-width:1100px){.hero-market-facts{grid-template-columns:auto minmax(0,1fr)}.next-unlock-fact{grid-column:1/-1}}
 @media(max-width:600px){.hero-market-facts{max-width:100%}}
+/* Bitcoin bond overview belongs to the STX market-cap hero. */
+.stx-bonds-summary-panel{margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);min-width:0}
+.stx-bonds-summary-panel[hidden]{display:none}
+.stx-bonds-head,.stx-bond-title{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.stx-bonds-head h3{margin:0;font-size:16px}.stx-bonds-summary-panel a{color:#a7e7c6;font-size:12px}
+.stx-bonds-summary{font-size:13px;color:#d5e9dc;line-height:1.6}
+.stx-bonds-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.stx-bond-card{min-width:0;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px}
+.stx-bond-title strong{font-size:14px}.stx-bond-title span{font-size:11px;color:#99c9ad}
+.stx-bond-card dl{margin:12px 0}.stx-bond-card dl>div{margin:10px 0}.stx-bond-card dt{font-size:11px;color:#9eafa5}.stx-bond-card dd{margin:3px 0 0;font-size:13px;line-height:1.5;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.stx-bond-card small{display:block;color:#91a399;font-size:11px}.stx-bonds-note{font-size:11px;color:#91a399;line-height:1.6;margin:12px 0 0}
+@media(max-width:1100px){.stx-bonds-grid{grid-template-columns:1fr}.stx-bond-card dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}}
+@media(max-width:380px){.stx-bond-card dl{grid-template-columns:1fr}}
