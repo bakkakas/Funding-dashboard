@@ -42,3 +42,13 @@ test('complete leap month and cross-year week are not marked partial',()=>{
   assert.equal(summarizeHypePeriods(rows,'month')[0].partial,false);
   assert.equal(summarizeHypePeriods([{...rows[0],date:'2027-01-01'}],'week')[0].key,'2026-12-28');
 });
+
+test('daily bars keep one day per bucket and all grouping units preserve totals',()=>{
+ const rows=Array.from({length:40},(_,i)=>({date:new Date(Date.UTC(2026,9,25+i)).toISOString().slice(0,10),usd:i+1,hype:2,partial:false}));
+ const daily=summarizeHypePeriods(rows,'day');assert.equal(daily.length,40);assert.equal(daily[0].days,1);assert.equal(daily[0].partial,false);
+ for(const unit of ['day','week','month']){
+  const buckets=summarizeHypePeriods(rows,unit);
+  assert.equal(buckets.reduce((s,r)=>s+r.usd,0),820);assert.equal(buckets.reduce((s,r)=>s+r.hype,0),80);
+ }
+ const partial=summarizeHypePeriods(rows.slice(0,1),'week')[0];assert.equal(partial.partial,true);assert.equal(partial.usd,1);
+});

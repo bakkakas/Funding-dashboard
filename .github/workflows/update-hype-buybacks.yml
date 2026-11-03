@@ -23,7 +23,7 @@ jobs:
           python-version: '3.11'
       - name: Collect Assistance Fund metrics
         run: python3 scripts/update_hype_buybacks.py
-      - name: Refresh reconciled historical archive
+      - name: Refresh Console chart archive and burn details
         continue-on-error: true
         run: python3 scripts/update_hype_history.py
       - name: Publish snapshot
