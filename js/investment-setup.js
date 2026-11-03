@@ -1,3 +1,4 @@
+import { StxBondsPanel } from './stx-bonds.js?v=1';
 import { renderTokenDetails } from './token-details.js?v=1';
 import { InvestmentPlan } from './investment-plan.js?v=8';
 import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=4';
@@ -45,6 +46,7 @@ function syncThesis(){
 const usdePanel = new UsdeMarketCapPanel($('usdeMarketCap'));
 const milestonePanel = new EthenaMilestonesPanel($('ethenaMilestones'));
 const pythReservePanel = new PythReservePanel($('pythReserveBoard'), fetchJson);
+const stxBondsPanel = new StxBondsPanel($('stxBondsSummary'), fetchJson);
 const hypeBuybackPanel = new HypeBuybackPanel($('hypeBuybackBoard'), fetchJson);
 let account = null;
 let mode = 'login';
@@ -900,6 +902,7 @@ async function selectAsset(id, updateUrl=true) {
     milestonePanel.setAsset(currentAsset.id,language,signal);
     pythReservePanel.setAsset(currentAsset.id,language,signal);
     hypeBuybackPanel.setAsset(currentAsset.id,language,signal);
+    stxBondsPanel.setAsset(currentAsset.id,language,signal);
     currentPrice=null;decisionMetrics=null;decisionMarket=null;decisionMetricsError=false;decisionUpdatedAt=null;metricsLoading=true;marketFailed=false;
     decisionScenario='live';$('decisionScenario').value='live';
     decisionPreferences=loadDecisionPreferences();
@@ -991,7 +994,7 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape') setListPickerOpen(false);
 });
 
-setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); usdePanel.setLanguage(next); milestonePanel.setLanguage(next); hypeBuybackPanel.setLanguage(next); if(currentAsset&&currentAsset.kind!=='stock'){renderMarketData();mountTradingViewChart();} } });
+setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); usdePanel.setLanguage(next); milestonePanel.setLanguage(next); hypeBuybackPanel.setLanguage(next); stxBondsPanel.setLanguage(next); if(currentAsset&&currentAsset.kind!=='stock'){renderMarketData();mountTradingViewChart();} } });
 
 async function submitAuth(event) {
   event.preventDefault();
