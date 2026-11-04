@@ -49,32 +49,20 @@ test('Ethena documents the complete USDe issuance and redemption path with offic
   assert.match(ena.mechanism.steps[3].body.ko,/소각/);
   assert.match(ena.mechanism.steps[5].body.ko,/자동/);
 });
-test('Stacks documents BTC protocol bonds without hiding pooled custody or emission tradeoffs',()=>{
+test('Stacks distinguishes principal, rewards, eligibility and issuance with official sources',()=>{
   const stx=validateAsset(json('stx'),'stx');
-  assert.equal(stx.updatedAt,'2026-10-13');
-  assert.equal(stx.mechanism.steps.length,6);
-  assert.match(stx.mechanism.intro.ko,/전통 채권이나 BTC 대출이 아니라/);
-  assert.match(stx.mechanism.steps[0].body.ko,/OP_CHECKLOCKTIMEVERIFY/);
-  assert.match(stx.mechanism.steps[1].body.ko,/약 5%/);
-  assert.match(stx.mechanism.steps[1].body.ko,/풀 운영자가.*대신.*STX/);
-  assert.match(stx.mechanism.steps[2].body.ko,/85%/);
-  assert.match(stx.mechanism.steps[2].body.ko,/보장 이자가 아니며/);
-  assert.match(stx.mechanism.steps[3].body.ko,/25,200 Bitcoin 블록/);
-  assert.match(stx.mechanism.steps[3].body.ko,/24회/);
-  assert.match(stx.mechanism.steps[4].body.ko,/다시 유통 가능/);
-  assert.match(stx.mechanism.steps[4].body.ko,/약 1주 전에/);
-  assert.match(stx.mechanism.steps[5].body.ko,/670만 STX/);
-  assert.ok(stx.mechanism.steps.every(step=>step.sources.length && step.sources.every(source=>safeUrl(source.url))));
-  const bondDriver=stx.drivers.find(driver=>driver.title.ko.includes('BTC Bond'));
-  assert.ok(bondDriver);
-  assert.match(bondDriver.body.ko,/1,000 STX 발행 부담/);
-  assert.match(bondDriver.body.ko,/신규·재가입 락업이 만기 해제분보다 커야/);
-  assert.equal(stx.news[0].date,'2026-10-12');
+  assert.equal(stx.updatedAt,'2026-11-04');
+  const text=JSON.stringify(stx.mechanism);
+  for(const concept of ['1,000 STX','약 5%','신규 STX 시장 매수','sBTC','50 BTC','공동 서명','보장하지 않는다'])assert.ok(text.includes(concept),concept);
+  assert.ok(stx.mechanism.steps.every(step=>step.title.ko&&step.title.en&&step.body.ko&&step.body.en&&step.sources.length&&step.sources.every(source=>safeUrl(source.url))));
+  const drivers=JSON.stringify(stx.drivers);
+  assert.match(drivers,/기존 보유/);assert.match(drivers,/만기 해제분/);assert.match(drivers,/발행 부담/);
+  assert.match(drivers,/STX-only 몫은 줄어든다/);
 });
 test('every value-driver card explains a demand or supply path and its limiting condition',()=>{
   for(const id of ['ethfi','ena','mon','stx','cake','bnb','ondo','inj','xpl','pyth','hype']) {
     const doc=validateAsset(json(id),id);
-    assert.equal(doc.updatedAt,'2026-10-13');
+    assert.equal(doc.updatedAt,id==='stx'?'2026-11-04':'2026-10-13');
     for(const driver of doc.drivers) {
       assert.ok(driver.body.ko.length>=95,`${id} Korean driver is too terse`);
       assert.ok(driver.body.en.length>=120,`${id} English driver is too terse`);

@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js"></script>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <link rel="stylesheet" href="./investment-setup.css?v=33">
+  <link rel="stylesheet" href="./investment-setup.css?v=34">
   <link rel="stylesheet" href="./investment-plan.css?v=6">
 <link rel="stylesheet" href="./board-editor.css?v=1"></head>
 <body>
@@ -130,6 +130,7 @@
             </section>
             <div class="market-status" id="marketStatus" data-page-i18n="marketFallback" data-board-text="investment-setup-text-28">2026.08.24 기준값 · 실시간 데이터 갱신 중</div>
             <section id="stxBondsSummary" class="stx-bonds-summary-panel" aria-label="Bitcoin Bonds" hidden></section>
+            <a id="stxMechanismJump" class="source-link stx-mechanism-jump" href="#assetMechanismSection" hidden></a>
           </header>
 
           <section class="card usde-board" id="usdeMarketCap" aria-labelledby="usdeTitle" hidden data-board-block="crypto-sections-usdeMarketCap" data-board-label="박스 3" data-board-width="full"></section>
@@ -217,6 +218,7 @@
             <div class="research-content">
               <h3 id="assetMechanismTitle"></h3>
               <p id="assetMechanismIntro"></p>
+              <div id="stxBondExplainer" hidden></div>
               <div class="driver-grid mechanism-grid" id="assetMechanismSteps"></div>
               <div class="source-row" id="assetMechanismSources"></div>
             </div>
@@ -280,6 +282,6 @@
       </form>
     </div>
   </div>
-  <script type="module" src="./js/investment-setup.js?v=56"></script>
+  <script type="module" src="./js/investment-setup.js?v=57"></script>
 <script type="module" src="./js/board-editor.js?v=1"></script></body>
 </html>

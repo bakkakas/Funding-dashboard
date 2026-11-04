@@ -5,7 +5,7 @@
   "symbol": "STX",
   "category": "bitcoin-layer",
   "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332",
-  "updatedAt": "2026-10-13",
+  "updatedAt": "2026-11-04",
   "market": {
     "coingeckoId": "blockstack",
     "maxSupply": null
@@ -22,12 +22,12 @@
   },
   "copy": {
     "heroSummary": {
-      "ko": "비트코인 기반 스마트 계약·금융 앱을 위한 네트워크.",
-      "en": "A network for Bitcoin-based smart contracts and financial apps."
+      "ko": "Bitcoin 기반 스마트 계약 네트워크. 채굴자는 BTC를 내고 STX를 얻으며, 그 BTC를 Bond·STX-only 참여자와 준비금에 배분한다.",
+      "en": "Bitcoin smart-contract network. Miners spend BTC to earn STX; that BTC funds bonds, STX-only stakers and the reserve."
     },
     "overviewBody": {
-      "ko": "sBTC·스마트 계약과 PoX-5 Bitcoin Staking을 통해 비트코인 활용처를 확대. BTC Protocol Bond가 만드는 STX 잠금 수요와 함께, 발행량·sBTC 서명자·풀 위험·실사용 증가를 확인할 대상.",
-      "en": "Expands Bitcoin utility through sBTC, smart contracts and PoX-5 Bitcoin Staking. Track STX lock demand from BTC protocol bonds alongside emissions, signer and pool risks, and actual adoption."
+      "ko": "Bond는 전통 채권이나 BTC 대출이 아니라 BTC와 STX를 잠가 채굴자 BTC 보상을 우선 받는 참여 방식이다. 아래에서 원금, 이자 재원, 잔여 보상, 만기를 따로 보면 이해하기 쉽다.",
+      "en": "A bond is not traditional debt or a BTC loan. It pairs locked BTC and STX for priority miner-funded BTC rewards. Separate principal, reward funding, excess allocation and maturity in the explanation below."
     },
     "tokenRoleValue": {
       "ko": "가스·네트워크 보안·Bitcoin Staking 용량 자산. STX-only Staking은 잔여 BTC 보상을 받고, BTC Protocol Bond는 BTC 가치의 약 5%에 해당하는 STX를 함께 잠금.",
@@ -48,155 +48,160 @@
   },
   "mechanism": {
     "title": {
-      "ko": "Bitcoin Staking · BTC Protocol Bond 구조",
-      "en": "Bitcoin Staking · BTC protocol bond structure"
+      "ko": "BTC Bond, 돈의 흐름으로 이해하기",
+      "en": "BTC bonds: follow the money"
     },
     "intro": {
-      "ko": "전통 채권이나 BTC 대출이 아니라, BTC와 STX를 함께 잠가 Stacks 채굴자가 지불하는 BTC를 우선 배분받는 PoX-5 합의 포지션. 직접 참여와 풀 참여의 보관·위험 구조가 다름.",
-      "en": "Not a traditional bond or a BTC loan: it is a PoX-5 consensus position that pairs locked BTC and STX for priority access to BTC paid by Stacks miners. Direct and pooled routes have different custody and risk models."
+      "ko": "전통 채권이나 BTC 대출이 아니라 합의 참여 포지션이다. 핵심은 “채굴자가 내는 BTC”와 “참여자가 잠그는 BTC 원금”이 서로 다른 돈이라는 것.",
+      "en": "Not a traditional bond or a BTC loan, but a consensus position. The key: BTC paid by miners is different money from BTC principal locked by participants."
     },
     "steps": [
       {
         "title": {
-          "ko": "BTC를 잠그는 두 경로",
-          "en": "Two routes for locking BTC"
+          "ko": "채굴자는 왜 자기 BTC를 내나?",
+          "en": "Why do miners spend their own BTC?"
         },
         "body": {
-          "ko": "직접 경로는 BTC를 Bitcoin L1의 OP_CHECKLOCKTIMEVERIFY 타임락에 두며 소유자 키 아래 유지. 풀·리퀴드 경로는 Stacks의 sBTC를 사용하고 stBTC 같은 유동화 토큰을 받을 수 있지만 sBTC 서명자·풀·스마트계약 위험을 추가로 부담.",
-          "en": "The direct route places BTC in an OP_CHECKLOCKTIMEVERIFY timelock on Bitcoin L1 under the owner's keys. Pooled and liquid routes use sBTC on Stacks and may issue liquid tokens such as stBTC, adding signer, pool and smart-contract risk."
+          "ko": "여기서 채굴자는 Bitcoin 채굴자가 아니라 Stacks 채굴자다. BTC 지출 등을 반영한 확률적 선정으로 블록 생성 권한을 경쟁하고, 선정돼 유효 블록을 만들면 신규 STX와 이용자 수수료를 받는다. 낙첨돼도 이미 지불한 BTC는 돌려받지 못한다. PoX-5 기본 발행은 Bitcoin 블록당 1,000 STX이며, 수초마다 생성되는 모든 Stacks 블록당 1,000개가 아니다.",
+          "en": "These are Stacks miners, not Bitcoin miners. A probabilistic selection influenced by BTC commitments awards block-production rights; selected miners producing valid blocks earn new STX plus user fees. Losing bids are not refunded. The PoX-5 base issuance is 1,000 STX per Bitcoin block—not per fast Stacks block."
+        },
+        "sources": [
+          {
+            "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
+            "label": {
+              "ko": "SIP-045 공식 규격",
+              "en": "SIP-045 specification"
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "STX는 누구 것이고 얼마나 필요하나?",
+          "en": "Whose STX is paired, and how much?"
+        },
+        "body": {
+          "ko": "직접 참여자는 가입 당시 BTC 가치의 약 5%에 해당하는 STX를 조달한다. 예를 들어 BTC $100,000·STX $0.50이라는 가정에서 1 BTC에는 10,000 STX($5,000)가 필요하다. 이는 설명용 비율 예시이며 현재 1 BTC 직접 가입이 가능하다는 뜻은 아니다. Stacking DAO는 기존 STX 유동화 상품의 기초자산을 짝지으므로 BTC 유입 전부가 신규 STX 시장 매수로 이어지지 않는다.",
+          "en": "Direct participants supply STX worth roughly 5% of BTC at entry. At hypothetical BTC $100,000 and STX $0.50, 1 BTC needs 10,000 STX ($5,000). This illustrates the ratio, not eligibility to enroll 1 BTC directly today. Stacking DAO pairs assets backing existing STX liquid products, so not every BTC inflow creates a fresh market purchase of STX."
         },
         "sources": [
           {
             "url": "https://www.stacks.co/blog/bitcoin-staking-genesis-bond-how-it-works",
             "label": {
-              "ko": "공식 구조 설명",
-              "en": "Official structure guide"
-            },
-            "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+              "ko": "Genesis Bond 설명",
+              "en": "Genesis bond guide"
+            }
           },
+          {
+            "url": "https://docs.stackingdao.com/stackingdao/the-stacking-dao-app/stbtc-liquid-btc-staking-with-btc-rewards/stbtc-basics",
+            "label": {
+              "ko": "stBTC 공식 문서",
+              "en": "Official stBTC docs"
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "3%면 6개월 뒤 BTC가 3% 늘어나나?",
+          "en": "Does 3% mean a 3% return after six months?"
+        },
+        "body": {
+          "ko": "아니다. 3%는 BTC 기준 목표 연율(APY)이며 6개월 수익률이 아니다. 해당 기수의 목표율은 기간 중 유지되지만 실제 지급은 채굴자 재원 등에 달려 있어 보장하지 않는다. STX 원금의 가격 변동·수수료까지 합친 전체 포지션 수익률도 이 3%와 다르다. 풀의 순 APY는 짝지을 STX 배분·수수료·유동성 준비금에 따라 달라진다.",
+          "en": "No. 3% is a target annual BTC yield (APY), not a six-month return. The cohort target is held constant but realised payouts depend on miner funding and are not guaranteed. Total position returns also include STX price changes and costs. Pool net APY varies with paired-STX allocation, fees and liquid reserves."
+        },
+        "sources": [
+          {
+            "url": "https://www.stacks.co/blog/bitcoin-staking-genesis-bond-how-it-works",
+            "label": {
+              "ko": "Genesis Bond 설명",
+              "en": "Genesis bond guide"
+            }
+          },
+          {
+            "url": "https://docs.stackingdao.com/stackingdao/the-stacking-dao-app/stbtc-liquid-btc-staking-with-btc-rewards/stbtc-basics",
+            "label": {
+              "ko": "stBTC 공식 문서",
+              "en": "Official stBTC docs"
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "BTC로 받는데 sBTC·stBTC는 왜 등장하나?",
+          "en": "Why sBTC and stBTC if rewards are in Bitcoin?"
+        },
+        "body": {
+          "ko": "채굴자가 실제 BTC를 보상 재원으로 낸다. PoX-5 분배 경로는 이를 sBTC로 자동 연결하고 선호·참여 경로에 따라 L1 BTC 또는 L2 sBTC로 지급한다. Stacking DAO stBTC는 별도 BTC 입금 대신 sBTC 보상이 교환가치에 누적된다. 직접 Bond의 L1 BTC 원금 자기보관과 보상 경로의 sBTC 서명자 위험은 구분해야 한다.",
+          "en": "Miners supply actual BTC. PoX-5 auto-bridges reward flows into sBTC and can settle payouts as L1 BTC or L2 sBTC by route/preference. Stacking DAO stBTC accrues sBTC in its redemption value rather than streaming separate BTC payments. Direct L1 principal custody and sBTC signer exposure in the reward path are different risks."
+        },
+        "sources": [
+          {
+            "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
+            "label": {
+              "ko": "SIP-045 공식 규격",
+              "en": "SIP-045 specification"
+            }
+          },
+          {
+            "url": "https://docs.stackingdao.com/stackingdao/the-stacking-dao-app/stbtc-liquid-btc-staking-with-btc-rewards/stbtc-basics",
+            "label": {
+              "ko": "stBTC 공식 문서",
+              "en": "Official stBTC docs"
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "중도 회수·재가입은 자동인가?",
+          "en": "Are early exits and renewals automatic?"
+        },
+        "body": {
+          "ko": "아니다. 직접 BTC 조기 회수에는 지정 서명자의 공동 서명이 필요하고 아직 지급되지 않은 수익을 포기한다. STX는 원래 만기까지 계속 잠긴다. L1 재등록은 새 Bitcoin 거래가 필요하고 STX는 만기 전 연장할 수 있다. 풀에서는 즉시 출금 가능 잔액·수수료 또는 대기 기간 뒤 청구 등 별도 조건이 적용된다.",
+          "en": "No. Early release of direct BTC needs cooperation from designated exit signers and forfeits undistributed yield; paired STX remains locked to its original term. L1 renewal requires a new Bitcoin transaction; STX may be extended before expiry. Pools have separate reserve-based instant withdrawals, fees or cooldown-and-claim procedures."
+        },
+        "sources": [
+          {
+            "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
+            "label": {
+              "ko": "SIP-045 공식 규격",
+              "en": "SIP-045 specification"
+            }
+          },
+          {
+            "url": "https://docs.stackingdao.com/stackingdao/the-stacking-dao-app/stbtc-liquid-btc-staking-with-btc-rewards/stbtc-basics",
+            "label": {
+              "ko": "stBTC 공식 문서",
+              "en": "Official stBTC docs"
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "ko": "개인도 참여할 수 있나? 어디서 보나?",
+          "en": "Can individuals participate, and where?"
+        },
+        "body": {
+          "ko": "개인도 가능하지만 경로가 다르다. Bond 3 공식 안내의 직접 경로는 최소 50 BTC·화이트리스트 승인 조건이며 승인 보장은 없다. 풀은 개인에게 열려 있지만 각 풀의 잔여 한도·조건을 따른다. PoX-6의 무허가 경매는 아직 미래 설계다. 실제 모집량·실행일·블록 기준 언락은 상단 Hiro 연동 현황에서 확인한다.",
+          "en": "Individuals can participate, but routes differ. The official Bond 3 direct route requires at least 50 BTC and whitelist approval, which is not guaranteed. Pools are open subject to capacity and their own terms. A permissionless PoX-6 auction remains a future design. Use the Hiro-linked summary above for reported amounts, activation and block-based unlocks."
+        },
+        "sources": [
           {
             "url": "https://www.stacks.co/blog/bitcoin-staking-bond-2-filled-by-bitcoin-defi",
             "label": {
-              "ko": "Bond 2 공식 발표",
-              "en": "Official Bond 2 update"
-            },
-            "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
-          }
-        ]
-      },
-      {
-        "title": {
-          "ko": "STX는 BTC 포지션의 용량 자산",
-          "en": "STX is the capacity asset"
-        },
-        "body": {
-          "ko": "각 BTC Bond에는 BTC 포지션 가치의 약 5%에 해당하는 STX가 짝지어짐. 따라서 비율·가격이 같다면 BTC Bond 용량이 커질수록 필요한 STX 잠금도 비례해 증가하지만, 실제 STX 수량은 Bond별 비율과 당시 BTC·STX 가격에 따라 달라짐. 직접 경로는 참가자가 두 자산을 잠그고, 풀 운영자가 사용자를 대신해 STX 용량을 공급할 수 있음.",
-          "en": "Each BTC bond pairs STX worth roughly 5% of its BTC position. At unchanged ratios and prices, more BTC capacity therefore requires proportionally more locked STX, while the token count varies with each bond's ratio and BTC/STX prices. Direct participants lock both assets; a pool can supply the STX capacity for its users."
-        },
-        "sources": [
-          {
-            "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
-            "label": {
-              "ko": "SIP-045 · 합의 사양",
-              "en": "SIP-045 · consensus spec"
-            },
-            "logo": "https://github.githubassets.com/favicons/favicon.svg"
+              "ko": "Bond 2·3 참여 안내",
+              "en": "Bond 2/3 participation"
+            }
           },
           {
-            "url": "https://www.stacks.co/blog/bitcoin-staking-genesis-bond-how-it-works",
+            "url": "https://www.stacks.co/bitcoinstaking",
             "label": {
-              "ko": "공식 구조 설명",
-              "en": "Official structure guide"
-            },
-            "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
-          }
-        ]
-      },
-      {
-        "title": {
-          "ko": "BTC 보상의 재원과 지급 순서",
-          "en": "BTC reward source and waterfall"
-        },
-        "body": {
-          "ko": "Stacks 채굴자는 STX 블록 보상과 수수료를 얻기 위해 BTC를 지불. 이 BTC는 약 1주 단위로 ① 활성 BTC Bond의 목표 수익률, ② 남은 금액의 85%를 STX-only Staker, ③ 15%를 준비금 순서로 배분. 목표 수익률은 보장 이자가 아니며 채굴자 경제와 준비금에 의존.",
-          "en": "Stacks miners spend BTC to compete for STX block rewards and fees. Roughly weekly, that BTC pays active bonds first at the target yield, then routes 85% of the excess to STX-only stakers and 15% to the reserve. The target yield is not guaranteed and depends on miner economics and the reserve."
-        },
-        "sources": [
-          {
-            "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
-            "label": {
-              "ko": "SIP-045 · 보상 워터폴",
-              "en": "SIP-045 · reward waterfall"
-            },
-            "logo": "https://github.githubassets.com/favicons/favicon.svg"
-          }
-        ]
-      },
-      {
-        "title": {
-          "ko": "왜 6개월인가",
-          "en": "Why six months"
-        },
-        "body": {
-          "ko": "Bond 기간은 25,200 Bitcoin 블록(약 6개월)이며 약 1주마다 총 24회 보상을 정산. SIP-045가 정한 최소 약정 기간으로, 6개 Bond 기수가 겹치고 약 한 달마다 새 기수가 열려 만기가 한꺼번에 몰리지 않게 설계됨. 공식 사양은 이 주기 외에 ‘왜 정확히 6개월인가’에 대한 추가 경제적 근거는 제시하지 않음.",
-          "en": "A bond lasts 25,200 Bitcoin blocks (about six months) and settles rewards 24 times at roughly weekly intervals. SIP-045 defines this minimum commitment period with six overlapping cohorts and a new cohort opening about monthly to avoid synchronized maturities. The specification gives no further economic proof for choosing exactly six months beyond this cadence."
-        },
-        "sources": [
-          {
-            "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
-            "label": {
-              "ko": "SIP-045 · Bond 기간",
-              "en": "SIP-045 · bond term"
-            },
-            "logo": "https://github.githubassets.com/favicons/favicon.svg"
-          },
-          {
-            "url": "https://www.stacks.co/blog/bitcoin-staking-genesis-bond-how-it-works",
-            "label": {
-              "ko": "공식 만기·위험 설명",
-              "en": "Official maturity and risk guide"
-            },
-            "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
-          }
-        ]
-      },
-      {
-        "title": {
-          "ko": "만기 해제·재가입·중도 종료",
-          "en": "Unlocks, renewals and early exit"
-        },
-        "body": {
-          "ko": "만기에는 STX가 자동 소각되지 않고 잠금이 풀려 다시 유통 가능해지며, 계속 참여하려면 만기 전 연장·다음 Bond 재가입이 필요. 네이티브 BTC 타임락은 재등록 거래를 만들 시간을 주기 위해 Bond 종료 약 1주 전에 먼저 끝남. BTC 조기 회수 시 미지급 수익은 포기하지만 짝지은 STX는 원래 6개월 만기까지 잠김.",
-          "en": "At maturity, STX is not burned: it unlocks and becomes liquid unless the position is extended or enrolled in the next bond. The native BTC timelock ends about one week before the bond so a new enrollment transaction can be created. An early BTC exit forfeits unpaid yield, while paired STX stays locked through the original six-month term."
-        },
-        "sources": [
-          {
-            "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
-            "label": {
-              "ko": "SIP-045 · 만기·재가입",
-              "en": "SIP-045 · maturity and renewal"
-            },
-            "logo": "https://github.githubassets.com/favicons/favicon.svg"
-          }
-        ]
-      },
-      {
-        "title": {
-          "ko": "현재 채택: Bond 2",
-          "en": "Current adoption: Bond 2"
-        },
-        "body": {
-          "ko": "2026년 10월 12일 공식 발표 기준 Bond 2의 약 500 BTC 용량이 모두 채워졌고 670만 STX 이상이 함께 잠김. BTC 목표 수익률은 3%. 채택과 STX 잠금의 실증이지만, 공식 발표 수치이며 향후 Bond 용량·비율·STX 가격에 따라 토큰 수요 효과는 달라짐.",
-          "en": "As of the official October 12, 2026 update, Bond 2 filled roughly 500 BTC of capacity with more than 6.7M STX bonded alongside it, targeting 3% BTC yield. This demonstrates adoption and STX lock demand, but future token impact varies with bond capacity, pairing ratios and STX price."
-        },
-        "sources": [
-          {
-            "url": "https://www.stacks.co/blog/bitcoin-staking-bond-2-filled-by-bitcoin-defi",
-            "label": {
-              "ko": "Bond 2 공식 발표",
-              "en": "Official Bond 2 update"
-            },
-            "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+              "ko": "공식 참여 경로·보상",
+              "en": "Official routes and rewards"
+            }
           }
         ]
       }
@@ -205,18 +210,37 @@
       {
         "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
         "label": {
-          "ko": "SIP-045 전체 사양",
-          "en": "Full SIP-045 spec"
-        },
-        "logo": "https://github.githubassets.com/favicons/favicon.svg"
+          "ko": "SIP-045 공식 규격",
+          "en": "SIP-045 specification"
+        }
+      },
+      {
+        "url": "https://www.stacks.co/blog/bitcoin-staking-genesis-bond-how-it-works",
+        "label": {
+          "ko": "Genesis Bond 설명",
+          "en": "Genesis bond guide"
+        }
+      },
+      {
+        "url": "https://www.stacks.co/bitcoinstaking",
+        "label": {
+          "ko": "공식 참여 경로·보상",
+          "en": "Official routes and rewards"
+        }
+      },
+      {
+        "url": "https://docs.stackingdao.com/stackingdao/the-stacking-dao-app/stbtc-liquid-btc-staking-with-btc-rewards/stbtc-basics",
+        "label": {
+          "ko": "stBTC 공식 문서",
+          "en": "Official stBTC docs"
+        }
       },
       {
         "url": "https://www.stacks.co/blog/bitcoin-staking-bond-2-filled-by-bitcoin-defi",
         "label": {
-          "ko": "Bond 2 공식 발표",
-          "en": "Official Bond 2 update"
-        },
-        "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+          "ko": "Bond 2·3 참여 안내",
+          "en": "Bond 2/3 participation"
+        }
       }
     ]
   },
@@ -261,8 +285,8 @@
         "en": "STX lock demand from BTC bonds"
       },
       "body": {
-      "ko": "BTC Bond는 BTC 포지션 가치의 약 5%를 STX로 짝지어 25,200 Bitcoin 블록(약 6개월) 잠금. Bond 용량 확대는 STX 매수·잠금 수요와 일시적 유통량 감소를 만들지만, 만기 STX는 다시 유동화되므로 신규·재가입 락업이 만기 해제분보다 커야 효과가 지속됨. Bond 2의 약 500 BTC·670만 STX 잠금은 실증 사례지만, 비율·가격 변화와 Bitcoin 블록당 1,000 STX 발행 부담을 함께 봐야 함.",
-      "en": "A BTC bond pairs roughly 5% of its BTC position value in STX for 25,200 Bitcoin blocks (about six months). More capacity can create STX purchase/lock demand and temporarily reduce liquid supply, but matured STX becomes liquid again, so new and renewed locks must exceed expiries for the effect to persist. Bond 2's roughly 500 BTC and 6.7M+ STX demonstrate the mechanism, while changing ratios, prices and 1,000 STX of issuance per Bitcoin block remain offsets."
+        "ko": "BTC Bond 용량이 커지면 짝지을 STX 수요가 생긴다. 다만 기존 보유·이미 잠긴 STX를 재배치할 수 있어 모두 신규 매수는 아니다. 일시적 공급 감소가 지속되려면 신규·재가입 락업이 만기 해제분보다 커야 한다. 여기에 Bitcoin 블록당 1,000 STX 발행 부담과 매도 압력도 함께 비교해야 한다.",
+        "en": "More BTC bond capacity needs paired STX, but existing holdings or already-staked STX can be reused, so not all capacity creates new buying. Sustained liquid-supply reduction requires new and renewed locks to exceed expiries. Compare this with 1,000 STX of issuance per Bitcoin block and selling pressure."
       },
       "sources": [
         {
@@ -289,8 +313,8 @@
         "en": "Bitcoin utility"
       },
       "body": {
-      "ko": "sBTC 사용이 늘어 Stacks 앱의 거래·대출·DEX 활동이 증가하면 STX 가스비와 스마트계약 실행 수요가 커질 수 있음. 가격 효과가 나려면 단순 sBTC 발행량이 아니라 실제 유료 거래 증가가 STX 발행·매도 압력을 넘어야 함.",
-      "en": "If sBTC adoption increases trading, lending and DEX activity on Stacks, demand for STX gas and contract execution can rise. Price impact requires real paid activity—not sBTC supply alone—to outweigh STX issuance and selling pressure."
+        "ko": "sBTC 사용이 늘어 Stacks 앱의 거래·대출·DEX 활동이 증가하면 STX 가스비와 스마트계약 실행 수요가 커질 수 있음. 가격 효과가 나려면 단순 sBTC 발행량이 아니라 실제 유료 거래 증가가 STX 발행·매도 압력을 넘어야 함.",
+        "en": "If sBTC adoption increases trading, lending and DEX activity on Stacks, demand for STX gas and contract execution can rise. Price impact requires real paid activity—not sBTC supply alone—to outweigh STX issuance and selling pressure."
       },
       "sources": [
         {
@@ -309,17 +333,42 @@
         "en": "Stacking participation"
       },
       "body": {
-      "ko": "STX-only Stacker는 채굴자가 지불한 BTC 중 Bond 우선 배분 뒤 남은 몫의 85%를 받으므로, 경쟁력 있는 BTC 수익률은 STX 매수·잠금 수요를 만들 수 있음. 다만 보상은 채굴자 지출과 참여자 수에 따라 변하고, sBTC 서명자 위험·STX 발행 증가가 수요 효과를 상쇄할 수 있음.",
-      "en": "STX-only stakers receive 85% of miner-paid BTC left after bond priority payments, so a competitive BTC yield can attract STX purchase and locking demand. Rewards vary with miner spend and participation, while signer risk and higher STX issuance can offset that demand."
+        "ko": "STX-only 참여자는 Bond 지급 후 잔여 BTC의 85%를 공유한다. 매력적인 보상은 STX 보유·잠금 수요를 만들 수 있지만, 채굴자 지출이 같고 Bond 지급액만 커지면 STX-only 몫은 줄어든다. 모든 STX 보유자에게 배당이 자동 지급되는 구조도 아니며, 표시 APY보다 실제 순보상과 STX 가격 위험을 함께 봐야 한다.",
+        "en": "STX-only stakers share 85% of BTC remaining after bond payments. Attractive rewards can create holding/locking demand, but a larger bond obligation with unchanged miner spending reduces that residual. This is not an automatic dividend to all STX holders; compare realised net rewards and STX price risk, not advertised APY alone."
       },
       "sources": [
         {
-          "url": "https://www.stacks.co/blog/what-is-stx",
+          "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
           "label": {
-            "ko": "공식 문서",
-            "en": "Official docs"
-          },
-          "logo": "https://coin-images.coingecko.com/coins/images/2069/large/Stacks_Logo_png.png?1709979332"
+            "ko": "SIP-045 공식 규격",
+            "en": "SIP-045 specification"
+          }
+        },
+        {
+          "url": "https://www.stacks.co/bitcoinstaking",
+          "label": {
+            "ko": "공식 참여 경로·보상",
+            "en": "Official routes and rewards"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "ko": "지속 가능성: 신규 발행에서 실제 수수료로",
+        "en": "Sustainability: issuance versus actual fees"
+      },
+      "body": {
+        "ko": "현재 채굴자 경제의 주된 기반은 신규 STX 블록 보상이다. BTC 유입이 실제 앱 거래·대출·가스비 증가로 이어져야 발행 의존도를 낮출 수 있다. BTC를 잠갔다는 사실만으로 수수료가 생기거나 STX가 소각되지는 않는다. STX 가격 하락은 채굴자가 지불할 BTC와 향후 Bond 용량·보상 여력도 줄일 수 있다.",
+        "en": "New STX block rewards currently dominate miner economics. Incoming BTC must translate into actual app transactions, lending and fees to reduce issuance dependence. Locking BTC alone generates neither fees nor an STX burn. A lower STX price can reduce miners’ BTC bids and future bond capacity/reward coverage."
+      },
+      "sources": [
+        {
+          "url": "https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md",
+          "label": {
+            "ko": "SIP-045 공식 규격",
+            "en": "SIP-045 specification"
+          }
         }
       ]
     }
