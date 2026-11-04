@@ -1,3 +1,4 @@
+import { UniBurnPanel } from './uni-burns.js?v=1';
 import { StxBondsPanel } from './stx-bonds.js?v=2';
 import { renderTokenDetails } from './token-details.js?v=1';
 import { InvestmentPlan } from './investment-plan.js?v=8';
@@ -47,6 +48,7 @@ const usdePanel = new UsdeMarketCapPanel($('usdeMarketCap'));
 const milestonePanel = new EthenaMilestonesPanel($('ethenaMilestones'));
 const pythReservePanel = new PythReservePanel($('pythReserveBoard'), fetchJson);
 const stxBondsPanel = new StxBondsPanel($('stxBondsSummary'), fetchJson);
+const uniBurnPanel = new UniBurnPanel($('uniBurnBoard'), fetchJson);
 const hypeBuybackPanel = new HypeBuybackPanel($('hypeBuybackBoard'), fetchJson);
 let account = null;
 let mode = 'login';
@@ -848,6 +850,7 @@ async function refreshAssetMarket(asset, version, signal) {
     if(asset.id==='stx')stxBondsPanel.setStxQuote(currentPrice,updatedAt.getTime());
     pythReservePanel.setMarketCap(decisionMarket.marketCap);
     hypeBuybackPanel.setMarketCap(decisionMarket.marketCap);
+    uniBurnPanel.setMarketCap(decisionMarket.marketCap);
     renderMarketData();
     renderUnlockSchedule(currentPrice);
     renderDecisionPanel();
@@ -903,6 +906,7 @@ async function selectAsset(id, updateUrl=true) {
     milestonePanel.setAsset(currentAsset.id,language,signal);
     pythReservePanel.setAsset(currentAsset.id,language,signal);
     hypeBuybackPanel.setAsset(currentAsset.id,language,signal);
+    uniBurnPanel.setAsset(currentAsset.id,language,signal);
     stxBondsPanel.setAsset(currentAsset.id,language,signal);
     currentPrice=null;decisionMetrics=null;decisionMarket=null;decisionMetricsError=false;decisionUpdatedAt=null;metricsLoading=true;marketFailed=false;
     decisionScenario='live';$('decisionScenario').value='live';
@@ -995,7 +999,7 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape') setListPickerOpen(false);
 });
 
-setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); usdePanel.setLanguage(next); milestonePanel.setLanguage(next); hypeBuybackPanel.setLanguage(next); stxBondsPanel.setLanguage(next); if(currentAsset&&currentAsset.kind!=='stock'){renderMarketData();mountTradingViewChart();} } });
+setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); usdePanel.setLanguage(next); milestonePanel.setLanguage(next); hypeBuybackPanel.setLanguage(next); uniBurnPanel.setLanguage(next); stxBondsPanel.setLanguage(next); if(currentAsset&&currentAsset.kind!=='stock'){renderMarketData();mountTradingViewChart();} } });
 
 async function submitAuth(event) {
   event.preventDefault();

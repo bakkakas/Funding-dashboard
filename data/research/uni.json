@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "id": "uni",
+  "name": "Uniswap",
+  "symbol": "UNI",
+  "category": "dex",
+  "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png",
+  "updatedAt": "2026-11-04",
+  "market": {
+    "coingeckoId": "uniswap",
+    "maxSupply": null
+  },
+  "metrics": {
+    "defillamaSlug": null
+  },
+  "chart": {
+    "symbol": "BINANCE:UNIUSDT",
+    "url": "https://www.tradingview.com/symbols/UNIUSDT/?exchange=BINANCE"
+  },
+  "evaluation": {
+    "profile": null
+  },
+  "copy": {
+    "heroSummary": {
+      "ko": "멀티체인 AMM·v4 Hooks 기반 DEX. 활성화된 프로토콜 수수료를 가져가려는 참여자가 UNI를 소각하는 구조로 토큰 가치가 거래 활동에 연결된다.",
+      "en": "A multichain AMM and v4 Hooks DEX. Claiming enabled protocol fees requires UNI burns, linking token value to trading activity."
+    },
+    "overviewBody": {
+      "ko": "총 거래량·LP 수수료와 UNI에 귀속되는 프로토콜 수수료는 다르다. TokenJar에 모인 자산을 Firepit 참여자가 UNI를 소각하고 가져간다. 아래 보드는 체인별 기록 소각을 추적하며, 달러 값은 당시 기준가 환산액이지 시장 매수 체결액이 아니다.",
+      "en": "Gross trading volume and LP fees differ from protocol fees captured for UNI. Firepit callers burn UNI to claim TokenJar assets. The board tracks recorded burns by originating chain; USD values are daily-price valuations, not execution spend."
+    },
+    "tokenRoleValue": {
+      "ko": "거버넌스·프로토콜 수수료 소각 자산. Uniswap Labs 주식이나 확정 배당권이 아니며, 일반 UNI 보유자에게 수수료가 자동 현금 배당되는 구조가 아니다.",
+      "en": "Governance and fee-burn asset, not Uniswap Labs equity or guaranteed dividends. Holding UNI does not automatically distribute trading fees as cash."
+    },
+    "supplyValue": {
+      "ko": "초기 발행량 10억 UNI는 영구 최대공급이 아니다. 초기 문서의 4년 이후 연 2% 인플레이션 정책과 민팅 권한을 실제 발행 실행과 구분해야 한다. 2025-12-28 재무금고 1억 UNI 일회성 소각은 반복 수수료 소각에서 제외한다.",
+      "en": "The 1B genesis supply is not a permanent cap. Distinguish the original post-four-year 2% inflation policy and mint authority from actual mint execution. Exclude the 100M treasury burn on 2025-12-28 from recurring fee burns."
+    },
+    "insiderUnlock": {
+      "ko": "초기 팀·투자자 배정은 4년 베스팅 설계였지만 재무금고·성장 예산 지출과 추가 발행 권한은 별도다. 소각량만으로 순유통량 감소를 단정할 수 없다.",
+      "en": "Initial team/investor allocations used four-year vesting, but treasury spending, growth budgets and mint authority are separate. Gross burns alone do not establish a decline in net circulating supply."
+    },
+    "unlockNote": {
+      "ko": "UNIfication의 연간 2,000만 UNI 성장 예산은 기존 재무금고의 지출 경로이며, 신규 발행과 같지 않다. 향후 실제 지급일·수량을 검증한 완전 일정은 미등록.",
+      "en": "UNIfication’s 20M UNI annual growth budget is a treasury expenditure path, not equivalent to new issuance. A complete verified future disbursement schedule is not registered."
+    }
+  },
+  "links": [
+    {
+      "url": "https://uniswap.org/",
+      "label": {
+        "ko": "공식 사이트",
+        "en": "Official website"
+      },
+      "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+    },
+    {
+      "url": "https://developers.uniswap.org/docs/protocols/protocol-fee/overview",
+      "label": {
+        "ko": "공식 수수료 구조",
+        "en": "Official fee mechanics"
+      },
+      "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+    },
+    {
+      "url": "https://coinmarketcap.com/currencies/uniswap/",
+      "label": {
+        "ko": "CoinMarketCap",
+        "en": "CoinMarketCap"
+      },
+      "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+    },
+    {
+      "url": "https://www.defiburn.com/burn",
+      "label": {
+        "ko": "소각 추적 · 제3자",
+        "en": "Burn tracker · third party"
+      },
+      "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+    }
+  ],
+  "overviewSource": {
+    "url": "https://developers.uniswap.org/docs/protocols/protocol-fee/overview",
+    "label": {
+      "ko": "Uniswap 공식 문서",
+      "en": "Uniswap official docs"
+    },
+    "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+  },
+  "drivers": [
+    {
+      "title": {
+        "ko": "수수료 → UNI 소각",
+        "en": "Fees → UNI burns"
+      },
+      "body": {
+        "ko": "활성화된 풀의 프로토콜 수수료가 TokenJar로 모이고, 참여자가 UNI를 소각해 자산을 수령한다. 보유 UNI를 쓸 수도 있으므로 모든 소각을 동시 시장 매수로 해석하지 않는다.",
+        "en": "Enabled pool protocol fees accumulate in TokenJar; callers burn UNI to claim assets. They may use existing UNI, so a burn is not necessarily a contemporaneous market purchase."
+      },
+      "sources": [
+        {
+          "url": "https://developers.uniswap.org/docs/protocols/protocol-fee/overview",
+          "label": {
+            "ko": "공식 근거",
+            "en": "Official source"
+          },
+          "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+        }
+      ]
+    },
+    {
+      "title": {
+        "ko": "v4 외부 유동성 확장",
+        "en": "v4 external-liquidity expansion"
+      },
+      "body": {
+        "ko": "2026-10-22 Aggregator Hooks가 Ethereum·Base·Robinhood Chain에서 출시됐다. 외부 DEX 유동성 경유 거래도 프로토콜 수수료와 UNI 소각에 기여하지만, 예상 소각 가능량과 실제 온체인 소각은 별도다.",
+        "en": "Aggregator Hooks launched on Ethereum, Base and Robinhood Chain on 2026-10-22. External-liquidity swaps contribute protocol fees, but estimated burnable UNI is not an executed burn."
+      },
+      "sources": [
+        {
+          "url": "https://blog.uniswap.org/aggregator-hooks-are-now-live",
+          "label": {
+            "ko": "공식 근거",
+            "en": "Official source"
+          },
+          "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+        }
+      ]
+    },
+    {
+      "title": {
+        "ko": "지속 소각과 공급 지출 비교",
+        "en": "Recurring burns versus supply spending"
+      },
+      "body": {
+        "ko": "1억 UNI 일회성 소각을 제외한 반복 소각 속도를 봐야 한다. 재무금고 성장 예산·발행 실행·LP 경쟁 및 수수료 스위치 변경이 가치 포착을 상쇄할 수 있다.",
+        "en": "Evaluate recurring burns excluding the one-time 100M event. Treasury growth spending, executed minting, LP competition and fee-switch changes can offset value capture."
+      },
+      "sources": [
+        {
+          "url": "https://blog.uniswap.org/unification",
+          "label": {
+            "ko": "공식 근거",
+            "en": "Official source"
+          },
+          "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+        }
+      ]
+    }
+  ],
+  "news": [
+    {
+      "date": "2026-10-22",
+      "title": {
+        "ko": "Aggregator Hooks 출시",
+        "en": "Aggregator Hooks launched"
+      },
+      "body": {
+        "ko": "Ethereum·Base·Robinhood에서 외부 유동성을 v4 풀처럼 연결하고 프로토콜 수수료를 UNI 소각 경로에 연결.",
+        "en": "External liquidity is exposed as v4 pools on Ethereum, Base and Robinhood, with protocol fees contributing to UNI burns."
+      },
+      "source": {
+        "url": "https://blog.uniswap.org/aggregator-hooks-are-now-live",
+        "label": {
+          "ko": "Uniswap 공식 발표",
+          "en": "Uniswap announcement"
+        },
+        "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+      }
+    }
+  ],
+  "unlock": {
+    "status": "unknown",
+    "events": [],
+    "completeSchedule": false,
+    "sources": [
+      {
+        "url": "https://blog.uniswap.org/uni",
+        "label": {
+          "ko": "초기 배분·발행 설계",
+          "en": "Original distribution and issuance"
+        },
+        "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+      },
+      {
+        "url": "https://blog.uniswap.org/unification",
+        "label": {
+          "ko": "성장 예산 제안",
+          "en": "Growth-budget proposal"
+        },
+        "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+      }
+    ]
+  },
+  "ruleSources": {
+    "growth": {
+      "url": "https://blog.uniswap.org/aggregator-hooks-are-now-live",
+      "label": {
+        "ko": "공식 문서",
+        "en": "Official docs"
+      },
+      "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+    },
+    "valueCapture": {
+      "url": "https://developers.uniswap.org/docs/protocols/protocol-fee/overview",
+      "label": {
+        "ko": "공식 문서",
+        "en": "Official docs"
+      },
+      "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+    },
+    "unlockPressure": {
+      "url": "https://blog.uniswap.org/unification",
+      "label": {
+        "ko": "공식 문서",
+        "en": "Official docs"
+      },
+      "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+    },
+    "criticalRisk": {
+      "url": "https://developers.uniswap.org/docs/protocols/protocol-fee/overview",
+      "label": {
+        "ko": "공식 문서",
+        "en": "Official docs"
+      },
+      "logo": "https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png"
+    }
+  }
+}
