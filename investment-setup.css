@@ -487,3 +487,42 @@
 .stx-bond-balances strong{color:#b5efd0}
 
 .uni-burn-details{margin-top:24px;border-top:1px solid #ffffff16;padding-top:16px}.uni-burn-details h4{margin:14px 0 10px}.uni-composition{white-space:pre-line;font-size:13px;line-height:1.9;color:#d4e3dc}.uni-chain-list{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12px;color:#b6ccc0}.uni-burn-board .hype-daily-bar i{min-height:2px}.uni-burn-board .hype-buyback-note{overflow-wrap:anywhere}
+
+/* STX education: separate principal, reward flows and dated product terms. */
+#stxBondExplainer[hidden],.stx-mechanism-jump[hidden]{display:none}
+#assetMechanismSection,#stxBondsSummary{scroll-margin-top:24px}
+.stx-mechanism-jump{margin-top:14px}
+.stx-explain-block{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.stx-explain-block h4{margin:0 0 14px;color:#effbf4;font-size:15px;line-height:1.5}
+.stx-explain-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stx-explain-card{min-width:0;padding:14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025)}
+.stx-explain-card strong{color:var(--accent);font-size:13px}
+.stx-explain-card p,.stx-explain-faq p,.stx-lock-timeline p{margin:8px 0 0;font-size:12px;line-height:1.8;color:#b8c7bf;overflow-wrap:anywhere}
+.stx-explain-note{color:var(--muted);font-size:11px;line-height:1.8;margin:12px 0}
+.stx-money-flow{display:flex;align-items:center;gap:10px;padding:12px 0;min-width:0}
+.stx-money-flow>strong{font-size:12px;min-width:34px;color:#ffcf8b}
+.stx-money-flow.stx-flow>strong{color:var(--accent)}
+.stx-flow-node{flex:1;min-width:0;padding:12px;border:1px solid rgba(255,207,139,.25);background:rgba(255,207,139,.035);border-radius:8px;font-size:12px;text-align:center;line-height:1.6;overflow-wrap:anywhere}
+.stx-flow .stx-flow-node{border-color:rgba(35,231,165,.25);background:rgba(35,231,165,.035)}
+.stx-flow-arrow{color:var(--muted)}
+.stx-principal-note{white-space:pre-line;line-height:1.8;font-size:12px;padding:14px;border-left:3px solid #86a8ff;background:rgba(134,168,255,.06);border-radius:0 8px 8px 0}
+.stx-scenario-buttons{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.stx-scenario-buttons button[aria-pressed=true]{color:var(--accent);border-color:var(--accent)}
+.stx-scenario-control{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;font-size:12px}
+.stx-scenario-control output{color:#ffcf8b;font-weight:900;font-size:17px;font-variant-numeric:tabular-nums}
+.stx-scenario-control input{grid-column:1/-1;width:100%;accent-color:var(--accent);min-height:32px;margin:0}
+.stx-waterfall-bar{height:16px;display:flex;overflow:hidden;border-radius:6px;background:rgba(255,255,255,.05);margin:14px 0}
+.stx-waterfall-bar .bond{background:#ffcf8b}.stx-waterfall-bar .only{background:#23e7a5}.stx-waterfall-bar .reserve{background:#86a8ff}
+.stx-waterfall-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stx-waterfall-result{display:grid;gap:8px;align-content:start;padding:12px;border:1px solid var(--line);border-radius:8px;min-width:0}
+.stx-waterfall-result small{font-size:11px;line-height:1.5;color:var(--muted)}
+.stx-waterfall-result strong{font-size:18px;font-variant-numeric:tabular-nums}
+.stx-waterfall-result.bond strong{color:#ffcf8b}.stx-waterfall-result.only strong{color:#23e7a5}.stx-waterfall-result.reserve strong{color:#86a8ff}
+.stx-lock-timeline{list-style:none;margin:0 0 14px;padding:0 0 0 16px;border-left:2px solid rgba(35,231,165,.3)}
+.stx-lock-timeline li{position:relative;padding:0 0 22px 9px}.stx-lock-timeline li:last-child{padding-bottom:0}
+.stx-lock-timeline li:before{content:'';position:absolute;left:-22px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.stx-lock-timeline strong{font-size:13px;line-height:1.5}
+.stx-explain-faq{align-self:start;border:1px solid var(--line);border-radius:8px;padding:14px;min-width:0}
+.stx-explain-faq summary{font-size:13px;font-weight:800;cursor:pointer;line-height:1.65;color:#e9f5ee}
+.stx-explain-faq .source-badge-row{margin-top:12px}
+@media(max-width:760px){.stx-explain-grid{grid-template-columns:1fr}.stx-money-flow{flex-direction:column;align-items:stretch}.stx-flow-arrow{text-align:center;transform:rotate(90deg)}.stx-money-flow>strong{text-align:center}.stx-waterfall-results{grid-template-columns:1fr}.stx-waterfall-result{grid-template-columns:minmax(0,1fr) auto;align-items:center}.stx-scenario-control{grid-template-columns:1fr}.stx-scenario-control output{justify-self:start}}

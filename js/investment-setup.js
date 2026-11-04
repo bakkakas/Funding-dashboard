@@ -24,7 +24,7 @@ import {
   seriesChange,
 } from './investment-score.js?v=2';
 import { numberOrNull, localize, safeUrl, decisionStorageKey, validateCatalog, validateAsset, selectAssetId, unlockSummary, resolveProfile, fetchJson, loadProtocolMetrics } from './research-data.js?v=1';
-import { renderCatalog, renderAssetContent } from './research-renderer.js?v=3';
+import { renderCatalog, renderAssetContent } from './research-renderer.js?v=4';
 import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=2';
 import { UsdeMarketCapPanel } from './usde-market-cap.js?v=3';
 import { EthenaMilestonesPanel } from './ethena-milestones.js?v=1';

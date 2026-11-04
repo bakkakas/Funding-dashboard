@@ -1,3 +1,4 @@
+import { renderStxExplainer } from './stx-explainer.js?v=1';
 import { localize, safeUrl } from './research-data.js?v=1';
 const $ = id => document.getElementById(id);
 const node = (tag, text = '', className = '') => {
@@ -52,6 +53,10 @@ export function renderAssetContent(asset, language, profile) {
   $('assetUpdatedAt').textContent = asset.updatedAt?.replaceAll('-', '.') || missing;
   $('assetLinks').replaceChildren(...asset.links.map(source => link(source, language)));
   $('overviewSources').replaceChildren(...(asset.overviewSource ? [link(asset.overviewSource, language)] : []));
+  renderStxExplainer($('stxBondExplainer'), asset.id, language);
+  $('stxMechanismJump').hidden=asset.id!=='stx';
+  $('stxMechanismJump').onclick=event=>{event.preventDefault();$('assetMechanismSection').scrollIntoView({behavior:'instant',block:'start'});};
+  $('stxMechanismJump').textContent=language==='en'?'Understand BTC bonds · money flow & FAQ ↓':'BTC Bond 쉽게 보기 · 자금 흐름·FAQ ↓';
   const mechanism = asset.mechanism;
   const mechanismSection = $('assetMechanismSection');
   mechanismSection.hidden = !mechanism;
@@ -59,10 +64,12 @@ export function renderAssetContent(asset, language, profile) {
     $('assetMechanismTitle').textContent = localize(mechanism.title, language);
     $('assetMechanismIntro').textContent = localize(mechanism.intro, language);
     $('assetMechanismSteps').replaceChildren(...(mechanism.steps ?? []).map((step, index) => {
-      const card = node('div', '', 'driver-card');
+      const faq=asset.id==='stx';
+      const card = node(faq?'details':'div', '', faq?'stx-explain-faq':'driver-card');
       const sources = node('div', '', 'source-badge-row');
       sources.append(...(step.sources ?? []).map(source => link(source, language, 'source-badge')));
-      card.append(node('b', String(index + 1).padStart(2,'0')),node('strong',localize(step.title,language)),node('p',localize(step.body,language)),sources);
+      if(faq) card.append(node('summary',localize(step.title,language)),node('p',localize(step.body,language)),sources);
+      else card.append(node('b', String(index + 1).padStart(2,'0')),node('strong',localize(step.title,language)),node('p',localize(step.body,language)),sources);
       return card;
     }));
     $('assetMechanismSources').replaceChildren(...(mechanism.sources ?? []).map(source => link(source, language)));
