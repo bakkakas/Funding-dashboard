@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-03T02:56:01.952491+00:00",
+  "updatedAt": "2026-11-04T01:24:22.167133+00:00",
   "timezone": "Asia/Seoul",
   "windowDays": 30,
   "sources": {
     "fed": {
-      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
+      "checkedAt": "2026-11-04T01:24:22.167133+00:00",
       "status": "ok",
       "events": [
         {
@@ -132,7 +132,7 @@
       ]
     },
     "bls": {
-      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
+      "checkedAt": "2026-11-04T01:24:22.167133+00:00",
       "status": "fallback",
       "primaryError": "HTTPError",
       "provider": "TradingView economic calendar",
@@ -204,17 +204,6 @@
           "dateNote": "Consumer Price Index"
         },
         {
-          "id": "cpi:2026-12-10",
-          "series": "cpi",
-          "name": "미국 CPI",
-          "date": "2026-12-10",
-          "sourceDate": "2026-12-10",
-          "startsAt": "2026-12-10T08:30:00-05:00",
-          "status": "confirmed",
-          "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
-          "dateNote": "Consumer Price Index"
-        },
-        {
           "id": "jobs:2026-11-06",
           "series": "jobs",
           "name": "미국 고용보고서",
@@ -239,11 +228,24 @@
           "dateNote": "TradingView 경제 캘린더 재공표 일정 / 한국 날짜",
           "originalSourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
           "sourceProvider": "TradingView economic calendar"
+        },
+        {
+          "id": "jobs:2026-12-04",
+          "series": "jobs",
+          "name": "미국 고용보고서",
+          "date": "2026-12-04",
+          "sourceDate": "2026-12-04",
+          "startsAt": "2026-12-04T13:30:00+00:00",
+          "status": "reported",
+          "sourceUrl": "https://www.tradingview.com/economic-calendar/",
+          "dateNote": "TradingView 경제 캘린더 재공표 일정 / 한국 날짜",
+          "originalSourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
+          "sourceProvider": "TradingView economic calendar"
         }
       ]
     },
     "bea": {
-      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
+      "checkedAt": "2026-11-04T01:24:22.167133+00:00",
       "status": "ok",
       "events": [
         {
@@ -436,7 +438,7 @@
       ]
     },
     "ecb": {
-      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
+      "checkedAt": "2026-11-04T01:24:22.167133+00:00",
       "status": "ok",
       "events": [
         {
@@ -629,7 +631,7 @@
       ]
     },
     "boj": {
-      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
+      "checkedAt": "2026-11-04T01:24:22.167133+00:00",
       "status": "ok",
       "events": [
         {
@@ -756,8 +758,10 @@
       ]
     },
     "bok": {
-      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
-      "status": "ok",
+      "checkedAt": "2026-11-04T01:24:22.167133+00:00",
+      "status": "fallback",
+      "primaryError": "TimeoutError",
+      "provider": "TradingView economic calendar",
       "events": [
         {
           "id": "bok:2026-08-27",
@@ -787,15 +791,17 @@
           "name": "한국은행 금통위",
           "date": "2026-11-26",
           "sourceDate": "2026-11-26",
-          "startsAt": null,
-          "status": "confirmed",
-          "sourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
-          "dateNote": "기준금리 결정 회의 / 한국 날짜"
+          "startsAt": "2026-11-26T01:00:00+00:00",
+          "status": "reported",
+          "sourceUrl": "https://www.tradingview.com/economic-calendar/",
+          "dateNote": "TradingView 경제 캘린더 재공표 일정 / 한국 날짜",
+          "originalSourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
+          "sourceProvider": "TradingView economic calendar"
         }
       ]
     },
     "samsung": {
-      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
+      "checkedAt": "2026-11-04T01:24:22.167133+00:00",
       "status": "ok",
       "events": [
         {
@@ -812,7 +818,7 @@
       ]
     },
     "hynix": {
-      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
+      "checkedAt": "2026-11-04T01:24:22.167133+00:00",
       "status": "ok",
       "events": [
         {
@@ -829,21 +835,9 @@
       ]
     },
     "nasdaq": {
-      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
+      "checkedAt": "2026-11-04T01:24:22.167133+00:00",
       "status": "ok",
       "events": [
-        {
-          "id": "AAPL:2026-11-02",
-          "series": "AAPL",
-          "name": "애플 실적",
-          "date": "2026-11-03",
-          "sourceDate": "2026-11-02",
-          "startsAt": null,
-          "status": "estimated",
-          "sourceUrl": "https://api.nasdaq.com/api/calendar/earnings?date=2026-11-02",
-          "dateNote": "미국 장 마감 후 → 한국 다음 날 (정확한 시각 미공개)",
-          "dateBasis": "Asia/Seoul"
-        },
         {
           "id": "NVDA:2026-11-17",
           "series": "NVDA",
@@ -859,7 +853,7 @@
       ]
     },
     "elections": {
-      "checkedAt": "2026-11-03T02:56:01.952491+00:00",
+      "checkedAt": "2026-11-04T01:24:22.167133+00:00",
       "status": "ok",
       "events": [
         {
@@ -1122,20 +1116,6 @@
       "stale": false
     },
     {
-      "id": "AAPL:2026-11-02",
-      "series": "AAPL",
-      "name": "애플 실적",
-      "date": "2026-11-03",
-      "sourceDate": "2026-11-02",
-      "startsAt": null,
-      "status": "estimated",
-      "sourceUrl": "https://api.nasdaq.com/api/calendar/earnings?date=2026-11-02",
-      "dateNote": "미국 장 마감 후 → 한국 다음 날 (정확한 시각 미공개)",
-      "dateBasis": "Asia/Seoul",
-      "sourceKey": "nasdaq",
-      "stale": false
-    },
-    {
       "id": "us-election:2026-11-03",
       "series": "us-election",
       "name": "미국 중간선거",
@@ -1211,23 +1191,27 @@
       "name": "한국은행 금통위",
       "date": "2026-11-26",
       "sourceDate": "2026-11-26",
-      "startsAt": null,
-      "status": "confirmed",
-      "sourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
-      "dateNote": "기준금리 결정 회의 / 한국 날짜",
+      "startsAt": "2026-11-26T01:00:00+00:00",
+      "status": "reported",
+      "sourceUrl": "https://www.tradingview.com/economic-calendar/",
+      "dateNote": "TradingView 경제 캘린더 재공표 일정 / 한국 날짜",
+      "originalSourceUrl": "https://www.bok.or.kr/eng/main/contents.do?menuNo=400020",
+      "sourceProvider": "TradingView economic calendar",
       "sourceKey": "bok",
       "stale": false
     },
     {
-      "id": "cpi:2026-12-10",
-      "series": "cpi",
-      "name": "미국 CPI",
-      "date": "2026-12-10",
-      "sourceDate": "2026-12-10",
-      "startsAt": "2026-12-10T08:30:00-05:00",
-      "status": "confirmed",
-      "sourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
-      "dateNote": "Consumer Price Index",
+      "id": "jobs:2026-12-04",
+      "series": "jobs",
+      "name": "미국 고용보고서",
+      "date": "2026-12-04",
+      "sourceDate": "2026-12-04",
+      "startsAt": "2026-12-04T13:30:00+00:00",
+      "status": "reported",
+      "sourceUrl": "https://www.tradingview.com/economic-calendar/",
+      "dateNote": "TradingView 경제 캘린더 재공표 일정 / 한국 날짜",
+      "originalSourceUrl": "https://www.bls.gov/schedule/news_release/bls.ics",
+      "sourceProvider": "TradingView economic calendar",
       "sourceKey": "bls",
       "stale": false
     },
