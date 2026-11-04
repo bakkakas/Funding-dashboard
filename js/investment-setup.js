@@ -826,7 +826,10 @@ function renderMarketData() {
   $('assetFdv').textContent=formatUsd(market?.fdv);
   $('assetMarketCapRank').textContent=market?.rank>0?'#'+market.rank:'#—';
   $('assetCirculating').textContent=formatSupply(market?.circulatingSupply);
-  const ratio=market?.circulatingSupply!==null && market?.maxSupply>0?market.circulatingSupply/market.maxSupply*100:null;
+  // UNI's 1B genesis issuance is not a permanent supply cap.
+  const circulationBase=currentAsset.id==='uni'?1_000_000_000:market?.maxSupply;
+  document.querySelector('[data-page-i18n="circulatingRatioPrefix"]').textContent=currentAsset.id==='uni'?(language==='en'?'Of genesis supply':'초기 발행량 대비'):c('circulatingRatioPrefix');
+  const ratio=market?.circulatingSupply!=null && circulationBase>0?market.circulatingSupply/circulationBase*100:null;
   $('assetCirculatingRatio').textContent=ratio===null?'—':ratio.toFixed(2)+'%';
   $('assetCirculatingBar').style.width=Math.min(100,Math.max(0,ratio??0))+'%';
   $('assetCirculatingBar').parentElement.setAttribute('aria-valuenow',String(Math.min(100,Math.max(0,ratio??0))));
@@ -846,7 +849,7 @@ async function refreshAssetMarket(asset, version, signal) {
     if(!Number.isFinite(updatedAt.getTime()) || Date.now()-updatedAt.getTime()>24*60*60*1000)throw new Error('Stale market data');
     const price=numberOrNull(market.current_price?.usd);
     currentPrice=price>0?price:null;
-    decisionMarket={price:currentPrice,change24h:numberOrNull(market.price_change_percentage_24h),marketCap:numberOrNull(market.market_cap?.usd),fdv:numberOrNull(market.fully_diluted_valuation?.usd),rank:numberOrNull(data.market_cap_rank),circulatingSupply:numberOrNull(market.circulating_supply),maxSupply:numberOrNull(market.max_supply) ?? numberOrNull(asset.market.maxSupply),updatedAt};
+    decisionMarket={price:currentPrice,change24h:numberOrNull(market.price_change_percentage_24h),marketCap:numberOrNull(market.market_cap?.usd),fdv:numberOrNull(market.fully_diluted_valuation?.usd),rank:numberOrNull(data.market_cap_rank),circulatingSupply:numberOrNull(market.circulating_supply),maxSupply:asset.id==='uni'?null:(numberOrNull(market.max_supply) ?? numberOrNull(asset.market.maxSupply)),updatedAt};
     if(asset.id==='stx')stxBondsPanel.setStxQuote(currentPrice,updatedAt.getTime());
     pythReservePanel.setMarketCap(decisionMarket.marketCap);
     hypeBuybackPanel.setMarketCap(decisionMarket.marketCap);
