@@ -526,3 +526,16 @@
 .stx-explain-faq summary{font-size:13px;font-weight:800;cursor:pointer;line-height:1.65;color:#e9f5ee}
 .stx-explain-faq .source-badge-row{margin-top:12px}
 @media(max-width:760px){.stx-explain-grid{grid-template-columns:1fr}.stx-money-flow{flex-direction:column;align-items:stretch}.stx-flow-arrow{text-align:center;transform:rotate(90deg)}.stx-money-flow>strong{text-align:center}.stx-waterfall-results{grid-template-columns:1fr}.stx-waterfall-result{grid-template-columns:minmax(0,1fr) auto;align-items:center}.stx-scenario-control{grid-template-columns:1fr}.stx-scenario-control output{justify-self:start}}
+
+/* Separate sUSDe rewards from the USDe supply/market-cap panel. */
+.susde-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0 22px}
+.susde-metrics .usde-change:first-child strong{color:var(--accent);font-size:32px}
+.susde-chart{overflow-x:auto;padding-bottom:5px}
+.susde-chart svg{min-width:0;overflow:hidden}
+.susde-chart text{font-size:12px}
+.susde-explanation{margin:18px 0;padding:14px;border:1px solid var(--line);border-radius:10px;font-size:13px;line-height:1.7}
+.susde-explanation summary{cursor:pointer;font-weight:700}
+.susde-explanation p{font-size:12px;color:var(--muted);margin:6px 0 14px}
+.susde-explanation ol{padding-left:22px}
+.susde-sources{display:flex;flex-wrap:wrap;gap:10px 16px}
+@media(max-width:600px){.susde-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.susde-metrics .usde-change:first-child{grid-column:1/-1}.susde-yield-board .usde-head{align-items:flex-start;flex-wrap:wrap}.susde-yield-board .usde-ranges{flex-wrap:wrap}.susde-chart text{font-size:13px}}
