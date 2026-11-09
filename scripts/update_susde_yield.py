@@ -81,8 +81,15 @@ def publish(snapshot, path):
 
 
 def fetch(url):
-    with urlopen(Request(url, headers={'User-Agent': 'FundingDashboard/1.0'}), timeout=40) as response:
-        return json.load(response)
+    with urlopen(Request(url, headers={'User-Agent': 'FundingDashboard/1.0', 'Accept': 'application/json'}), timeout=40) as response:
+        body = response.read()
+        try:
+            return json.loads(body)
+        except (ValueError, UnicodeError) as error:
+            import re
+            title = re.search(r'<title[^>]*>(.*?)</title>', body.decode('utf-8', errors='replace'), re.I | re.S)
+            detail = title.group(1).strip()[:160] if title else 'no HTML title'
+            raise ValueError(f"Non-JSON source response: status={response.status}, type={response.headers.get('Content-Type')}, url={response.url}, title={detail}") from error
 
 
 def main():
