@@ -17,8 +17,8 @@ import {
   refreshFundingAssetDefinition,
   searchFundingAssets,
 } from './funding-catalog.js?v=3';
-import { bindUiEvents } from './events.js?v=13';
-import { I18N, t } from './i18n.js?v=3';
+import { bindUiEvents } from './events.js?v=14';
+import { I18N, t } from './i18n.js?v=4';
 import {
   comparisonAnnualized as buildComparisonAnnualized,
   currentComparisonStats as buildCurrentComparisonStats,
