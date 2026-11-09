@@ -1,3 +1,4 @@
+import { calculateAllocation } from './portfolio-allocation.js?v=1';
 import { calculatePortfolioTotals } from './portfolio-totals.js';
 import { cashValueKrw } from './cash-balances.js';
 
@@ -19,8 +20,8 @@ export async function valuePortfolio({ assets=[], cryptoEntries=[], cryptoTotalS
   const source=cryptoTotalSource==='details'&&cryptoEntries.length?'details':'assets';
   const totals=calculatePortfolioTotals({assets,cryptoEntries,cryptoTotalSource:source,assetValue:a=>values.get(a.id),cryptoValue:a=>values.get(a.id)});
   // Classification intentionally includes total-excluded assets, matching the allocation UI.
-  const class_values=Object.fromEntries(['stock','crypto','commodity','cash'].map(k=>[k,k==='crypto'?totals.cryptoTotal:assets.filter(a=>a.asset_class===k).reduce((s,a)=>s+values.get(a.id),0)]));
-  class_values.stable=assets.reduce((s,a)=>s+(Number(a.stable_amount_krw)||0)*(a.stable_currency==='USD'?fx:1),0);
+  const allocation=calculateAllocation({assets,cryptoEntries,cryptoTotalSource:source,fx,assetValue:a=>values.get(a.id),cryptoValue:a=>values.get(a.id)});
+  const class_values={...allocation.groups,stable:allocation.stable};
   return {total_value_krw:totals.total,class_values};
 }
 export const snapshotDate = (now=new Date()) => new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);

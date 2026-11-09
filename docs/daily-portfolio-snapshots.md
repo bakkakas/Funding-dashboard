@@ -26,3 +26,9 @@ select id,status_code,timed_out,error_msg,content from net._http_response where 
 ```
 
 2026-10-29 validation: first real run succeeded; repeat dispatch skipped the successful day. Invalid-token/no-token calls returned 401. Transaction-rolled-back tests verified failed-run recording, retry claims, preservation of the good snapshot, service-only RPC grants and authenticated browser overwrite protection. UI success/failure states tested with synthetic data at 390px and 1440px; real holdings were not displayed in test-browser captures.
+
+## Allocation-only classification (2026-11-09)
+- `portfolio_assets.allocation_class` overrides the displayed asset class. Native `asset_class`, quote identity and crypto-source selection remain unchanged, so a classification edit does not reprice or double-count a holding.
+- Shared `portfolio-allocation.js` moves each position's Stable amount from its displayed class into Cash, bounded by the position value. USD annotations are converted using the same FX rate. `class_values.stable` is informational (already included in Cash), never an extra allocation bucket or an addition to the total.
+- With detailed crypto selected, replaced aggregate holdings and their Stable annotations are excluded from classification. Recognised quote identities (FIXED:USD, tether, usd-coin, ethena-usde, dai) in the selected details are classified as Cash instead; unrelated tickers are not guessed.
+- Total-excluded assets remain in allocation, matching the existing “총액만 제외” behaviour. Existing historical snapshots are not rewritten.
