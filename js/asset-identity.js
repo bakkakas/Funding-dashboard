@@ -1,5 +1,10 @@
 // Issuer identity is independent of the instrument used to value holdings.
 export const STOCKS = [
+  {id:'stock-475560',code:'475560',name:'더본코리아',symbol:'475560',currency:'KRW',market:'KR',archiveAvailable:false},
+  {id:'stock-196170',code:'196170',name:'알테오젠',symbol:'196170',currency:'KRW',market:'KR',archiveAvailable:false},
+  {id:'stock-086520',code:'086520',name:'에코프로',symbol:'086520',currency:'KRW',market:'KR',archiveAvailable:false},
+  {id:'stock-247540',code:'247540',name:'에코프로비엠',symbol:'247540',currency:'KRW',market:'KR',archiveAvailable:false},
+  {id:'stock-035420',code:'035420',name:'네이버 (NAVER)',symbol:'035420',currency:'KRW',market:'KR',archiveAvailable:false},
   {id:'stock-otly',code:'OTLY.O',name:'오틀리 그룹',symbol:'OTLY',currency:'USD',market:'US',archiveAvailable:false,primaryListing:'Nasdaq · OTLY (ADS)',quoteNote:'오틀리 그룹(Oatly Group AB) 기업 분석입니다. 가격·변화율은 나스닥 상장 ADS(OTLY) / USD 기준입니다.',website:'https://www.oatly.com/',ir:'https://investors.oatly.com/'},
   {id:'stock-005380',code:'005380',name:'현대자동차',symbol:'005380',currency:'KRW',market:'KR',archiveAvailable:false},
   {id:'stock-263750',code:'263750',name:'펄어비스',symbol:'263750',currency:'KRW',market:'KR',archiveAvailable:false},

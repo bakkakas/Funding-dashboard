@@ -2,7 +2,7 @@ import { UniBurnPanel } from './uni-burns.js?v=1';
 import { StxBondsPanel } from './stx-bonds.js?v=2';
 import { renderTokenDetails } from './token-details.js?v=1';
 import { InvestmentPlan } from './investment-plan.js?v=8';
-import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=4';
+import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=5';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=2';
 import { ResearchThesis } from './research-thesis.js?v=4';
 import { StockResearch } from './stock-research.js?v=16';
@@ -37,7 +37,7 @@ const planPanel=new InvestmentPlan(authClient,$('investmentPlan'));
 const thesisPanel=new ResearchThesis(authClient,$('researchThesis'));
 const stockPanel=new StockResearch(authClient,$('stockResearch'),issuer=>{
  const entry=catalog.find(a=>a.id===currentAsset?.id);
- if(entry&&currentAsset?.kind==='stock'){Object.assign(entry,{logo:issuer.logo,name:issuer.name,symbol:issuer.symbol});renderResearchCollections();}
+ if(entry&&currentAsset?.kind==='stock'){Object.assign(entry,{logo:issuer.logo,name:STOCKS.find(s=>s.code===issuer.code)?.name||issuer.name,symbol:issuer.symbol});renderResearchCollections();}
 });
 function syncThesis(){
  const key=currentAsset?.kind==='stock'?currentAsset.id:currentAsset?.market?.coingeckoId?'crypto:'+currentAsset.market.coingeckoId:null;

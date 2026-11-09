@@ -1,5 +1,5 @@
 import { valuePortfolio, snapshotDate } from './portfolio-snapshot.js?v=1';
-import { researchTarget, researchHref } from './asset-identity.js?v=4';
+import { researchTarget, researchHref } from './asset-identity.js?v=5';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=2';
 import { authClient as db, signInWithGoogle } from './auth.js?v=1';
 import { setupHeaderWidgets } from './header-widgets.js?v=3';
