@@ -1,8 +1,8 @@
 name: Update sUSDe yield data
 
 on:
-  schedule:
-    - cron: '27 */6 * * *'
+  # Active schedule: local model-free LaunchAgent, every 6h while host is available.
+  # GitHub-hosted requests are redirected by Ethena to /restricted.
   workflow_dispatch:
 
 concurrency:
@@ -24,6 +24,7 @@ jobs:
       - name: Collect and reconcile official sUSDe APY
         run: python3 scripts/update_susde_yield.py
       - name: Publish snapshot
+        if: github.ref == 'refs/heads/main'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -38,6 +39,7 @@ jobs:
             exit 1
           fi
       - name: Request Pages build
+        if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh api --method POST "repos/${{ github.repository }}/pages/builds"
