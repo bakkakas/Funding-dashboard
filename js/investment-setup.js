@@ -96,7 +96,7 @@ const COPY={
   "ko": {
     "pageTitle": "투자 셋업",
     "heading": "투자 셋업",
-    "navForeign": "외국인 수급",
+    "navForeign": "수급",
     "navAssets": "내 자산",
     "navSetup": "투자 셋업",
     "planTab": "투자 계획",
@@ -208,7 +208,7 @@ const COPY={
   "en": {
     "pageTitle": "Investment Setup",
     "heading": "Investment Setup",
-    "navForeign": "Foreign Flow",
+    "navForeign": "Market Flow",
     "navAssets": "My Assets",
     "navSetup": "Investment Setup",
     "planTab": "Investment Plan",
