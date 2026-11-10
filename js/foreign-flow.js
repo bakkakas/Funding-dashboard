@@ -1,6 +1,6 @@
-import {initCreditCharts,renderCreditCharts} from './credit-balance.js?v=2';
+import {initCreditCharts,renderCreditCharts} from './credit-balance.js?v=3';
 import {setupForeignHeader} from './foreign-header.js?v=5';
-import {FlowPanel} from './flow-panel.js?v=1';
+import {FlowPanel} from './flow-panel.js?v=2';
 let lang=localStorage.getItem('fundingDashboardLanguage')==='en'?'en':'ko';
 let market='KOSPI',daily,live,chart,panel;
 const nf=new Intl.NumberFormat('ko-KR',{maximumFractionDigits:2});
@@ -17,7 +17,7 @@ function render(){
  const names=en?['Foreign','Individuals','Institutions']:['외국인','개인','기관'];
  $('intradaySummary').textContent=latest?`${date} ${latest.sourceTime||latest.time} · `+['foreign','individual','institution'].map((k,i)=>`${names[i]} ${nf.format(latest[k])} ${en?'KRW 100M':'억원'}`).join(' · '):(en?'No intraday data available':'장중 자료 미제공');
  $('intradayNote').textContent=en?'Market-wide cumulative net amounts (KRW 100M). Collected about every 15 minutes during trading hours.':'시장 전체 누적 순매수금액 · 단위: 억원 · 장중 약 15분 간격 수집';
- chart?.destroy();chart=new Chart($('intradayChart'),{type:'line',data:{labels:rows.map(r=>r.time),datasets:['foreign','individual','institution'].map((k,i)=>({label:names[i],data:rows.map(r=>r[k]),borderColor:['#23e7a5','#8ea2ff','#f5c451'][i],pointRadius:2,borderWidth:2}))},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#dce8df'}}},scales:{x:{ticks:{color:'#82958b',maxTicksLimit:8}},y:{ticks:{color:'#82958b'},title:{display:true,text:en?'KRW 100M':'억원',color:'#82958b'}}}}});
+ chart?.destroy();chart=new Chart($('intradayChart'),{type:'line',data:{labels:rows.map(r=>r.time),datasets:['foreign','individual','institution'].map((k,i)=>({label:names[i],data:rows.map(r=>r[k]),borderColor:['#23e7a5','#8ea2ff','#f5c451'][i],pointRadius:2,borderWidth:2}))},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#dce8df'}}},scales:{x:{ticks:{color:'#82958b',maxTicksLimit:8}},y:{grid:{display:true,color:'rgba(130,149,139,.3)',lineWidth:1},ticks:{color:'#82958b'},title:{display:true,text:en?'KRW 100M':'억원',color:'#82958b'}}}}});
  panel?.destroy();const records=daily?.markets?.[market]?.records;
  if(records?.length)panel=new FlowPanel($('marketFlowPanel'),{rows:records,name:market,market:true,language:lang});
  else $('marketFlowPanel').textContent=en?'Daily market history unavailable.':'시장 일별 자료를 불러오지 못했습니다.';

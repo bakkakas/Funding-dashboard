@@ -3,14 +3,14 @@ from pathlib import Path
 spec=importlib.util.spec_from_file_location('market_flow',Path(__file__).resolve().parents[1]/'scripts/update_market_flow.py')
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 class MarketFlowTest(unittest.TestCase):
- def row(self):return {'bizdate':'20261109','netAmounts':[{'investorGubun':'9000','diffValue':'-100000000','buyPrice':'200000000','sellPrice':'300000000'},{'investorGubun':'8000','diffValue':'50000000','buyPrice':'50000000','sellPrice':'0'},{'investorGubun':'9001','diffValue':'90000000'}]}
+ def row(self):return {'bizdate':'20261109','netAmounts':[{'investorGubun':code,'diffValue':'1000000','buyPrice':'1000000','sellPrice':'0'} for code in ('1000','2000','3000','3100','4000','5000','6000','7000')]+[{'investorGubun':'9000','diffValue':'-100000000','buyPrice':'200000000','sellPrice':'300000000'},{'investorGubun':'8000','diffValue':'50000000','buyPrice':'50000000','sellPrice':'0'},{'investorGubun':'9001','diffValue':'90000000'}]}
  def test_amounts_not_share_counts_or_other_foreign(self):
-  r=m.parse_row(self.row());self.assertEqual(r['foreignNetKRW'],-100000000);self.assertEqual(r['individualNetKRW'],50000000);self.assertEqual(r['date'],'2026-11-09')
+  r=m.parse_row(self.row());self.assertEqual(r['foreignNetKRW'],-100000000);self.assertEqual(r['individualNetKRW'],50000000);self.assertEqual(r['date'],'2026-11-09');self.assertEqual(r['institutionNetKRW'],8000000)
  def test_reconciliation(self):
-  r=self.row();r['netAmounts'][0]['buyPrice']='1'
+  r=self.row();r['netAmounts'][8]['buyPrice']='1'
   with self.assertRaises(ValueError):m.parse_row(r)
  def test_missing_foreign_rejected(self):
-  r=self.row();r['netAmounts']=r['netAmounts'][1:]
+  r=self.row();r['netAmounts']=[x for x in r['netAmounts'] if x['investorGubun']!='9000']
   with self.assertRaises(KeyError):m.parse_row(r)
  def test_bool_not_numeric(self):
   with self.assertRaises(ValueError):m.amount(True)

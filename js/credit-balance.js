@@ -5,7 +5,7 @@ const charts = {};
 let snapshot;
 let failed = false;
 let language = 'ko';
-const nf = new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 });
+const nf = new Intl.NumberFormat('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export function renderCreditCharts(lang = language) {
   language = lang;
@@ -17,8 +17,8 @@ export function renderCreditCharts(lang = language) {
     const summary = document.getElementById(`creditSummary${market}`);
     const note = document.getElementById(`creditNote${market}`);
     note.textContent = en
-      ? 'Outstanding margin loans, not short lending or collateral loans. Unit: KRW 100M. Daily data; checked once daily at 20:17 KST. Publication may lag the trading day.'
-      : '주식 매수용 신용거래융자 잔고 · 신용대주·담보융자 제외 · 단위: 억원. 일별 자료를 매일 20:17에 확인하며, 공표 시차가 있어 당일 자료는 없을 수 있습니다.';
+      ? 'Outstanding margin loans, not short lending or collateral loans. Unit: KRW trillion. Daily data; checked once daily at 20:17 KST. Publication may lag the trading day.'
+      : '주식 매수용 신용거래융자 잔고 · 신용대주·담보융자 제외 · 단위: 조원. 일별 자료를 매일 20:17에 확인하며, 공표 시차가 있어 당일 자료는 없을 수 있습니다.';
     if (!snapshot) {
       summary.textContent = failed ? (en ? 'Data unavailable — please retry later.' : '자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.') : (en ? 'Loading…' : '조회 중…');
       continue;
@@ -29,10 +29,10 @@ export function renderCreditCharts(lang = language) {
     const days = periods.find(([key]) => key === selected[market])[1];
     const cutoff = days ? new Date(`${latest.date}T00:00:00Z`).getTime() - (days - 1) * 86400000 : -Infinity;
     const rows = all.filter(row => new Date(`${row.date}T00:00:00Z`).getTime() >= cutoff);
-    const delta = previous ? (latest[market] - previous[market]) / 100 : null;
+    const delta = previous ? (latest[market] - previous[market]) / 1000000 : null;
     const stale = Date.now() - new Date(`${latest.date}T00:00:00+09:00`).getTime() > 7 * 86400000;
-    summary.textContent = `${nf.format(latest[market] / 100)} ${en ? 'KRW 100M' : '억원'} · ${en ? 'as of' : '기준'} ${latest.date}`
-      + (delta === null ? '' : ` · ${en ? 'vs prior observation' : '직전 공표일 대비'} ${delta > 0 ? '+' : ''}${nf.format(delta)} ${en ? 'KRW 100M' : '억원'}`)
+    summary.textContent = `${nf.format(latest[market] / 1000000)} ${en ? 'KRW trillion' : '조원'} · ${en ? 'as of' : '기준'} ${latest.date}`
+      + (delta === null ? '' : ` · ${en ? 'vs prior observation' : '직전 공표일 대비'} ${delta > 0 ? '+' : ''}${nf.format(delta)} ${en ? 'KRW trillion' : '조원'}`)
       + (stale ? (en ? ' · Update delayed' : ' · 갱신 지연') : '');
     note.textContent += ` ${all[0].date} ~ ${latest.date}. ${en ? 'Last collection' : '최근 수집'}: ${new Date(snapshot.updatedAt).toLocaleString(en ? 'en-US' : 'ko-KR', {timeZone: 'Asia/Seoul'})} (KST).`;
     const tabs = document.getElementById(`creditPeriods${market}`);
@@ -46,11 +46,11 @@ export function renderCreditCharts(lang = language) {
     charts[market]?.destroy();
     charts[market] = new Chart(document.getElementById(`creditChart${market}`), {
       type: 'line',
-      data: { labels: rows.map(row => row.date), datasets: [{ label: title, data: rows.map(row => row[market] / 100), borderColor: market === 'KOSPI' ? '#23e7a5' : '#8ea2ff', backgroundColor: market === 'KOSPI' ? 'rgba(35,231,165,.10)' : 'rgba(142,162,255,.10)', fill: true, pointRadius: 0, pointHitRadius: 12, borderWidth: 2 }] },
+      data: { labels: rows.map(row => row.date), datasets: [{ label: title, data: rows.map(row => row[market] / 1000000), borderColor: market === 'KOSPI' ? '#23e7a5' : '#8ea2ff', backgroundColor: market === 'KOSPI' ? 'rgba(35,231,165,.10)' : 'rgba(142,162,255,.10)', fill: true, pointRadius: 0, pointHitRadius: 12, borderWidth: 2 }] },
       options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${nf.format(ctx.parsed.y)} ${en ? 'KRW 100M' : '억원'}` } } },
-        scales: { x: { ticks: { color: '#82958b', maxTicksLimit: 6 }, grid: { display: false } },
-          y: { title: { display: true, text: en ? 'KRW 100M' : '억원', color: '#82958b' }, ticks: { color: '#82958b', callback: value => nf.format(value) }, grid: { color: 'rgba(32,54,43,.7)' } } } }
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${nf.format(ctx.parsed.y)} ${en ? 'KRW trillion' : '조원'}` } } },
+        scales: { x: { ticks: { color: '#82958b', maxTicksLimit: 6 }, grid: { display: true, color: 'rgba(130,149,139,.25)' } },
+          y: { title: { display: true, text: en ? 'KRW trillion' : '조원', color: '#82958b' }, ticks: { color: '#82958b', callback: value => nf.format(value) }, grid: { color: 'rgba(32,54,43,.7)' } } } }
     });
   }
 }
