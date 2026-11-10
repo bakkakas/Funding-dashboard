@@ -33,6 +33,14 @@ def parse_row(row):
         r=items[code];v=amount(r['diffValue'])
         if amount(r['buyPrice'])-amount(r['sellPrice'])!=v:raise ValueError('Buy/sell reconciliation failed')
         out[key]=v
+    institution=[]
+    for code in ('1000','2000','3000','3100','4000','5000','6000','7000'):
+        r=items.get(code)
+        if r is None:raise ValueError('Missing institutional component: '+code)
+        v=amount(r['diffValue'])
+        if amount(r['buyPrice'])-amount(r['sellPrice'])!=v:raise ValueError('Institution reconciliation failed')
+        institution.append(v)
+    out['institutionNetKRW']=sum(institution)
     out['otherForeignNetKRW']=amount(items['9001']['diffValue']) if '9001' in items else None
     return out
 
@@ -40,6 +48,7 @@ def collect(market,existing):
     now=datetime.now(KST)
     records={r['date']:r for r in existing}
     since=(date.fromisoformat(max(records))-timedelta(days=30)).isoformat() if records else START
+    if any('institutionNetKRW' not in r for r in existing):since=START
     seen=set()
     for page in range(80):
         payload=get('https://stock.naver.com/api/domestic/market/trend/daily?'+urlencode({'tradeType':'KRX','marketType':market,'bizdate':now.strftime('%Y%m%d'),'startIdx':page,'pageSize':100}))

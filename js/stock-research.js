@@ -1,4 +1,4 @@
-import {mountStockFlow} from './flow-panel.js?v=1';
+import {mountStockFlow} from './flow-panel.js?v=2';
 import { loadShareholderReturns, renderShareholderReturns, dividendStats } from './shareholder-returns.js?v=1';
 import { comparisonRecords } from './earnings-data.js?v=8';
 import { renderEarnings } from './stock-earnings.js?v=12';
