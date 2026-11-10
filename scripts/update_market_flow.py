@@ -24,11 +24,24 @@ def amount(v):
     if abs(n)>10**16:raise ValueError('Amount out of range')
     return n
 
+TRADING_CODES={'1000','2000','3000','3100','4000','5000','6000','7000','7100','8000','9000','9001'}
+def trading_value(items):
+    # One side only: buy + sell would double-count traded consideration.
+    # Provider reports each investor amount rounded to KRW million.
+    if set(items)!=TRADING_CODES:return None
+    try:
+        buys=[amount(items[code]['buyPrice']) for code in sorted(TRADING_CODES)]
+        sells=[amount(items[code]['sellPrice']) for code in sorted(TRADING_CODES)]
+        if min(buys+sells)<0:return None
+        if abs(sum(buys)-sum(sells))>len(TRADING_CODES)*1_000_000:return None
+        return sum(buys)
+    except (ValueError,KeyError,TypeError):return None
+
 def parse_row(row):
     day=datetime.strptime(row['bizdate'],'%Y%m%d').date().isoformat()
     items={r['investorGubun']:r for r in row['netAmounts']}
     # 9000 foreign investors; 9001 other foreigners is deliberately separate.
-    out={'date':day}
+    out={'date':day,'tradingValueKRW':trading_value(items)}
     for key,code in [('foreignNetKRW','9000'),('individualNetKRW','8000')]:
         r=items[code];v=amount(r['diffValue'])
         if amount(r['buyPrice'])-amount(r['sellPrice'])!=v:raise ValueError('Buy/sell reconciliation failed')
@@ -48,7 +61,7 @@ def collect(market,existing):
     now=datetime.now(KST)
     records={r['date']:r for r in existing}
     since=(date.fromisoformat(max(records))-timedelta(days=30)).isoformat() if records else START
-    if any('institutionNetKRW' not in r for r in existing):since=START
+    if any('institutionNetKRW' not in r or 'tradingValueKRW' not in r for r in existing):since=START
     seen=set()
     for page in range(80):
         payload=get('https://stock.naver.com/api/domestic/market/trend/daily?'+urlencode({'tradeType':'KRX','marketType':market,'bizdate':now.strftime('%Y%m%d'),'startIdx':page,'pageSize':100}))
@@ -84,7 +97,7 @@ def collect(market,existing):
 
 def main():
     previous=json.loads(OUTPUT.read_text()) if OUTPUT.exists() else {'markets':{}}
-    result={'updatedAt':datetime.now(KST).isoformat(),'source':'Naver Finance','sourceUrl':'https://stock.naver.com/market/stock/kr/trend/trader','basis':'KRX','unit':'KRW','foreignDefinition':'9000 (외국인), 기타외국인(9001) 제외','ownershipStatus':'unavailable','markets':{}}
+    result={'updatedAt':datetime.now(KST).isoformat(),'source':'Naver Finance','sourceUrl':'https://stock.naver.com/market/stock/kr/trend/trader','basis':'KRX','tradingValueDefinition':'전체 12개 투자주체 매수금액 합계 (매도합계 대조, 백만원 반올림 오차 허용); 매수+매도 합산 아님','unit':'KRW','foreignDefinition':'9000 (외국인), 기타외국인(9001) 제외','ownershipStatus':'unavailable','markets':{}}
     warnings=[]
     for market in ('KOSPI','KOSDAQ'):
         old=previous['markets'].get(market,{}).get('records',[])
