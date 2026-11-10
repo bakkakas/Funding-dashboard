@@ -7,10 +7,10 @@ let failed = false;
 let language = 'ko';
 const nf = new Intl.NumberFormat('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export function renderCreditCharts(lang = language) {
+export function renderCreditCharts(lang = language, onlyMarket = null) {
   language = lang;
   const en = lang === 'en';
-  for (const market of markets) {
+  for (const market of onlyMarket ? [onlyMarket] : markets) {
     const name = en ? market : market === 'KOSPI' ? '코스피' : '코스닥';
     const title = `${name} ${en ? 'Margin Loan Balance' : '신용융자 잔고'}`;
     document.getElementById(`creditTitle${market}`).textContent = title;
@@ -40,18 +40,19 @@ export function renderCreditCharts(lang = language) {
       const button = document.createElement('button');
       button.className = `chip ${key === selected[market] ? 'active' : ''}`;
       button.textContent = key === 'ALL' && !en ? '전체' : key;
-      button.onclick = () => { selected[market] = key; renderCreditCharts(); };
+      button.onclick = () => { if(selected[market]===key)return; selected[market] = key; renderCreditCharts(language, market); };
       return button;
     }));
-    charts[market]?.destroy();
-    charts[market] = new Chart(document.getElementById(`creditChart${market}`), {
+    const config = {
       type: 'line',
       data: { labels: rows.map(row => row.date), datasets: [{ label: title, data: rows.map(row => row[market] / 1000000), borderColor: market === 'KOSPI' ? '#23e7a5' : '#8ea2ff', backgroundColor: market === 'KOSPI' ? 'rgba(35,231,165,.10)' : 'rgba(142,162,255,.10)', fill: true, pointRadius: 0, pointHitRadius: 12, borderWidth: 2 }] },
       options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${nf.format(ctx.parsed.y)} ${en ? 'KRW trillion' : '조원'}` } } },
         scales: { x: { ticks: { color: '#82958b', maxTicksLimit: 6 }, grid: { display: true, color: 'rgba(130,149,139,.25)' } },
           y: { title: { display: true, text: en ? 'KRW trillion' : '조원', color: '#82958b' }, ticks: { color: '#82958b', callback: value => nf.format(value) }, grid: { color: 'rgba(32,54,43,.7)' } } } }
-    });
+    };
+    if(charts[market]){charts[market].data=config.data;charts[market].options=config.options;charts[market].update('none');}
+    else charts[market]=new Chart(document.getElementById(`creditChart${market}`),config);
   }
 }
 
