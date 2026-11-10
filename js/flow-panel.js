@@ -1,7 +1,7 @@
 // Shared issuer-share and market-KRW panels. Keep native units separate.
 export const FLOW_PERIODS=[['7D',7],['30D',30],['90D',90],['180D',180],['1Y',365],['3Y',1096],['5Y',1827],['10Y',3653],['ALL',null]];
 export function periodRows(rows,key){const days=FLOW_PERIODS.find(p=>p[0]===key)?.[1];if(!days||!rows.length)return rows;const cutoff=Date.parse(rows.at(-1).date+'T00:00:00Z')-(days-1)*86400000;return rows.filter(r=>Date.parse(r.date+'T00:00:00Z')>=cutoff);}
-export function cumulativeValues(rows,key,scale=1){let sum=0;return rows.map(r=>{if(!Number.isFinite(r[key]))return null;sum+=r[key]/scale;return sum;});}
+export function cumulativeValues(rows,key,scale=1){let sum=0,complete=true;return rows.map(r=>{if(!Number.isFinite(r[key]))complete=false;if(!complete)return null;sum+=r[key]/scale;return sum;});}
 const escapeText=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nf=new Intl.NumberFormat('ko-KR',{maximumFractionDigits:2});
 const signed=n=>n==null?'—':`${n>0?'+':''}${nf.format(n)}`;
