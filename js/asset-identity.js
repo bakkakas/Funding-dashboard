@@ -1,5 +1,7 @@
 // Issuer identity is independent of the instrument used to value holdings.
 export const STOCKS = [
+  {id:'stock-mrvl',code:'MRVL.O',name:'마벨 테크놀로지 (Marvell)',symbol:'MRVL',currency:'USD',market:'US',archiveAvailable:false},
+  {id:'stock-alab',code:'ALAB.O',name:'아스테라 랩스 (Astera Labs)',symbol:'ALAB',currency:'USD',market:'US',archiveAvailable:false},
   {id:'stock-475560',code:'475560',name:'더본코리아',symbol:'475560',currency:'KRW',market:'KR',archiveAvailable:false},
   {id:'stock-196170',code:'196170',name:'알테오젠',symbol:'196170',currency:'KRW',market:'KR',archiveAvailable:false},
   {id:'stock-086520',code:'086520',name:'에코프로',symbol:'086520',currency:'KRW',market:'KR',archiveAvailable:false},
