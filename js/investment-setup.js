@@ -1,3 +1,4 @@
+import {sortCatalog,bindResearchOrder} from './research-order.js?v=1';
 import { UniBurnPanel } from './uni-burns.js?v=1';
 import { StxBondsPanel } from './stx-bonds.js?v=2';
 import { renderTokenDetails } from './token-details.js?v=1';
@@ -5,7 +6,7 @@ import { InvestmentPlan } from './investment-plan.js?v=8';
 import { STOCKS, canonicalStock, researchTarget, researchHref } from './asset-identity.js?v=6';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=2';
 import { ResearchThesis } from './research-thesis.js?v=4';
-import { StockResearch } from './stock-research.js?v=16';
+import { StockResearch } from './stock-research.js?v=17';
 import { accountFromSession, authClient, signInWithGoogle } from './auth.js?v=1';
 import { setupHeaderWidgets } from './header-widgets.js?v=3';
 import { applyPageTranslations } from './page-i18n.js?v=1';
@@ -24,7 +25,7 @@ import {
   seriesChange,
 } from './investment-score.js?v=2';
 import { numberOrNull, localize, safeUrl, decisionStorageKey, validateCatalog, validateAsset, selectAssetId, unlockSummary, resolveProfile, fetchJson, loadProtocolMetrics } from './research-data.js?v=1';
-import { renderCatalog, renderAssetContent } from './research-renderer.js?v=4';
+import { renderCatalog, renderAssetContent } from './research-renderer.js?v=5';
 import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=2';
 import { SusdeYieldPanel } from './susde-yield.js?v=2';
 import { UsdeMarketCapPanel } from './usde-market-cap.js?v=3';
@@ -396,8 +397,8 @@ function setListPickerOpen(open) {
 }
 
 function renderResearchCollections() {
-  if (!currentAsset) return;
-  renderCatalog(catalog, currentAsset.id, collections.favorites, language);
+  if (!currentAsset) {renderCatalog(sortCatalog(catalog),null,collections.favorites,language);return;}
+  renderCatalog(sortCatalog(catalog), currentAsset.id, collections.favorites, language);
   const assetIds = catalog.map(asset => asset.id);
   const matches = new Set(catalog.filter(asset => `${asset.name} ${asset.symbol}`.toLowerCase().includes(searchQuery)).map(asset => asset.id));
   const visibleAssetIds = new Set(assetsForResearchFilter(collections, selectedResearchFilter, assetIds).filter(id => matches.has(id)));
@@ -950,7 +951,7 @@ async function initializeResearch() {
       if(!known)catalog.push({id,name:coin,symbol:coin.toUpperCase(),category:'crypto',dynamicCoin:coin});
       const url=new URL(location.href);url.searchParams.set('asset',id);history.replaceState({},'',url);
     }
-    renderCatalog(catalog,null,collections.favorites,language);
+    renderCatalog(sortCatalog(catalog),null,collections.favorites,language);
     const requested=new URL(location.href).searchParams.get('asset');
     const selected=selectAssetId(catalog,requested);
     if(requested!==selected){const url=new URL(location.href);url.searchParams.set('asset',selected);history.replaceState({},'',url);}
@@ -1062,3 +1063,5 @@ if(location.hash==='#plan')$('planTab').click();
 
 let unlockDay=kstDateKey();
 setInterval(()=>{const day=kstDateKey();if(day!==unlockDay){unlockDay=day;if(currentAsset&&currentAsset.kind!=='stock')renderUnlockSchedule(decisionMarket?.price??null);}},60000);
+
+bindResearchOrder(document.getElementById("researchReportList"),()=>catalog.map(a=>a.id),renderResearchCollections);

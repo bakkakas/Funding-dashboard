@@ -1,5 +1,5 @@
 const markets = ['KOSPI', 'KOSDAQ'];
-const periods = [['30D', 30], ['90D', 90], ['1Y', 365], ['ALL', null]];
+const periods = [['30D', 30], ['90D', 90], ['1Y', 365], ['3Y', 1096], ['5Y', 1827], ['10Y', 3653], ['ALL', null]];
 const selected = { KOSPI: '1Y', KOSDAQ: '1Y' };
 const charts = {};
 let snapshot;
@@ -34,7 +34,7 @@ export function renderCreditCharts(lang = language) {
     summary.textContent = `${nf.format(latest[market] / 100)} ${en ? 'KRW 100M' : '억원'} · ${en ? 'as of' : '기준'} ${latest.date}`
       + (delta === null ? '' : ` · ${en ? 'vs prior observation' : '직전 공표일 대비'} ${delta > 0 ? '+' : ''}${nf.format(delta)} ${en ? 'KRW 100M' : '억원'}`)
       + (stale ? (en ? ' · Update delayed' : ' · 갱신 지연') : '');
-    note.textContent += ` ${en ? 'Last collection' : '최근 수집'}: ${new Date(snapshot.updatedAt).toLocaleString(en ? 'en-US' : 'ko-KR', {timeZone: 'Asia/Seoul'})} (KST).`;
+    note.textContent += ` ${all[0].date} ~ ${latest.date}. ${en ? 'Last collection' : '최근 수집'}: ${new Date(snapshot.updatedAt).toLocaleString(en ? 'en-US' : 'ko-KR', {timeZone: 'Asia/Seoul'})} (KST).`;
     const tabs = document.getElementById(`creditPeriods${market}`);
     tabs.replaceChildren(...periods.map(([key]) => {
       const button = document.createElement('button');
