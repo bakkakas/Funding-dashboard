@@ -23,14 +23,14 @@ class MarketFlowTest(unittest.TestCase):
   def get(url):
    if '/trend/daily?' in url:return {'content':[live,closed],'last':True}
    return [{'localTradedAt':yesterday.isoformat(),'closePrice':'1,234.56'},{'localTradedAt':'2015-12-31','closePrice':'1,200'}]
-  with patch.object(m,'get',side_effect=get):rows=m.collect('KOSPI',[])
+  with patch.object(m,'get',side_effect=get),patch.object(m,'collect_volume',return_value={}):rows=m.collect('KOSPI',[])
   self.assertEqual(len(rows),1);self.assertEqual(rows[0]['date'],yesterday.isoformat());self.assertEqual(rows[0]['close'],1234.56)
  def test_price_failure_does_not_discard_market_amounts(self):
   from unittest.mock import patch
   def get(url):
    if '/trend/daily?' in url:return {'content':[self.row()],'last':True}
    raise OSError('price unavailable')
-  with patch.object(m,'get',side_effect=get):rows=m.collect('KOSPI',[])
+  with patch.object(m,'get',side_effect=get),patch.object(m,'collect_volume',return_value={}):rows=m.collect('KOSPI',[])
   self.assertEqual(rows[0]['foreignNetKRW'],-100000000);self.assertIsNone(rows[0]['close'])
  def test_trading_value_is_one_side_and_requires_complete_investors(self):
   items={code:{'buyPrice':'1000000000000','sellPrice':'1000000000000'} for code in m.TRADING_CODES}
@@ -43,3 +43,16 @@ class MarketFlowTest(unittest.TestCase):
   items['9000']['sellPrice']='100000000';self.assertIsNone(m.trading_value(items))
   items['9000']['sellPrice']=None;self.assertIsNone(m.trading_value(items))
   items['9000']['sellPrice']='-1';self.assertIsNone(m.trading_value(items))
+ def test_volume_native_units_and_invalid_records(self):
+  self.assertEqual(m.parse_volume_xml('<protocol><item data="20261109|1|2|1|2|248140"/><item data="20261106|1|2|1|2|0"/></protocol>'),{'2026-11-09':248140,'2026-11-06':0})
+  for value in ['-1','bad']:
+   with self.assertRaises(ValueError):m.parse_volume_xml(f'<protocol><item data="20261109|1|2|1|2|{value}"/></protocol>')
+ def test_volume_failure_preserves_previous_value(self):
+  from unittest.mock import patch
+  old={'date':'2026-11-09','close':123,'volumeThousandShares':248140,'tradingValueKRW':1}
+  def get(url):
+   if '/trend/daily?' in url:return {'content':[self.row()],'last':True}
+   return []
+  with patch.object(m,'get',side_effect=get),patch.object(m,'collect_volume',side_effect=OSError('unavailable')):rows=m.collect('KOSPI',[old])
+  self.assertEqual(rows[0]['volumeThousandShares'],248140)
+  self.assertEqual(rows[0]['foreignNetKRW'],-100000000)

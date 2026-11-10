@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Market-wide KRX net trading amounts (KRW), not share counts. Atomic per-market refresh."""
 import json, math, time
+import xml.etree.ElementTree as ET
 from datetime import date, datetime, timezone, timedelta
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -14,6 +15,28 @@ def get(url):
     for attempt in range(3):
         try:
             with urlopen(Request(url,headers={'User-Agent':'Mozilla/5.0','Referer':'https://stock.naver.com/'}),timeout=25) as r:return json.load(r)
+        except Exception:
+            if attempt==2:raise
+            time.sleep(1)
+
+def parse_volume_xml(text):
+    result={}
+    for item in ET.fromstring(text).findall('.//item'):
+        fields=item.attrib['data'].split('|')
+        if len(fields)!=6:raise ValueError('Invalid index candle')
+        day=datetime.strptime(fields[0],'%Y%m%d').date().isoformat()
+        volume=int(fields[5])
+        if volume<0 or day in result:raise ValueError('Invalid index volume')
+        result[day]=volume
+    if not result:raise ValueError('No index volumes')
+    return result
+
+def collect_volume(market,count=5000):
+    url=f'https://fchart.stock.naver.com/sise.nhn?symbol={market}&timeframe=day&count={count}&requestType=0'
+    for attempt in range(3):
+        try:
+            with urlopen(Request(url,headers={'User-Agent':'Mozilla/5.0'}),timeout=25) as r:
+                return parse_volume_xml(r.read().decode('euc-kr'))
         except Exception:
             if attempt==2:raise
             time.sleep(1)
@@ -92,12 +115,18 @@ def collect(market,existing):
             if not math.isfinite(v) or v<=0:raise ValueError('Invalid index price')
             prices[r['localTradedAt']]=v
         if rows[-1]['localTradedAt']<=price_since:break
-    for day,r in records.items():r['close']=prices.get(day)
+    # Naver index chart volume is in thousands of shares, not KRW turnover.
+    volumes={r['date']:r['volumeThousandShares'] for r in existing if r.get('volumeThousandShares') is not None}
+    try:volumes.update(collect_volume(market,100 if existing and all(r.get('volumeThousandShares') is not None for r in existing) else 5000))
+    except Exception as exc:print(f'{market} volume history unavailable: {type(exc).__name__}',flush=True)
+    for day,r in records.items():
+        r['close']=prices.get(day)
+        r['volumeThousandShares']=volumes.get(day)
     return [records[k] for k in sorted(records)]
 
 def main():
     previous=json.loads(OUTPUT.read_text()) if OUTPUT.exists() else {'markets':{}}
-    result={'updatedAt':datetime.now(KST).isoformat(),'source':'Naver Finance','sourceUrl':'https://stock.naver.com/market/stock/kr/trend/trader','basis':'KRX','tradingValueDefinition':'전체 12개 투자주체 매수금액 합계 (매도합계 대조, 백만원 반올림 오차 허용); 매수+매도 합산 아님','unit':'KRW','foreignDefinition':'9000 (외국인), 기타외국인(9001) 제외','ownershipStatus':'unavailable','markets':{}}
+    result={'updatedAt':datetime.now(KST).isoformat(),'source':'Naver Finance','sourceUrl':'https://stock.naver.com/market/stock/kr/trend/trader','basis':'KRX','volumeSource':'Naver index daily candle','volumeSourceUrl':'https://fchart.stock.naver.com/sise.nhn','volumeUnit':'thousand shares','tradingValueDefinition':'전체 12개 투자주체 매수금액 합계 (매도합계 대조, 백만원 반올림 오차 허용); 매수+매도 합산 아님','unit':'KRW','foreignDefinition':'9000 (외국인), 기타외국인(9001) 제외','ownershipStatus':'unavailable','markets':{}}
     warnings=[]
     for market in ('KOSPI','KOSDAQ'):
         old=previous['markets'].get(market,{}).get('records',[])
