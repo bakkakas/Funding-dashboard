@@ -22,6 +22,7 @@ const CATALOG=[
 let snapshotSaveError='',fxValid=false;
 let session=null,assets=[],prices={},priceErrors=new Set(),fx=1380,filter='all',valueSort=null,classChart,historyChart;
 let cryptoEntries=[],cryptoPrices={},cryptoPriceErrors=new Set(),cryptoTotalSource='assets',cryptoLocationFilter='all';
+let platformAction=null,platformSaving=false;
 let searchTimer=null,searchResults=[],selectedSearchAsset=null,editingAssetId=null;
 let cryptoSearchTimer=null,cryptoSearchResults=[],selectedCryptoAsset=null,editingCryptoEntryId=null;
 let lang=localStorage.getItem('fundingDashboardLanguage')==='en'?'en':'ko',headerWidgets=null;
@@ -31,6 +32,8 @@ const COPY={
 };
 Object.assign(COPY.ko,{platformHelp:'플랫폼 / 계좌 이름이 같은 자산을 묶어 보여줘. 매매 후 수량과 현금 잔액은 직접 수정해.',unassigned:'미지정',platformValue:'보유 평가액',platformIncluded:'총자산 반영',platformCash:'현금 관리',platformAddCash:'+ 현금 추가',platformCashList:'현금 항목 보기',platformScope:'평가액은 필터와 무관한 플랫폼 전체 기준',zeroQuantity:'전량 매도했다면 수량을 0으로 저장하거나 삭제할 수 있어.'});
 Object.assign(COPY.en,{platformHelp:'Holdings with the same platform / account name are grouped. Update quantities and cash balances manually after trades.',unassigned:'Unassigned',platformValue:'Holdings value',platformIncluded:'Included in total',platformCash:'Manage cash',platformAddCash:'+ Add cash',platformCashList:'View cash entries',platformScope:'Values include all holdings on the platform regardless of filter',zeroQuantity:'After selling the entire holding, save a quantity of 0 or delete it.'});
+Object.assign(COPY.ko,{renamePlatform:'이름 수정',deletePlatform:'박스 삭제',platformNewName:'새 플랫폼 / 계좌 이름',platformRenameHelp:'이 박스의 모든 보유 자산에 새 이름을 적용해. 금액과 수량은 바뀌지 않아.',platformDeleteHelp:'박스와 안의 보유 자산을 함께 삭제해. 필터로 숨긴 자산도 포함돼. 과거 스냅샷과 별도 코인 포트폴리오는 삭제하지 않아.',platformDeleteConfirm:'박스와 보유 자산 삭제',platformNameInvalid:'이름을 1~40자로 입력해.',platformNameExists:'이미 있는 플랫폼 이름이야. 다른 이름을 입력해.',platformChanged:'계정 또는 대상 자산이 변경됐어. 창을 닫고 다시 확인해.',platformPartial:'일부 항목의 처리 결과를 확인하지 못했어. 새로고침 후 보유 내역을 확인해.',cancel:'취소'});
+Object.assign(COPY.en,{renamePlatform:'Rename',deletePlatform:'Delete platform',platformNewName:'New platform / account name',platformRenameHelp:'Rename every holding in this platform. Values and quantities stay unchanged.',platformDeleteHelp:'Delete this platform and all its holdings, including holdings hidden by filters. Past snapshots and the separate crypto portfolio remain unchanged.',platformDeleteConfirm:'Delete platform and holdings',platformNameInvalid:'Enter a name of 1–40 characters.',platformNameExists:'That platform already exists. Choose another name.',platformChanged:'The account or holdings changed. Close this dialog and check again.',platformPartial:'Could not verify every result. Refresh and check your holdings.',cancel:'Cancel'});
 const c=key=>COPY[lang][key] || COPY.ko[key] || key;
 const classLabel=key=>CLASS_LABELS[lang][key] || CLASS_LABELS.ko[key] || key;
 const won=new Intl.NumberFormat('ko-KR',{style:'currency',currency:'KRW',maximumFractionDigits:0});
@@ -54,6 +57,7 @@ function bind(){
   $('addCryptoEntry').onclick=()=>openCryptoEntryModal();
   $('assetQuery').oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(renderSearch,250)};
   $('cryptoAssetQuery').oninput=()=>{clearTimeout(cryptoSearchTimer);cryptoSearchTimer=setTimeout(renderCryptoSearch,250)};
+  $('confirmPlatformAction').onclick=savePlatformAction;
   $('saveAsset').onclick=saveAsset; $('refreshPortfolio').onclick=refresh;
   $('saveCryptoEntry').onclick=saveCryptoEntry;
   $('cryptoTotalSource').onclick=e=>{const b=e.target.closest('[data-crypto-source]');if(b)setCryptoTotalSource(b.dataset.cryptoSource)};
@@ -185,8 +189,10 @@ function renderAssets(){
   $('assetRows').innerHTML=groups.length?groups.map((group,index)=>{
     const all=assets.filter(a=>platformName(a)===group.name),totals=platformTotals(all,valueKrw,cryptoTotalSource),cash=all.filter(a=>a.asset_class==='cash');
     const heads=['asset','assetClass','quantity','currentPrice','valuation','weight','excludeTotal'];
-    return `<section class="platform-card" data-platform-index="${index}"><header class="platform-head"><div><h4>${escapeHtml(group.name||c('unassigned'))}</h4><div class="platform-values"><span>${c('platformValue')} <strong>${won.format(totals.value)}</strong></span>${totals.included!==totals.value?`<span>${c('platformIncluded')} <strong>${won.format(totals.included)}</strong></span>`:''}</div></div><div class="section-actions"><button class="chip" data-platform-add="${index}">${c('addAsset')}</button>${cash.length>1?cash.map(a=>`<button class="chip" data-edit="${a.id}">${c('platformCash')} · ${escapeHtml(a.symbol)}</button>`).join(''):`<button class="chip" data-platform-cash="${index}">${cash.length?c('platformCash'):c('platformAddCash')}</button>`}</div></header><div class="table-wrap"><table><thead><tr>${heads.map(key=>`<th>${c(key)}</th>`).join('')}<th>Stable (Cash)</th><th></th></tr></thead><tbody>${group.assets.map(row).join('')}</tbody></table></div></section>`;
+    return `<section class="platform-card" data-platform-index="${index}"><header class="platform-head"><div><h4>${escapeHtml(group.name||c('unassigned'))}</h4><div class="platform-values"><span>${c('platformValue')} <strong>${won.format(totals.value)}</strong></span>${totals.included!==totals.value?`<span>${c('platformIncluded')} <strong>${won.format(totals.included)}</strong></span>`:''}</div></div><div class="section-actions platform-actions"><button class="chip" data-platform-rename="${index}">${c('renamePlatform')}</button><button class="chip platform-danger" data-platform-delete="${index}">${c('deletePlatform')}</button><button class="chip" data-platform-add="${index}">${c('addAsset')}</button>${cash.length>1?cash.map(a=>`<button class="chip" data-edit="${a.id}">${c('platformCash')} · ${escapeHtml(a.symbol)}</button>`).join(''):`<button class="chip" data-platform-cash="${index}">${cash.length?c('platformCash'):c('platformAddCash')}</button>`}</div></header><div class="table-wrap"><table><thead><tr>${heads.map(key=>`<th>${c(key)}</th>`).join('')}<th>Stable (Cash)</th><th></th></tr></thead><tbody>${group.assets.map(row).join('')}</tbody></table></div></section>`;
   }).join(''):`<p class="empty-assets">${c('emptyAssets')}</p>`;
+  document.querySelectorAll('[data-platform-rename]').forEach(b=>b.onclick=()=>openPlatformAction(groups[Number(b.dataset.platformRename)].name,'rename'));
+  document.querySelectorAll('[data-platform-delete]').forEach(b=>b.onclick=()=>openPlatformAction(groups[Number(b.dataset.platformDelete)].name,'delete'));
   document.querySelectorAll('[data-platform-add]').forEach(b=>b.onclick=()=>openAssetModal(null,groups[Number(b.dataset.platformAdd)].name));
   document.querySelectorAll('[data-platform-cash]').forEach(b=>b.onclick=()=>{const name=groups[Number(b.dataset.platformCash)].name,cash=assets.filter(a=>platformName(a)===name&&a.asset_class==='cash');if(cash.length===1)openAssetModal(cash[0]);else{openAssetModal(null,name);selectAsset(CATALOG.find(a=>a.asset_class==='cash'));}});
   document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openAssetModal(assets.find(a=>String(a.id)===b.dataset.edit)));
@@ -195,6 +201,38 @@ function renderAssets(){
   document.querySelectorAll('[data-stable-currency]').forEach(select=>select.onchange=()=>saveStableCurrency(select));
   document.querySelectorAll('[data-stable-full]').forEach(button=>button.onclick=()=>saveStableFull(button));
   document.querySelectorAll('[data-excluded]').forEach(input=>input.onchange=()=>saveTotalExclusion(input));
+}
+function openPlatformAction(name,action){
+ const members=assets.filter(a=>platformName(a)===name);if(!session||!members.length)return;
+ platformAction={name,action,ids:members.map(a=>a.id),userId:session.user.id};
+ $('platformActionTitle').textContent=`${name||c('unassigned')} · ${c(action==='rename'?'renamePlatform':'deletePlatform')}`;
+ $('platformActionHelp').textContent=c(action==='rename'?'platformRenameHelp':'platformDeleteHelp');
+ $('platformRenameField').hidden=action!=='rename';$('platformNewName').value=name;
+ $('platformActionMembers').innerHTML=members.map(a=>`<li>${escapeHtml(a.asset_class==='cash'?c('cashAccount'):a.name)} <span>${a.asset_class==='cash'?cashBalanceCell(a):escapeHtml(num.format(a.quantity))}</span></li>`).join('');
+ $('confirmPlatformAction').textContent=c(action==='rename'?'saveEdit':'platformDeleteConfirm');$('confirmPlatformAction').classList.toggle('platform-danger',action==='delete');
+ status('platformActionStatus','');modal('platformActionModal',true);
+ setTimeout(()=>$(action==='rename'?'platformNewName':'platformActionCancel').focus(),0);
+}
+async function savePlatformAction(){
+ if(platformSaving||!platformAction)return;
+ const {name,action,ids,userId}=platformAction;
+ if(!session||session.user.id!==userId||!ids.length||ids.some(id=>!assets.some(a=>a.id===id&&platformName(a)===name)))return status('platformActionStatus',c('platformChanged'),true);
+ const next=$('platformNewName').value.trim();
+ if(action==='rename'){
+  if(!next||next.length>40)return status('platformActionStatus',c('platformNameInvalid'),true);
+  if(next===name){modal('platformActionModal',false);return;}
+  if(assets.some(a=>!ids.includes(a.id)&&platformName(a)===next))return status('platformActionStatus',c('platformNameExists'),true);
+ }
+ platformSaving=true;const controls=[...$('platformActionModal').querySelectorAll('button,input')];controls.forEach(el=>el.disabled=true);
+ status('platformActionStatus',c('processing'));
+ try{
+  const query=action==='rename'?db.from('portfolio_assets').update({nickname:next}):db.from('portfolio_assets').delete();
+  const {data,error}=await query.eq('user_id',userId).in('id',ids).select('id');
+  if(error)throw error;
+  if(!Array.isArray(data)||data.length!==ids.length){status('platformActionStatus',c('platformPartial'),true);return;}
+  modal('platformActionModal',false);platformAction=null;await loadPortfolio();
+ }catch(error){status('platformActionStatus',error.code==='23505'?c('duplicateNickname'):error.message,true);}
+ finally{platformSaving=false;controls.forEach(el=>el.disabled=false);}
 }
 async function saveTotalExclusion(input){
   const asset=assets.find(item=>String(item.id)===input.dataset.excluded);if(!asset)return;

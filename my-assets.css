@@ -132,3 +132,11 @@
 .platform-card .table-wrap{margin:0;border:0;border-radius:0;max-width:100%}
 .platform-card table{min-width:1100px}
 @media(max-width:800px){.platform-head{align-items:stretch;flex-direction:column;padding:14px;gap:12px}.platform-head .section-actions{justify-content:flex-start}.platform-toolbar{align-items:flex-start}.platform-card table{min-width:1100px}}
+.platform-actions{flex-wrap:wrap;justify-content:flex-end}
+.platform-danger{color:var(--bad)!important;border-color:rgba(240,100,100,.4)!important;background:rgba(240,100,100,.08)!important}
+.platform-member-list{list-style:none;margin:0;padding:0;max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+.platform-member-list li{display:flex;justify-content:space-between;gap:12px;padding:10px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.platform-member-list li:last-child{border-bottom:0}
+#platformActionTitle{overflow-wrap:anywhere;min-width:0}
+#platformRenameField[hidden]{display:none}
+#platformNewName{margin-top:6px;width:100%;box-sizing:border-box}
