@@ -32,3 +32,14 @@ class MarketFlowTest(unittest.TestCase):
    raise OSError('price unavailable')
   with patch.object(m,'get',side_effect=get):rows=m.collect('KOSPI',[])
   self.assertEqual(rows[0]['foreignNetKRW'],-100000000);self.assertIsNone(rows[0]['close'])
+ def test_trading_value_is_one_side_and_requires_complete_investors(self):
+  items={code:{'buyPrice':'1000000000000','sellPrice':'1000000000000'} for code in m.TRADING_CODES}
+  self.assertEqual(m.trading_value(items),12000000000000)
+  items.pop('7100');self.assertIsNone(m.trading_value(items))
+ def test_trading_value_reconciles_and_never_confuses_missing_with_zero(self):
+  items={code:{'buyPrice':'0','sellPrice':'0'} for code in m.TRADING_CODES}
+  self.assertEqual(m.trading_value(items),0)
+  items['9000']['sellPrice']='1000000';self.assertEqual(m.trading_value(items),0)
+  items['9000']['sellPrice']='100000000';self.assertIsNone(m.trading_value(items))
+  items['9000']['sellPrice']=None;self.assertIsNone(m.trading_value(items))
+  items['9000']['sellPrice']='-1';self.assertIsNone(m.trading_value(items))

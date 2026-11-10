@@ -12,3 +12,4 @@ test('platform included subtotal respects exclusions and original pricing source
  assert.deepEqual(platformTotals(assets,a=>a.value),{value:950,included:900});
  assert.deepEqual(platformTotals(assets,a=>a.value,'details'),{value:950,included:400});
 });
+test('per-holding labels never rename or split a platform or merge duplicate assets',()=>{const holdings=[{id:1,nickname:'미래에셋',asset_label:'장기 보유',symbol:'005930',value:100},{id:2,nickname:'미래에셋',asset_label:'단기 매매',symbol:'005930',value:200}];const groups=groupPlatformAssets(holdings);assert.equal(groups.length,1);assert.equal(groups[0].name,'미래에셋');assert.equal(groups[0].assets.length,2);assert.equal(platformTotals(groups[0].assets,a=>a.value).value,300);});

@@ -1,6 +1,6 @@
 import {initCreditCharts,renderCreditCharts} from './credit-balance.js?v=4';
 import {setupForeignHeader} from './foreign-header.js?v=5';
-import {FlowPanel} from './flow-panel.js?v=3';
+import {FlowPanel} from './flow-panel.js?v=4';
 let lang=localStorage.getItem('fundingDashboardLanguage')==='en'?'en':'ko';
 let market='KOSPI',daily,live,chart,panel;
 const nf=new Intl.NumberFormat('ko-KR',{maximumFractionDigits:2});
