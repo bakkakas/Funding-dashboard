@@ -12,7 +12,7 @@ from urllib.request import Request, urlopen
 
 OUTPUT = Path(__file__).resolve().parents[1] / 'credit_balance_data.json'
 URL = 'http://freesis.kofia.or.kr/meta/getMetaDataList.do'
-START = date(2026, 1, 1)
+START = date(2016, 1, 1)
 
 
 def parse_rows(payload):
@@ -62,6 +62,8 @@ def main():
     previous = json.loads(OUTPUT.read_text()) if OUTPUT.exists() else {'rows': []}
     rows = {row['date']: row for row in previous['rows']}
     start = max(START, date.fromisoformat(max(rows)) - timedelta(days=30)) if rows else START
+    if rows and min(rows) > (START + timedelta(days=7)).isoformat():
+        start = START  # Backfill legacy short snapshots; once, not every daily run.
     while start <= now.date():
         end = min(date(start.year, 12, 31), now.date())
         for row in fetch_rows(start, end):

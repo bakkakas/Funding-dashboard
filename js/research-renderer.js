@@ -25,6 +25,7 @@ function link(source, language, className = 'source-link') {
   return element;
 }
 export function renderCatalog(catalog, selectedId, favorites, language) {
+  const hint=$('researchOrderHint');if(hint)hint.textContent=language==='en'?'Drag ⠿ to reorder · saved on this device':'⠿ 손잡이를 드래그해 순서 변경 · 이 기기에 저장';
   $('researchReportList').replaceChildren(...catalog.map(asset => {
     const row = node('div', '', `report-list-row${asset.id === selectedId ? ' active' : ''}`);
     row.dataset.assetId = asset.id;
@@ -38,7 +39,7 @@ export function renderCatalog(catalog, selectedId, favorites, language) {
     favorite.type = 'button';favorite.dataset.favoriteAsset = asset.id;
     favorite.setAttribute('aria-pressed', String(favorites.includes(asset.id)));
     favorite.setAttribute('aria-label', `${asset.symbol} ${language === 'en' ? 'Favorite' : '즐겨찾기'}`);
-    row.append(button, favorite);return row;
+    const handle=node('button','⠿','report-drag-handle');handle.type='button';handle.draggable=true;handle.dataset.dragAsset=asset.id;handle.title=language==='en'?'Drag to reorder (or ↑/↓). Saved on this device.':'드래그로 순서 변경 (또는 ↑/↓). 이 기기에 저장됩니다.';handle.setAttribute('aria-label',asset.symbol+' '+handle.title);row.append(handle,button,favorite);return row;
   }));
   document.querySelector('.report-count').textContent = String(catalog.length);
   $('researchSearch').placeholder = language === 'en' ? 'Search name or ticker' : '종목명·티커 검색';
