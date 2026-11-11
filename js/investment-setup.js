@@ -27,7 +27,8 @@ import {
 import { numberOrNull, localize, safeUrl, decisionStorageKey, validateCatalog, validateAsset, selectAssetId, unlockSummary, resolveProfile, fetchJson, loadProtocolMetrics } from './research-data.js?v=1';
 import { renderCatalog, renderAssetContent } from './research-renderer.js?v=5';
 import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=2';
-import { SusdeYieldPanel } from './susde-yield.js?v=2';
+import { SusdeYieldPanel } from './susde-yield.js?v=3';
+import { SusdeReturnsPanel } from './susde-returns.js?v=1';
 import { UsdeMarketCapPanel } from './usde-market-cap.js?v=3';
 import { EthenaMilestonesPanel } from './ethena-milestones.js?v=1';
 import { PythReservePanel } from './pyth-reserve.js?v=2';
@@ -47,6 +48,7 @@ function syncThesis(){
 }
 
 const susdePanel = new SusdeYieldPanel($('susdeYield'));
+const susdeReturnsPanel = new SusdeReturnsPanel($('susdeReturns'));
 const usdePanel = new UsdeMarketCapPanel($('usdeMarketCap'));
 const milestonePanel = new EthenaMilestonesPanel($('ethenaMilestones'));
 const pythReservePanel = new PythReservePanel($('pythReserveBoard'), fetchJson);
@@ -910,6 +912,7 @@ async function selectAsset(id, updateUrl=true) {
     if(selectedEntry.dynamicCoin)Object.assign(selectedEntry,{name:currentAsset.name,symbol:currentAsset.symbol,logo:currentAsset.logo});
     usdePanel.setAsset(currentAsset.id,language,signal);
     susdePanel.setAsset(currentAsset.id,language,signal);
+    susdeReturnsPanel.setAsset(currentAsset.id,language,signal);
     milestonePanel.setAsset(currentAsset.id,language,signal);
     pythReservePanel.setAsset(currentAsset.id,language,signal);
     hypeBuybackPanel.setAsset(currentAsset.id,language,signal);
@@ -1006,7 +1009,7 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape') setListPickerOpen(false);
 });
 
-setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); usdePanel.setLanguage(next); susdePanel.setLanguage(next); milestonePanel.setLanguage(next); hypeBuybackPanel.setLanguage(next); uniBurnPanel.setLanguage(next); stxBondsPanel.setLanguage(next); if(currentAsset&&currentAsset.kind!=='stock'){renderMarketData();mountTradingViewChart();} } });
+setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); usdePanel.setLanguage(next); susdePanel.setLanguage(next); susdeReturnsPanel.setLanguage(next); milestonePanel.setLanguage(next); hypeBuybackPanel.setLanguage(next); uniBurnPanel.setLanguage(next); stxBondsPanel.setLanguage(next); if(currentAsset&&currentAsset.kind!=='stock'){renderMarketData();mountTradingViewChart();} } });
 
 async function submitAuth(event) {
   event.preventDefault();

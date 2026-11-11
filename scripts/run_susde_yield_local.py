@@ -39,11 +39,17 @@ def main():
             raise RuntimeError('Collector checkout has uncommitted files; preserved for inspection')
         git('pull', '--rebase', 'origin', 'main')
         # A failed fetch/validation never commits or pushes a substitute/zero.
-        run(sys.executable, str(repo / 'scripts/update_susde_yield.py'))
-        git('add', 'data/susde-yield.json')
+        failures = []
+        for script, snapshot in [('update_susde_yield.py', 'susde-yield.json'),
+                                 ('update_susde_returns.py', 'susde-returns.json')]:
+            result = run(sys.executable, str(repo / 'scripts' / script), check=False)
+            if result.returncode:
+                failures.append(script)
+            else:
+                git('add', 'data/' + snapshot)
         if git('diff', '--cached', '--quiet', check=False).returncode:
             git('-c', 'user.name=Senna', '-c', 'user.email=senna@users.noreply.github.com',
-                'commit', '-m', 'chore: refresh official sUSDe APY locally')
+                'commit', '-m', 'chore: refresh official sUSDe APY and realized returns locally')
         for _ in range(3):
             git('pull', '--rebase', 'origin', 'main')
             if git('push', 'origin', 'HEAD:main', check=False).returncode == 0:
@@ -52,6 +58,8 @@ def main():
             raise RuntimeError('Push failed; local commit preserved for next run')
         run('gh', 'api', '--method', 'POST', 'repos/bakkakas/Funding-dashboard/pages/builds')
         print(dt.datetime.now(dt.timezone.utc).isoformat(), 'complete', flush=True)
+        if failures:
+            raise RuntimeError('Partial collection failure (last good data retained): ' + ', '.join(failures))
 
 
 if __name__ == '__main__':
