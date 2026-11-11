@@ -16,9 +16,10 @@ function researchName(a,label){const href=researchHref(researchTarget(a,CRYPTO_R
 const CLASS_LABELS={ko:{stock:'주식',crypto:'크립토',commodity:'원자재',cash:'Cash'},en:{stock:'Stocks',crypto:'Crypto',commodity:'Commodities',cash:'Cash'}};
 const COLORS={stock:'#23e7a5',crypto:'#b497ff',commodity:'#f5c451',cash:'#42d5e8'};
 const CATALOG=[
+  ['NVDA','엔비디아 (NVIDIA)','stock','NAVER:NVDA.O','USD','NASDAQ','NVDIA'],['AMD','AMD (어드밴스드 마이크로 디바이시스)','stock','NAVER:AMD.O','USD','NASDAQ','Advanced Micro Devices'],['SPCX','스페이스X (SpaceX)','stock','NAVER:SPCX.O','USD','NASDAQ','스페이스엑스'],
   ['BTC','비트코인','crypto','CG:bitcoin','USD'],['ETH','이더리움','crypto','CG:ethereum','USD'],['SOL','솔라나','crypto','CG:solana','USD'],['BNB','BNB','crypto','CG:binancecoin','USD'],['ORBS','Orbs','crypto','CG:orbs','USD'],
   ['USDT','테더 (1달러 고정)','crypto','FIXED:USD','USD'],['GOLD','금 (PAXG 현물 기준)','commodity','BINANCE:PAXGUSDT','USD'],['CASH','현금 계정','cash','CASH:MIXED','KRW','KRW + USD']
-].map(([symbol,name,asset_class,quote_symbol,currency,market])=>({symbol,name,asset_class,quote_symbol,currency,market}));
+].map(([symbol,name,asset_class,quote_symbol,currency,market,aliases])=>({symbol,name,asset_class,quote_symbol,currency,market,aliases}));
 let snapshotSaveError='',fxValid=false;
 let session=null,assets=[],prices={},priceErrors=new Set(),fx=1380,filter='all',valueSort=null,classChart,historyChart;
 let cryptoEntries=[],cryptoPrices={},cryptoPriceErrors=new Set(),cryptoTotalSource='assets',cryptoLocationFilter='all';
@@ -266,7 +267,7 @@ async function renderSearch(){
   const type=addAssetType,raw=$('assetQuery').value.trim(),q=raw.toLowerCase();selectedSearchAsset=null;$('selectedAsset').value='';
   if(!q){searchResults=[];$('assetResults').innerHTML='';return status('assetStatus',c('selectSearchResult'))}
   status('assetStatus',c('searching'));
-  const local=CATALOG.filter(a=>`${a.symbol} ${a.name}`.toLowerCase().includes(q));
+  const local=CATALOG.filter(a=>`${a.symbol} ${a.name} ${a.aliases||''}`.toLowerCase().includes(q));
   const [coins,stocks]=await Promise.all([
     type!=='crypto'||raw.length<2?[]:fetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(raw)}`).then(r=>r.ok?r.json():{coins:[]}).then(data=>(data.coins||[]).filter(c=>c.market_cap_rank).slice(0,8).map(c=>({symbol:String(c.symbol).toUpperCase(),name:c.name,asset_class:'crypto',quote_symbol:`CG:${c.id}`,currency:'USD',market:'CoinGecko'}))).catch(()=>[]),
     type!=='stock'?[]:db.functions.invoke('portfolio-market',{body:{action:'search',query:raw}}).then(({data,error})=>error?[]:(data?.results||[])).catch(()=>[])
@@ -332,7 +333,7 @@ async function renderCryptoSearch(){
   const raw=$('cryptoAssetQuery').value.trim(),q=raw.toLowerCase();selectedCryptoAsset=null;$('selectedCryptoAsset').value='';
   if(!q){cryptoSearchResults=[];$('cryptoAssetResults').innerHTML='';return status('cryptoEntryStatus',c('selectCoinResult'))}
   status('cryptoEntryStatus',c('searching'));
-  const local=CATALOG.filter(a=>a.asset_class==='crypto'&&`${a.symbol} ${a.name}`.toLowerCase().includes(q));
+  const local=CATALOG.filter(a=>a.asset_class==='crypto'&&`${a.symbol} ${a.name} ${a.aliases||''}`.toLowerCase().includes(q));
   const coins=raw.length<2?[]:await fetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(raw)}`).then(r=>r.ok?r.json():{coins:[]}).then(data=>(data.coins||[]).filter(coin=>coin.market_cap_rank).slice(0,12).map(coin=>({symbol:String(coin.symbol).toUpperCase(),name:coin.name,asset_class:'crypto',quote_symbol:`CG:${coin.id}`,currency:'USD',market:'CoinGecko'}))).catch(()=>[]);
   if($('cryptoAssetQuery').value.trim()!==raw)return;
   const seen=new Set();cryptoSearchResults=[...local,...coins].filter(a=>{const key=`${a.symbol}:${a.quote_symbol}`;if(seen.has(key))return false;seen.add(key);return true}).slice(0,14);
