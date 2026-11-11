@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {returnWindow,validateSusdeReturns} from '../js/susde-returns.js';
+import {annualizedRate,rollingAnnualized,returnWindow,validateSusdeReturns} from '../js/susde-returns.js';
 const rows=Array.from({length:366},(_,i)=>({date:new Date(Date.UTC(2025,10,10+i)).toISOString().slice(0,10),timestamp:new Date(Date.UTC(2025,10,10+i,23)).toISOString(),rate:1.2*(1+i*.0001)}));
 const snapshot=()=>({schemaVersion:1,asset:'sUSDe',unit:'USDe per sUSDe',fetchedAt:'2026-11-11T01:00:00Z',through:'2026-11-10',rows:structuredClone(rows)});
 const now=Date.UTC(2026,10,11,3);
@@ -24,4 +24,24 @@ test('rate validation rejects bad units, zero, duplicate, future/current-day and
 test('official snapshot 1-year return reconciles to source endpoints and is not headline APY',()=>{
  const d=validateSusdeReturns(JSON.parse(fs.readFileSync(new URL('../data/susde-returns.json',import.meta.url),'utf8')));
  const w=returnWindow(d.rows,365);assert.ok(w);assert.equal(w.value,(w.end.rate/w.start.rate-1)*100);assert.equal(w.days,365);
+});
+
+test('annualization compounds the measured period instead of multiplying by 12 or averaging APYs',()=>{
+ assert.ok(Math.abs(annualizedRate(1,1.01,30)-(Math.pow(1.01,365/30)-1)*100)<1e-10);
+ assert.ok(Math.abs(annualizedRate(1,1.05,365)-5)<1e-10);
+ assert.equal(annualizedRate(1,1,30),0);assert.ok(annualizedRate(1,.99,30)<0);
+ for(const args of [[1,1,0],[0,1,30],[1,null,30],[1,Infinity,30]])assert.equal(annualizedRate(...args),null);
+});
+test('rolling 30D APY uses history before clipping and does not rebase to chart start',()=>{
+ const growth=rows.map((r,i)=>({...r,rate:1.2*Math.pow(1.05,i/365)}));
+ const all=rollingAnnualized(growth);
+ assert.equal(all[29].average,null);
+ for(const r of all.slice(30))assert.ok(Math.abs(r.average-5)<1e-9);
+ const selected=all.filter(r=>r.date>=growth[200].date);assert.ok(Math.abs(selected[0].average-5)<1e-9);
+ assert.ok(Math.abs(returnWindow(growth,90).apy-5)<1e-9);
+});
+test('missing rolling endpoint is unavailable while interior gaps do not change the endpoint ratio',()=>{
+ const incomplete=rows.filter((_,i)=>i!==100),rolled=rollingAnnualized(incomplete);
+ assert.equal(rolled.find(r=>r.date===rows[130].date).average,null);
+ assert.equal(rolled.find(r=>r.date===rows[110].date).average,rollingAnnualized(rows)[110].average);
 });

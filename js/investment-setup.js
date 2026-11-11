@@ -28,7 +28,7 @@ import { numberOrNull, localize, safeUrl, decisionStorageKey, validateCatalog, v
 import { renderCatalog, renderAssetContent } from './research-renderer.js?v=5';
 import { ResearchNewsAccount, ResearchNewsPanel } from './research-news.js?v=2';
 import { SusdeYieldPanel } from './susde-yield.js?v=3';
-import { SusdeReturnsPanel } from './susde-returns.js?v=1';
+import { SusdeReturnsPanel } from './susde-returns.js?v=2';
 import { UsdeMarketCapPanel } from './usde-market-cap.js?v=3';
 import { EthenaMilestonesPanel } from './ethena-milestones.js?v=1';
 import { PythReservePanel } from './pyth-reserve.js?v=2';
