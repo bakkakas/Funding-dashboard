@@ -55,8 +55,8 @@ export function yieldPath(rows, x, y) {
 }
 
 export class SusdeYieldPanel {
-  constructor(host) {
-    Object.assign(this,{host,data:null,language:'ko',range:90,version:0,loading:false,failed:false,lastChecked:0});
+  constructor(host, {validate = validateSusdeYield, url = './data/susde-yield.json'} = {}) {
+    Object.assign(this,{validate,url,host,data:null,language:'ko',range:90,version:0,loading:false,failed:false,lastChecked:0});
     this.resizeObserver = new ResizeObserver(entries => {
       const width = entries[0].contentRect.width;
       if (width && width !== this.hostWidth) { this.hostWidth = width; if (!host.hidden) this.render(); }
@@ -86,7 +86,7 @@ export class SusdeYieldPanel {
     const signal = this.signal ? AbortSignal.any([this.signal,this.controller.signal]) : this.controller.signal;
     this.loading = true; this.render();
     try {
-      const data = validateSusdeYield(await fetchJson(`./data/susde-yield.json?v=${Math.floor(Date.now()/300000)}`,{signal}));
+      const data = this.validate(await fetchJson(`${this.url}?v=${Math.floor(Date.now()/300000)}`,{signal}));
       if (version !== this.version || signal.aborted) return;
       if (this.data && (data.through < this.data.through || data.fetchedAt < this.data.fetchedAt)) throw Error('Regressed snapshot');
       this.data = data; this.failed = false; this.lastChecked = Date.now();
