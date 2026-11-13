@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-12T02:16:53.392072+00:00",
+  "updatedAt": "2026-11-13T01:51:06.402628+00:00",
   "timezone": "Asia/Seoul",
   "windowDays": 30,
   "sources": {
     "fed": {
-      "checkedAt": "2026-11-12T02:16:53.392072+00:00",
+      "checkedAt": "2026-11-13T01:51:06.402628+00:00",
       "status": "ok",
       "events": [
         {
@@ -119,12 +119,12 @@
           "dateNote": "금리 결정·기자회견 일정 / 한국 날짜"
         },
         {
-          "id": "fomc:2027-12-08",
+          "id": "fomc:2027-11-17",
           "series": "fomc",
           "name": "미국 FOMC",
-          "date": "2027-12-09",
-          "sourceDate": "2027-12-08",
-          "startsAt": "2027-12-08T14:00:00-05:00",
+          "date": "2027-11-18",
+          "sourceDate": "2027-11-17",
+          "startsAt": "2027-11-17T14:00:00-05:00",
           "status": "confirmed",
           "sourceUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
           "dateNote": "금리 결정·기자회견 일정 / 한국 날짜"
@@ -132,7 +132,7 @@
       ]
     },
     "bls": {
-      "checkedAt": "2026-11-12T02:16:53.392072+00:00",
+      "checkedAt": "2026-11-13T01:51:06.402628+00:00",
       "status": "fallback",
       "primaryError": "HTTPError",
       "provider": "TradingView economic calendar",
@@ -223,7 +223,7 @@
       ]
     },
     "bea": {
-      "checkedAt": "2026-11-12T02:16:53.392072+00:00",
+      "checkedAt": "2026-11-13T01:51:06.402628+00:00",
       "status": "ok",
       "events": [
         {
@@ -416,7 +416,7 @@
       ]
     },
     "ecb": {
-      "checkedAt": "2026-11-12T02:16:53.392072+00:00",
+      "checkedAt": "2026-11-13T01:51:06.402628+00:00",
       "status": "ok",
       "events": [
         {
@@ -609,7 +609,7 @@
       ]
     },
     "boj": {
-      "checkedAt": "2026-11-12T02:16:53.392072+00:00",
+      "checkedAt": "2026-11-13T01:51:06.402628+00:00",
       "status": "ok",
       "events": [
         {
@@ -736,7 +736,7 @@
       ]
     },
     "bok": {
-      "checkedAt": "2026-11-12T02:16:53.392072+00:00",
+      "checkedAt": "2026-11-13T01:51:06.402628+00:00",
       "status": "ok",
       "events": [
         {
@@ -775,7 +775,7 @@
       ]
     },
     "samsung": {
-      "checkedAt": "2026-11-12T02:16:53.392072+00:00",
+      "checkedAt": "2026-11-13T01:51:06.402628+00:00",
       "status": "ok",
       "events": [
         {
@@ -792,7 +792,7 @@
       ]
     },
     "hynix": {
-      "checkedAt": "2026-11-12T02:16:53.392072+00:00",
+      "checkedAt": "2026-11-13T01:51:06.402628+00:00",
       "status": "ok",
       "events": [
         {
@@ -809,8 +809,8 @@
       ]
     },
     "nasdaq": {
-      "checkedAt": "2026-11-10T03:35:38.459872+00:00",
-      "status": "stale",
+      "checkedAt": "2026-11-13T01:51:06.402628+00:00",
+      "status": "ok",
       "events": [
         {
           "id": "NVDA:2026-11-17",
@@ -824,11 +824,10 @@
           "dateNote": "미국 장 마감 후 → 한국 다음 날 (정확한 시각 미공개)",
           "dateBasis": "Asia/Seoul"
         }
-      ],
-      "error": "HTTPError"
+      ]
     },
     "elections": {
-      "checkedAt": "2026-11-12T02:16:53.392072+00:00",
+      "checkedAt": "2026-11-13T01:51:06.402628+00:00",
       "status": "ok",
       "events": [
         {
@@ -867,9 +866,7 @@
       ]
     }
   },
-  "warnings": [
-    "nasdaq"
-  ],
+  "warnings": [],
   "events": [
     {
       "id": "pce:2026-08-26",
@@ -1106,7 +1103,7 @@
       "dateNote": "미국 장 마감 후 → 한국 다음 날 (정확한 시각 미공개)",
       "dateBasis": "Asia/Seoul",
       "sourceKey": "nasdaq",
-      "stale": true
+      "stale": false
     },
     {
       "id": "pce:2026-11-25",
@@ -1620,6 +1617,19 @@
       "stale": false
     },
     {
+      "id": "fomc:2027-11-17",
+      "series": "fomc",
+      "name": "미국 FOMC",
+      "date": "2027-11-18",
+      "sourceDate": "2027-11-17",
+      "startsAt": "2027-11-17T14:00:00-05:00",
+      "status": "confirmed",
+      "sourceUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "dateNote": "금리 결정·기자회견 일정 / 한국 날짜",
+      "sourceKey": "fed",
+      "stale": false
+    },
+    {
       "id": "pce:2027-11-24",
       "series": "pce",
       "name": "미국 PCE",
@@ -1630,19 +1640,6 @@
       "sourceUrl": "https://www.bea.gov/news/schedule/ics/online-calendar-subscription.ics",
       "dateNote": "Personal Income and Outlays, October 2027",
       "sourceKey": "bea",
-      "stale": false
-    },
-    {
-      "id": "fomc:2027-12-08",
-      "series": "fomc",
-      "name": "미국 FOMC",
-      "date": "2027-12-09",
-      "sourceDate": "2027-12-08",
-      "startsAt": "2027-12-08T14:00:00-05:00",
-      "status": "confirmed",
-      "sourceUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
-      "dateNote": "금리 결정·기자회견 일정 / 한국 날짜",
-      "sourceKey": "fed",
       "stale": false
     },
     {
