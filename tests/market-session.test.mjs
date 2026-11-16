@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {sessionMinute,sessionTime} from '../js/market-session.js';
+test('session positions preserve real elapsed minutes and fixed market endpoints',()=>{assert.equal(sessionMinute('09:00'),540);assert.equal(sessionMinute('15:30'),930);assert.equal(sessionMinute('09:16')-sessionMinute('09:00'),16);assert.equal(sessionTime(930),'15:30');for(const v of ['',null,'25:00','12:60'])assert.equal(sessionMinute(v),null);});

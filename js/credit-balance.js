@@ -3,6 +3,8 @@ const periods = [['30D', 30], ['90D', 90], ['1Y', 365], ['3Y', 1096], ['5Y', 182
 const selected = { KOSPI: '1Y', KOSDAQ: '1Y' };
 const charts = {};
 let snapshot;
+let indexHistory = {};
+export function setCreditIndexHistory(value){indexHistory=value?.markets||{};renderCreditCharts();}
 let failed = false;
 let language = 'ko';
 const nf = new Intl.NumberFormat('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -43,12 +45,14 @@ export function renderCreditCharts(lang = language, onlyMarket = null) {
       button.onclick = () => { if(selected[market]===key)return; selected[market] = key; renderCreditCharts(language, market); };
       return button;
     }));
+    const indexByDate=new Map((indexHistory[market]?.records||[]).map(r=>[r.date,r.close]));
+    note.textContent += en?' Index: same-date close (pt), right axis; missing dates are gaps.':' 지수: 같은 날짜 종가(pt) · 오른쪽 축 · 미제공 날짜는 빈 구간.';
     const config = {
       type: 'line',
-      data: { labels: rows.map(row => row.date), datasets: [{ label: title, data: rows.map(row => row[market] / 1000000), borderColor: market === 'KOSPI' ? '#23e7a5' : '#8ea2ff', backgroundColor: market === 'KOSPI' ? 'rgba(35,231,165,.10)' : 'rgba(142,162,255,.10)', fill: true, pointRadius: 0, pointHitRadius: 12, borderWidth: 2 }] },
+      data: { labels: rows.map(row => row.date), datasets: [{ label: title, data: rows.map(row => row[market] / 1000000), borderColor: market === 'KOSPI' ? '#23e7a5' : '#8ea2ff', backgroundColor: market === 'KOSPI' ? 'rgba(35,231,165,.10)' : 'rgba(142,162,255,.10)', fill: true, pointRadius: 0, pointHitRadius: 12, borderWidth: 2, yAxisID: 'y' }, {label: `${name} ${en?'Index (pt)':'지수 (pt)'}`, data: rows.map(r=>Number.isFinite(indexByDate.get(r.date))?indexByDate.get(r.date):null), borderColor: '#f5c451', pointRadius:0, pointHitRadius:12, borderWidth:2, yAxisID:'index', spanGaps:false, fill:false }] },
       options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${nf.format(ctx.parsed.y)} ${en ? 'KRW trillion' : '조원'}` } } },
-        scales: { x: { ticks: { color: '#82958b', maxTicksLimit: 6 }, grid: { display: true, color: 'rgba(130,149,139,.25)' } },
+        plugins: { legend: { display: true, labels:{color:'#dce8df'} }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y==null?'—':nf.format(ctx.parsed.y)} ${ctx.dataset.yAxisID==='index'?'pt':en?'KRW trillion':'조원'}` } } },
+        scales: { index: {position:'right',title:{display:true,text:'pt',color:'#f5c451'},ticks:{color:'#f5c451'},grid:{drawOnChartArea:false}}, x: { ticks: { color: '#82958b', maxTicksLimit: 6 }, grid: { display: true, color: 'rgba(130,149,139,.25)' } },
           y: { title: { display: true, text: en ? 'KRW trillion' : '조원', color: '#82958b' }, ticks: { color: '#82958b', callback: value => nf.format(value) }, grid: { color: 'rgba(32,54,43,.7)' } } } }
     };
     if(charts[market]){charts[market].data=config.data;charts[market].options=config.options;charts[market].update('none');}
