@@ -1,7 +1,7 @@
 import {sessionMinute,sessionTime} from './market-session.js?v=1';
 import {initCreditCharts,renderCreditCharts,setCreditIndexHistory} from './credit-balance.js?v=5';
 import {setupForeignHeader} from './foreign-header.js?v=5';
-import {FlowPanel} from './flow-panel.js?v=5';
+import {FlowPanel} from './flow-panel.js?v=6';
 let lang=localStorage.getItem('fundingDashboardLanguage')==='en'?'en':'ko';
 let market='KOSPI',daily,live,chart,panel;
 const nf=new Intl.NumberFormat('ko-KR',{maximumFractionDigits:2});
