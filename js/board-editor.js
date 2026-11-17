@@ -20,6 +20,8 @@ export class BoardEditor {
    if(e.target.closest('[data-panel]'))return;
    if(!this.editing||this.preview)return;
    const text=e.target.closest('[data-board-text]'),block=e.target.closest('[data-board-block]');
+   // Preserve native private-record editing and controls; public copy is explicit.
+   if(!text&&e.target.closest('button,a,input,textarea,select,label,summary,form,.plan-item,.thesis-item'))return;
    if(text||block){e.preventDefault();e.stopImmediatePropagation();this.select(text?'text':'block',text?.dataset.boardText||block.dataset.boardBlock);}
   };document.addEventListener('click',this.capture,true);
   this.schedule();
@@ -76,6 +78,7 @@ export class BoardEditor {
     let state=this.originals.get(el);if(!state){state={original:el.textContent,applied:null};this.originals.set(el,state);}else if(state.applied!==null&&el.textContent!==state.applied)state.original=el.textContent;
     const text=Object.hasOwn(content.texts,id)?content.texts[id]:state.original;
     if(el.textContent!==text)el.textContent=text;state.applied=text;
+    el.dataset.boardEmpty=String(text==='');
     el.classList.toggle('board-editable-text',this.editing&&!this.preview);el.classList.toggle('board-text-overridden',Object.hasOwn(content.texts,id));
    }
    for(const [gid,group] of this.groups){
@@ -114,6 +117,7 @@ export class BoardEditor {
   }else{
    const el=this.blocks.get(id);if(!el)return;const custom=this.content.custom.find(c=>c.id===id),b=this.blockValue(id);
    host.innerHTML=`${custom?'<label>제목<input data-custom-title maxlength="160"></label><label>내용<textarea data-custom-body rows="4" maxlength="6000"></textarea></label>':''}<label>박스 너비<select data-width>${WIDTHS.map(w=>`<option value="${w}">${widthLabels[w]}</option>`).join('')}</select></label><label>최소 높이 (px · 0은 자동)<input data-height type="number" min="0" max="1200" step="10"></label><small>같은 영역 안에서 위아래로 이동해요. 모바일 너비는 한 칸으로 맞추며 내용은 잘리지 않아요.</small><div class="board-actions"><button data-up>↑ 위로</button><button data-down>↓ 아래로</button><button data-hide>${b.hidden?'박스 복원':'박스 삭제(숨김)'}</button><button data-default>크기·위치 초기화</button></div>`;
+   if(!custom){const list=document.createElement('div');list.className='board-block-texts';const title=document.createElement('strong');title.textContent='박스 안 문구 수정·삭제';list.append(title);for(const [textId,node] of this.texts){if(!el.contains(node))continue;const button=document.createElement('button');button.type='button';button.textContent=(this.originals.get(node)?.original||textId).slice(0,70);button.onclick=()=>this.select('text',textId);list.append(button);}if(list.children.length>1)host.prepend(list);}
    if(custom){for(const field of ['title','body']){const input=host.querySelector('[data-custom-'+field+']');input.value=custom[field];input.oninput=()=>{custom[field]=input.value;this.change();};}}
    host.querySelector('[data-width]').value=b.width;host.querySelector('[data-height]').value=b.height;
    host.querySelector('[data-width]').onchange=e=>{this.content.blocks[id]={...this.blockValue(id),width:e.target.value};this.change();};

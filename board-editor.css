@@ -3,3 +3,8 @@
 .board-layout>[data-board-block]{overflow-x:auto;max-width:100%}
 /* Presentation edits never override authentication or asset/tab visibility gates. */
 [data-board-group][hidden],[data-board-block][hidden]{display:none!important}
+
+[data-board-text][data-board-empty=true]:not(.board-editable-text){display:none!important}
+.board-editable-text[data-board-empty=true]{display:inline-block!important;min-width:80px;min-height:20px}
+.board-editable-text[data-board-empty=true]::after{content:'삭제된 문구 · 복원 가능';font-size:11px;color:#a9bdb0}
+.board-block-texts{display:grid;gap:6px;margin:12px 0}.board-block-texts button{text-align:left;overflow-wrap:anywhere}
