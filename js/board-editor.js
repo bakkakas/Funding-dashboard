@@ -16,6 +16,8 @@ export class BoardEditor {
     if(this.busy||!confirm('게시하지 않은 편집 내용이 있어요. 저장하지 않고 이동할까요?')){e.preventDefault();e.stopImmediatePropagation();return;}
     this.dirty=false;
    }
+   // Tabs are navigation, not editable text click targets. Their labels remain in the target selector.
+   if(e.target.closest('[data-panel]'))return;
    if(!this.editing||this.preview)return;
    const text=e.target.closest('[data-board-text]'),block=e.target.closest('[data-board-block]');
    if(text||block){e.preventDefault();e.stopImmediatePropagation();this.select(text?'text':'block',text?.dataset.boardText||block.dataset.boardBlock);}
@@ -51,10 +53,12 @@ export class BoardEditor {
  schedule(){if(this.scheduled)return;this.scheduled=setTimeout(()=>{this.scheduled=null;const key=this.currentKey();if(key!==this.key)void this.context(key);else this.apply();},80);}
  async context(key){
   if(this.busy)return;
+  const continueEditing=this.editing;
   const n=++this.generation;this.key=key;this.loaded=false;this.editing=false;this.ui.hidden=true;this.selected=null;this.dirty=false;this.content=emptyContent();this.published=emptyContent();this.apply();
   const {data,error}=await Promise.resolve(this.db.rpc('board_public_content',{p_page:key})).catch(()=>({error:true}));if(n!==this.generation)return;
   if(!error){try{this.published=normalizeContent(data.content);if(!this.editing)this.version=data.version;this.loaded=true;}catch{/* invalid content never replaces base UI */}}
   this.apply();
+  if(continueEditing&&this.allowed&&n===this.generation){this.ui.hidden=false;await this.loadAdmin();}
  }
  register(){
   this.groups=new Map([...this.root.querySelectorAll('[data-board-group]')].map(el=>[el.dataset.boardGroup,el]));
