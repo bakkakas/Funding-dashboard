@@ -1,3 +1,4 @@
+const initialSetupPanel=location.hash==='#plan'?'planPanel':location.hash==='#analysis'||['asset','stock','coin'].some(k=>new URLSearchParams(location.search).has(k))?'analysisPanel':'planPanel';
 import {sortCatalog,bindResearchOrder} from './research-order.js?v=1';
 import { UniBurnPanel } from './uni-burns.js?v=1';
 import { StxBondsPanel } from './stx-bonds.js?v=2';
@@ -957,7 +958,7 @@ async function initializeResearch() {
     renderCatalog(sortCatalog(catalog),null,collections.favorites,language);
     const requested=new URL(location.href).searchParams.get('asset');
     const selected=selectAssetId(catalog,requested);
-    if(requested!==selected){const url=new URL(location.href);url.searchParams.set('asset',selected);history.replaceState({},'',url);}
+    if(requested&&requested!==selected){const url=new URL(location.href);url.searchParams.set('asset',selected);history.replaceState({},'',url);}
     await selectAsset(selected,false);
     if(requested&&innerWidth<901)$('researchThesis').scrollIntoView({block:'start'});
   }catch(error){showLoadError(initializeResearch);}
@@ -971,9 +972,8 @@ $('researchReportList').onclick=event=>{
 };
 $('researchSearch').oninput=event=>{searchQuery=event.target.value.trim().toLowerCase();renderResearchCollections();};
 
-document.querySelector('.setup-tabs').onclick = event => {
-  const tab = event.target.closest('[data-panel]');
-  if (!tab) return;
+function activateSetupPanel(panel){
+  const tab=document.querySelector(`[data-panel="${panel}"]`);
   document.querySelectorAll('.setup-tab').forEach(button => {
     const active = button === tab;
     button.classList.toggle('active', active);
@@ -981,6 +981,9 @@ document.querySelector('.setup-tabs').onclick = event => {
     $(button.dataset.panel).hidden = !active;
   });
 };
+
+document.querySelector('.setup-tabs').onclick=event=>{const tab=event.target.closest('[data-panel]');if(!tab)return;activateSetupPanel(tab.dataset.panel);const url=new URL(location.href);url.hash=tab.dataset.panel==='planPanel'?'plan':'analysis';history.replaceState({},'',url);};
+activateSetupPanel(initialSetupPanel);
 
 $('allResearchFilter').onclick = () => { selectedResearchFilter = 'all'; renderResearchCollections(); };
 $('favoriteResearchFilter').onclick = () => { selectedResearchFilter = 'favorites'; renderResearchCollections(); };
@@ -1062,7 +1065,7 @@ $('researchSyncRetry').onclick=()=>{if(!newsAccount.busy){newsAccount.ready=fals
 setInterval(()=>newsPanel.refresh(true),60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){newsPanel.refresh(true);if(account&&!newsAccount.busy){newsAccount.ready=false;void newsAccount.connect(account.id);}}});
 
-if(location.hash==='#plan')$('planTab').click();
+
 
 let unlockDay=kstDateKey();
 setInterval(()=>{const day=kstDateKey();if(day!==unlockDay){unlockDay=day;if(currentAsset&&currentAsset.kind!=='stock')renderUnlockSchedule(decisionMarket?.price??null);}},60000);
