@@ -1,7 +1,7 @@
 import { groupPlatformAssets, platformName, platformTotals } from './portfolio-platforms.js?v=1';
 import { allocationClass, calculateAllocation } from './portfolio-allocation.js?v=1';
 import { valuePortfolio, snapshotDate } from './portfolio-snapshot.js?v=2';
-import { researchTarget, researchHref } from './asset-identity.js?v=6';
+import { researchTarget, researchHref } from './asset-identity.js?v=7';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=2';
 import { authClient as db, signInWithGoogle } from './auth.js?v=1';
 import { setupHeaderWidgets } from './header-widgets.js?v=3';

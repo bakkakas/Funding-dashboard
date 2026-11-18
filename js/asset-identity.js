@@ -1,5 +1,8 @@
 // Issuer identity is independent of the instrument used to value holdings.
 export const STOCKS = [
+  {id:'stock-nvda',code:'NVDA.O',name:'엔비디아 (NVIDIA)',symbol:'NVDA',currency:'USD',market:'US',archiveAvailable:false,ir:'https://investor.nvidia.com/'},
+  {id:'stock-u',code:'U',name:'유니티 소프트웨어 (Unity Software)',symbol:'U',currency:'USD',market:'US',archiveAvailable:false,ir:'https://investors.unity.com/'},
+  {id:'stock-app',code:'APP.O',name:'앱러빈 (AppLovin)',symbol:'APP',currency:'USD',market:'US',archiveAvailable:false,ir:'https://investors.applovin.com/'},
   {id:'stock-mrvl',code:'MRVL.O',name:'마벨 테크놀로지 (Marvell)',symbol:'MRVL',currency:'USD',market:'US',archiveAvailable:false},
   {id:'stock-alab',code:'ALAB.O',name:'아스테라 랩스 (Astera Labs)',symbol:'ALAB',currency:'USD',market:'US',archiveAvailable:false},
   {id:'stock-475560',code:'475560',name:'더본코리아',symbol:'475560',currency:'KRW',market:'KR',archiveAvailable:false},
