@@ -10,6 +10,9 @@
 
 ## 현재 지원
 ### Hyperliquid
+- `xyz:SP500` — S&P 500 지수 무기한 (SPY ETF 상품과 별도)
+- `xyz:XYZ100` — XYZ U.S. 100 지수 무기한 (나스닥100 자체 또는 QQQ ETF와 동일 상품이 아님)
+- 지수 상품 기준: https://docs.trade.xyz/perpetuals/markets/equity-indices/us
 - `xyz:GOOGL`
 - `xyz:SAMSUNG` (`xyz:SMSN`)
 - `xyz:SKHYNIX` (`xyz:SKHX`)
