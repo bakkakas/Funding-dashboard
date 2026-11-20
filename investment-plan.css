@@ -28,3 +28,18 @@
 .market-event-status{margin-top:7px;font-size:11px;color:var(--muted,#9bb5a8);line-height:1.5}
 .market-event-date{white-space:nowrap;align-self:flex-end;opacity:.8}
 @media(max-width:520px){.market-event-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.market-event-badge.is-wide{grid-column:1/-1}.market-event-badge{padding:7px 12px;font-size:calc(11px + 2pt);line-height:1.5}}
+
+/* Private rules and execution plans: no automatic trade signals. */
+.execution-section{border:1px solid var(--line);border-radius:16px;padding:20px;margin:0 0 26px;min-width:0}
+.execution-rule-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.execution-rule-grid>div{display:grid;gap:7px;min-width:0;background:rgba(255,255,255,.025);padding:12px;border-radius:10px}
+.execution-rule-grid strong{font-size:14px;overflow-wrap:anywhere}
+.execution-card{border:1px solid var(--line);border-radius:12px;padding:18px;margin:14px 0;min-width:0}
+.execution-card h3{margin:0;font-size:18px}.execution-card p,.execution-card li{font-size:13px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.execution-card details{margin:14px 0;font-size:13px}.execution-card summary,.plan-score-details>summary{cursor:pointer;color:var(--muted);line-height:1.6}
+.execution-state{font-size:12px;border:1px solid #8a7755;color:#e8c78e;padding:6px 10px;border-radius:20px}.execution-state.is-ready{color:#9cc8ef;border-color:#547da0}
+.execution-condition{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px;border:1px solid var(--line);border-radius:12px;margin:12px 0}.execution-condition label:first-child,.execution-condition label:nth-child(4){grid-column:1/-1}.execution-condition button{justify-self:start}
+.investment-plan .execution-context{display:flex;align-items:flex-start;margin:12px 0;gap:10px}.investment-plan .execution-context input{width:18px;flex:0 0 18px;margin:0}.execution-context span{overflow-wrap:anywhere;line-height:1.5}
+.plan-score-details{margin:12px 0 20px;font-size:12px}.execution-conditions h4{margin:0 0 10px}
+@media(max-width:650px){.execution-rule-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.execution-section{padding:14px}.execution-card{padding:12px}}
+@media(max-width:380px){.execution-rule-grid{grid-template-columns:minmax(0,1fr)}}

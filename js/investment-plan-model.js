@@ -26,8 +26,12 @@ export function normalizePlan(input) {
  if(cash_amount!==null&&(!Number.isFinite(cash_amount)||cash_amount<0||cash_amount>1e14))throw Error('예정 필요 금액은 0~100조 원으로 입력해 주세요.');
  const liquidity=category==='personal'?(input.liquidity||'unsure'):'unsure';
  if(!['room','balanced','tight','unsure'].includes(liquidity))throw Error('자금 상황을 선택해 주세요.');
+ const observed_on=input.observed_on||null; if(observed_on&&!validDate(observed_on))throw Error('관측 기준일을 확인해 주세요.');
+ const source_url=String(input.source_url||'').trim(),interpretation=String(input.interpretation||'').trim();
+ if(source_url.length>2000||interpretation.length>4000)throw Error('출처 또는 해석이 너무 길어요.');
+ if(source_url){try{if(!['http:','https:'].includes(new URL(source_url).protocol))throw Error();}catch{throw Error('출처는 http 또는 https 링크로 입력해 주세요.');}}
  const state=input.state||'active';if(!['active','resolved'].includes(state))throw Error('항목 상태를 확인해 주세요.');
- return {title,category,kind,impact,scope,target,notes,expires_on,cash_date,cash_amount,liquidity,state};
+ return {title,category,kind,impact,scope,target,notes,expires_on,cash_date,cash_amount,liquidity,state,observed_on,source_url,interpretation};
 }
 export function filterPlans(items,{category='',target='',scope='',state='active'}={},today=seoulDate()) {
  return items.filter(i=>(!category||i.category===category)&&(!target||i.scope==='all'||(i.target===target&&(!scope||i.scope===scope)))&&(state==='all'||(state==='due'?isDue(i,today):i.state===state)))
