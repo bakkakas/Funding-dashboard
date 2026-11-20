@@ -1,3 +1,4 @@
+import { cashBalances } from './cash-balances.js?v=1';
 // Presentation grouping only: never merge or rewrite persisted holdings.
 export function platformName(asset){return String(asset.nickname||'').trim();}
 export function groupPlatformAssets(assets){
@@ -7,4 +8,17 @@ export function groupPlatformAssets(assets){
 }
 export function platformTotals(assets,valueOf,cryptoTotalSource='assets'){
   return assets.reduce((totals,asset)=>{const value=Number(valueOf(asset))||0;totals.value+=value;if(!asset.excluded_from_total&&!(cryptoTotalSource==='details'&&asset.asset_class==='crypto'))totals.included+=value;return totals;},{value:0,included:0});
+}
+
+// Inspect every holding, not just the visible asset-class filter.
+export function isUsdPlatform(assets){
+  return assets.length>0 && assets.every(asset=>asset.asset_class==='cash'
+    ? cashBalances(asset).krw===0
+    : asset.currency==='USD');
+}
+export function platformUsdTotals(assets,priceOf,cryptoTotalSource='assets'){
+  if(!isUsdPlatform(assets))return null;
+  return platformTotals(assets,asset=>asset.asset_class==='cash'
+    ? cashBalances(asset).usd
+    : Number(asset.quantity)*Number(priceOf(asset)),cryptoTotalSource);
 }

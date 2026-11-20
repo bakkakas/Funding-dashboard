@@ -1,4 +1,4 @@
-import { groupPlatformAssets, platformName, platformTotals } from './portfolio-platforms.js?v=1';
+import { groupPlatformAssets, platformName, platformTotals, platformUsdTotals } from './portfolio-platforms.js?v=2';
 import { allocationClass, calculateAllocation } from './portfolio-allocation.js?v=1';
 import { valuePortfolio, snapshotDate } from './portfolio-snapshot.js?v=2';
 import { researchTarget, researchHref } from './asset-identity.js?v=7';
@@ -191,8 +191,10 @@ function renderAssets(){
   const groups=groupPlatformAssets(list);
   $('assetRows').innerHTML=groups.length?groups.map((group,index)=>{
     const all=assets.filter(a=>platformName(a)===group.name),totals=platformTotals(all,valueKrw,cryptoTotalSource);
+    const usdTotals=platformUsdTotals(all,a=>prices[a.id]??(Number(a.manual_price)||0),cryptoTotalSource);
+    const usdText=value=>` (USD ${new Intl.NumberFormat(lang==='en'?'en-US':'ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2}).format(value)})`;
     const heads=['asset','assetClass','quantity','currentPrice','valuation','weight','excludeTotal'];
-    return `<section class="platform-card" data-platform-index="${index}"><header class="platform-head"><div><h4>${escapeHtml(group.name||c('unassigned'))}</h4><div class="platform-values"><span>${c('platformValue')} <strong>${won.format(totals.value)}</strong></span>${totals.included!==totals.value?`<span>${c('platformIncluded')} <strong>${won.format(totals.included)}</strong></span>`:''}</div></div><div class="section-actions platform-actions"><button class="chip" data-platform-rename="${index}">${c('renamePlatform')}</button><button class="chip platform-danger" data-platform-delete="${index}">${c('deletePlatform')}</button><button class="chip" data-platform-add="${index}">${c('addAsset')}</button></div></header><div class="table-wrap"><table><thead><tr>${heads.map(key=>`<th>${c(key)}</th>`).join('')}<th>Stable (Cash)</th><th></th></tr></thead><tbody>${group.assets.map(row).join('')}</tbody></table></div></section>`;
+    return `<section class="platform-card" data-platform-index="${index}"><header class="platform-head"><div><h4>${escapeHtml(group.name||c('unassigned'))}</h4><div class="platform-values"><span>${c('platformValue')} <strong>${won.format(totals.value)}${usdTotals?usdText(usdTotals.value):''}</strong></span>${totals.included!==totals.value?`<span>${c('platformIncluded')} <strong>${won.format(totals.included)}${usdTotals?usdText(usdTotals.included):''}</strong></span>`:''}</div></div><div class="section-actions platform-actions"><button class="chip" data-platform-rename="${index}">${c('renamePlatform')}</button><button class="chip platform-danger" data-platform-delete="${index}">${c('deletePlatform')}</button><button class="chip" data-platform-add="${index}">${c('addAsset')}</button></div></header><div class="table-wrap"><table><thead><tr>${heads.map(key=>`<th>${c(key)}</th>`).join('')}<th>Stable (Cash)</th><th></th></tr></thead><tbody>${group.assets.map(row).join('')}</tbody></table></div></section>`;
   }).join(''):`<p class="empty-assets">${c('emptyAssets')}</p>`;
   document.querySelectorAll('[data-platform-rename]').forEach(b=>b.onclick=()=>openPlatformAction(groups[Number(b.dataset.platformRename)].name,'rename'));
   document.querySelectorAll('[data-platform-delete]').forEach(b=>b.onclick=()=>openPlatformAction(groups[Number(b.dataset.platformDelete)].name,'delete'));
