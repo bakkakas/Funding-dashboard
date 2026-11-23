@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-23T08:08:22.361480+00:00",
+  "updatedAt": "2026-11-23T20:30:29.640132+00:00",
   "source": "https://explorer.hiro.so/staking/bonds?chain=mainnet",
-  "sourceAsOf": "2026-11-23T08:08:22.115000+00:00",
-  "bitcoinHeight": 977171,
+  "sourceAsOf": "2026-11-23T20:30:29.534000+00:00",
+  "bitcoinHeight": 977269,
   "bonds": [
     {
       "index": 1,
@@ -41,8 +41,8 @@
           "pox_cycle": 155,
           "time": null,
           "time_iso": null,
-          "projected_time": 1804046324,
-          "projected_time_iso": "2027-03-03T03:58:44.000Z"
+          "projected_time": 1804028353,
+          "projected_time_iso": "2027-03-02T22:59:13.000Z"
         }
       },
       "balances": {
@@ -98,8 +98,8 @@
           "pox_cycle": 157,
           "time": null,
           "time_iso": null,
-          "projected_time": 1806566324,
-          "projected_time_iso": "2027-04-01T07:58:44.000Z"
+          "projected_time": 1806548353,
+          "projected_time_iso": "2027-04-01T02:59:13.000Z"
         }
       },
       "balances": {
@@ -155,8 +155,8 @@
           "pox_cycle": 159,
           "time": null,
           "time_iso": null,
-          "projected_time": 1809086324,
-          "projected_time_iso": "2027-04-30T11:58:44.000Z"
+          "projected_time": 1809068353,
+          "projected_time_iso": "2027-04-30T06:59:13.000Z"
         }
       },
       "balances": {
@@ -173,6 +173,63 @@
         },
         "paid_out": {
           "btc": "120613188"
+        }
+      }
+    },
+    {
+      "index": 4,
+      "pox_version": "pox5",
+      "status": "upcoming",
+      "parameters": {
+        "target_rate_bps": 300,
+        "stx_value_ratio": 238295,
+        "minimum_stx_ratio": 500,
+        "btc_capacity": "104500000000"
+      },
+      "registrations": {
+        "allowed_count": 5,
+        "registered_count": 0
+      },
+      "schedule": {
+        "enrollment_cutoff": {
+          "bitcoin_height": 978850,
+          "pox_cycle": 148,
+          "time": null,
+          "time_iso": null,
+          "projected_time": 1796408353,
+          "projected_time_iso": "2026-12-04T18:19:13.000Z"
+        },
+        "activation": {
+          "bitcoin_height": 978950,
+          "pox_cycle": 149,
+          "time": null,
+          "time_iso": null,
+          "projected_time": 1796468353,
+          "projected_time_iso": "2026-12-05T10:59:13.000Z"
+        },
+        "unlock": {
+          "bitcoin_height": 1004150,
+          "pox_cycle": 161,
+          "time": null,
+          "time_iso": null,
+          "projected_time": 1811588353,
+          "projected_time_iso": "2027-05-29T10:59:13.000Z"
+        }
+      },
+      "balances": {
+        "locked": {
+          "btc": "0",
+          "stx": "0"
+        },
+        "rewards": {
+          "btc": {
+            "distributed": "0",
+            "accrued": "0",
+            "claimed": "0"
+          }
+        },
+        "paid_out": {
+          "btc": "0"
         }
       }
     }
