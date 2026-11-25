@@ -1,6 +1,8 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import tempfile
+from unittest.mock import patch
 spec=importlib.util.spec_from_file_location('gold',Path(__file__).resolve().parents[1]/'scripts/update_gold_research.py')
 gold=importlib.util.module_from_spec(spec);spec.loader.exec_module(gold)
 
@@ -15,5 +17,15 @@ class GoldCollectorTests(unittest.TestCase):
  def test_bad_payload_does_not_parse_as_data(self):
   for text in ['<html>Unavailable</html>','Date,Price\n2020-01,0','Date,Price\n2020-01,NaN']:
    with self.assertRaises(ValueError):gold.parse_monthly(text,'Price','1960-01','2026-11')
+
+ def test_failed_update_preserves_existing_snapshot(self):
+  with tempfile.TemporaryDirectory() as folder:
+   dest=Path(folder)/'snapshot.json'
+   dest.write_text('{"schemaVersion":1,"series":{}}')
+   before=dest.read_bytes()
+   with patch.object(gold.urllib.request,'urlopen',side_effect=OSError('unavailable')):
+    with self.assertRaises(OSError):gold.collect(output=dest)
+   self.assertEqual(dest.read_bytes(),before)
+   self.assertFalse(dest.with_suffix('.tmp').exists())
 
 if __name__=='__main__':unittest.main()

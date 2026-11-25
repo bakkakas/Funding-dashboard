@@ -59,7 +59,7 @@ def collect(input_dir=None, output=None):
   values = parse_monthly(text,col,start,month)
   if previous:
    old=previous['series'][key]['values']
-   if values[0][0]>old[0][0] or values[-1][0]<old[-1][0] or len(values)<len(old)*.98:
+   if not {r[0] for r in old}.issubset({r[0] for r in values}):
     raise ValueError('History regression: '+key)
   return key,{'source':label,'url':url,'frequency':'monthly-average','values':values}
  with ThreadPoolExecutor(max_workers=6) as pool: series=dict(pool.map(fetch,SOURCES.items()))
