@@ -1,3 +1,5 @@
+import {GoldResearch} from './gold-research.js?v=1';
+import {GOLD_ENTRY} from './gold-research-data.js?v=1';
 const initialSetupPanel=location.hash==='#plan'?'planPanel':location.hash==='#analysis'||['asset','stock','coin'].some(k=>new URLSearchParams(location.search).has(k))?'analysisPanel':'planPanel';
 import {sortCatalog,bindResearchOrder} from './research-order.js?v=1';
 import { UniBurnPanel } from './uni-burns.js?v=1';
@@ -36,6 +38,7 @@ import { PythReservePanel } from './pyth-reserve.js?v=2';
 import { HypeBuybackPanel } from './hype-buybacks.js?v=5';
 
 const $ = id => document.getElementById(id);
+const goldPanel=new GoldResearch($('goldResearch'));
 const planPanel=new InvestmentPlan(authClient,$('investmentPlan'));
 const thesisPanel=new ResearchThesis(authClient,$('researchThesis'));
 const stockPanel=new StockResearch(authClient,$('stockResearch'),issuer=>{
@@ -536,7 +539,7 @@ function render() {
     : c('accountNotice');
   if (!currentAsset) return;
   syncThesis();
-  if(currentAsset.kind==='stock'){renderResearchCollections();document.title=`${currentAsset.name} · 투자 셋업`;return;}
+  if(['stock','gold'].includes(currentAsset.kind)){renderResearchCollections();document.title=`${currentAsset.name} · 투자 셋업`;return;}
   renderAssetContent(currentAsset, language, resolveProfile(currentAsset, profiles));
   renderResearchCollections();
   renderMarketData();
@@ -883,9 +886,16 @@ function showLoadError(retry) {
 async function selectAsset(id, updateUrl=true) {
   if(!catalog.some(asset=>asset.id===id))return;
   if(currentAsset?.id!==id&&!thesisPanel.canLeave()){if(!updateUrl)history.replaceState({},'',selectedResearchUrl);return;}
-  stockPanel.cancel();
+  stockPanel.cancel();goldPanel.cancel();
   $('researchThesis').hidden=true;
   const selectedEntry=catalog.find(a=>a.id===id);
+  if(selectedEntry.kind==='gold'){
+    ++selectionVersion;assetController?.abort();currentAsset=selectedEntry;
+    document.querySelector('.research-report').hidden=true;$('researchLoading').hidden=true;
+    if(updateUrl){const url=new URL(location.href);url.search='';url.searchParams.set('asset','gold');history.pushState({},'',url);}
+    selectedResearchUrl=location.href;render();await goldPanel.show();
+    if(updateUrl&&innerWidth<901&&currentAsset?.kind==='gold')$('goldResearch').scrollIntoView({block:'start'});return;
+  }
   if(selectedEntry.kind==='stock'){
     ++selectionVersion;assetController?.abort();currentAsset=selectedEntry;
     document.querySelector('.research-report').hidden=true;$('researchLoading').hidden=true;
@@ -943,7 +953,7 @@ async function selectAsset(id, updateUrl=true) {
 async function initializeResearch() {
   try {
     const [index,settings]=await Promise.all([fetchJson('./data/research/index.json'),fetchJson('./data/research/profiles.json')]);
-    catalog=[...validateCatalog(index),...STOCKS.map(s=>({...s,archiveAvailable:s.archiveAvailable??true,kind:'stock',category:'stock'}))];profiles=settings;
+    catalog=[...validateCatalog(index),GOLD_ENTRY,...STOCKS.map(s=>({...s,archiveAvailable:s.archiveAvailable??true,kind:'stock',category:'stock'}))];profiles=settings;
     const params=new URL(location.href).searchParams,stock=params.get('stock'),coin=params.get('coin');
     if(stock&&/^[A-Za-z0-9][A-Za-z0-9.-]{0,25}$/.test(stock)){
       const resolved=canonicalStock(stock);
@@ -960,7 +970,7 @@ async function initializeResearch() {
     const selected=selectAssetId(catalog,requested);
     if(requested&&requested!==selected){const url=new URL(location.href);url.searchParams.set('asset',selected);history.replaceState({},'',url);}
     await selectAsset(selected,false);
-    if(requested&&innerWidth<901)$('researchThesis').scrollIntoView({block:'start'});
+    if(requested&&innerWidth<901)$(currentAsset?.kind==='gold'?'goldResearch':'researchThesis').scrollIntoView({block:'start'});
   }catch(error){showLoadError(initializeResearch);}
 }
 window.addEventListener('popstate',()=>selectAsset(selectAssetId(catalog,new URL(location.href).searchParams.get('asset')),false));
@@ -1012,7 +1022,7 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape') setListPickerOpen(false);
 });
 
-setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); usdePanel.setLanguage(next); susdePanel.setLanguage(next); susdeReturnsPanel.setLanguage(next); milestonePanel.setLanguage(next); hypeBuybackPanel.setLanguage(next); uniBurnPanel.setLanguage(next); stxBondsPanel.setLanguage(next); if(currentAsset&&currentAsset.kind!=='stock'){renderMarketData();mountTradingViewChart();} } });
+setupHeaderWidgets({ onLanguageChange: next => { language = next; render(); usdePanel.setLanguage(next); susdePanel.setLanguage(next); susdeReturnsPanel.setLanguage(next); milestonePanel.setLanguage(next); hypeBuybackPanel.setLanguage(next); uniBurnPanel.setLanguage(next); stxBondsPanel.setLanguage(next); if(currentAsset&&!['stock','gold'].includes(currentAsset.kind)){renderMarketData();mountTradingViewChart();} } });
 
 async function submitAuth(event) {
   event.preventDefault();
@@ -1068,6 +1078,6 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){newsPanel
 
 
 let unlockDay=kstDateKey();
-setInterval(()=>{const day=kstDateKey();if(day!==unlockDay){unlockDay=day;if(currentAsset&&currentAsset.kind!=='stock')renderUnlockSchedule(decisionMarket?.price??null);}},60000);
+setInterval(()=>{const day=kstDateKey();if(day!==unlockDay){unlockDay=day;if(currentAsset&&!['stock','gold'].includes(currentAsset.kind))renderUnlockSchedule(decisionMarket?.price??null);}},60000);
 
 bindResearchOrder(document.getElementById("researchReportList"),()=>catalog.map(a=>a.id),renderResearchCollections);

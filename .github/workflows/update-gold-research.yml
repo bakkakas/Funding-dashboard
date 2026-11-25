@@ -1,0 +1,30 @@
+name: Update gold research
+on:
+  schedule:
+    - cron: '43 21 * * 1-5'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: update-gold-research
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: python3 scripts/update_gold_research.py
+      - name: Save verified snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/gold-research.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: update gold research"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            git push && exit 0
+          done
+          exit 1
