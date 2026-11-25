@@ -1,5 +1,5 @@
-import {GoldResearch} from './gold-research.js?v=4';
-import {GOLD_ENTRY} from './gold-research-data.js?v=4';
+import {GoldResearch} from './gold-research.js?v=5';
+import {GOLD_ENTRY} from './gold-research-data.js?v=5';
 const initialSetupPanel=location.hash==='#plan'?'planPanel':location.hash==='#analysis'||['asset','stock','coin'].some(k=>new URLSearchParams(location.search).has(k))?'analysisPanel':'planPanel';
 import {sortCatalog,bindResearchOrder} from './research-order.js?v=1';
 import { UniBurnPanel } from './uni-burns.js?v=1';
