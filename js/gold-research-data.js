@@ -1,4 +1,4 @@
-export const GOLD_ENTRY={id:'gold',name:'금 · Gold',symbol:'XAU',kind:'gold',category:'원자재',logo:'./assets/gold.svg'};
+export const GOLD_ENTRY={id:'gold',name:'금 · Gold',symbol:'XAU',kind:'gold',category:'원자재',logo:new URL('../assets/gold.svg',import.meta.url).href};
 export const GOLD_LABELS={gold:'금',sp500:'S&P 500',NASDAQCOM:'나스닥 종합',DGS10:'미국 10년 국채금리',DFF:'연방기금 실효금리',DFII10:'미국 10년 실질금리'};
 export function validateGold(data){
  if(data?.schemaVersion!==1)throw Error('지원하지 않는 금 자료');

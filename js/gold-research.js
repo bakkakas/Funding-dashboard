@@ -1,4 +1,4 @@
-import {GOLD_LABELS,validateGold,goldWindow} from './gold-research-data.js?v=1';
+import {GOLD_LABELS,validateGold,goldWindow} from './gold-research-data.js?v=2';
 import {FX_URL,parseFx} from './fx-rate.js?v=2';
 const fmt=(v,d=2)=>Number.isFinite(v)?v.toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
 const pct=v=>Number.isFinite(v)?`${v>0?'+':''}${fmt(v)}%`:'—';
