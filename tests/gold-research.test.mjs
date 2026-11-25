@@ -48,3 +48,15 @@ test('correlation strength uses absolute unrounded values and explicit direction
  assert.equal(m(-0.6999),'보통 수준의 반대 방향 관계');assert.equal(m(-0.7),'강한 반대 방향 관계');
  assert.equal(m(null),'계산 불가');
 });
+
+test('Fed target and Treasury coexist on raw percentage scale with separate pp correlations',async()=>{
+ const {goldCorrelations}=await import('../js/gold-research-data.js');
+ const w=goldWindow(data,{visible:{fed:true,rate:true,sp500:true,NASDAQCOM:true}});
+ assert.equal(w.start,'1982-10');assert.equal(w.keys.length,5);
+ assert.equal(w.rows.FEDTARGET.indexed,null);assert.equal(w.rows.DGS10.indexed,null);
+ assert.equal(w.rows.FEDTARGET.mdd,null);
+ const correlations=goldCorrelations(w);assert.equal(Object.keys(correlations).length,4);assert.ok(Number.isFinite(correlations.FEDTARGET.value));
+ const small={keys:['gold','DGS10','FEDTARGET'],rows:{gold:{raw:[100,110,99,118.8]},DGS10:{raw:[1,1.1,1,1.2]},FEDTARGET:{raw:[0,0.1,0,0.2]}}};
+ assert.ok(Math.abs(goldCorrelations(small).FEDTARGET.value-1)<1e-10);
+ const bad=structuredClone(data);bad.series.FEDTARGET.latestRange.lower=999;assert.throws(()=>validateGold(bad));
+});

@@ -7,7 +7,8 @@ import argparse
 import csv
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+import calendar
 import io
 import json
 import math
@@ -52,6 +53,50 @@ def download_text(url):
                          capture_output=True,check=True,timeout=105)
  return result.stdout.decode('utf-8-sig')
 
+def parse_target_daily(text, column):
+ rows=csv.DictReader(io.StringIO(text))
+ if not rows.fieldnames or column not in rows.fieldnames: raise ValueError('Missing target column')
+ result={}
+ for row in rows:
+  day=row.get('observation_date','')
+  if datetime.strptime(day,'%Y-%m-%d').strftime('%Y-%m-%d')!=day: raise ValueError('Bad target date')
+  raw=row[column]
+  if raw in ('','.'): continue
+  value=float(raw)
+  if not math.isfinite(value) or value<0 or day in result: raise ValueError('Invalid target observation')
+  result[day]=value
+ if not result: raise ValueError('Empty target history')
+ return result
+
+def target_series(texts, current_month):
+ old=parse_target_daily(texts['DFEDTAR'],'DFEDTAR')
+ low=parse_target_daily(texts['DFEDTARL'],'DFEDTARL')
+ high=parse_target_daily(texts['DFEDTARU'],'DFEDTARU')
+ if set(low)!=set(high): raise ValueError('Target bounds dates differ')
+ if min(low)!='2008-12-16' or max(old)!='2008-12-15': raise ValueError('Target regime boundary mismatch')
+ if any(low[d]>high[d] for d in low): raise ValueError('Inverted target range')
+ daily={**old,**{d:(low[d]+high[d])/2 for d in low}}
+ last=max(daily)
+ day=datetime(1982,10,1)
+ while day.strftime('%Y-%m-%d')<=last:
+  if day.strftime('%Y-%m-%d') not in daily: raise ValueError('Missing target day')
+  day+=timedelta(days=1)
+ groups=defaultdict(list)
+ for day,value in sorted(daily.items()):
+  month=day[:7]
+  if '1982-10'<=month<current_month: groups[month].append(value)
+ values=[]
+ for month,points in sorted(groups.items()):
+  y,m=map(int,month.split('-'))
+  if len(points)!=calendar.monthrange(y,m)[1]: raise ValueError('Incomplete target month')
+  values.append([month,round(sum(points)/len(points),6)])
+ if len(values)<120: raise ValueError('Insufficient target history')
+ return {'source':'FRED DFEDTAR / DFEDTARL / DFEDTARU · 목표금리 중간값 월평균',
+  'url':'https://fred.stlouisfed.org/series/DFEDTARU','frequency':'monthly-average',
+  'values':values,'latestRange':{'date':last,'lower':low[last],'upper':high[last]},
+  'note':'1982–1993년은 FRED의 연구 기반 복원 목표금리. 2008-12-16부터 목표 범위 중간값. 첫 완전한 달인 1982-10부터 제공.'}
+
+
 def collect(input_dir=None, output=None):
  now = datetime.now(timezone.utc)
  month = now.strftime('%Y-%m')
@@ -71,6 +116,15 @@ def collect(input_dir=None, output=None):
     raise ValueError('History regression: '+key)
   return key,{'source':label,'url':url,'frequency':'monthly-average','values':values}
  with ThreadPoolExecutor(max_workers=6) as pool: series=dict(pool.map(fetch,SOURCES.items()))
+ target_ids=['DFEDTAR','DFEDTARL','DFEDTARU']
+ def read_target(key):
+  return key,(Path(input_dir)/(key+'.csv')).read_text() if input_dir else download_text('https://fred.stlouisfed.org/graph/fredgraph.csv?id='+key)
+ with ThreadPoolExecutor(max_workers=3) as pool: texts=dict(pool.map(read_target,target_ids))
+ series['FEDTARGET']=target_series(texts,month)
+ if previous and 'FEDTARGET' in previous['series']:
+  old=previous['series']['FEDTARGET'];new=series['FEDTARGET']
+  if not {r[0] for r in old['values']}.issubset({r[0] for r in new['values']}) or new['latestRange']['date']<old['latestRange']['date']:
+   raise ValueError('Target history regression')
  payload={'schemaVersion':1,'updatedAt':now.isoformat(),'series':series}
  output.parent.mkdir(parents=True,exist_ok=True)
  temp=output.with_suffix('.tmp')

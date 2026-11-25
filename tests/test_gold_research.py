@@ -29,3 +29,38 @@ class GoldCollectorTests(unittest.TestCase):
    self.assertFalse(dest.with_suffix('.tmp').exists())
 
 if __name__=='__main__':unittest.main()
+
+class FedTargetTests(unittest.TestCase):
+ def texts(self):
+  start=gold.datetime(1982,9,27);end=gold.datetime(2010,2,2)
+  rows={k:['observation_date,'+k] for k in ['DFEDTAR','DFEDTARL','DFEDTARU']}
+  while start<=end:
+   day=start.strftime('%Y-%m-%d')
+   if day<'2008-12-16':rows['DFEDTAR'].append(day+',1')
+   else:
+    rows['DFEDTARL'].append(day+',0');rows['DFEDTARU'].append(day+',0.25')
+   start+=gold.timedelta(days=1)
+  return {k:'\n'.join(v) for k,v in rows.items()}
+ def test_transition_midpoint_zero_bound_and_completed_months(self):
+  s=gold.target_series(self.texts(),'2010-02');v=dict(s['values'])
+  self.assertEqual(s['values'][0][0],'1982-10');self.assertEqual(s['values'][-1][0],'2010-01')
+  self.assertAlmostEqual(v['2008-12'],(15+16*0.125)/31,places=6)
+  self.assertEqual(v['2009-01'],0.125);self.assertEqual(s['latestRange']['lower'],0)
+ def test_missing_bound_or_day_and_inverted_range_rejected(self):
+  for ids in [('DFEDTARL',),('DFEDTARL','DFEDTARU')]:
+   texts=self.texts()
+   for k in ids:texts[k]='\n'.join(l for l in texts[k].splitlines() if not l.startswith('2009-01-02,'))
+   with self.assertRaises(ValueError):gold.target_series(texts,'2010-02')
+  texts=self.texts();texts['DFEDTARL']=texts['DFEDTARL'].replace('2009-01-02,0','2009-01-02,1')
+  with self.assertRaises(ValueError):gold.target_series(texts,'2010-02')
+ def test_target_failure_preserves_existing_file(self):
+  previous=gold.json.loads((gold.ROOT/'data/gold-research.json').read_text())
+  def parsed(text,column,*args):
+   key={'Price':'gold','SP500':'sp500'}.get(column,column)
+   return previous['series'][key]['values']
+  with tempfile.TemporaryDirectory() as folder:
+   dest=Path(folder)/'gold.json';dest.write_text(gold.json.dumps(previous));before=dest.read_bytes()
+   with patch.object(gold,'download_text',return_value='bad target'),patch.object(gold,'parse_monthly',side_effect=parsed):
+    with self.assertRaises(ValueError):gold.collect(output=dest)
+   self.assertEqual(dest.read_bytes(),before)
+   self.assertFalse(dest.with_suffix('.tmp').exists())
