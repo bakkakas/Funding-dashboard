@@ -29,3 +29,21 @@ export function goldWindow(data,{rate='DGS10',visible={rate:true,sp500:true,NASD
  const rows=Object.fromEntries(keys.map(k=>{const raw=months.map(m=>maps[k].get(m)??null),base=raw[0];return [k,{raw,indexed:k===rate?null:raw.map(v=>v===null?null:v/base*100),...(k===rate?{change:null,mdd:null}:performance(raw)),rateChange:raw.at(-1)-base}];}));
  return {months,keys,rows,start,end};
 }
+
+// Correlate consecutive, paired changes, never levels or bridged missing periods.
+export function goldCorrelations(window, rate='DGS10'){
+ const gold=window.rows.gold?.raw||[];
+ return Object.fromEntries(window.keys.filter(k=>k!=='gold').map(k=>{
+  const other=window.rows[k].raw,pairs=[];
+  for(let i=1;i<gold.length;i++){
+   if(![gold[i-1],gold[i],other[i-1],other[i]].every(Number.isFinite))continue;
+   pairs.push([gold[i]/gold[i-1]-1,k===rate?other[i]-other[i-1]:other[i]/other[i-1]-1]);
+  }
+  const n=pairs.length;
+  if(n<3)return [k,{value:null,n,reason:'관측쌍 3개 이상 필요'}];
+  const mx=pairs.reduce((s,p)=>s+p[0],0)/n,my=pairs.reduce((s,p)=>s+p[1],0)/n;
+  let xx=0,yy=0,xy=0;
+  for(const [x,y] of pairs){xx+=(x-mx)**2;yy+=(y-my)**2;xy+=(x-mx)*(y-my);}
+  return [k,{value:xx>0&&yy>0?Math.max(-1,Math.min(1,xy/Math.sqrt(xx*yy))):null,n,reason:xx>0&&yy>0?'':'변동이 없어 계산 불가'}];
+ }));
+}

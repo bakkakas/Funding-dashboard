@@ -30,3 +30,12 @@ test('corrupt zero gold prices and duplicate dates fail validation',()=>{
  const bad=structuredClone(data);bad.series.gold.values[0][1]=0;assert.throws(()=>validateGold(bad));
  const duplicate=structuredClone(data);duplicate.series.gold.values[1][0]=duplicate.series.gold.values[0][0];assert.throws(()=>validateGold(duplicate));
 });
+
+test('correlation uses paired consecutive returns and rate differences',async()=>{
+ const {goldCorrelations}=await import('../js/gold-research-data.js');
+ const w={keys:['gold','sp500','DGS10'],rows:{gold:{raw:[100,110,99,118.8]},sp500:{raw:[200,220,198,237.6]},DGS10:{raw:[1,1.1,1,1.2]}}};
+ const c=goldCorrelations(w);
+ assert.ok(Math.abs(c.sp500.value-1)<1e-10);assert.ok(Math.abs(c.DGS10.value-1)<1e-10);assert.equal(c.sp500.n,3);
+ w.rows.sp500.raw[1]=null;assert.equal(goldCorrelations(w).sp500.n,1);assert.equal(goldCorrelations(w).sp500.value,null);
+ w.rows.sp500.raw=[1,1,1,1];assert.equal(goldCorrelations(w).sp500.value,null);
+});
