@@ -47,3 +47,12 @@ export function goldCorrelations(window, rate='DGS10'){
   return [k,{value:xx>0&&yy>0?Math.max(-1,Math.min(1,xy/Math.sqrt(xx*yy))):null,n,reason:xx>0&&yy>0?'':'변동이 없어 계산 불가'}];
  }));
 }
+
+// Display heuristics, not universal significance thresholds; use unrounded r.
+export function correlationMeaning(value){
+ if(!Number.isFinite(value))return '계산 불가';
+ const a=Math.abs(value);
+ if(a<0.2)return '매우 약한 선형 관계';
+ const strength=a<0.4?'약한':a<0.7?'보통 수준의':'강한';
+ return `${strength} ${value>0?'같은':'반대'} 방향 관계`;
+}
