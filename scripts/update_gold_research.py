@@ -12,7 +12,7 @@ import io
 import json
 import math
 from pathlib import Path
-import urllib.request
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = {
@@ -44,6 +44,14 @@ def parse_monthly(text, column, start, current_month):
  if len(result) < 120: raise ValueError('Insufficient history: '+column)
  return result
 
+def download_text(url):
+ # curl negotiates the FRED transport reliably on macOS and GitHub runners.
+ # Public unauthenticated CSV only; normal HTTP errors remain failures.
+ result = subprocess.run(['curl','--fail','--location','--silent','--show-error',
+                          '--max-time','30','--retry','2','--retry-delay','2',url],
+                         capture_output=True,check=True,timeout=105)
+ return result.stdout.decode('utf-8-sig')
+
 def collect(input_dir=None, output=None):
  now = datetime.now(timezone.utc)
  month = now.strftime('%Y-%m')
@@ -54,8 +62,8 @@ def collect(input_dir=None, output=None):
   if input_dir:
    text = (Path(input_dir)/(key+'.csv')).read_text()
   else:
-   req = urllib.request.Request(url, headers={'User-Agent':'FundingDashboard/1.0'})
-   with urllib.request.urlopen(req,timeout=45) as response: text=response.read().decode('utf-8-sig')
+   print('Downloading '+key,flush=True)
+   text = download_text(url)
   values = parse_monthly(text,col,start,month)
   if previous:
    old=previous['series'][key]['values']

@@ -23,7 +23,7 @@ class GoldCollectorTests(unittest.TestCase):
    dest=Path(folder)/'snapshot.json'
    dest.write_text('{"schemaVersion":1,"series":{}}')
    before=dest.read_bytes()
-   with patch.object(gold.urllib.request,'urlopen',side_effect=OSError('unavailable')):
+   with patch.object(gold,'download_text',side_effect=OSError('unavailable')):
     with self.assertRaises(OSError):gold.collect(output=dest)
    self.assertEqual(dest.read_bytes(),before)
    self.assertFalse(dest.with_suffix('.tmp').exists())
