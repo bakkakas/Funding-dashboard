@@ -39,3 +39,12 @@ test('correlation uses paired consecutive returns and rate differences',async()=
  w.rows.sp500.raw[1]=null;assert.equal(goldCorrelations(w).sp500.n,1);assert.equal(goldCorrelations(w).sp500.value,null);
  w.rows.sp500.raw=[1,1,1,1];assert.equal(goldCorrelations(w).sp500.value,null);
 });
+
+test('correlation strength uses absolute unrounded values and explicit directions',async()=>{
+ const {correlationMeaning:m}=await import('../js/gold-research-data.js');
+ assert.equal(m(0.8),'강한 같은 방향 관계');assert.equal(m(-0.8),'강한 반대 방향 관계');
+ assert.equal(m(0),'매우 약한 선형 관계');assert.equal(m(0.1999),'매우 약한 선형 관계');
+ assert.equal(m(-0.2),'약한 반대 방향 관계');assert.equal(m(0.4),'보통 수준의 같은 방향 관계');
+ assert.equal(m(-0.6999),'보통 수준의 반대 방향 관계');assert.equal(m(-0.7),'강한 반대 방향 관계');
+ assert.equal(m(null),'계산 불가');
+});
