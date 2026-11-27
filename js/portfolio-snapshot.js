@@ -1,4 +1,4 @@
-import { effectivePortfolio } from './platform-balance.js?v=1';
+import { effectivePortfolio, portfolioQuoteInputs } from './platform-balance.js?v=2';
 import { calculateAllocation } from './portfolio-allocation.js?v=1';
 import { calculatePortfolioTotals } from './portfolio-totals.js';
 import { cashValueKrw } from './cash-balances.js';
@@ -7,9 +7,9 @@ import { cashValueKrw } from './cash-balances.js';
 export async function valuePortfolio({ assets=[], cryptoEntries=[], cryptoTotalSource='assets', platformBalances={}, fx, quote }) {
   if (!Number.isFinite(fx) || fx <= 0) throw Error('환율 조회 실패');
   const source=cryptoTotalSource==='details'&&cryptoEntries.length?'details':'assets';
-  ({assets,cryptoEntries}=effectivePortfolio({assets,cryptoEntries,platformBalances}));
+  const inputs=portfolioQuoteInputs({assets,cryptoEntries,platformBalances,cryptoTotalSource:source});
   const values = new Map();
-  for (const item of [...assets, ...cryptoEntries]) {
+  for (const item of [...inputs.assets, ...inputs.cryptoEntries]) {
     let value;
     if (item.asset_class === 'cash') value = cashValueKrw(item, fx);
     else {
@@ -20,6 +20,8 @@ export async function valuePortfolio({ assets=[], cryptoEntries=[], cryptoTotalS
     if (!Number.isFinite(value) || value < 0) throw Error('평가액 계산 실패');
     values.set(item.id,value);
   }
+  ({assets,cryptoEntries}=effectivePortfolio({assets,cryptoEntries,platformBalances,cryptoTotalSource:source,fx,assetValue:a=>values.get(a.id),cryptoValue:a=>values.get(a.id)}));
+  for(const a of assets)if(a.manual_platform)values.set(a.id,cashValueKrw(a,fx));
   const totals=calculatePortfolioTotals({assets,cryptoEntries,cryptoTotalSource:source,assetValue:a=>values.get(a.id),cryptoValue:a=>values.get(a.id)});
   // Classification intentionally includes total-excluded assets, matching the allocation UI.
   const allocation=calculateAllocation({assets,cryptoEntries,cryptoTotalSource:source,fx,assetValue:a=>values.get(a.id),cryptoValue:a=>values.get(a.id)});
