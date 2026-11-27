@@ -1,10 +1,13 @@
+import { effectivePortfolio } from './platform-balance.js?v=1';
 import { calculateAllocation } from './portfolio-allocation.js?v=1';
 import { calculatePortfolioTotals } from './portfolio-totals.js';
 import { cashValueKrw } from './cash-balances.js';
 
 // Shared by the daily collector and browser: never persist incomplete valuations.
-export async function valuePortfolio({ assets=[], cryptoEntries=[], cryptoTotalSource='assets', fx, quote }) {
+export async function valuePortfolio({ assets=[], cryptoEntries=[], cryptoTotalSource='assets', platformBalances={}, fx, quote }) {
   if (!Number.isFinite(fx) || fx <= 0) throw Error('환율 조회 실패');
+  const source=cryptoTotalSource==='details'&&cryptoEntries.length?'details':'assets';
+  ({assets,cryptoEntries}=effectivePortfolio({assets,cryptoEntries,platformBalances}));
   const values = new Map();
   for (const item of [...assets, ...cryptoEntries]) {
     let value;
@@ -17,7 +20,6 @@ export async function valuePortfolio({ assets=[], cryptoEntries=[], cryptoTotalS
     if (!Number.isFinite(value) || value < 0) throw Error('평가액 계산 실패');
     values.set(item.id,value);
   }
-  const source=cryptoTotalSource==='details'&&cryptoEntries.length?'details':'assets';
   const totals=calculatePortfolioTotals({assets,cryptoEntries,cryptoTotalSource:source,assetValue:a=>values.get(a.id),cryptoValue:a=>values.get(a.id)});
   // Classification intentionally includes total-excluded assets, matching the allocation UI.
   const allocation=calculateAllocation({assets,cryptoEntries,cryptoTotalSource:source,fx,assetValue:a=>values.get(a.id),cryptoValue:a=>values.get(a.id)});
