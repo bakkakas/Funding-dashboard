@@ -1,6 +1,7 @@
+import { effectivePortfolio, validBalance } from './platform-balance.js?v=1';
 import { groupPlatformAssets, platformName, platformTotals, platformUsdTotals } from './portfolio-platforms.js?v=2';
 import { allocationClass, calculateAllocation } from './portfolio-allocation.js?v=1';
-import { valuePortfolio, snapshotDate } from './portfolio-snapshot.js?v=2';
+import { valuePortfolio, snapshotDate } from './portfolio-snapshot.js?v=3';
 import { researchTarget, researchHref } from './asset-identity.js?v=7';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=2';
 import { authClient as db, signInWithGoogle } from './auth.js?v=1';
@@ -23,7 +24,7 @@ const CATALOG=[
 let snapshotSaveError='',fxValid=false;
 let session=null,assets=[],prices={},priceErrors=new Set(),fx=1380,filter='all',valueSort=null,classChart,historyChart;
 let cryptoEntries=[],cryptoPrices={},cryptoPriceErrors=new Set(),cryptoTotalSource='assets',cryptoLocationFilter='all';
-let platformAction=null,platformSaving=false;
+let platformAction=null,platformSaving=false,platformBalances={},balanceEditing=null,balanceSaving=false;
 let assetSaving=false,addAssetType="";
 let searchTimer=null,searchResults=[],selectedSearchAsset=null,editingAssetId=null;
 let cryptoSearchTimer=null,cryptoSearchResults=[],selectedCryptoAsset=null,editingCryptoEntryId=null;
@@ -61,6 +62,7 @@ function bind(){
   $('assetQuery').oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(renderSearch,250)};
   $('cryptoAssetQuery').oninput=()=>{clearTimeout(cryptoSearchTimer);cryptoSearchTimer=setTimeout(renderCryptoSearch,250)};
   $('confirmPlatformAction').onclick=savePlatformAction;
+  $('savePlatformBalance').onclick=savePlatformBalance;
   $('saveAsset').onclick=saveAsset; $('refreshPortfolio').onclick=refresh;
   $('saveCryptoEntry').onclick=saveCryptoEntry;
   $('cryptoTotalSource').onclick=e=>{const b=e.target.closest('[data-crypto-source]');if(b)setCryptoTotalSource(b.dataset.cryptoSource)};
@@ -81,7 +83,7 @@ async function authenticateWithGoogle(){
   const {error}=await signInWithGoogle('/Funding-dashboard/my-assets.html');
   if(error)status('portfolioAuthStatus',error.message,true);
 }
-async function logout(){await db.auth.signOut();assets=[];prices={};cryptoEntries=[];cryptoPrices={};cryptoTotalSource='assets';renderSession()}
+async function logout(){await db.auth.signOut();assets=[];platformBalances={};prices={};cryptoEntries=[];cryptoPrices={};cryptoTotalSource='assets';renderSession()}
 function renderSession(){
   const logged=Boolean(session);$('portfolioGate').hidden=logged;$('portfolioApp').hidden=!logged;$('addAsset').disabled=!logged;
   $('loginButton').textContent=logged?session.user.email:c('login');
@@ -91,9 +93,10 @@ async function loadPortfolio(){
   const [assetResult,cryptoResult,settingsResult]=await Promise.all([
     db.from('portfolio_assets').select('*').order('created_at'),
     db.from('crypto_portfolio_entries').select('*').order('created_at'),
-    db.from('portfolio_settings').select('crypto_total_source').maybeSingle(),
+    db.from('portfolio_settings').select('crypto_total_source,platform_balances').maybeSingle(),
   ]);
   if(assetResult.error||cryptoResult.error||settingsResult.error){const error=assetResult.error||cryptoResult.error||settingsResult.error;$('totalMeta').textContent=`${c('loadFailed')}: ${error.message}`;return}
+  platformBalances=settingsResult.data?.platform_balances||{};
   assets=assetResult.data||[];cryptoEntries=cryptoResult.data||[];cryptoTotalSource=settingsResult.data?.crypto_total_source==='details'?'details':'assets';
   if(cryptoTotalSource==='details'&&!cryptoEntries.length)cryptoTotalSource='assets';
   await refresh();
@@ -135,13 +138,14 @@ function cashBalanceCell(asset){const balances=formatCashBalances(asset,lang==='
 function assetQuantityCell(asset){return asset.asset_class==='cash'?cashBalanceCell(asset):num.format(asset.quantity)}
 function assetPriceCell(asset,price,failed){if(asset.asset_class==='cash')return `<span class="cash-rate">USD/KRW ${num.format(fx)}</span>`;return price==null?c('loading'):failed?c('failed'):(asset.currency==='USD'?'$':'₩')+num.format(price)}
 function includedAssets(){return assets.filter(asset=>!asset.excluded_from_total)}
-function portfolioTotals(){return calculatePortfolioTotals({assets,cryptoEntries,cryptoTotalSource,assetValue:valueKrw,cryptoValue:cryptoValueKrw})}
+function effectiveHoldings(){return effectivePortfolio({assets,cryptoEntries,platformBalances})}
+function portfolioTotals(){return calculatePortfolioTotals({...effectiveHoldings(),cryptoTotalSource,assetValue:valueKrw,cryptoValue:cryptoValueKrw})}
 function render(){renderAssets();renderCryptoPortfolio();renderSummary()}
 function renderSummary(){
   const allocationLabel=key=>key==='cash'?'Cash + Stable':classLabel(key);
-  const countedAssets=includedAssets(),totals=portfolioTotals(),total=totals.total,excludedCount=assets.length-countedAssets.length,timeLocale=lang==='en'?'en-US':'ko-KR',failureCount=priceErrors.size+cryptoPriceErrors.size;$('totalValue').textContent=won.format(total);$('totalMeta').textContent=`USD/KRW ${num.format(fx)} · ${new Date().toLocaleTimeString(timeLocale,{hour:'2-digit',minute:'2-digit'})} ${c('asOf')} · ${c('currentSource')}: ${cryptoTotalSource==='details'?c('detailCryptoTotal'):c('existingCryptoTotal')}${excludedCount?` · ${excludedCount}${c('excludedCount')}`:''}${failureCount?` · ${failureCount}${c('priceFailures')}`:''}`;
+  const effectiveAssets=effectiveHoldings().assets,countedAssets=effectiveAssets.filter(a=>!a.excluded_from_total),totals=portfolioTotals(),total=totals.total,excludedCount=effectiveAssets.length-countedAssets.length,timeLocale=lang==='en'?'en-US':'ko-KR',failureCount=priceErrors.size+cryptoPriceErrors.size;$('totalValue').textContent=won.format(total);$('totalMeta').textContent=`USD/KRW ${num.format(fx)} · ${new Date().toLocaleTimeString(timeLocale,{hour:'2-digit',minute:'2-digit'})} ${c('asOf')} · ${c('currentSource')}: ${cryptoTotalSource==='details'?c('detailCryptoTotal'):c('existingCryptoTotal')}${excludedCount?` · ${excludedCount}${c('excludedCount')}`:''}${failureCount?` · ${failureCount}${c('priceFailures')}`:''}`;
   headerWidgets?.setUpdatedAt(new Date());
-  const allocation=calculateAllocation({assets,cryptoEntries,cryptoTotalSource,assetValue:valueKrw,cryptoValue:cryptoValueKrw,fx});
+  const allocation=calculateAllocation({...effectiveHoldings(),cryptoTotalSource,assetValue:valueKrw,cryptoValue:cryptoValueKrw,fx});
   const allGroups=Object.entries(allocation.groups).map(([key,value])=>({key,value})),classificationTotal=allGroups.reduce((sum,group)=>sum+group.value,0);
   $('classBreakdown').innerHTML=allGroups.map(group=>`<div class="asset-class-item"><span class="asset-class-dot" style="background:${COLORS[group.key]}"></span><span class="asset-class-name">${allocationLabel(group.key)}</span><span class="asset-class-values"><span class="asset-class-value">${won.format(group.value)}</span><span class="asset-class-ratio">${classificationTotal?(group.value/classificationTotal*100).toFixed(1):'0.0'}%</span></span></div>`).join('');
   const stableTotal=allocation.stable;
@@ -161,7 +165,7 @@ function renderSummary(){
   classChart?.destroy();classChart=new Chart($('classChart'),{type:'doughnut',data:{labels:groups.map(x=>allocationLabel(x.key)),datasets:[{data:groups.map(x=>x.value),backgroundColor:groups.map(x=>COLORS[x.key]),borderWidth:0}]},plugins:[percentLabels],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#dce8df',font:{size:12,weight:'700'},generateLabels(chart){const data=chart.data.datasets[0].data.map(Number),sum=data.reduce((a,b)=>a+b,0),meta=chart.getDatasetMeta(0);return chart.data.labels.map((text,index)=>{const style=meta.controller.getStyle(index);return{text:`${text} ${sum?(data[index]/sum*100).toFixed(1):'0.0'}%`,fillStyle:style.backgroundColor,strokeStyle:style.borderColor,lineWidth:style.borderWidth,fontColor:'#dce8df',color:'#dce8df',hidden:!chart.getDataVisibility(index),index}})}}}},cutout:'67%'}});
 }
 function renderCryptoPortfolio(){
-  const totals=portfolioTotals(),total=totals.detailCryptoTotal,locations=[...new Set(cryptoEntries.map(entry=>entry.location))].sort((a,b)=>a.localeCompare(b,lang==='en'?'en':'ko'));
+  const total=cryptoEntries.reduce((sum,e)=>sum+cryptoValueKrw(e),0),locations=[...new Set(cryptoEntries.map(entry=>entry.location))].sort((a,b)=>a.localeCompare(b,lang==='en'?'en':'ko'));
   if(cryptoLocationFilter!=='all'&&!locations.includes(cryptoLocationFilter))cryptoLocationFilter='all';
   const sourceButtons=[...document.querySelectorAll('[data-crypto-source]')];sourceButtons.forEach(button=>{button.classList.toggle('active',button.dataset.cryptoSource===cryptoTotalSource);button.disabled=button.dataset.cryptoSource==='details'&&!cryptoEntries.length});
   $('cryptoPortfolioMeta').textContent=`${cryptoEntries.length}${c('cryptoEntriesCount')} · ${won.format(total)} · ${cryptoTotalSource==='details'?c('detailSourceActive'):c('assetSourceActive')}`;
@@ -169,7 +173,7 @@ function renderCryptoPortfolio(){
   $('cryptoLocationSummary').innerHTML=locationGroups.map(group=>`<div class="crypto-location-card"><span class="location-tag">${escapeHtml(group.location)}</span><strong>${won.format(group.value)}</strong><span>${total?(group.value/total*100).toFixed(1):'0.0'}%</span></div>`).join('');
   $('cryptoLocationFilter').innerHTML=cryptoEntries.length?[`<button class="chip ${cryptoLocationFilter==='all'?'active':''}" type="button" data-location-filter="all">${c('all')}</button>`,...locations.map(location=>`<button class="chip ${cryptoLocationFilter===location?'active':''}" type="button" data-location-filter="${escapeHtml(location)}">${escapeHtml(location)}</button>`)].join(''):'';
   const entries=cryptoLocationFilter==='all'?cryptoEntries:cryptoEntries.filter(entry=>entry.location===cryptoLocationFilter);
-  $('cryptoEntryRows').innerHTML=entries.length?sortAssetsByValue(entries,'desc',cryptoValueKrw).map(entry=>{const p=cryptoPrices[entry.id],failed=cryptoPriceErrors.has(entry.id),value=cryptoValueKrw(entry);return `<tr><td><span class="location-tag">${escapeHtml(entry.location)}</span></td><td><div class="asset-main">${researchName(entry,escapeHtml(entry.name))}</div><div class="asset-sub">${escapeHtml(entry.symbol)}</div></td><td>${num.format(entry.quantity)}</td><td class="${p==null?'price-loading':failed?'price-error':''}">${p==null?c('loading'):failed?c('failed'):(entry.currency==='USD'?'$':'₩')+num.format(p)}</td><td class="asset-value">${won.format(value)}</td><td>${total?num.format(value/total*100):0}%</td><td><div class="asset-actions"><button class="asset-edit" data-crypto-edit="${entry.id}">${c('edit')}</button><button class="asset-delete" data-crypto-delete="${entry.id}">${c('delete')}</button></div></td></tr>`}).join(''):`<tr><td colspan="7" class="empty-assets">${c('emptyCrypto')}</td></tr>`;
+  $('cryptoEntryRows').innerHTML=entries.length?sortAssetsByValue(entries,'desc',cryptoValueKrw).map(entry=>{const p=cryptoPrices[entry.id],failed=cryptoPriceErrors.has(entry.id),value=cryptoValueKrw(entry);return `<tr><td><span class="location-tag">${escapeHtml(entry.location)}</span></td><td><div class="asset-main">${researchName(entry,escapeHtml(entry.name))}</div><div class="asset-sub">${escapeHtml(entry.symbol)}</div></td><td>${num.format(entry.quantity)}</td><td class="${p==null?'price-loading':failed?'price-error':''}">${p==null?c('loading'):failed?c('failed'):(entry.currency==='USD'?'$':'₩')+num.format(p)}</td><td class="asset-value">${won.format(value)}</td><td>${platformBalances[String(entry.location||'').trim()]?.enabled?(lang==='en'?'Reference (manual balance)':'참고용 (수동 잔액 반영)'):(total?num.format(value/total*100):0)+'%'}</td><td><div class="asset-actions"><button class="asset-edit" data-crypto-edit="${entry.id}">${c('edit')}</button><button class="asset-delete" data-crypto-delete="${entry.id}">${c('delete')}</button></div></td></tr>`}).join(''):`<tr><td colspan="7" class="empty-assets">${c('emptyCrypto')}</td></tr>`;
   document.querySelectorAll('[data-crypto-edit]').forEach(button=>button.onclick=()=>openCryptoEntryModal(cryptoEntries.find(entry=>String(entry.id)===button.dataset.cryptoEdit)));
   document.querySelectorAll('[data-crypto-delete]').forEach(button=>button.onclick=()=>deleteCryptoEntry(button.dataset.cryptoDelete));
 }
@@ -182,20 +186,24 @@ async function setCryptoTotalSource(source){
   cryptoTotalSource=next;render();await saveSnapshot();await loadSnapshots();
 }
 function renderAssets(){
-  const filtered=filter==='all'?assets:assets.filter(a=>allocationClass(a)===filter),list=sortAssetsByValue(filtered,valueSort,valueKrw),classificationTotal=portfolioTotals().total;
+  const filtered=filter==='all'?assets:assets.filter(a=>(platformBalances[platformName(a)]?.enabled?platformBalances[platformName(a)].asset_class:allocationClass(a))===filter),list=sortAssetsByValue(filtered,valueSort,valueKrw),classificationTotal=portfolioTotals().total;
   const sortButton=$('assetValueSort'),sortIcon=sortButton.querySelector('.table-sort-icon');
   sortIcon.textContent=valueSort==='asc'?'↑':valueSort==='desc'?'↓':'↕';
   sortButton.setAttribute('aria-label',valueSort==='desc'?c('sortAsc'):c('sortDesc'));
   sortButton.classList.toggle('active',Boolean(valueSort));
-  const row=a=>{const p=prices[a.id],failed=priceErrors.has(a.id),v=valueKrw(a),nickname=String(a.asset_label||'').trim(),stable=Number(a.stable_amount_krw)||0,stableUnit=stableCurrency(a),excluded=Boolean(a.excluded_from_total),sourceExcluded=cryptoTotalSource==='details'&&a.asset_class==='crypto',rowClasses=[`asset-row-${allocationClass(a)}`,excluded?'asset-row-excluded':'',sourceExcluded?'asset-row-source-excluded':''].filter(Boolean).join(' '),safeName=escapeHtml(a.asset_class==='cash'?c('cashAccount'):a.name),weight=sourceExcluded?'—':`${classificationTotal?num.format(v/classificationTotal*100):0}%`,priceClass=a.asset_class==='cash'?'':p==null?'price-loading':failed?'price-error':'';return `<tr class="${rowClasses}"><td><div class="asset-main">${researchName(a,safeName)}${nickname?`<span class="asset-nickname">${escapeHtml(nickname)}</span>`:''}</div><div class="asset-sub">${a.asset_class==='cash'?escapeHtml(c('mixedCash')):escapeHtml(a.symbol)}</div></td><td><span class="pill asset-class-pill">${classLabel(allocationClass(a))}</span></td><td>${assetQuantityCell(a)}</td><td class="${priceClass}">${assetPriceCell(a,p,failed)}</td><td class="asset-value">${won.format(v)}</td><td>${weight}${excluded?`<div class="excluded-label">${c('excluded')}</div>`:''}${sourceExcluded?`<div class="excluded-label">${c('sourceExcluded')}</div>`:''}</td><td><label class="exclude-toggle" title="${c('excludeTitle')}"><input class="exclude-checkbox" data-excluded="${a.id}" type="checkbox" aria-label="${safeName} ${c('excludeTotal')}" ${excluded?'checked':''}></label></td><td><div class="stable-control"><select class="field stable-currency" data-stable-currency="${a.id}" aria-label="${safeName} ${c('stableCurrency')}"><option value="KRW" ${stableUnit==='KRW'?'selected':''}>KRW</option><option value="USD" ${stableUnit==='USD'?'selected':''}>USD</option></select><input class="field stable-input" data-stable="${a.id}" type="number" min="0" step="any" inputmode="decimal" aria-label="${safeName} ${c('stableAmount')}" value="${stable||''}" placeholder="0"><button class="chip stable-full" data-stable-full="${a.id}" type="button">${c('full')}</button></div></td><td><div class="asset-actions"><button class="asset-edit" data-edit="${a.id}">${c('edit')}</button><button class="asset-delete" data-delete="${a.id}">${c('delete')}</button></div></td></tr>`};
+  const row=a=>{const p=prices[a.id],failed=priceErrors.has(a.id),v=valueKrw(a),nickname=String(a.asset_label||'').trim(),stable=Number(a.stable_amount_krw)||0,stableUnit=stableCurrency(a),excluded=Boolean(a.excluded_from_total),sourceExcluded=cryptoTotalSource==='details'&&a.asset_class==='crypto',rowClasses=[`asset-row-${allocationClass(a)}`,excluded?'asset-row-excluded':'',sourceExcluded?'asset-row-source-excluded':''].filter(Boolean).join(' '),safeName=escapeHtml(a.asset_class==='cash'?c('cashAccount'):a.name),weight=platformBalances[platformName(a)]?.enabled?(lang==='en'?'Reference':'참고용'):sourceExcluded?'—':`${classificationTotal?num.format(v/classificationTotal*100):0}%`,priceClass=a.asset_class==='cash'?'':p==null?'price-loading':failed?'price-error':'';return `<tr class="${rowClasses}"><td><div class="asset-main">${researchName(a,safeName)}${nickname?`<span class="asset-nickname">${escapeHtml(nickname)}</span>`:''}</div><div class="asset-sub">${a.asset_class==='cash'?escapeHtml(c('mixedCash')):escapeHtml(a.symbol)}</div></td><td><span class="pill asset-class-pill">${classLabel(allocationClass(a))}</span></td><td>${assetQuantityCell(a)}</td><td class="${priceClass}">${assetPriceCell(a,p,failed)}</td><td class="asset-value">${won.format(v)}</td><td>${weight}${excluded?`<div class="excluded-label">${c('excluded')}</div>`:''}${sourceExcluded?`<div class="excluded-label">${c('sourceExcluded')}</div>`:''}</td><td><label class="exclude-toggle" title="${c('excludeTitle')}"><input class="exclude-checkbox" data-excluded="${a.id}" type="checkbox" aria-label="${safeName} ${c('excludeTotal')}" ${excluded?'checked':''}></label></td><td><div class="stable-control"><select class="field stable-currency" data-stable-currency="${a.id}" aria-label="${safeName} ${c('stableCurrency')}"><option value="KRW" ${stableUnit==='KRW'?'selected':''}>KRW</option><option value="USD" ${stableUnit==='USD'?'selected':''}>USD</option></select><input class="field stable-input" data-stable="${a.id}" type="number" min="0" step="any" inputmode="decimal" aria-label="${safeName} ${c('stableAmount')}" value="${stable||''}" placeholder="0"><button class="chip stable-full" data-stable-full="${a.id}" type="button">${c('full')}</button></div></td><td><div class="asset-actions"><button class="asset-edit" data-edit="${a.id}">${c('edit')}</button><button class="asset-delete" data-delete="${a.id}">${c('delete')}</button></div></td></tr>`};
   const groups=groupPlatformAssets(list);
   $('assetRows').innerHTML=groups.length?groups.map((group,index)=>{
-    const all=assets.filter(a=>platformName(a)===group.name),totals=platformTotals(all,valueKrw,cryptoTotalSource);
-    const usdTotals=platformUsdTotals(all,a=>prices[a.id]??(Number(a.manual_price)||0),cryptoTotalSource);
+    const all=assets.filter(a=>platformName(a)===group.name),detailTotals=platformTotals(all,valueKrw,cryptoTotalSource),b=platformBalances[group.name],manual=b?.enabled===true;
+    const manualValue=manual?b.amount*(b.currency==='USD'?fx:1):0;
+    const totals=manual?{value:manualValue,included:b.excluded_from_total?0:manualValue}:detailTotals;
+    const usdTotals=manual?(b.currency==='USD'?{value:b.amount,included:b.excluded_from_total?0:b.amount}:null):platformUsdTotals(all,a=>prices[a.id]??(Number(a.manual_price)||0),cryptoTotalSource);
     const usdText=value=>` (USD ${new Intl.NumberFormat(lang==='en'?'en-US':'ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2}).format(value)})`;
     const heads=['asset','assetClass','quantity','currentPrice','valuation','weight','excludeTotal'];
-    return `<section class="platform-card" data-platform-index="${index}"><header class="platform-head"><div><h4>${escapeHtml(group.name||c('unassigned'))}</h4><div class="platform-values"><span>${c('platformValue')} <strong>${won.format(totals.value)}${usdTotals?usdText(usdTotals.value):''}</strong></span>${totals.included!==totals.value?`<span>${c('platformIncluded')} <strong>${won.format(totals.included)}${usdTotals?usdText(usdTotals.included):''}</strong></span>`:''}</div></div><div class="section-actions platform-actions"><button class="chip" data-platform-rename="${index}">${c('renamePlatform')}</button><button class="chip platform-danger" data-platform-delete="${index}">${c('deletePlatform')}</button><button class="chip" data-platform-add="${index}">${c('addAsset')}</button></div></header><div class="table-wrap"><table><thead><tr>${heads.map(key=>`<th>${c(key)}</th>`).join('')}<th>Stable (Cash)</th><th></th></tr></thead><tbody>${group.assets.map(row).join('')}</tbody></table></div></section>`;
+    return `<section class="platform-card" data-platform-index="${index}"><header class="platform-head"><div><h4>${escapeHtml(group.name||c('unassigned'))}</h4><div class="platform-values"><span>${manual?(lang==='en'?'Manual balance':'수동 잔액'):c('platformValue')} <strong>${won.format(totals.value)}${usdTotals?usdText(usdTotals.value):''}</strong></span>${totals.included!==totals.value?`<span>${c('platformIncluded')} <strong>${won.format(totals.included)}${usdTotals?usdText(usdTotals.included):''}</strong></span>`:''}</div>${manual?`<p class="platform-help">${classLabel(b.asset_class)} · ${lang==='en'?'Detail sum (reference)':'하위 자산 합계 (참고용)'} ${won.format(detailTotals.value)}<br>${lang==='en'?'Manual balance replaces detail values, Stable amounts and exclusions. Matching coin-wallet details are not added again.':'아래 내역의 평가액·Stable·총액 제외 대신 수동 설정을 반영해. 같은 이름의 코인 포트폴리오도 중복 합산하지 않아.'}</p>`:''}<label class="platform-balance-toggle"><input type="checkbox" data-balance-toggle="${index}" ${manual?'checked':''}> ${lang==='en'?'Use manual balance':'수동 잔액 사용'}</label></div><div class="section-actions platform-actions"><button class="chip" data-balance-edit="${index}">${lang==='en'?'Edit balance':'잔액 수정'}</button><button class="chip" data-platform-rename="${index}">${c('renamePlatform')}</button><button class="chip platform-danger" data-platform-delete="${index}">${c('deletePlatform')}</button><button class="chip" data-platform-add="${index}">${c('addAsset')}</button></div></header><div class="table-wrap"><table><thead><tr>${heads.map(key=>`<th>${c(key)}</th>`).join('')}<th>Stable (Cash)</th><th></th></tr></thead><tbody>${group.assets.map(row).join('')}</tbody></table></div></section>`;
   }).join(''):`<p class="empty-assets">${c('emptyAssets')}</p>`;
+  document.querySelectorAll('[data-balance-edit]').forEach(b=>b.onclick=()=>openPlatformBalance(groups[Number(b.dataset.balanceEdit)].name));
+  document.querySelectorAll('[data-balance-toggle]').forEach(b=>b.onchange=()=>togglePlatformBalance(groups[Number(b.dataset.balanceToggle)].name,b));
   document.querySelectorAll('[data-platform-rename]').forEach(b=>b.onclick=()=>openPlatformAction(groups[Number(b.dataset.platformRename)].name,'rename'));
   document.querySelectorAll('[data-platform-delete]').forEach(b=>b.onclick=()=>openPlatformAction(groups[Number(b.dataset.platformDelete)].name,'delete'));
   document.querySelectorAll('[data-platform-add]').forEach(b=>b.onclick=()=>openAssetModal(null,groups[Number(b.dataset.platformAdd)].name));
@@ -206,11 +214,48 @@ function renderAssets(){
   document.querySelectorAll('[data-stable-full]').forEach(button=>button.onclick=()=>saveStableFull(button));
   document.querySelectorAll('[data-excluded]').forEach(input=>input.onchange=()=>saveTotalExclusion(input));
 }
+function openPlatformBalance(name,enable){
+ const all=assets.filter(a=>platformName(a)===name);if(!all.length)return;
+ const b=platformBalances[name],classes=[...new Set(all.map(allocationClass))];
+ balanceEditing={name,userId:session.user.id};
+ $('platformBalanceTitle').textContent=`${name||c('unassigned')} · ${lang==='en'?'Edit balance':'잔액 수정'}`;
+ $('balanceEnabled').checked=enable??b?.enabled??false;
+ $('balanceAmount').value=b?.amount??'';
+ $('balanceCurrency').value=b?.currency??(platformUsdTotals(all,a=>prices[a.id]??0)?'USD':'KRW');
+ $('balanceClass').innerHTML=`<option value="">${lang==='en'?'Select class':'대표 자산군 선택'}</option>`+['stock','crypto','commodity','cash'].map(k=>`<option value="${k}">${classLabel(k)}</option>`).join('');
+ $('balanceClass').value=b?.asset_class??(classes.length===1?classes[0]:'');
+ $('balanceExcluded').checked=b?.excluded_from_total??all.every(a=>a.excluded_from_total);
+ status('platformBalanceStatus','');modal('platformBalanceModal',true);
+}
+async function persistPlatformBalance(name,b,userId){
+ const {error}=await db.rpc('set_platform_balance',{p_name:name,p_balance:b});if(error)throw error;
+ if(session?.user.id!==userId)throw Error('로그인 계정이 변경되었습니다.');
+ platformBalances={...platformBalances,[name]:b};render();await saveSnapshot();await loadSnapshots();
+}
+async function savePlatformBalance(){
+ if(balanceSaving||!balanceEditing||session?.user.id!==balanceEditing.userId)return;
+ const {name,userId}=balanceEditing;
+ const raw=$('balanceAmount').value.trim(),b={enabled:$('balanceEnabled').checked,amount:Number(raw),currency:$('balanceCurrency').value,asset_class:$('balanceClass').value,excluded_from_total:$('balanceExcluded').checked};
+ if(!raw||!validBalance(b))return status('platformBalanceStatus',lang==='en'?'Enter a non-negative balance and select a class.':'0 이상의 잔액과 대표 자산군을 입력해.',true);
+ balanceSaving=true;const controls=[...$('platformBalanceModal').querySelectorAll('button,input,select')];controls.forEach(e=>e.disabled=true);
+ try{await persistPlatformBalance(name,b,userId);modal('platformBalanceModal',false);balanceEditing=null;}
+ catch(e){status('platformBalanceStatus',e.message,true);}
+ finally{balanceSaving=false;controls.forEach(e=>e.disabled=false);}
+}
+async function togglePlatformBalance(name,input){
+ const next=input.checked,b=platformBalances[name];input.checked=!next;
+ if(balanceSaving)return;
+ if(!b){openPlatformBalance(name,true);return;}
+ balanceSaving=true;input.disabled=true;
+ try{await persistPlatformBalance(name,{...b,enabled:next},session.user.id);}
+ catch(e){openPlatformBalance(name);status('platformBalanceStatus',e.message,true);}
+ finally{balanceSaving=false;input.disabled=false;}
+}
 function openPlatformAction(name,action){
  const members=assets.filter(a=>platformName(a)===name);if(!session||!members.length)return;
  platformAction={name,action,ids:members.map(a=>a.id),userId:session.user.id};
  $('platformActionTitle').textContent=`${name||c('unassigned')} · ${c(action==='rename'?'renamePlatform':'deletePlatform')}`;
- $('platformActionHelp').textContent=c(action==='rename'?'platformRenameHelp':'platformDeleteHelp');
+ $('platformActionHelp').textContent=c(action==='rename'?'platformRenameHelp':'platformDeleteHelp')+(action==='rename'&&platformBalances[name]?' · 수동 잔액 설정과 같은 이름의 코인 지갑도 함께 이동합니다.':'');
  $('platformRenameField').hidden=action!=='rename';$('platformNewName').value=name;
  $('platformActionMembers').innerHTML=members.map(a=>`<li>${escapeHtml(a.asset_class==='cash'?c('cashAccount'):a.name)} <span>${a.asset_class==='cash'?cashBalanceCell(a):escapeHtml(num.format(a.quantity))}</span></li>`).join('');
  $('confirmPlatformAction').textContent=c(action==='rename'?'saveEdit':'platformDeleteConfirm');$('confirmPlatformAction').classList.toggle('platform-danger',action==='delete');
@@ -230,10 +275,8 @@ async function savePlatformAction(){
  platformSaving=true;const controls=[...$('platformActionModal').querySelectorAll('button,input')];controls.forEach(el=>el.disabled=true);
  status('platformActionStatus',c('processing'));
  try{
-  const query=action==='rename'?db.from('portfolio_assets').update({nickname:next}):db.from('portfolio_assets').delete();
-  const {data,error}=await query.eq('user_id',userId).in('id',ids).select('id');
+  const {error}=await db.rpc('manage_portfolio_platform',{p_name:name,p_new_name:next,p_delete:action==='delete',p_ids:ids});
   if(error)throw error;
-  if(!Array.isArray(data)||data.length!==ids.length){status('platformActionStatus',c('platformPartial'),true);return;}
   modal('platformActionModal',false);platformAction=null;await loadPortfolio();
  }catch(error){status('platformActionStatus',error.code==='23505'?c('duplicateNickname'):error.message,true);}
  finally{platformSaving=false;controls.forEach(el=>el.disabled=false);}
@@ -366,8 +409,9 @@ async function saveSnapshot(){
  snapshotSaveError='';
  if(!session||(!assets.length&&!cryptoEntries.length))return;
  try{
-  if(!fxValid||priceErrors.size||cryptoPriceErrors.size)throw Error('시세·환율 조회가 불완전해 저장하지 않았습니다.');
-  const snapshot=await valuePortfolio({assets,cryptoEntries,cryptoTotalSource,fx,quote:a=>a.asset_class?prices[a.id]:cryptoPrices[a.id]});
+  const effective=effectiveHoldings();
+  if(!fxValid||effective.assets.some(a=>priceErrors.has(a.id))||effective.cryptoEntries.some(a=>cryptoPriceErrors.has(a.id)))throw Error('시세·환율 조회가 불완전해 저장하지 않았습니다.');
+  const snapshot=await valuePortfolio({assets,cryptoEntries,cryptoTotalSource,platformBalances,fx,quote:a=>a.asset_class?prices[a.id]:cryptoPrices[a.id]});
   const {error}=await db.from('portfolio_snapshots').upsert({user_id:session.user.id,snapshot_date:snapshotDate(),...snapshot});
   if(error)throw Error('현재 자산 기록 저장에 실패했습니다.');
  }catch(error){snapshotSaveError=error.message;}
