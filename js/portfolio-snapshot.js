@@ -1,4 +1,4 @@
-import { effectivePortfolio, portfolioQuoteInputs } from './platform-balance.js?v=2';
+import { effectivePortfolio, portfolioQuoteInputs } from './platform-balance.js?v=3';
 import { calculateAllocation } from './portfolio-allocation.js?v=1';
 import { calculatePortfolioTotals } from './portfolio-totals.js';
 import { cashValueKrw } from './cash-balances.js';
