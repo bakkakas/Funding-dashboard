@@ -21,3 +21,6 @@ Migration: `202611270001_platform_balances.sql`. Deploy the updated `portfolio-s
 - Changing prices or quantities changes the split, not the manually entered total. Users must update the platform total themselves; this is not exchange balance/API synchronization.
 
 Migration `202611270002_platform_auto_cash.sql` validates the optional mode while retaining existing owner RLS/RPCs. Deploy the shared snapshot dependencies before browser release. Synthetic fixtures verified one-million USD total / half-million crypto / half-million cash, mixed currency, source selection, Stable, exclusions, zero, overshoot, missing prices and disable restoration.
+
+## Platform currency and cash header
+Each platform has a USD/KRW selector. Selecting a currency opens the balance editor; Save persists it, Cancel leaves the previous setting intact. Existing totals are converted at the current FX rate (USD cents/KRW whole won); missing FX blocks conversion. New configurations default to auto_cash; explicit legacy manual configurations retain their mode. Auto Cash is displayed next to the platform valuation in its selected currency. The setting is retained even when manual use is unchecked.
