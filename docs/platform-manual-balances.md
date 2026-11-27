@@ -24,3 +24,6 @@ Migration `202611270002_platform_auto_cash.sql` validates the optional mode whil
 
 ## Platform currency and cash header
 Each platform has a USD/KRW selector. Selecting a currency opens the balance editor; Save persists it, Cancel leaves the previous setting intact. Existing totals are converted at the current FX rate (USD cents/KRW whole won); missing FX blocks conversion. New configurations default to auto_cash; explicit legacy manual configurations retain their mode. Auto Cash is displayed next to the platform valuation in its selected currency. The setting is retained even when manual use is unchecked.
+
+## Simplified balance controls
+Balance editor exposes total and currency only. New saves and checkbox transitions use auto_cash; existing saved configurations are not silently migrated. First enable prompts for an amount; subsequent toggles use the saved total. Cash residual is the first detail row, separated by background and bottom border. Existing platform exclusion is preserved, not editable in this simplified editor.
