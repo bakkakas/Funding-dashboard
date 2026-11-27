@@ -1,4 +1,4 @@
-import { effectivePortfolio } from '../../../js/platform-balance.js';
+import { portfolioQuoteInputs } from '../../../js/platform-balance.js';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { valuePortfolio, snapshotDate } from '../../../js/portfolio-snapshot.js';
 const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json'}});
@@ -42,7 +42,7 @@ Deno.serve(async(req)=>{
      if(data.result!=='success'||!Number.isFinite(fx)||fx<=0||!data.time_last_update_unix||Date.now()/1000-data.time_last_update_unix>3*86400)throw Error('환율 조회 실패');return fx;
     });
     const fx=await fxPromise;
-    const effective=effectivePortfolio({assets,cryptoEntries,platformBalances:settings[0]?.platform_balances});
+    const effective=portfolioQuoteInputs({assets,cryptoEntries,platformBalances:settings[0]?.platform_balances,cryptoTotalSource:settings[0]?.crypto_total_source==='details'&&cryptoEntries.length?'details':'assets'});
     const ids=[...new Set([...effective.assets,...effective.cryptoEntries].filter(a=>a.quote_symbol?.startsWith('CG:')&&a.manual_price==null).map(a=>a.quote_symbol.slice(3)))];
     if(ids.length){
      const data=await getJson(`https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(ids.join(','))}&vs_currencies=usd`);

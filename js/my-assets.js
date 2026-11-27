@@ -1,7 +1,7 @@
-import { effectivePortfolio, validBalance } from './platform-balance.js?v=1';
+import { effectivePortfolio, validBalance, balanceMode, autoCashBreakdown } from './platform-balance.js?v=2';
 import { groupPlatformAssets, platformName, platformTotals, platformUsdTotals } from './portfolio-platforms.js?v=2';
 import { allocationClass, calculateAllocation } from './portfolio-allocation.js?v=1';
-import { valuePortfolio, snapshotDate } from './portfolio-snapshot.js?v=3';
+import { valuePortfolio, snapshotDate } from './portfolio-snapshot.js?v=4';
 import { researchTarget, researchHref } from './asset-identity.js?v=7';
 import { CRYPTO_RESEARCH } from './crypto-research-map.js?v=2';
 import { authClient as db, signInWithGoogle } from './auth.js?v=1';
@@ -63,6 +63,7 @@ function bind(){
   $('cryptoAssetQuery').oninput=()=>{clearTimeout(cryptoSearchTimer);cryptoSearchTimer=setTimeout(renderCryptoSearch,250)};
   $('confirmPlatformAction').onclick=savePlatformAction;
   $('savePlatformBalance').onclick=savePlatformBalance;
+  $('balanceMode').onchange=updateBalanceMode;
   $('saveAsset').onclick=saveAsset; $('refreshPortfolio').onclick=refresh;
   $('saveCryptoEntry').onclick=saveCryptoEntry;
   $('cryptoTotalSource').onclick=e=>{const b=e.target.closest('[data-crypto-source]');if(b)setCryptoTotalSource(b.dataset.cryptoSource)};
@@ -138,10 +139,14 @@ function cashBalanceCell(asset){const balances=formatCashBalances(asset,lang==='
 function assetQuantityCell(asset){return asset.asset_class==='cash'?cashBalanceCell(asset):num.format(asset.quantity)}
 function assetPriceCell(asset,price,failed){if(asset.asset_class==='cash')return `<span class="cash-rate">USD/KRW ${num.format(fx)}</span>`;return price==null?c('loading'):failed?c('failed'):(asset.currency==='USD'?'$':'₩')+num.format(price)}
 function includedAssets(){return assets.filter(asset=>!asset.excluded_from_total)}
-function effectiveHoldings(){return effectivePortfolio({assets,cryptoEntries,platformBalances})}
+function balanceInputs(){return {assets,cryptoEntries,cryptoTotalSource,fx:fxValid?fx:NaN,assetValue:a=>priceErrors.has(a.id)?NaN:valueKrw(a),cryptoValue:a=>cryptoPriceErrors.has(a.id)?NaN:cryptoValueKrw(a)}}
+function effectiveHoldings(){return effectivePortfolio({...balanceInputs(),platformBalances})}
+function safePortfolioTotal(){try{return portfolioTotals().total}catch{return 0}}
+function autoBalanceInfo(name,b){try{return autoCashBreakdown(balanceInputs(),name,b)}catch(error){return {error:error.message}}}
 function portfolioTotals(){return calculatePortfolioTotals({...effectiveHoldings(),cryptoTotalSource,assetValue:valueKrw,cryptoValue:cryptoValueKrw})}
 function render(){renderAssets();renderCryptoPortfolio();renderSummary()}
-function renderSummary(){
+function renderSummary(){try{renderSummaryValues()}catch(error){$('totalValue').textContent='—';$('totalMeta').textContent=error.message;$('classBreakdown').textContent='총잔액과 세부 내역을 확인하면 비율 계산이 재개돼.';$('stableSummary').textContent='';classChart?.destroy();classChart=null}}
+function renderSummaryValues(){
   const allocationLabel=key=>key==='cash'?'Cash + Stable':classLabel(key);
   const effectiveAssets=effectiveHoldings().assets,countedAssets=effectiveAssets.filter(a=>!a.excluded_from_total),totals=portfolioTotals(),total=totals.total,excludedCount=effectiveAssets.length-countedAssets.length,timeLocale=lang==='en'?'en-US':'ko-KR',failureCount=priceErrors.size+cryptoPriceErrors.size;$('totalValue').textContent=won.format(total);$('totalMeta').textContent=`USD/KRW ${num.format(fx)} · ${new Date().toLocaleTimeString(timeLocale,{hour:'2-digit',minute:'2-digit'})} ${c('asOf')} · ${c('currentSource')}: ${cryptoTotalSource==='details'?c('detailCryptoTotal'):c('existingCryptoTotal')}${excludedCount?` · ${excludedCount}${c('excludedCount')}`:''}${failureCount?` · ${failureCount}${c('priceFailures')}`:''}`;
   headerWidgets?.setUpdatedAt(new Date());
@@ -186,21 +191,22 @@ async function setCryptoTotalSource(source){
   cryptoTotalSource=next;render();await saveSnapshot();await loadSnapshots();
 }
 function renderAssets(){
-  const filtered=filter==='all'?assets:assets.filter(a=>(platformBalances[platformName(a)]?.enabled?platformBalances[platformName(a)].asset_class:allocationClass(a))===filter),list=sortAssetsByValue(filtered,valueSort,valueKrw),classificationTotal=portfolioTotals().total;
+  const filtered=filter==='all'?assets:assets.filter(a=>(platformBalances[platformName(a)]?.enabled&&balanceMode(platformBalances[platformName(a)])==='auto_cash'?(filter==='cash'||allocationClass(a)===filter):(platformBalances[platformName(a)]?.enabled?platformBalances[platformName(a)].asset_class:allocationClass(a))===filter)),list=sortAssetsByValue(filtered,valueSort,valueKrw),classificationTotal=safePortfolioTotal();
   const sortButton=$('assetValueSort'),sortIcon=sortButton.querySelector('.table-sort-icon');
   sortIcon.textContent=valueSort==='asc'?'↑':valueSort==='desc'?'↓':'↕';
   sortButton.setAttribute('aria-label',valueSort==='desc'?c('sortAsc'):c('sortDesc'));
   sortButton.classList.toggle('active',Boolean(valueSort));
-  const row=a=>{const p=prices[a.id],failed=priceErrors.has(a.id),v=valueKrw(a),nickname=String(a.asset_label||'').trim(),stable=Number(a.stable_amount_krw)||0,stableUnit=stableCurrency(a),excluded=Boolean(a.excluded_from_total),sourceExcluded=cryptoTotalSource==='details'&&a.asset_class==='crypto',rowClasses=[`asset-row-${allocationClass(a)}`,excluded?'asset-row-excluded':'',sourceExcluded?'asset-row-source-excluded':''].filter(Boolean).join(' '),safeName=escapeHtml(a.asset_class==='cash'?c('cashAccount'):a.name),weight=platformBalances[platformName(a)]?.enabled?(lang==='en'?'Reference':'참고용'):sourceExcluded?'—':`${classificationTotal?num.format(v/classificationTotal*100):0}%`,priceClass=a.asset_class==='cash'?'':p==null?'price-loading':failed?'price-error':'';return `<tr class="${rowClasses}"><td><div class="asset-main">${researchName(a,safeName)}${nickname?`<span class="asset-nickname">${escapeHtml(nickname)}</span>`:''}</div><div class="asset-sub">${a.asset_class==='cash'?escapeHtml(c('mixedCash')):escapeHtml(a.symbol)}</div></td><td><span class="pill asset-class-pill">${classLabel(allocationClass(a))}</span></td><td>${assetQuantityCell(a)}</td><td class="${priceClass}">${assetPriceCell(a,p,failed)}</td><td class="asset-value">${won.format(v)}</td><td>${weight}${excluded?`<div class="excluded-label">${c('excluded')}</div>`:''}${sourceExcluded?`<div class="excluded-label">${c('sourceExcluded')}</div>`:''}</td><td><label class="exclude-toggle" title="${c('excludeTitle')}"><input class="exclude-checkbox" data-excluded="${a.id}" type="checkbox" aria-label="${safeName} ${c('excludeTotal')}" ${excluded?'checked':''}></label></td><td><div class="stable-control"><select class="field stable-currency" data-stable-currency="${a.id}" aria-label="${safeName} ${c('stableCurrency')}"><option value="KRW" ${stableUnit==='KRW'?'selected':''}>KRW</option><option value="USD" ${stableUnit==='USD'?'selected':''}>USD</option></select><input class="field stable-input" data-stable="${a.id}" type="number" min="0" step="any" inputmode="decimal" aria-label="${safeName} ${c('stableAmount')}" value="${stable||''}" placeholder="0"><button class="chip stable-full" data-stable-full="${a.id}" type="button">${c('full')}</button></div></td><td><div class="asset-actions"><button class="asset-edit" data-edit="${a.id}">${c('edit')}</button><button class="asset-delete" data-delete="${a.id}">${c('delete')}</button></div></td></tr>`};
+  const row=a=>{const p=prices[a.id],failed=priceErrors.has(a.id),v=valueKrw(a),nickname=String(a.asset_label||'').trim(),stable=Number(a.stable_amount_krw)||0,stableUnit=stableCurrency(a),excluded=Boolean(a.excluded_from_total),sourceExcluded=cryptoTotalSource==='details'&&a.asset_class==='crypto',rowClasses=[`asset-row-${allocationClass(a)}`,excluded?'asset-row-excluded':'',sourceExcluded?'asset-row-source-excluded':''].filter(Boolean).join(' '),safeName=escapeHtml(a.asset_class==='cash'?c('cashAccount'):a.name),weight=platformBalances[platformName(a)]?.enabled?(balanceMode(platformBalances[platformName(a)])==='auto_cash'?(allocationClass(a)==='cash'?'참고용':'자동 배분 기준'):'참고용'):sourceExcluded?'—':`${classificationTotal?num.format(v/classificationTotal*100):0}%`,priceClass=a.asset_class==='cash'?'':p==null?'price-loading':failed?'price-error':'';return `<tr class="${rowClasses}"><td><div class="asset-main">${researchName(a,safeName)}${nickname?`<span class="asset-nickname">${escapeHtml(nickname)}</span>`:''}</div><div class="asset-sub">${a.asset_class==='cash'?escapeHtml(c('mixedCash')):escapeHtml(a.symbol)}</div></td><td><span class="pill asset-class-pill">${classLabel(allocationClass(a))}</span></td><td>${assetQuantityCell(a)}</td><td class="${priceClass}">${assetPriceCell(a,p,failed)}</td><td class="asset-value">${won.format(v)}</td><td>${weight}${excluded?`<div class="excluded-label">${c('excluded')}</div>`:''}${sourceExcluded?`<div class="excluded-label">${c('sourceExcluded')}</div>`:''}</td><td><label class="exclude-toggle" title="${c('excludeTitle')}"><input class="exclude-checkbox" data-excluded="${a.id}" type="checkbox" aria-label="${safeName} ${c('excludeTotal')}" ${excluded?'checked':''}></label></td><td><div class="stable-control"><select class="field stable-currency" data-stable-currency="${a.id}" aria-label="${safeName} ${c('stableCurrency')}"><option value="KRW" ${stableUnit==='KRW'?'selected':''}>KRW</option><option value="USD" ${stableUnit==='USD'?'selected':''}>USD</option></select><input class="field stable-input" data-stable="${a.id}" type="number" min="0" step="any" inputmode="decimal" aria-label="${safeName} ${c('stableAmount')}" value="${stable||''}" placeholder="0"><button class="chip stable-full" data-stable-full="${a.id}" type="button">${c('full')}</button></div></td><td><div class="asset-actions"><button class="asset-edit" data-edit="${a.id}">${c('edit')}</button><button class="asset-delete" data-delete="${a.id}">${c('delete')}</button></div></td></tr>`};
   const groups=groupPlatformAssets(list);
   $('assetRows').innerHTML=groups.length?groups.map((group,index)=>{
     const all=assets.filter(a=>platformName(a)===group.name),detailTotals=platformTotals(all,valueKrw,cryptoTotalSource),b=platformBalances[group.name],manual=b?.enabled===true;
+    const auto=manual&&balanceMode(b)==='auto_cash',autoInfo=auto?autoBalanceInfo(group.name,b):null;
     const manualValue=manual?b.amount*(b.currency==='USD'?fx:1):0;
     const totals=manual?{value:manualValue,included:b.excluded_from_total?0:manualValue}:detailTotals;
     const usdTotals=manual?(b.currency==='USD'?{value:b.amount,included:b.excluded_from_total?0:b.amount}:null):platformUsdTotals(all,a=>prices[a.id]??(Number(a.manual_price)||0),cryptoTotalSource);
     const usdText=value=>` (USD ${new Intl.NumberFormat(lang==='en'?'en-US':'ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2}).format(value)})`;
     const heads=['asset','assetClass','quantity','currentPrice','valuation','weight','excludeTotal'];
-    return `<section class="platform-card" data-platform-index="${index}"><header class="platform-head"><div><h4>${escapeHtml(group.name||c('unassigned'))}</h4><div class="platform-values"><span>${manual?(lang==='en'?'Manual balance':'수동 잔액'):c('platformValue')} <strong>${won.format(totals.value)}${usdTotals?usdText(usdTotals.value):''}</strong></span>${totals.included!==totals.value?`<span>${c('platformIncluded')} <strong>${won.format(totals.included)}${usdTotals?usdText(usdTotals.included):''}</strong></span>`:''}</div>${manual?`<p class="platform-help">${classLabel(b.asset_class)} · ${lang==='en'?'Detail sum (reference)':'하위 자산 합계 (참고용)'} ${won.format(detailTotals.value)}<br>${lang==='en'?'Manual balance replaces detail values, Stable amounts and exclusions. Matching coin-wallet details are not added again.':'아래 내역의 평가액·Stable·총액 제외 대신 수동 설정을 반영해. 같은 이름의 코인 포트폴리오도 중복 합산하지 않아.'}</p>`:''}<label class="platform-balance-toggle"><input type="checkbox" data-balance-toggle="${index}" ${manual?'checked':''}> ${lang==='en'?'Use manual balance':'수동 잔액 사용'}</label></div><div class="section-actions platform-actions"><button class="chip" data-balance-edit="${index}">${lang==='en'?'Edit balance':'잔액 수정'}</button><button class="chip" data-platform-rename="${index}">${c('renamePlatform')}</button><button class="chip platform-danger" data-platform-delete="${index}">${c('deletePlatform')}</button><button class="chip" data-platform-add="${index}">${c('addAsset')}</button></div></header><div class="table-wrap"><table><thead><tr>${heads.map(key=>`<th>${c(key)}</th>`).join('')}<th>Stable (Cash)</th><th></th></tr></thead><tbody>${group.assets.map(row).join('')}</tbody></table></div></section>`;
+    return `<section class="platform-card" data-platform-index="${index}"><header class="platform-head"><div><h4>${escapeHtml(group.name||c('unassigned'))}</h4><div class="platform-values"><span>${auto?'총잔액 (자동 Cash)':manual?(lang==='en'?'Manual balance':'수동 잔액'):c('platformValue')} <strong>${won.format(totals.value)}${usdTotals?usdText(usdTotals.value):''}</strong></span>${totals.included!==totals.value?`<span>${c('platformIncluded')} <strong>${won.format(totals.included)}${usdTotals?usdText(usdTotals.included):''}</strong></span>`:''}</div>${auto?`<p class="platform-help">${autoInfo.error?escapeHtml(autoInfo.error):`투자자산 ${won.format(autoInfo.invested)} · 자동 Cash(Stable) ${won.format(autoInfo.cash)}${b.currency==='USD'?usdText(autoInfo.cash/fx):''}`}<br>총잔액 − 세부 투자자산 = 자동 Cash. 기존 현금·Stable은 차감하지 않아. 개별 총액 제외 대신 플랫폼 설정을 적용해.</p>`:manual?`<p class="platform-help">${classLabel(b.asset_class)} · ${lang==='en'?'Detail sum (reference)':'하위 자산 합계 (참고용)'} ${won.format(detailTotals.value)}<br>${lang==='en'?'Manual balance replaces detail values, Stable amounts and exclusions. Matching coin-wallet details are not added again.':'아래 내역의 평가액·Stable·총액 제외 대신 수동 설정을 반영해. 같은 이름의 코인 포트폴리오도 중복 합산하지 않아.'}</p>`:''}<label class="platform-balance-toggle"><input type="checkbox" data-balance-toggle="${index}" ${manual?'checked':''}> ${auto?'총잔액 + 자동 Cash 사용':(lang==='en'?'Use manual balance':'수동 잔액 사용')}</label></div><div class="section-actions platform-actions"><button class="chip" data-balance-edit="${index}">${lang==='en'?'Edit balance':'잔액 수정'}</button><button class="chip" data-platform-rename="${index}">${c('renamePlatform')}</button><button class="chip platform-danger" data-platform-delete="${index}">${c('deletePlatform')}</button><button class="chip" data-platform-add="${index}">${c('addAsset')}</button></div></header><div class="table-wrap"><table><thead><tr>${heads.map(key=>`<th>${c(key)}</th>`).join('')}<th>Stable (Cash)</th><th></th></tr></thead><tbody>${group.assets.map(row).join('')}${auto?`<tr class="asset-row-cash auto-cash-row"><td><strong>자동 Cash (Stable)</strong><div class="asset-sub">총잔액에서 자동 계산</div></td><td><span class="pill">Cash</span></td><td>—</td><td>—</td><td class="asset-value">${autoInfo.error?'계산 보류':won.format(autoInfo.cash)+(b.currency==='USD'?usdText(autoInfo.cash/fx):'')}</td><td colspan="4">${autoInfo.error?escapeHtml(autoInfo.error):'기존 현금·Stable 내역과 중복 합산하지 않아.'}</td></tr>`:''}</tbody></table></div></section>`;
   }).join(''):`<p class="empty-assets">${c('emptyAssets')}</p>`;
   document.querySelectorAll('[data-balance-edit]').forEach(b=>b.onclick=()=>openPlatformBalance(groups[Number(b.dataset.balanceEdit)].name));
   document.querySelectorAll('[data-balance-toggle]').forEach(b=>b.onchange=()=>togglePlatformBalance(groups[Number(b.dataset.balanceToggle)].name,b));
@@ -220,6 +226,7 @@ function openPlatformBalance(name,enable){
  balanceEditing={name,userId:session.user.id};
  $('platformBalanceTitle').textContent=`${name||c('unassigned')} · ${lang==='en'?'Edit balance':'잔액 수정'}`;
  $('balanceEnabled').checked=enable??b?.enabled??false;
+ $('balanceMode').value=balanceMode(b);updateBalanceMode();
  $('balanceAmount').value=b?.amount??'';
  $('balanceCurrency').value=b?.currency??(platformUsdTotals(all,a=>prices[a.id]??0)?'USD':'KRW');
  $('balanceClass').innerHTML=`<option value="">${lang==='en'?'Select class':'대표 자산군 선택'}</option>`+['stock','crypto','commodity','cash'].map(k=>`<option value="${k}">${classLabel(k)}</option>`).join('');
@@ -227,7 +234,12 @@ function openPlatformBalance(name,enable){
  $('balanceExcluded').checked=b?.excluded_from_total??all.every(a=>a.excluded_from_total);
  status('platformBalanceStatus','');modal('platformBalanceModal',true);
 }
+function updateBalanceMode(){
+ const auto=$('balanceMode').value==='auto_cash';$('balanceClass').closest('label').hidden=auto;
+ $('balanceModeHelp').textContent=auto?'입력 총잔액에서 세부 투자자산의 평가액을 빼고 나머지를 Cash(Stable)로 배분해. 기존 현금·Stable은 중복 차감하지 않아. 개별 총액 제외는 적용하지 않고 플랫폼 제외 설정을 사용해. 총잔액 초과·시세 실패 시 계산과 기록을 보류해.':'입력액 전체를 대표 자산군으로 반영해. 하위 자산의 분류·Stable·총액 제외 대신 이 설정을 사용해.';
+}
 async function persistPlatformBalance(name,b,userId){
+ if(b.enabled&&balanceMode(b)==='auto_cash')autoCashBreakdown(balanceInputs(),name,b);
  const {error}=await db.rpc('set_platform_balance',{p_name:name,p_balance:b});if(error)throw error;
  if(session?.user.id!==userId)throw Error('로그인 계정이 변경되었습니다.');
  platformBalances={...platformBalances,[name]:b};render();await saveSnapshot();await loadSnapshots();
@@ -235,7 +247,7 @@ async function persistPlatformBalance(name,b,userId){
 async function savePlatformBalance(){
  if(balanceSaving||!balanceEditing||session?.user.id!==balanceEditing.userId)return;
  const {name,userId}=balanceEditing;
- const raw=$('balanceAmount').value.trim(),b={enabled:$('balanceEnabled').checked,amount:Number(raw),currency:$('balanceCurrency').value,asset_class:$('balanceClass').value,excluded_from_total:$('balanceExcluded').checked};
+ const raw=$('balanceAmount').value.trim(),b={enabled:$('balanceEnabled').checked,amount:Number(raw),currency:$('balanceCurrency').value,mode:$('balanceMode').value,asset_class:$('balanceMode').value==='auto_cash'?'cash':$('balanceClass').value,excluded_from_total:$('balanceExcluded').checked};
  if(!raw||!validBalance(b))return status('platformBalanceStatus',lang==='en'?'Enter a non-negative balance and select a class.':'0 이상의 잔액과 대표 자산군을 입력해.',true);
  balanceSaving=true;const controls=[...$('platformBalanceModal').querySelectorAll('button,input,select')];controls.forEach(e=>e.disabled=true);
  try{await persistPlatformBalance(name,b,userId);modal('platformBalanceModal',false);balanceEditing=null;}
@@ -293,7 +305,7 @@ async function saveStableAmount(input){
   const previous=Number(asset.stable_amount_krw)||0;input.disabled=true;input.classList.remove('save-error','saved');input.classList.add('saving');
   const {error}=await db.from('portfolio_assets').update({stable_amount_krw:amount}).eq('id',asset.id);input.disabled=false;input.classList.remove('saving');
   if(error){input.value=previous||'';input.classList.add('save-error');input.title=error.message;return}
-  asset.stable_amount_krw=amount;input.classList.add('saved');input.title=c('saved');renderSummary();await saveSnapshot();setTimeout(()=>input.classList.remove('saved'),900);
+  asset.stable_amount_krw=amount;input.classList.add('saved');input.title=c('saved');render();await saveSnapshot();setTimeout(()=>input.classList.remove('saved'),900);
 }
 async function saveStableCurrency(select){
   const asset=assets.find(item=>String(item.id)===select.dataset.stableCurrency);if(!asset)return;
