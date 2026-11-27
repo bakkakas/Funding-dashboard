@@ -12,11 +12,11 @@ export function activeBalances(assets, balances = {}) {
   });
 }
 const stableQuotes = new Set(['FIXED:USD','CG:tether','CG:usd-coin','CG:ethena-usde','CG:dai']);
-const isCash = a => allocationClass(a)==='cash' || stableQuotes.has(a.quote_symbol);
+export const isCash = a => allocationClass(a)==='cash' || stableQuotes.has(a.quote_symbol);
 export function platformDetailInputs({assets=[],cryptoEntries=[],cryptoTotalSource='assets'},name) {
   return {
-    assets:assets.filter(a=>balanceName(a)===name && !isCash(a) && !(cryptoTotalSource==='details'&&a.asset_class==='crypto')),
-    cryptoEntries:cryptoTotalSource==='details'?cryptoEntries.filter(e=>String(e.location||'').trim()===name && !isCash(e)):[],
+    assets:assets.filter(a=>balanceName(a)===name && !(cryptoTotalSource==='details'&&a.asset_class==='crypto')),
+    cryptoEntries:cryptoTotalSource==='details'?cryptoEntries.filter(e=>String(e.location||'').trim()===name):[],
   };
 }
 // Only quotes that can affect the resulting valuation are required.
@@ -35,8 +35,7 @@ export function autoCashBreakdown({assets=[],cryptoEntries=[],cryptoTotalSource=
   for(const [items,valueOf,isCrypto] of [[detail.assets,assetValue,false],[detail.cryptoEntries,cryptoValue,true]])for(const a of items){
     const raw=Number(valueOf(a));
     if(!Number.isFinite(raw)||raw<0)throw Error(`${name||'미지정'}: 세부 시세 조회 실패 — 자동 Cash 계산 보류`);
-    const stable=isCrypto?0:Math.min(raw,Math.max(0,Number(a.stable_amount_krw)||0)*(a.stable_currency==='USD'?fx:1));
-    parts.push({id:a.id,asset_class:isCrypto?'crypto':allocationClass(a),value:raw-stable});
+    parts.push({id:a.id,asset_class:isCash(a)?'cash':isCrypto?'crypto':allocationClass(a),value:raw});
   }
   const invested=parts.reduce((sum,p)=>sum+p.value,0),remaining=total-invested;
   if(remaining < -Math.max(0.01,total*1e-12))throw Error(`${name||'미지정'}: 세부 자산이 총잔액을 ${Math.ceil(-remaining).toLocaleString('ko-KR')}원 초과해. 총잔액 또는 세부 내역을 수정해.`);
@@ -50,7 +49,7 @@ export function effectivePortfolio({assets=[],cryptoEntries=[],platformBalances=
     if(balanceMode(b)==='manual')replacements.push(make('manual',b.asset_class,b.amount,b.currency));
     else{
       const result=autoCashBreakdown({assets,cryptoEntries,cryptoTotalSource,assetValue,cryptoValue,fx},name,b);
-      result.parts.forEach((p,i)=>replacements.push(make(`detail:${i}`,p.asset_class,p.value)));
+      result.parts.forEach((p,i)=>replacements.push(make(`detail:${i}`,p.asset_class,p.value,'KRW',p.asset_class==='cash'?p.value:0)));
       replacements.push(make('cash','cash',result.cash,'KRW',result.cash));
     }
   }

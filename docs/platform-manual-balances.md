@@ -27,3 +27,6 @@ Each platform has a USD/KRW selector. Selecting a currency opens the balance edi
 
 ## Simplified balance controls
 Balance editor exposes total and currency only. New saves and checkbox transitions use auto_cash; existing saved configurations are not silently migrated. First enable prompts for an amount; subsequent toggles use the saved total. Cash residual is the first detail row, separated by background and bottom border. Existing platform exclusion is preserved, not editable in this simplified editor.
+
+## Explicit cash details and residual (PR88)
+Auto Cash now subtracts all selected detail assets, including cash and recognized stablecoins. These explicit holdings and the remaining residual all allocate to Cash/Stable; the residual row is only the difference. Legacy per-row Stable portions are ignored in auto mode and its column is hidden there, but retained for unchecked/manual legacy calculations. Existing explicit cash duplicates must be corrected by the user; overshoot blocks calculations rather than dropping them. USD display truncates to integers without changing underlying values; numeric editors group thousands and parse comma-free values. Platform sort uses full displayed totals, while per-platform headers sort valuation, FX-normalized current price, or quantity (cash/non-price rows last), with the residual pinned first.
